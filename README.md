@@ -1,2 +1,2 @@
 # Wax
-Main repo
+Main repo, more to come soon.
