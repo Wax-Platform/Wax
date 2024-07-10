@@ -1,0 +1,16 @@
+type Document {
+  id: ID
+  name: String!
+  extension: String!
+  sectionsKeys: [String!]
+}
+
+extend type Query {
+  getDocuments: [Document!]!
+  getFilesFromDocument(id: ID!, start: Int, length: Int): [String!]
+}
+
+extend type Mutation {
+  createDocument(file: Upload!, maxLng: Int): Document
+  deleteFolder(id: ID!): Boolean
+}

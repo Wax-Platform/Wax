@@ -1,0 +1,65 @@
+input OpenAiMessage {
+  role: String!
+  content: String!
+}
+
+input UserMessage {
+  text: [String]
+  image_url: [String]
+}
+
+input EmbeddingOptions {
+  limit: Int
+  metric: String
+  threshold: Float
+}
+
+type DallEImage {
+  s3url: String
+  imageKey: String
+}
+
+type ImageData {
+  url: String
+  key: String
+  size: String
+  modified: String
+}
+
+input SystemResponse {
+  type: String
+  shape: String
+}
+
+input SystemMessage {
+  text: String
+  role: String
+  task: String
+  context: String
+  response: SystemResponse
+  notes: [String]
+}
+
+extend type Query {
+  aiService(
+    input: UserMessage!
+    history: [OpenAiMessage]
+    format: String
+    system: SystemMessage
+    model: [String]
+  ): String!
+
+  ragSearch(
+    input: UserMessage!
+    history: [OpenAiMessage]
+    embeddingOptions: EmbeddingOptions
+    system: SystemMessage
+    resultsOnly: Boolean
+  ): String!
+
+  generateImages(input: String!, format: String): DallEImage!
+
+  getImageUrl(imagekey: String!): String!
+
+  getGeneratedImages(size: String): [ImageData]
+}

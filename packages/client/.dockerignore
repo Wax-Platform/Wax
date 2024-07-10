@@ -1,0 +1,52 @@
+# docker
+Dockerfile*
+docker-compose*
+
+# git
+.git
+.gitignore
+
+# npm & yarn
+**/node_modules/
+npm-debug.log
+package-lock.json
+yarn-error.log
+
+# misc
+.devcontainer
+.DS_Store
+.vscode
+app.pid
+
+# environment files
+.env
+.env-ci
+.env.example
+.envrc
+*.env
+
+# app
+_build/
+config/local*
+cypress/
+data/
+coverage/
+logs/
+tmp/
+uploads/*
+!uploads/sample-image.jpg
+CONTRIBUTING.md
+
+# storybook
+# .storybook
+# stories/
+
+# development config files
+.eslintrc.js
+.commitlintrc.js
+.cz-config.js
+.gitlab-ci.yml
+.linstagedrc.js
+.prettierrc.js
+.stylelintrc.js
+cypress.json

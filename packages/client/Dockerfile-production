@@ -1,0 +1,48 @@
+# IMAGE FOR BUILDING
+FROM cokoapps/base:18-latest
+
+WORKDIR /home/node/app
+
+COPY package.json .
+COPY yarn.lock .
+
+RUN yarn install --frozen-lockfile --production
+
+COPY . .
+
+ARG server_url
+ARG client_websocket_url
+ARG client_load_extra_theme
+ARG client_show_email_login_option
+
+ENV NODE_ENV='production'
+ENV CLIENT_PAGE_TITLE='Coko docs'
+ENV CLIENT_FAVICON_PATH='../static/favicon.ico'
+ENV CLIENT_LANGUAGE='en-US'
+
+ENV SERVER_URL=$server_url
+ENV CLIENT_WEBSOCKET_URL=$client_websocket_url
+ENV CLIENT_LOAD_EXTRA_THEME=$client_load_extra_theme
+ENV CLIENT_SHOW_EMAIL_LOGIN_OPTION=$client_show_email_login_option
+
+RUN yarn coko-client-build
+
+######################################################################
+######################################################################
+
+# IMAGE FOR RUNNING
+
+FROM cokoapps/base:18-latest
+
+WORKDIR /home/node/app
+
+RUN yarn global add serve
+
+COPY --from=0 /home/node/app/_build ./_build
+COPY --from=0 /home/node/app/node_modules/@coko/client/scripts/env.sh ./env.sh
+
+RUN chown -R node:node .
+USER node
+
+ENTRYPOINT ["sh", "./env.sh"]
+CMD ["npx", "serve", "-p", "8080", "--single", "./_build"]

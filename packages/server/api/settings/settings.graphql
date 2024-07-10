@@ -1,0 +1,105 @@
+type Settings {
+  gui: GUISettings
+  editor: EditorSettings
+  snippetsManager: SnippetsManagerSettings
+  chat: ChatSettings
+  preview: PreviewSettings
+}
+
+type GUISettings {
+  showChatBubble: Boolean
+  advancedTools: Boolean
+}
+
+type EditorSettings {
+  contentEditable: Boolean
+  enablePaste: Boolean
+  selectionColor: SelectionColor
+  displayStyles: Boolean
+  enableSelection: Boolean
+}
+
+type PreviewSettings {
+  livePreview: Boolean
+}
+
+type SelectionColor {
+  bg: String
+  border: String
+}
+
+type SnippetsManagerSettings {
+  enableSnippets: Boolean
+  showCssByDefault: Boolean
+  createNewSnippetVersions: Boolean
+  markNewSnippet: Boolean
+  snippets: [Snippet]
+}
+
+type Snippet {
+  className: String
+  elementType: String
+  description: String
+  classBody: String
+}
+
+type ChatSettings {
+  historyMax: Int
+}
+
+extend type Mutation {
+  updateSettings(settings: SettingsInput): Settings
+}
+
+input SettingsInput {
+  gui: GUISettingsInput
+  editor: EditorSettingsInput
+  snippetsManager: SnippetsManagerSettingsInput
+  chat: ChatSettingsInput
+  preview: PreviewSettingsInput
+}
+
+input GUISettingsInput {
+  showChatBubble: Boolean
+  advancedTools: Boolean
+}
+
+input EditorSettingsInput {
+  contentEditable: Boolean
+  enablePaste: Boolean
+  selectionColor: SelectionColorInput
+  displayStyles: Boolean
+  enableSelection: Boolean
+}
+
+input PreviewSettingsInput {
+  livePreview: Boolean
+}
+
+input SelectionColorInput {
+  bg: String
+  border: String
+}
+
+input SnippetsManagerSettingsInput {
+  enableSnippets: Boolean
+  showCssByDefault: Boolean
+  createNewSnippetVersions: Boolean
+  markNewSnippet: Boolean
+  snippets: [SnippetInput]
+}
+
+input SnippetInput {
+  className: String
+  elementType: String
+  description: String
+  classBody: String
+}
+
+input ChatSettingsInput {
+  historyMax: Int
+}
+
+extend type Query {
+  getSettings: Settings
+}

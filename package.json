@@ -1,0 +1,35 @@
+{
+  "name": "wax",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Wax",
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.coko.foundation:cokoapps/wax.git"
+  },
+  "license": "MIT",
+  "author": "Kuldeep Upreti",
+  "scripts": {
+    "cz": "git-cz",
+    "prepare": "husky install",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "sh clean.sh"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-customizable"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS && lint-staged"
+    }
+  },
+  "resolutions": {
+    "postcss": "8"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@coko/lint": "^2.1.0"
+  }
+}

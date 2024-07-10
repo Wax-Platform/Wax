@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="31px" height="31px" viewBox="0 0 31 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>baseline-apps-24px</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Mobile-/-Header" transform="translate(-320.000000, -35.000000)" fill="#fff" fill-rule="nonzero">
+            <g id="baseline-apps-24px" transform="translate(320.000000, 35.000000)">
+                <g id="Icons-/-Menu-2">
+                    <path d="M0,7.75 L7.75,7.75 L7.75,0 L0,0 L0,7.75 Z M11.625,31 L19.375,31 L19.375,23.25 L11.625,23.25 L11.625,31 Z M0,31 L7.75,31 L7.75,23.25 L0,23.25 L0,31 Z M0,19.375 L7.75,19.375 L7.75,11.625 L0,11.625 L0,19.375 Z M11.625,19.375 L19.375,19.375 L19.375,11.625 L11.625,11.625 L11.625,19.375 Z M23.25,0 L23.25,7.75 L31,7.75 L31,0 L23.25,0 Z M11.625,7.75 L19.375,7.75 L19.375,0 L11.625,0 L11.625,7.75 Z M23.25,19.375 L31,19.375 L31,11.625 L23.25,11.625 L23.25,19.375 Z M23.25,31 L31,31 L31,23.25 L23.25,23.25 L23.25,31 Z" id="Shape"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

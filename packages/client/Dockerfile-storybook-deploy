@@ -1,0 +1,27 @@
+################
+# IMAGE TO BUILD
+
+FROM node:12-alpine as build
+
+WORKDIR /home/node/app
+
+COPY package.json .
+COPY yarn.lock .
+
+RUN yarn install  --frozen-lockfile
+
+COPY ./.storybook ./.storybook
+COPY ./app ./app
+COPY ./stories ./stories
+
+RUN yarn build-storybook \
+  --quiet \
+  --output-dir _build-storybook \
+  --config-dir node_modules/@coko/storybook/src/config
+
+##############
+# IMAGE TO RUN
+
+FROM nginx:alpine as run
+
+COPY --from=build /home/node/app/_build-storybook /usr/share/nginx/html

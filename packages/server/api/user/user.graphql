@@ -1,0 +1,22 @@
+extend type User {
+  color: String
+  documents: [Doc]
+}
+
+input UserProfileInput {
+  displayName: String!
+  email: String!
+  color: String
+}
+
+extend type LoginResult {
+  color: String
+}
+
+extend input UsersQueryParams {
+  search: String
+}
+
+extend type Mutation {
+  updateUserProfile(input: UserProfileInput!): User!
+}

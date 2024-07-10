@@ -1,0 +1,9 @@
+type Doc {
+  id: ID!
+  identifier: String!
+  owner: User
+}
+
+extend type Query {
+  getDocument(identifier: ID!): Doc
+}

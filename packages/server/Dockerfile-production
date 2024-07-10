@@ -1,0 +1,12 @@
+FROM cokoapps/base:18-latest
+
+WORKDIR /home/node/wax
+
+COPY package.json .
+COPY yarn.lock .
+
+RUN chown -R node:node .
+USER node
+
+RUN yarn install --frozen-lockfile --production
+COPY --chown=node:node . .

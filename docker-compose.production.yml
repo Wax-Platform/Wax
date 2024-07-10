@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  client:
+    build:
+      context: ./packages/client
+      dockerfile: ./Dockerfile-production
+      args:
+        - server_url=${SERVER_URL}
+        - client_websocket_url=${CLIENT_WEBSOCKET_URL}
+        - client_load_extra_theme=${CLIENT_LOAD_EXTRA_THEME}
+        - client_show_email_login_option=${CLIENT_SHOW_EMAIL_LOGIN_OPTION}
+    ports:
+      - ${CLIENT_PORT}:8080
+
+  server:
+    build:
+      context: ./packages/server
+      dockerfile: ./Dockerfile-production
+    entrypoint: ['sh', 'scripts/setupDevServer.sh']
+    command: ['node', 'startServer.js']
+    ports:
+      - ${SERVER_PORT}:3000
+      - ${WS_SERVER_PORT}:${WS_SERVER_PORT}
+    environment:
+      - NODE_ENV=production
+      - PUBSWEET_SECRET=${PUBSWEET_SECRET}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - WS_SERVER_PORT=${WS_SERVER_PORT}
+      - CLIENT_URL=${CLIENT_URL}
+      - CHATGPT_URL=${CHATGPT_URL}
+      - CHATGPT_KEY=${CHATGPT_KEY}
+      - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
+      - MAILER_HOSTNAME=${MAILER_HOSTNAME}
+      - MAILER_PORT=${MAILER_PORT}
+      - MAILER_USER=${MAILER_USER}
+      - MAILER_PASSWORD=${MAILER_PASSWORD}
+      - PASSWORD_RESET_PATH=${PASSWORD_RESET_PATH:-password-reset}
