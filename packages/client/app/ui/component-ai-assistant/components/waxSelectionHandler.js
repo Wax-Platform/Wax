@@ -1,5 +1,8 @@
-const waxSelectionHandler =
-  (
+import { useContext } from 'react'
+import { AiDesignerContext } from '../hooks/AiDesignerContext'
+
+const useWaxSelectionHandler = () => {
+  const {
     getCtxBy,
     addToCtx,
     newCtx,
@@ -8,8 +11,9 @@ const waxSelectionHandler =
     setMarkedSnippet,
     tools,
     updateTools,
-  ) =>
-  aidCtx => {
+  } = useContext(AiDesignerContext)
+
+  const selectNode = aidCtx => {
     const target = document.querySelector(`[data-aidctx="${aidCtx}"]`)
     if (target) {
       !getCtxBy('node', target) &&
@@ -22,12 +26,16 @@ const waxSelectionHandler =
         getCtxBy('dataRef', target.dataset.aidctx) ||
         addToCtx(newCtx(target, null, {}, false))
 
-      tools.dropper.active && updateTools('dropper', { data: target.className })
+      tools.dropper.active && updateTools('brush', { data: target.className })
 
       setSelectedNode(target)
       setSelectedCtx(ctx)
       setMarkedSnippet('')
+      console.log(ctx.node)
     } else console.warn('Element is not selectable!')
   }
 
-export default waxSelectionHandler
+  return selectNode
+}
+
+export default useWaxSelectionHandler

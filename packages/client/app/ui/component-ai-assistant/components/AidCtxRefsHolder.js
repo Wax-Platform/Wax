@@ -11,7 +11,7 @@ import { safeCall, safeId } from '../utils'
 
 // having this we would only need the dataref aidctx to get the nodes in any dom
 
-export default class AidCtxRefsHolder {
+class AIDesignerContextClass {
   constructor() {
     this.context = []
     this.mainContext = {}
@@ -19,7 +19,7 @@ export default class AidCtxRefsHolder {
     this.selected = {}
   }
 
-  static createRef() {
+  createRef() {
     const currentCtx =
       this?.context?.length > 0
         ? this.context.map(ctx => ctx.dataRef)
@@ -28,7 +28,7 @@ export default class AidCtxRefsHolder {
     return safeId('aid-ctx', currentCtx)
   }
 
-  static createMain(node) {
+  createMain(node) {
     if (this.mainContext.node)
       return console.warn(
         'Cannot create main context, already exists',
@@ -49,11 +49,11 @@ export default class AidCtxRefsHolder {
     return ctx
   }
 
-  static setHandlers(handlers) {
+  setHandlers(handlers) {
     this.handlers = handlers
   }
 
-  static addContext(ref, customCallback) {
+  addContext(ref, customCallback) {
     const dataRef = ref && !this.context.includes(ref) ? ref : this.createRef()
 
     const ctx = {
@@ -63,37 +63,40 @@ export default class AidCtxRefsHolder {
     }
 
     // we can append the data-aidctx on one this cb:
-    // will run on all nodes in wax schema and needs to be created with setHandlers()
+    // will run on all nodes and needs to be created with setHandlers()
     safeCall(this.handlers?.onAdd)(ctx)
     safeCall(customCallback)(ctx)
 
     console.log(ctx)
 
-    this.context = [...(this?.context || []), ctx]
+    this.context = [...this.context, ctx]
     return ctx
   }
 
-  static getNode(dataRef, dom = document) {
+  getNode(dataRef, dom = document) {
     return dom.querySelector(`[data-aidctx="${dataRef}"`)
   }
 
   // we can pass eithr a node or the dataRef
-  static getCtx(ref) {
+  getCtx(ref) {
     const existingRef = ctx =>
       ref instanceof HTMLElement ? ctx.node() === ref : ctx.dataRef === ref
 
     return this.context.find(existingRef)
   }
 
-  static select(dataRef) {
+  select(dataRef) {
     if (!this.getCtx(dataRef)) return console.warn(`Cannot select ${dataRef}`)
     safeCall(this.handlers?.onSelect)(this.getCtx(dataRef))
     this.selected = this.getCtx(dataRef)
     return console.warn(this.selected)
   }
 
-  static updateCtx(ctx) {
+  updateCtx(ctx) {
     const context = ctx
     this.context = context
   }
 }
+
+const AidCtxRefsHolder = new AIDesignerContextClass()
+export default AidCtxRefsHolder

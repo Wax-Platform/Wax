@@ -62,14 +62,7 @@ async function ExternalAPIContentTransformation(prompt) {
   return prompt
 }
 
-const config = (
-  yjsProvider,
-  ydoc,
-  docIdentifier,
-  aidSelectionHandler,
-  safeAidctx,
-  aidTools,
-) => ({
+const config = (yjsProvider, ydoc, docIdentifier, setAidCtx) => ({
   MenuService: [
     {
       templateArea: 'mainMenuToolBar',
@@ -149,10 +142,7 @@ const config = (
     },
   },
 
-  PmPlugins: [
-    columnResizing(),
-    addAidctxPlugin(safeAidctx, aidSelectionHandler, aidTools),
-  ],
+  PmPlugins: [columnResizing(), addAidctxPlugin(setAidCtx)],
   services: [
     new ExternalAPIContentService(),
     new YjsService(),

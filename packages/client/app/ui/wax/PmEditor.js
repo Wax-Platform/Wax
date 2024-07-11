@@ -11,12 +11,10 @@ import YjsContext from '../../yjsProvider'
 import { Result, Spin } from '../common'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
-import waxSelectionHandler from '../component-ai-assistant/components/waxSelectionHandler'
-import {
-  parseContent,
-  safeId,
-  snippetsToCssText,
-} from '../component-ai-assistant/utils'
+import useWaxSelectionHandler from '../component-ai-assistant/components/waxSelectionHandler'
+import { snippetsToCssText } from '../component-ai-assistant/utils'
+import WaxDesignerUtils from '../component-ai-assistant/utils/waxUtils'
+import { debounce } from 'lodash'
 
 const SpinnerWrapper = styled.div`
   display: ${props => (props.showSpinner ? 'block' : 'none')};
@@ -66,11 +64,14 @@ const PmEditor = ({
     selectedCtx,
     tools,
     updateTools,
+    updatePreview,
     context,
+    waxContext,
   } = useContext(AiDesignerContext)
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
+  const selectionHandler = useWaxSelectionHandler()
 
   const editorRef = useRef(null)
   useDomObserver({
@@ -94,6 +95,8 @@ const PmEditor = ({
 
   const [showSpinner, setShowSpinner] = useState(false)
   const [WaxConfig, setWaxConfig] = useState(null)
+  const [aidCtx, setAidCtx] = useState('')
+
   const { refElement } = usePrintArea({})
 
   useEffect(() => {
@@ -109,33 +112,15 @@ const PmEditor = ({
   }, [docIdentifier])
 
   useEffect(() => {
-    if (yjsProvider) {
-      const safeAidCtx = safeId(
-        'aid-ctx',
-        context.current.map(ctx => ctx.dataRef),
-      )
-      const selectionHandler = waxSelectionHandler(
-        getCtxBy,
-        addToCtx,
-        newCtx,
-        setSelectedCtx,
-        setSelectedNode,
-        setMarkedSnippet,
-        tools,
-        updateTools,
-      )
+    aidCtx && selectionHandler(aidCtx)
+  }, [aidCtx])
 
-      const configObj = config(
-        yjsProvider,
-        ydoc,
-        docIdentifier,
-        selectionHandler,
-        safeAidCtx,
-        tools,
-      )
+  useEffect(() => {
+    if (yjsProvider) {
+      const configObj = config(yjsProvider, ydoc, docIdentifier, setAidCtx)
       setWaxConfig(configObj)
     }
-  }, [yjsProvider?.doc?.guid, selectedCtx.dataRef])
+  }, [yjsProvider?.doc?.guid])
 
   let identifier = docIdentifier
 
@@ -166,10 +151,11 @@ const PmEditor = ({
         fileUpload={file => renderImage(file)}
         layout={layout}
         onChange={value => {
-          setEditorContent(value)
+          waxContext?.state &&
+            debounce(WaxDesignerUtils.addAidCtx, 1000)(waxContext)
         }}
         // readonly={!contentEditable}
-        value={editorContent}
+        // value={editorContent}
         placeholder="Type Something ..."
         ref={refElement}
         scrollThreshold={50}

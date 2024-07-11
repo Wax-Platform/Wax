@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
 import { takeRight } from 'lodash'
 import { AiDesignerContext } from './AiDesignerContext'
@@ -29,6 +29,7 @@ import {
   GET_DOCUMENTS,
   GET_FILES_FROM_DOCUMENT,
 } from '../queries/documentAndSections'
+import WaxDesignerUtils from '../utils/waxUtils'
 
 const voidElements = [
   'area',
@@ -73,12 +74,15 @@ const useAssistant = () => {
     css,
     useRag,
     model,
+    selectedNode,
   } = useContext(AiDesignerContext)
 
   // #region GQL Hooks ----------------------------------------------------------------
 
   const client = useApolloClient()
-
+  useEffect(() => {
+    console.log('from useai', selectedCtx.dataRef)
+  }, [selectedCtx])
   // const currentUser = useCurrentUser()
 
   const [getSettings] = useLazyQuery(GET_SETTINGS)
@@ -100,7 +104,7 @@ const useAssistant = () => {
       // eslint-disable-next-line camelcase
       const { message, finish_reason } = JSON.parse(aiService)
       const response = safeParse(message.content, 'default')
-      const isSingleNode = getCtxNode() !== htmlSrc
+      const isSingleNode = selectedNode !== htmlSrc
 
       if (isSingleNode || response?.css) {
         onHistory.addRegistry('undo')
@@ -112,17 +116,10 @@ const useAssistant = () => {
           setCss(val)
         },
         snippet: val => {
-          setEditorContent(
-            parseContent(editorContent, doc => {
-              addSnippet(
-                doc.querySelector(`[data-aidctx="${selectedCtx.dataRef}"]`),
-                val,
-              )
-              addAllNodesToCtx(doc)
-            }),
-          )
-          waxRefresh()
-          // addSnippet(getCtxNode(), val)
+          addSnippet(null, val)
+          WaxDesignerUtils.addClass(selectedCtx.dataRef, [
+            `aid-snip-${val.className}`,
+          ])
         },
         feedback: val => {
           setFeedback(val)
@@ -249,7 +246,7 @@ const useAssistant = () => {
       ctx: selectedCtx ?? getCtxBy('node', htmlSrc),
       sheet: css,
       selectors: getNodes(htmlSrc, '*', 'localName'),
-      providedText: selectedCtx?.node !== htmlSrc && getCtxNode().innerHTML,
+      providedText: selectedCtx?.node !== htmlSrc && selectedCtx.node.innerHTML,
       markedSnippet,
       snippets: settings.snippetsManager.snippets,
       waxClass: '.ProseMirror[contenteditable]',

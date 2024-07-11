@@ -22,6 +22,8 @@ import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import { parseContent } from '../../component-ai-assistant/utils'
+import AidCtxRefsHolder from '../../component-ai-assistant/components/AidCtxRefsHolder'
+import WaxDesignerUtils from '../../component-ai-assistant/utils/waxUtils'
 
 const Wrapper = styled.div`
   background: ${th('colorBackground')};
@@ -156,10 +158,10 @@ const CommentsContainer = styled.div`
   bottom: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: fit-content;
   position: absolute;
   right: 0;
-  width: 33vw;
+  width: fit-content;
 
   div[data-box] {
     width: 30vw;
@@ -240,6 +242,7 @@ const Layout = props => {
     css,
     editorContent,
     settings,
+    setWaxContext,
   } = useContext(AiDesignerContext)
   const { loading, handleScroll } = useAssistant()
 
@@ -283,28 +286,13 @@ const Layout = props => {
   }, [layout.editor])
 
   useEffect(() => {
-    console.log(previewSource)
-  }, [previewSource])
-  const pagedJsPreview = useMemo(() => {
-    return (
-      <PreviewIframe
-        onLoad={updatePreview}
-        ref={previewRef}
-        srcDoc={previewSource}
-        title="Article preview"
-      />
-    )
-  }, [updatePreview, previewRef, previewSource])
-  // useEffect(() => {
-  //   const { Icons, ...restSettings } = settings
-  //   getGeneratedImages()
-  //   // settings &&
-  //   //   updateSettings({
-  //   //     variables: {
-  //   //       settings: { ...restSettings },
-  //   //     },
-  //   //   }).then(() => getSettings())
-  // }, [])
+    if (main?.docView) {
+      setWaxContext(main)
+      main.state && WaxDesignerUtils.addAidCtx()
+      console.log(main)
+      WaxDesignerUtils.setStates(prev => ({ ...prev, view: main }))
+    }
+  }, [main?.docView])
 
   const showMore = () => {
     toggleMenu(!open)
@@ -340,13 +328,24 @@ const Layout = props => {
         menuHeight={menuHeight}
         style={fullScreenStyles}
         onClick={({ target }) => {
-          //  if (htmlSrc.contains(target)) return
-          //   setEditorContent(parseContent(editorContent, addAllNodesToCtx))
-          //   setSelectedCtx(getCtxBy('node', htmlSrc))
+          // if (
+          //   htmlSrc.contains(target) ||
+          //   target?.dataset?.element === 'element-options'
+          // )
+          //   return
+          // setSelectedCtx(getCtxBy('node', htmlSrc))
+          // setSelectedNode(htmlSrc)
         }}
       >
         <PromptBox></PromptBox>
         <MenuWrapper>
+          <button
+            onClick={() => {
+              WaxDesignerUtils.addAidCtx(main)
+            }}
+          >
+            add-class
+          </button>
           {main && (
             <MenuComponent fullScreen={fullScreen} open={open} ref={ref} />
           )}
@@ -389,7 +388,12 @@ const Layout = props => {
             <WindowHeading>
               <span>PDF PREVIEW</span>
             </WindowHeading>
-            {pagedJsPreview}
+            <PreviewIframe
+              onLoad={updatePreview}
+              ref={previewRef}
+              srcDoc={previewSource}
+              title="Article preview"
+            />
           </StyledWindow>
           <StyledWindow
             $show={layout.chat}

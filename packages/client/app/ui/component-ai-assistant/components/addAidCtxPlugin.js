@@ -1,7 +1,8 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Plugin } from 'prosemirror-state'
+import AidCtxRefsHolder from './AidCtxRefsHolder'
 
-function addAidctxPlugin(selectedCtx, handleSelection, tools) {
+function addAidctxPlugin(setAidctx, tools) {
   return new Plugin({
     props: {
       handleDOMEvents: {
@@ -12,7 +13,7 @@ function addAidctxPlugin(selectedCtx, handleSelection, tools) {
           const { tr } = state
           const n = e.target.pmViewDesc.node
           const { attrs } = n || {}
-          const aidCtx = attrs?.dataset?.aidctx ?? selectedCtx
+          const aidCtx = attrs?.dataset?.aidctx
 
           const pos = view.posAtCoords({
             left: e.clientX,
@@ -42,24 +43,28 @@ function addAidctxPlugin(selectedCtx, handleSelection, tools) {
             }
 
             if (node && !node.isText) {
-              const aidctx = node.attrs?.dataset?.aidctx ?? selectedCtx
+              const aidctx = node.attrs?.dataset?.aidctx
+              // console.log(AidCtxRefsHolder.context)
+              // aidctx && AidCtxRefsHolder.select(aidCtx)
+              //   const aidctx = node.attrs?.dataset?.aidctx ?? selectedCtx
 
-              const newAttrs = {
-                ...node.attrs,
-                dataset: { ...node.attrs.dataset, aidctx },
-                ...(tools.brush.active && tools.dropper.data
-                  ? { class: tools.dropper.data }
-                  : {}),
-              }
+              //   const newAttrs = {
+              //     ...node.attrs,
+              //     dataset: { ...node.attrs.dataset, aidctx },
+              //     ...(tools.brush.active && tools.dropper.data
+              //       ? { class: tools.dropper.data }
+              //       : {}),
+              //   }
 
-              try {
-                tr.setNodeMarkup(nodePos, null, newAttrs)
-                dispatch(tr)
-              } catch (err) {
-                console.warn(err)
-              }
-
-              handleSelection(aidCtx)
+              //   try {
+              //     tr.setNodeMarkup(nodePos, null, newAttrs)
+              //     dispatch(tr)
+              //   } catch (err) {
+              //     console.warn(err)
+              //   }
+              console.log(aidCtx)
+              setAidctx(aidCtx)
+              // }
             }
           }
 

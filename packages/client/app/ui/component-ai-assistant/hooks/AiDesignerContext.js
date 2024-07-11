@@ -45,6 +45,12 @@ const defaultSettings = {
     markNewSnippet: true,
     snippets: [
       {
+        className: 'red-color',
+        elementType: 'p',
+        description: 'red color',
+        classBody: 'color: red;',
+      },
+      {
         className: 'img-default',
         elementType: 'img',
         description: 'Default styles for images',
@@ -115,12 +121,15 @@ export const AiDesignerProvider = ({ children }) => {
   })
 
   AidCtxRefsHolder.setHandlers({
-    onSelect: ref =>
+    onSelect: ctx => {
       addToCtx({
-        dataRef: ref,
-        node: AidCtxRefsHolder.getNode(ref),
+        dataRef: ctx.dataRef,
+        node: AidCtxRefsHolder.getNode(ctx.dataRef),
         history: [],
-      }),
+      })
+      setSelectedNode(AidCtxRefsHolder.getNode(ctx.dataRef))
+      console.log(AidCtxRefsHolder.getNode(ctx.dataRef))
+    },
   })
 
   const selectionBoxRef = useRef(null)
@@ -304,10 +313,8 @@ export const AiDesignerProvider = ({ children }) => {
     return document.getElementById('css-assistant-scoped-styles')
   }
 
-  const updateSelectionBoxPosition = debounce((yOffset = 10, xOffset = 10) => {
-    const node = document.querySelector(
-      `[data-aidctx="${selectedCtx.dataRef}"]`,
-    )
+  const updateSelectionBoxPosition = (yOffset = 10, xOffset = 10) => {
+    const node = selectedNode
 
     if (selectedCtx.node !== htmlSrc && settings.editor.enableSelection) {
       const { top, left, height, width } = node?.getBoundingClientRect() ?? {}
@@ -332,7 +339,7 @@ export const AiDesignerProvider = ({ children }) => {
         selectedCtx.node === htmlSrc &&
         (selectionBoxRef.current.style.opacity = 0)
     }
-  }, 50)
+  }
 
   const saveSession = () => {
     saveToLs(
@@ -424,7 +431,7 @@ export const AiDesignerProvider = ({ children }) => {
           settings.snippetsManager.snippets.map(s => s.className),
         )
 
-    node.classList.toggle(`aid-snip-${snippetToAdd.className}`)
+    node && node.classList.toggle(`aid-snip-${snippetToAdd.className}`)
 
     const foundIndex = settings.snippetsManager.snippets.findIndex(
       s => s.className === snippetToAdd.className,

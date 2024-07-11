@@ -63,9 +63,7 @@ const generateHeadingsConfig = level => ({
     group: dom.getAttribute('data-group'),
     viewid: dom.getAttribute('data-viewid'),
     dataset: {
-      aidctx:
-        dom.getAttribute('data-aidctx') ||
-        AidCtxRefsHolder?.addContext().dataRef,
+      aidctx: dom.getAttribute('data-aidctx'),
     },
   }),
 })
@@ -169,9 +167,7 @@ const createNodeSchema = () => {
                 group: dom.getAttribute('data-group'),
                 viewid: dom.getAttribute('data-viewid'),
                 dataset: {
-                  aidctx:
-                    dom.getAttribute('data-aidctx') ||
-                    AidCtxRefsHolder.addContext().dataRef,
+                  aidctx: dom.getAttribute('data-aidctx'),
                 },
               }
             },
@@ -213,9 +209,7 @@ const AiStudioSchema = {
               group: dom.getAttribute('data-group'),
               viewid: dom.getAttribute('data-viewid'),
               dataset: {
-                aidctx:
-                  dom.getAttribute('data-aidctx') ||
-                  AidCtxRefsHolder.addContext().dataRef,
+                aidctx: dom.getAttribute('data-aidctx'),
               },
             }
           },

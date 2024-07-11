@@ -14,6 +14,7 @@ import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { capitalize, debounce, uniqueId } from 'lodash'
 import { AiDesignerContext } from './hooks/AiDesignerContext'
 import { htmlTagNames, parseContent } from './utils'
+import WaxDesignerUtils from './utils/waxUtils'
 
 const AbsoluteContainer = styled.span`
   background-color: ${p => p.selectionColor.bg || 'var(--color-blue-alpha-2)'};
@@ -75,6 +76,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
     selectedCtx,
     updateSelectionBoxPosition,
     settings,
+    selectedNode,
     editorContainerRef,
   } = useContext(AiDesignerContext)
 
@@ -104,7 +106,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
         updateSelectionBoxPosition,
       )
     }
-  }, [selectedCtx?.dataRef])
+  }, [selectedNode])
 
   return (
     <AbsoluteContainer
@@ -412,19 +414,10 @@ const AddSnippetButton = () => {
                           e.preventDefault()
                           e.stopPropagation()
                           onHistory.addRegistry('undo')
-
-                          setEditorContent(
-                            parseContent(editorContent, doc => {
-                              addSnippet(
-                                doc.querySelector(
-                                  `[data-aidctx="${selectedCtx.dataRef}"]`,
-                                ),
-                                snip,
-                              )
-                              addAllNodesToCtx(doc)
-                            }),
-                          )
-                          waxRefresh()
+                          // WaxDesignerUtils.states.view.focus()
+                          WaxDesignerUtils.addClass(selectedCtx.dataRef, [
+                            className,
+                          ])
                           debounce(() => {
                             setShowSnippets(true)
                           }, 100)()
