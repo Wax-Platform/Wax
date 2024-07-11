@@ -39,7 +39,7 @@ import { AiDesignerProvider } from './ui/component-ai-assistant/hooks/AiDesigner
 const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100dvh;
 `
 
 const regexPaths = [
@@ -113,7 +113,7 @@ const Layout = props => {
 }
 
 const StyledPage = styled(Page)`
-  height: calc(100% - 76px - 70px);
+  height: calc(100% - 90px);
 
   > div {
     display: flex;
@@ -122,7 +122,7 @@ const StyledPage = styled(Page)`
   }
 
   @media screen and (min-width: 720px) {
-    height: calc(100% - 76px - 60px);
+    height: calc(100% - 82px);
   }
 `
 

@@ -1,3 +1,4 @@
+/* stylelint-disable declaration-no-important */
 /* stylelint-disable string-quotes */
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled, { ThemeProvider } from 'styled-components'
@@ -23,6 +24,7 @@ import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import WaxDesignerUtils from '../../component-ai-assistant/utils/waxUtils'
 
 const Wrapper = styled.div`
+  --pm-editor-width: 90%;
   background: ${th('colorBackground')};
   display: flex;
   flex-direction: column;
@@ -68,11 +70,18 @@ const EditorContainer = styled.div`
 
   .ProseMirror {
     box-shadow: 0 0 8px #ecedf1;
+    height: fit-content;
+    max-width: 1200px;
     min-height: 100%;
-    padding: ${grid(10)};
+    min-width: 650px;
+    padding: 10% !important;
     width: unset;
   }
 
+  > div > :first-child {
+    display: flex;
+    justify-content: center;
+  }
   /* stylelint-disable-next-line order/properties-alphabetical-order */
   ${commonStyles}
 `
@@ -126,7 +135,7 @@ const WindowHeading = styled.div`
 const PreviewIframe = styled.iframe`
   border: none;
   display: flex;
-  height: calc(100vh - 10px);
+  height: calc(100% - 10px);
 
   width: 100%;
 `
@@ -183,7 +192,7 @@ const WaxSurfaceScroll = styled.div`
 const WaxEditorWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: 100%;
+  height: 95%;
 `
 
 const FileManagerWrapper = styled.div`
