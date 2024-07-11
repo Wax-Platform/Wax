@@ -20,8 +20,8 @@ import {
   cssTemplate1,
   snippetsToCssText,
   srcdoc,
+  initialPagedJSCSS,
 } from '../utils'
-import AidCtxRefsHolder from '../components/AidCtxRefsHolder'
 
 const defaultSettings = {
   gui: {
@@ -120,18 +120,6 @@ export const AiDesignerProvider = ({ children }) => {
     source: { redo: [], undo: [], limit: { undo: 20, redo: 20 } },
   })
 
-  AidCtxRefsHolder.setHandlers({
-    onSelect: ctx => {
-      addToCtx({
-        dataRef: ctx.dataRef,
-        node: AidCtxRefsHolder.getNode(ctx.dataRef),
-        history: [],
-      })
-      setSelectedNode(AidCtxRefsHolder.getNode(ctx.dataRef))
-      console.log(AidCtxRefsHolder.getNode(ctx.dataRef))
-    },
-  })
-
   const selectionBoxRef = useRef(null)
   const previewScrollTopRef = useRef(0)
   const promptRef = useRef(null)
@@ -142,7 +130,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [selectedNode, setSelectedNode] = useState(null)
 
   const [htmlSrc, setHtmlSrc] = useState(null)
-  const [css, setCss] = useState(null)
+  const [css, setCss] = useState(initialPagedJSCSS)
   const [previewSource, setPreviewSource] = useState('<h1>Nothing</h1>')
   const [editorContent, setEditorContent] = useState('')
   const [markedSnippet, setMarkedSnippet] = useState('')
@@ -391,7 +379,6 @@ export const AiDesignerProvider = ({ children }) => {
 
   const updatePreview = manualUpdate => {
     const previewDoc = previewRef?.current?.contentDocument?.documentElement
-    console.log(editorContent)
     previewDoc &&
       previewDoc.scrollTop > 0 &&
       (previewScrollTopRef.current = previewDoc.scrollTop)

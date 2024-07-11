@@ -291,7 +291,7 @@ const AddSnippetButton = () => {
 
   useEffect(() => {
     setShowSnippets(false)
-  }, [selectedCtx])
+  }, [selectedCtx.dataRef])
 
   const isAdded = name => getCtxNode()?.classList?.contains(`aid-snip-${name}`)
   const isMarked = name => name === markedSnippet
@@ -415,8 +415,9 @@ const AddSnippetButton = () => {
                           e.stopPropagation()
                           onHistory.addRegistry('undo')
                           // WaxDesignerUtils.states.view.focus()
+                          console.log(selectedCtx.dataRef)
                           WaxDesignerUtils.addClass(selectedCtx.dataRef, [
-                            className,
+                            `aid-snip-${className}`,
                           ])
                           debounce(() => {
                             setShowSnippets(true)

@@ -51,22 +51,15 @@ const PmEditor = ({
   const {
     setHtmlSrc,
     htmlSrc,
-    editorContent,
     setEditorContent,
     setSelectedCtx,
     addToCtx,
     newCtx,
     getCtxBy,
     css,
-    setMarkedSnippet,
     setSelectedNode,
     settings,
-    selectedCtx,
-    tools,
-    updateTools,
     updatePreview,
-    context,
-    waxContext,
   } = useContext(AiDesignerContext)
 
   const { displayStyles } = settings.editor
@@ -151,8 +144,9 @@ const PmEditor = ({
         fileUpload={file => renderImage(file)}
         layout={layout}
         onChange={value => {
-          waxContext?.state &&
-            debounce(WaxDesignerUtils.addAidCtx, 1000)(waxContext)
+          setEditorContent(value)
+          debounce(WaxDesignerUtils.addAidCtx, 1000)()
+          updatePreview()
         }}
         // readonly={!contentEditable}
         // value={editorContent}

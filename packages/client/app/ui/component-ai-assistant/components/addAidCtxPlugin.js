@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Plugin } from 'prosemirror-state'
-import AidCtxRefsHolder from './AidCtxRefsHolder'
+import WaxDesignerUtils from '../utils/waxUtils'
 
 function addAidctxPlugin(setAidctx, tools) {
   return new Plugin({
@@ -44,8 +44,6 @@ function addAidctxPlugin(setAidctx, tools) {
 
             if (node && !node.isText) {
               const aidctx = node.attrs?.dataset?.aidctx
-              // console.log(AidCtxRefsHolder.context)
-              // aidctx && AidCtxRefsHolder.select(aidCtx)
               //   const aidctx = node.attrs?.dataset?.aidctx ?? selectedCtx
 
               //   const newAttrs = {
@@ -63,7 +61,12 @@ function addAidctxPlugin(setAidctx, tools) {
               //     console.warn(err)
               //   }
               console.log(aidCtx)
-              setAidctx(aidCtx)
+              setAidctx(aidCtx) // handle on react effect based on this state (same name)
+              aidCtx &&
+                WaxDesignerUtils.setStates(prev => ({
+                  ...prev,
+                  selectedElement: { ref: aidCtx, pos, node },
+                }))
               // }
             }
           }

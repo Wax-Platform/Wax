@@ -27,7 +27,7 @@ function findNodeWithAttr(doc, ref) {
 }
 export default class WaxDesignerUtils {
   constructor() {
-    const states = {}
+    this.states = {}
   }
 
   static setStates(cb) {
@@ -41,8 +41,6 @@ export default class WaxDesignerUtils {
   }
 
   static addClass(ref, classNames) {
-    // const node = document.querySelector(`[data-aidctx="${ref}"]`)
-    // console.log(node)
     this.states?.view && console.log(this.states)
     if (!this?.states?.view) return
     const { view } = this.states
@@ -52,10 +50,6 @@ export default class WaxDesignerUtils {
       const tr = view.state.tr
       const resolvedPos = view.state.doc.resolve(pos)
       let node = resolvedPos.node()
-      if (node && node.isText) {
-        nodePos = view.state.doc.resolve(pos).before()
-        node = view.state.doc.nodeAt(nodePos)
-      }
 
       const existingClasses = node.attrs.class
         ? new Set(node.attrs.class.split(' '))
@@ -68,14 +62,6 @@ export default class WaxDesignerUtils {
 
       view.dispatch(tr)
     }
-    // const pmNode = node.pmViewDesc.node
-    // const waxClasses = pmNode.attrs.class
-    // const newClasses = new Set([
-    //   ...(waxClasses ? waxClasses.split(' ') : []),
-    //   ...classNames,
-    // ])
-    // pmNode.attrs.class = [...newClasses].join(' ')
-    // node.classList.add(classNames)
   }
 
   static addAidCtx() {

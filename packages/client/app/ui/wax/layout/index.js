@@ -1,10 +1,9 @@
 /* stylelint-disable string-quotes */
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled, { ThemeProvider } from 'styled-components'
 import { WaxContext, ComponentPlugin, WaxView } from 'wax-prosemirror-core'
 import { grid, th, override } from '@coko/client'
 import { DeleteOutlined, EllipsisOutlined } from '@ant-design/icons'
-import { Scrollbars } from 'react-custom-scrollbars-2'
 import SelectionBox from '../../component-ai-assistant/SelectionBox'
 import ChatHistory from '../../component-ai-assistant/ChatHistory'
 import YjsContext from '../../../yjsProvider'
@@ -21,8 +20,6 @@ import 'wax-prosemirror-services/dist/index.css'
 import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
-import { parseContent } from '../../component-ai-assistant/utils'
-import AidCtxRefsHolder from '../../component-ai-assistant/components/AidCtxRefsHolder'
 import WaxDesignerUtils from '../../component-ai-assistant/utils/waxUtils'
 
 const Wrapper = styled.div`
@@ -38,13 +35,6 @@ const Wrapper = styled.div`
   * {
     box-sizing: border-box;
   }
-`
-
-const EditorArea = styled.div`
-  background: ${th('colorBackground')};
-  display: flex;
-  height: 100%;
-  width: 100%;
 `
 
 const WaxBottomRightInfo = styled.div`
@@ -165,6 +155,7 @@ const CommentsContainer = styled.div`
 
   div[data-box] {
     width: 30vw;
+
     button {
       font-size: 14px;
     }
@@ -339,13 +330,6 @@ const Layout = props => {
       >
         <PromptBox></PromptBox>
         <MenuWrapper>
-          <button
-            onClick={() => {
-              WaxDesignerUtils.addAidCtx(main)
-            }}
-          >
-            add-class
-          </button>
           {main && (
             <MenuComponent fullScreen={fullScreen} open={open} ref={ref} />
           )}
@@ -365,7 +349,6 @@ const Layout = props => {
           )}
           <StyledWindow $show={layout.editor}>
             <WaxSurfaceScroll
-              // $alignX={!layout.preview && showSnippetsWindow}
               $loading={loading}
               onScroll={handleScroll}
               ref={editorContainerRef}

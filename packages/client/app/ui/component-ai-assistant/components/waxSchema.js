@@ -1,5 +1,4 @@
 import { onEntries } from '../utils'
-import AidCtxRefsHolder from './AidCtxRefsHolder'
 
 const nodeDomMap = {
   doc: 'div',
