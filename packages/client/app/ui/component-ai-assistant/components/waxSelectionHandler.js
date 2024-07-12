@@ -13,22 +13,14 @@ const useWaxSelectionHandler = () => {
     updateTools,
   } = useContext(AiDesignerContext)
 
-  const selectNode = aidCtx => {
-    const target = document.querySelector(`[data-aidctx="${aidCtx}"]`)
-    if (target) {
-      !getCtxBy('node', target) &&
-        getCtxBy('dataRef', target.dataset.aidctx) &&
-        // eslint-disable-next-line no-param-reassign
-        (getCtxBy('dataRef', target.dataset.aidctx).node = target)
+  const selectNode = dataRef => {
+    const node = document.querySelector(`[data-aidctx="${dataRef}"]`)
+    if (node) {
+      const ctx = getCtxBy({ dataRef }) || addToCtx({ node, dataRef })
 
-      const ctx =
-        getCtxBy('node', target) ||
-        getCtxBy('dataRef', target.dataset.aidctx) ||
-        addToCtx(newCtx(target, null, {}, false))
+      tools.dropper.active && updateTools('brush', { data: node.className })
 
-      tools.dropper.active && updateTools('brush', { data: target.className })
-
-      setSelectedNode(target)
+      setSelectedNode(node)
       setSelectedCtx(ctx)
       setMarkedSnippet('')
       console.log(ctx.node)

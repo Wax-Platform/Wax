@@ -408,7 +408,6 @@ const SnippetItem = ({
     settings,
     editorContent,
     setEditorContent,
-    waxRefresh,
     getCtxNode,
   } = useContext(AiDesignerContext)
 
@@ -440,7 +439,6 @@ const SnippetItem = ({
           node.classList.toggle(`aid-snip-${snippetName}`)
         }),
       )
-    waxRefresh()
 
     isAdded && isMarked
       ? setMarkedSnippet('')
@@ -558,7 +556,6 @@ const ImagesTabContent = ({ imagesData, getImageUrl, updatePreview }) => {
     onHistory,
     editorContent,
     setEditorContent,
-    waxRefresh,
   } = useContext(AiDesignerContext)
 
   const ctxIsHtmlSrc = selectedCtx?.node === htmlSrc
@@ -591,7 +588,6 @@ const ImagesTabContent = ({ imagesData, getImageUrl, updatePreview }) => {
         )
       }),
     )
-    waxRefresh()
     updatePreview(true)
   }
 

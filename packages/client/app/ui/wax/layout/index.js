@@ -21,7 +21,7 @@ import 'wax-prosemirror-services/dist/index.css'
 import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
-import WaxDesignerUtils from '../../component-ai-assistant/utils/waxUtils'
+import AiDesigner from '../../component-ai-assistant/utils/AiDesigner'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -33,6 +33,7 @@ const Wrapper = styled.div`
   height: 100%;
   line-height: ${grid(4)};
   width: 100%;
+  min-width: 100%;
 
   * {
     box-sizing: border-box;
@@ -56,10 +57,24 @@ const InfoContainer = styled.div`
   }
 
   div div div div {
+    display: flex;
     color: #525e76;
-    height: auto;
+    height: fit-content;
     margin: 0;
     padding-bottom: 6px;
+  }
+
+  div > div > div {
+    position: absolute;
+    right: 15px;
+
+    > div {
+      height: fit-content;
+      width: fit-content;
+      min-height: 240px;
+      min-width: 300px;
+      white-space: nowrap;
+    }
   }
 `
 
@@ -193,6 +208,7 @@ const WaxEditorWrapper = styled.div`
   display: flex;
   flex-direction: row;
   height: 95%;
+  min-width: 100%;
 `
 
 const FileManagerWrapper = styled.div`
@@ -277,7 +293,7 @@ const Layout = props => {
 
   useEffect(() => {
     if (!layout.editor) {
-      setSelectedCtx(getCtxBy('node', htmlSrc))
+      setSelectedCtx(getCtxBy({ node: htmlSrc }))
       setSelectedNode(htmlSrc)
       !layout.preview && updateLayout({ preview: true })
     }
@@ -288,9 +304,9 @@ const Layout = props => {
   useEffect(() => {
     if (main?.docView) {
       setWaxContext(main)
-      main.state && WaxDesignerUtils.addAidCtx()
+      main.state && AiDesigner.addAidCtx()
       console.log(main)
-      WaxDesignerUtils.setStates(prev => ({ ...prev, view: main }))
+      AiDesigner.setStates(prev => ({ ...prev, view: main }))
     }
   }, [main?.docView])
 
@@ -377,9 +393,9 @@ const Layout = props => {
             </WaxBottomRightInfo>
           </StyledWindow>
           <StyledWindow $show={layout.preview}>
-            <WindowHeading>
+            {/* <WindowHeading>
               <span>PDF PREVIEW</span>
-            </WindowHeading>
+            </WindowHeading> */}
             <PreviewIframe
               onLoad={updatePreview}
               ref={previewRef}

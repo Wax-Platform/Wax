@@ -195,7 +195,7 @@ export const addElement = (parentElement, options) => {
 export const safeId = (prefix, existingIds) => {
   let proposedId = 1
 
-  while (existingIds.includes(`${prefix}-${proposedId}`)) {
+  while ([...existingIds].includes(`${prefix}-${proposedId}`)) {
     proposedId = Number(proposedId + 1)
   }
 

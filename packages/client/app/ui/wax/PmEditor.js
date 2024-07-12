@@ -13,7 +13,7 @@ import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerCon
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
 import useWaxSelectionHandler from '../component-ai-assistant/components/waxSelectionHandler'
 import { snippetsToCssText } from '../component-ai-assistant/utils'
-import WaxDesignerUtils from '../component-ai-assistant/utils/waxUtils'
+import AiDesigner from '../component-ai-assistant/utils/AiDesigner'
 import { debounce } from 'lodash'
 
 const SpinnerWrapper = styled.div`
@@ -54,7 +54,6 @@ const PmEditor = ({
     setEditorContent,
     setSelectedCtx,
     addToCtx,
-    newCtx,
     getCtxBy,
     css,
     setSelectedNode,
@@ -80,8 +79,8 @@ const PmEditor = ({
 
   useEffect(() => {
     if (htmlSrc) {
-      addToCtx(newCtx(htmlSrc))
-      setSelectedCtx(getCtxBy('node', htmlSrc))
+      addToCtx({ node: htmlSrc, dataRef: 'aid-ctx-main' })
+      setSelectedCtx(getCtxBy({ node: htmlSrc }))
       setSelectedNode(htmlSrc)
     }
   }, [htmlSrc])
@@ -145,7 +144,7 @@ const PmEditor = ({
         layout={layout}
         onChange={value => {
           setEditorContent(value)
-          debounce(WaxDesignerUtils.addAidCtx, 1000)()
+          debounce(AiDesigner.addAidCtx, 1000)()
           updatePreview()
         }}
         // readonly={!contentEditable}

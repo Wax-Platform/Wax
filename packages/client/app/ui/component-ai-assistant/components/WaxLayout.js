@@ -71,10 +71,7 @@ const WaxLayout = ({ className, ...props }) => {
     htmlSrc,
     setSelectedCtx,
     getCtxBy,
-    setEditorContent,
-    addAllNodesToCtx,
     setWaxContext,
-    editorContent,
     // tools,
     settings: {
       editor: { enableSelection },
@@ -109,8 +106,7 @@ const WaxLayout = ({ className, ...props }) => {
         id="wax-container"
         onClick={({ target }) => {
           if (htmlSrc.contains(target)) return
-          setEditorContent(parseContent(editorContent, addAllNodesToCtx))
-          setSelectedCtx(getCtxBy('node', htmlSrc))
+          setSelectedCtx(getCtxBy({ node: htmlSrc }))
         }}
       >
         <EditorWrapper>

@@ -1,8 +1,8 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Plugin } from 'prosemirror-state'
-import WaxDesignerUtils from '../utils/waxUtils'
+import AiDesigner from '../utils/AiDesigner'
 
-function addAidctxPlugin(setAidctx, tools) {
+function addAidctxPlugin(setAidctx) {
   return new Plugin({
     props: {
       handleDOMEvents: {
@@ -61,12 +61,8 @@ function addAidctxPlugin(setAidctx, tools) {
               //     console.warn(err)
               //   }
               console.log(aidCtx)
-              setAidctx(aidCtx) // handle on react effect based on this state (same name)
-              aidCtx &&
-                WaxDesignerUtils.setStates(prev => ({
-                  ...prev,
-                  selectedElement: { ref: aidCtx, pos, node },
-                }))
+              setAidctx(aidCtx || aidctx) // handle on react effect based on this state (same name)
+              AiDesigner.select(aidCtx || aidctx, console.log)
               // }
             }
           }

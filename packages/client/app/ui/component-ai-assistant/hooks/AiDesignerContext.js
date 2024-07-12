@@ -1,12 +1,7 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
-/* eslint-disable no-param-reassign */
 import React, { createContext, useMemo, useRef, useState } from 'react'
-import { debounce, isString, merge, takeRight, uniqueId } from 'lodash'
-import { uuid } from '@coko/client'
+import { entries, isString, merge, takeRight } from 'lodash'
 import {
-  callOn,
-  safeCall,
-  safeId,
   setInlineStyle,
   SendIcon,
   SettingsIcon,
@@ -22,6 +17,7 @@ import {
   srcdoc,
   initialPagedJSCSS,
 } from '../utils'
+import AiDesigner from '../utils/AiDesigner'
 
 const defaultSettings = {
   gui: {
@@ -113,8 +109,6 @@ export const AiDesignerContext = createContext()
 export const AiDesignerProvider = ({ children }) => {
   // #region HOOKS ----------------------------------------------------------------
   const context = useRef([])
-  const styleSheetRef = useRef(null)
-
   const history = useRef({
     prompts: { active: true, index: 0 },
     source: { redo: [], undo: [], limit: { undo: 20, redo: 20 } },
@@ -143,7 +137,6 @@ export const AiDesignerProvider = ({ children }) => {
   const [userImages, setUserImages] = useState('')
   const [userPrompt, setUserPrompt] = useState('')
   const [waxContext, setWaxContext] = useState({})
-  const [editorKey, setEditorKey] = useState(uniqueId('key'))
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -174,105 +167,45 @@ export const AiDesignerProvider = ({ children }) => {
   const getCtxNode = (dom = document) =>
     dom.querySelector(`[data-aidctx="${selectedCtx.dataRef}"]`)
 
+  AiDesigner.setHandlers({
+    onSelect: ctx => {
+      // TODO: select context here and handle onclick tools
+      // all context.current related operations needs to be modified
+      // to match the following shape:
+      const node = ctx.node()
+      tools.dropper.active && updateTools('brush', { data: node.className })
+
+      setSelectedNode(node)
+      setSelectedCtx(ctx)
+      setMarkedSnippet('')
+      console.log(ctx)
+    },
+  })
   // #endregion HOOKS ----------------------------------------------------------------
 
   // #region CONTEXT ----------------------------------------------------------------
-  const makeSelector = (node, parent) => {
-    const tagName = node.localName || node.tagName?.toLowerCase()
-
-    const parentSelector = parent || ''
-
-    const classNames =
-      [...node.classList].length > 0 ? `.${[...node.classList].join('.')}` : ''
-
-    const selector = `${
-      parentSelector
-        ? `${parentSelector} > ${tagName}`
-        : `${tagName}${node.id ? `#${node.id}` : ''}`
-    }`.trim()
-
-    return { selector, tagName, classNames }
-  }
-
-  const newCtx = (node, parent) => {
-    const { tagName } = makeSelector(node, parent)
-
-    const dataRef = safeId(
-      'aid-ctx',
-      context.current.map(ctx => ctx.dataRef),
-    )
-
-    node.setAttribute('data-aidctx', dataRef)
-    return {
-      node,
-      dataRef,
-      tagName,
-      history: [],
-    }
-  }
 
   const addToCtx = ctx => {
-    context.current = [...context.current, ctx]
+    const buildCtx = ({ node, dataRef }) => {
+      const tagName = node.localName || node.tagName?.toLowerCase()
+
+      return {
+        node,
+        dataRef,
+        tagName,
+        history: [],
+      }
+    }
+    const newCtx = buildCtx(ctx)
+    context.current = [...context.current, newCtx]
     return ctx
   }
 
-  const getCtxBy = (by, prop, all) => {
-    const method = all ? 'filter' : 'find'
-
-    const ctxProps = {
-      node: node => context.current[method](ctx => ctx.node === node),
-      tagName: tag => context.current[method](ctx => ctx.tagName === tag),
-      dataRef: data => context.current[method](ctx => ctx.dataRef === data),
-      default: () => context.current[method](ctx => ctx),
-    }
-
-    return callOn(by, ctxProps, [prop])
-  }
-
-  const addAllNodesToCtx = dom => {
-    const ctxsInDom = []
-
-    const traverseNode = node => {
-      const ctx = node.dataset.aidctx || ''
-
-      if (!ctx) {
-        const newAdded = addToCtx(newCtx(node))
-        ctxsInDom.push(newAdded.dataRef)
-      } else if (!ctxsInDom.includes(ctx)) {
-        ctxsInDom.push(node.dataset.aidctx)
-      } else {
-        const newAdded = addToCtx(newCtx(node))
-        ctxsInDom.push(newAdded.dataRef)
-      }
-
-      const childs = [...node.children]
-      childs && childs.forEach(child => traverseNode(child))
-    }
-
-    traverseNode(dom.body)
-  }
-
-  const waxRefresh = () => {
-    const editorContainer = editorContainerRef?.current
-    if (!editorContainer) return
-    const scrollPos = editorContainer.scrollTop
-    setEditorKey(uuid())
-    debounce(() => {
-      setSelectedNode(getCtxNode())
-      updateSelectionBoxPosition()
-      editorContainer.scrollTo({ top: scrollPos, behavior: 'instant' })
-    }, 100)()
-  }
-
-  const updateCtxNodes = () => {
-    htmlSrc &&
-      context.current.forEach(ctx => {
-        if (ctx.node !== htmlSrc && !ctx.node) {
-          const node = getCtxNode(htmlSrc)
-          ctx.node = node
-          ctx.tagName = node.localName || node.tagName?.toLowerCase()
-        }
-      })
+  const getCtxBy = (prop, getAll) => {
+    const [[attr, value]] = entries(prop)
+    const method = getAll ? 'filter' : 'find'
+    const match = ctx => ctx[attr] === value
+    return context.current[method](match)
   }
 
   const clearHistory = () => {
@@ -290,42 +223,27 @@ export const AiDesignerProvider = ({ children }) => {
   // #endregion CONTEXT -------------------------------------------------------------
 
   // #region HELPERS -----------------------------------------------------------------
-  const createStyleSheet = onCreate => {
-    if (!document.getElementById('css-assistant-scoped-styles')) {
-      const styleTag = document.createElement('style')
-      styleTag.id = 'css-assistant-scoped-styles'
-      safeCall(onCreate)(styleTag)
-      return styleTag
-    }
-
-    return document.getElementById('css-assistant-scoped-styles')
-  }
 
   const updateSelectionBoxPosition = (yOffset = 10, xOffset = 10) => {
-    const node = selectedNode
-
-    if (selectedCtx.node !== htmlSrc && settings.editor.enableSelection) {
-      const { top, left, height, width } = node?.getBoundingClientRect() ?? {}
+    if (!settings.editor.enableSelection && !selectionBoxRef?.current) return
+    if (selectedNode === htmlSrc) selectionBoxRef.current.style.opacity = 0
+    else {
+      const { top, left, height, width } =
+        selectedNode?.getBoundingClientRect() ?? {}
 
       if (!left && !top) return
 
-      if (node && selectionBoxRef?.current) {
-        const parent = selectionBoxRef?.current?.parentNode
-        const { left: pLeft, top: pTop } = parent.getBoundingClientRect()
+      const parent = selectionBoxRef?.current?.parentNode
+      const { left: pLeft, top: pTop } = parent.getBoundingClientRect()
 
-        setInlineStyle(selectionBoxRef.current, {
-          opacity: 1,
-          left: `${Math.floor(parent.scrollLeft + left - pLeft - xOffset)}px`,
-          top: `${Math.floor(parent.scrollTop + top - pTop - yOffset)}px`,
-          width: `${width + xOffset * 2}px`,
-          height: `${height + yOffset * 2}px`,
-          zIndex: '9',
-        })
-      }
-    } else {
-      selectionBoxRef?.current &&
-        selectedCtx.node === htmlSrc &&
-        (selectionBoxRef.current.style.opacity = 0)
+      setInlineStyle(selectionBoxRef.current, {
+        opacity: 1,
+        left: `${Math.floor(parent.scrollLeft + left - pLeft - xOffset)}px`,
+        top: `${Math.floor(parent.scrollTop + top - pTop - yOffset)}px`,
+        width: `${width + xOffset * 2}px`,
+        height: `${height + yOffset * 2}px`,
+        zIndex: '9',
+      })
     }
   }
 
@@ -340,7 +258,6 @@ export const AiDesignerProvider = ({ children }) => {
     )
   }
 
-  // TODO: add snippets to history registry
   const onHistory = {
     addRegistry: (
       regKey,
@@ -370,8 +287,6 @@ export const AiDesignerProvider = ({ children }) => {
         content: editorContent,
       })
 
-      styleSheetRef?.current &&
-        (styleSheetRef.current.textContent = lastRegistry.css)
       setEditorContent(lastRegistry.content)
       setCss(lastRegistry.css)
     },
@@ -404,7 +319,7 @@ export const AiDesignerProvider = ({ children }) => {
           previewScrollTopRef.current,
         ),
       )
-    updateCtxNodes()
+    // updateCtxNodes()
   }
 
   // #endregion HELPERS -----------------------------------------------------------------
@@ -508,14 +423,6 @@ export const AiDesignerProvider = ({ children }) => {
 
   // #endregion SNIPPETS -------------------------------------------------------------------
 
-  const dom = useMemo(() => {
-    return {
-      promptRef,
-      styleSheetRef,
-      createStyleSheet,
-    }
-  }, [styleSheetRef, promptRef])
-
   const ctx = useMemo(() => {
     return {
       context,
@@ -545,16 +452,14 @@ export const AiDesignerProvider = ({ children }) => {
   return (
     <AiDesignerContext.Provider
       value={{
-        ...dom,
         ...ctx,
         ...chatGpt,
+        promptRef,
         layout,
         updateLayout,
         addToCtx,
         getCtxBy,
-        newCtx,
         clearHistory,
-        updateCtxNodes,
         editorContent,
         selectionBoxRef,
         setEditorContent,
@@ -566,7 +471,6 @@ export const AiDesignerProvider = ({ children }) => {
         // TODO: memoize in a new object
         addSnippet,
         removeSnippet,
-        // getMarkedSnippetName,
         markedSnippet,
         setMarkedSnippet,
         updateSnippetDescription,
@@ -574,19 +478,14 @@ export const AiDesignerProvider = ({ children }) => {
         updateSnippetName,
         saveSession,
 
-        addAllNodesToCtx,
-
         waxContext,
         setWaxContext,
-        setEditorKey,
-        editorKey,
         editorContainerRef,
 
         previewScrollTopRef,
         previewRef,
         previewSource,
         setPreviewSource,
-        waxRefresh,
         updatePreview,
         mutateSettings,
         getCtxNode,

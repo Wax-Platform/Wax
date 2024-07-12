@@ -29,7 +29,7 @@ import {
   GET_DOCUMENTS,
   GET_FILES_FROM_DOCUMENT,
 } from '../queries/documentAndSections'
-import WaxDesignerUtils from '../utils/waxUtils'
+import AiDesigner from '../utils/AiDesigner'
 
 const voidElements = [
   'area',
@@ -51,15 +51,12 @@ const voidElements = [
 const useAssistant = () => {
   const {
     setCss,
-    getCtxNode,
     htmlSrc,
     onHistory,
     history,
     setEditorContent,
     setUserPrompt,
     addSnippet,
-    addAllNodesToCtx,
-    waxRefresh,
     editorContent,
     selectedCtx,
     setFeedback,
@@ -117,7 +114,7 @@ const useAssistant = () => {
         },
         snippet: val => {
           addSnippet(null, val)
-          WaxDesignerUtils.addClass(selectedCtx.dataRef, [
+          AiDesigner.addClass(selectedCtx.dataRef, [
             `aid-snip-${val.className}`,
           ])
         },
@@ -133,10 +130,8 @@ const useAssistant = () => {
               )
 
               selectedElement && (selectedElement.innerHTML = val)
-              addAllNodesToCtx(dom)
             }),
           )
-          waxRefresh()
         },
         insertHtml: val => {
           setEditorContent(
@@ -150,10 +145,8 @@ const useAssistant = () => {
                 position:
                   !voidElements.includes(node.localName) && val.position,
               })
-              addAllNodesToCtx(doc)
             }),
           )
-          waxRefresh()
         },
         callDallE: async val => {
           await generateImages({
@@ -169,10 +162,8 @@ const useAssistant = () => {
                   addElement(node, {
                     html: `<img class="aid-snip-img-default" src="${aiImages.s3url}" data-imgkey="${aiImages.imageKey}" />`,
                   })
-                  addAllNodesToCtx(doc)
                 }),
               )
-            waxRefresh()
             client.refetchQueries({
               include: [GET_IMAGES_URL],
             })
@@ -191,12 +182,12 @@ const useAssistant = () => {
         },
       }
 
-      const actionsToApply = filterKeys(response, k => k)
+      const actionsToApply = filterKeys(response, Boolean)
       const actionsApplied = []
 
       actionsToApply?.forEach(action => {
         callOn(action, actions, [response[action]])
-        actionsApplied.push(action)
+        actionsApplied?.push(action)
       })
 
       updatePreview(true)
@@ -243,7 +234,7 @@ const useAssistant = () => {
       takeRight(selectedCtx.history, settings.chat.historyMax) || []
 
     const systemPayload = {
-      ctx: selectedCtx ?? getCtxBy('node', htmlSrc),
+      ctx: selectedCtx ?? getCtxBy({ node: htmlSrc }),
       sheet: css,
       selectors: getNodes(htmlSrc, '*', 'localName'),
       providedText: selectedCtx?.node !== htmlSrc && selectedCtx.node.innerHTML,

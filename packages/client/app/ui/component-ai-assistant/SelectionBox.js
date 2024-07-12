@@ -14,7 +14,7 @@ import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { capitalize, debounce, uniqueId } from 'lodash'
 import { AiDesignerContext } from './hooks/AiDesignerContext'
 import { htmlTagNames, parseContent } from './utils'
-import WaxDesignerUtils from './utils/waxUtils'
+import AiDesigner from './utils/AiDesigner'
 
 const AbsoluteContainer = styled.span`
   background-color: ${p => p.selectionColor.bg || 'var(--color-blue-alpha-2)'};
@@ -271,12 +271,7 @@ const AddSnippetButton = () => {
     selectedCtx,
     setMarkedSnippet,
     markedSnippet,
-    addSnippet,
-    setEditorContent,
-    editorContent,
-    waxRefresh,
     getCtxNode,
-    addAllNodesToCtx,
     updatePreview,
   } = useContext(AiDesignerContext)
 
@@ -416,7 +411,7 @@ const AddSnippetButton = () => {
                           onHistory.addRegistry('undo')
                           // WaxDesignerUtils.states.view.focus()
                           console.log(selectedCtx.dataRef)
-                          WaxDesignerUtils.addClass(selectedCtx.dataRef, [
+                          AiDesigner.addClass(selectedCtx.dataRef, [
                             `aid-snip-${className}`,
                           ])
                           debounce(() => {

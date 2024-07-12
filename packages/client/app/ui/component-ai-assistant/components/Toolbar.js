@@ -16,7 +16,7 @@ import paintIcon from '../../../../static/paint-icon.svg'
 import waxIcon from '../../../../static/waxdesignerwhite.svg'
 // import { SnippetIcon } from '../utils'
 import Each from '../utils/Each'
-import WaxDesignerUtils from '../utils/waxUtils'
+import AiDesigner from '../utils/AiDesigner'
 
 const DesignerTools = styled.div`
   --snippet-icon-st: #fff;
@@ -94,7 +94,6 @@ const Toolbar = () => {
     layout,
     selectedCtx,
     editorContainerRef,
-    waxContext,
     settings: {
       editor: { contentEditable, enableSelection, displayStyles },
     },
@@ -120,7 +119,7 @@ const Toolbar = () => {
     selection: {
       src: handCursor,
       onClick: () => {
-        waxContext?.state && WaxDesignerUtils.addAidCtx()
+        AiDesigner.addAidCtx()
         mutateSettings('editor', {
           enableSelection: !enableSelection,
         })
