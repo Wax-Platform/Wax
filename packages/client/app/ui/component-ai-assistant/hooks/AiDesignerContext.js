@@ -154,8 +154,8 @@ export const AiDesignerProvider = ({ children }) => {
   })
 
   const [tools, setTools] = useState({
-    dropper: { active: false, data: 'aid-snip-scale' },
-    brush: { active: true, data: {} },
+    dropper: { active: false, data: '' },
+    brush: { active: true, data: '', properties: {} },
   })
 
   const updateLayout = updateObjectState(setLayout)
@@ -167,20 +167,26 @@ export const AiDesignerProvider = ({ children }) => {
   const getCtxNode = (dom = document) =>
     dom.querySelector(`[data-aidctx="${selectedCtx.dataRef}"]`)
 
-  AiDesigner.setHandlers({
+  AiDesigner.setHandlers(() => ({
     onSelect: ctx => {
       // TODO: select context here and handle onclick tools
       // all context.current related operations needs to be modified
       // to match the following shape:
       const node = ctx.node()
       tools.dropper.active && updateTools('brush', { data: node.className })
-
-      setSelectedNode(node)
-      setSelectedCtx(ctx)
-      setMarkedSnippet('')
+      tools.brush.active &&
+        tools.brush.data &&
+        AiDesigner.snippets.toggle(tools.brush.data)
+      console.log('Node:', node)
+      console.log('Class:', node.className)
+      console.log('Tools', tools)
+      // setSelectedNode(node)
+      // setSelectedCtx(ctx)
+      // setMarkedSnippet('')
       console.log(ctx)
     },
-  })
+    // selectedContextMutation: ctx => setSelectedCtx(ctx)
+  }))
   // #endregion HOOKS ----------------------------------------------------------------
 
   // #region CONTEXT ----------------------------------------------------------------

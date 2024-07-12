@@ -411,9 +411,7 @@ const AddSnippetButton = () => {
                           onHistory.addRegistry('undo')
                           // WaxDesignerUtils.states.view.focus()
                           console.log(selectedCtx.dataRef)
-                          AiDesigner.addClass(selectedCtx.dataRef, [
-                            `aid-snip-${className}`,
-                          ])
+                          AiDesigner.snippets.toggle(`aid-snip-${className}`)
                           debounce(() => {
                             setShowSnippets(true)
                           }, 100)()

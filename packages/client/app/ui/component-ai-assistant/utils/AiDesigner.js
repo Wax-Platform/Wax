@@ -1,6 +1,6 @@
-import { entries } from 'lodash'
+import { entries, isArray } from 'lodash'
 import { safeId } from './helpers'
-import { safeCall } from './utils'
+import { onEntries, safeCall } from './utils'
 function getAllDescendants(node) {
   let descendants = []
 
@@ -16,7 +16,7 @@ function getAllDescendants(node) {
   return descendants
 }
 
-function findNodeWithAttr(doc, ref) {
+function findInPmDoc(doc, ref) {
   let found
   doc.descendants((node, pos) => {
     if (node?.attrs?.dataset?.aidctx === ref) {
@@ -26,6 +26,11 @@ function findNodeWithAttr(doc, ref) {
   })
   return found
 }
+const setMethods = set => ({
+  add: set.add,
+  remove: set.delete,
+  toggle: item => (set.has(item) ? set.delete(item) : set.add(item)),
+})
 export default class AiDesigner {
   constructor() {
     this.mainContext = {
@@ -48,11 +53,23 @@ export default class AiDesigner {
   }
 
   static select(aidctx, cb) {
-    const { onSelect } = this.handlers ?? {}
+    const { onSelect } = AiDesigner.handlers ?? {}
 
     this.selectedContext = this.getBy({ aidctx })
     safeCall(onSelect)(AiDesigner.selectedContext)
     safeCall(cb)(AiDesigner.selectedContext)
+  }
+
+  static updateSelected(props) {
+    if (!this.selectedContext) return
+    onEntries(props, (prop, val) => {
+      this.selectedContext[prop] = val
+    })
+    safeCall(this?.handlers?.onUpdateSelected)(this.selectedContext)
+  }
+
+  static updateConversation(record) {
+    this.updateSelected({ conversation: record })
   }
 
   static getBy(prop) {
@@ -61,38 +78,43 @@ export default class AiDesigner {
     return this.context?.find(match)
   }
 
-  static addClass(aidCtx, classNames, toggle) {
+  static onClassNames(method, classNames) {
     if (!this?.states?.view) return
-    const aidctx = aidCtx || this?.selectedContext?.aidctx
-    const domNodeClasses = document.querySelector(
-      `[data-aidctx="${aidctx}"]`,
-    )?.className
+
     const { view } = this.states
-    const pos = findNodeWithAttr(view.state.doc, aidctx)?.pos
+    const { aidctx, node: domNode } = this.selectedContext || {}
 
-    if (pos !== null) {
-      const tr = view.state.tr
-      const resolvedPos = view.state.doc.resolve(pos)
-      let node = resolvedPos.node()
+    const pos = findInPmDoc(view.state.doc, aidctx)?.pos
 
-      const existingClasses = domNodeClasses
-        ? new Set(domNodeClasses.split(' '))
-        : new Set()
-      classNames.forEach(cls =>
-        existingClasses.has(cls)
-          ? existingClasses.delete(cls)
-          : existingClasses.add(cls),
-      )
-      const updatedClasses = [...existingClasses].join(' ')
+    if (pos === null || !domNode()) return
+    const tr = view.state.tr
+    const resolvedPos = view.state.doc.resolve(pos)
+    const pmNode = resolvedPos.node()
 
-      console.log(node)
-      tr.setNodeMarkup(pos, null, {
-        ...node.attrs,
-        dataset: { aidctx },
-        class: updatedClasses,
-      })
+    const classes = isArray(classNames)
+      ? classNames
+      : classNames?.split(' ') ?? []
 
-      view.dispatch(tr)
+    const domClasses = new Set(domNode()?.className?.split(' ') || [])
+
+    const onClasses = setMethods(domClasses)
+    classes.forEach(onClasses[method]) // add, remove or toggle
+    const updatedClasses = [...domClasses].join(' ')
+
+    tr.setNodeMarkup(pos, null, {
+      ...pmNode.attrs,
+      dataset: { aidctx },
+      class: updatedClasses,
+    })
+
+    view.dispatch(tr)
+  }
+
+  static get snippets() {
+    return {
+      add: cls => this.onClassNames('add', cls),
+      remove: cls => this.onClassNames('remove', cls),
+      toggle: cls => this.onClassNames('toggle', cls),
     }
   }
 

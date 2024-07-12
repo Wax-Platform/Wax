@@ -114,7 +114,7 @@ export default css`
   /* heading */
 
   .ProseMirror h1 {
-    border-bottom: 2px solid ${th('colorPrimary')};
+    /* border-bottom: 2px solid ${th('colorPrimary')}; */
     font-size: 2.2em;
     font-weight: 600;
     line-height: 1.2;

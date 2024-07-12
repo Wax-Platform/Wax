@@ -114,9 +114,10 @@ const useAssistant = () => {
         },
         snippet: val => {
           addSnippet(null, val)
-          AiDesigner.addClass(selectedCtx.dataRef, [
+          AiDesigner.snippets.add(
+            selectedCtx.dataRef,
             `aid-snip-${val.className}`,
-          ])
+          )
         },
         feedback: val => {
           setFeedback(val)

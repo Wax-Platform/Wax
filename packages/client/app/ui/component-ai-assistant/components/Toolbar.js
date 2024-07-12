@@ -13,6 +13,7 @@ import targetIcon from '../../../../static/target-icon.svg'
 import inputIcon from '../../../../static/input-icon.svg'
 import textIcon from '../../../../static/text-icon.svg'
 import paintIcon from '../../../../static/paint-icon.svg'
+import paintBucketIcon from '../../../../static/paint-bucket-icon.svg'
 import waxIcon from '../../../../static/waxdesignerwhite.svg'
 // import { SnippetIcon } from '../utils'
 import Each from '../utils/Each'
@@ -160,7 +161,11 @@ const Toolbar = () => {
       imgProps: { style: { transform: 'scaleX(-1)', height: '22px' } },
       'data-active': ctxTools.brush.active,
     },
-
+    paintBucket: {
+      src: paintBucketIcon,
+      imgProps: { style: { transform: 'scaleX(-1)', height: '22px' } },
+      'data-active': ctxTools?.paintBucket?.active,
+    },
     toggleChat: {
       src: chatIcon,
       onClick: () => {
