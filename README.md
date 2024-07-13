@@ -1,4 +1,5 @@
 # Wax
-Main repo, more to come soon
+Wax is a content creation platform. Wax has a collaborative word processor, file manager, pdf designer, knowledge base, and ai assistants. 
 
-Currently migrating repos. Check back soon or email info@wax.is.
+All open source. Currently targeting Mistral and OpenAI models. 
+
