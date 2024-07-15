@@ -252,7 +252,6 @@ const Layout = props => {
     updatePreview,
     previewRef,
     previewSource,
-    setEditorContent,
     htmlSrc,
     updateLayout,
     css,

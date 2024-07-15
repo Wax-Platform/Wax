@@ -39,7 +39,7 @@ const waxConfig = {
 
   SchemaService,
 
-  ImageService: { showAlt: true },
+  // ImageService: { showAlt: true },
 
   services: [
     new LinkService(),

@@ -90,7 +90,7 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
   const TransformToolGroup = app.container.get('TransformToolGroup')
   const Lists = app.container.get('Lists')
   const BlockQuote = app.container.get('BlockQuoteTool')
-  const Images = app.container.get('Images')
+  // const Images = app.container.get('Images')
   const SpecialCharacters = app.container.get('SpecialCharacters')
   const Tables = app.container.get('Tables')
   const ExternalAPIContent = app.container.get('ExternalAPIContent')
@@ -146,9 +146,9 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
       <MenuToolGroup>
         {BlockQuote._tools.map(tool => tool.renderTool(activeView))}
       </MenuToolGroup>
-      <MenuToolGroup>
+      {/* <MenuToolGroup>
         {Images._tools.map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
+      </MenuToolGroup> */}
       <MenuToolGroup>
         {SpecialCharacters._tools.map(tool => tool.renderTool(activeView))}
       </MenuToolGroup>
