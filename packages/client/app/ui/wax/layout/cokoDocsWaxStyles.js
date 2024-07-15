@@ -50,45 +50,6 @@ export default css`
       counter-increment: item;
     }
 
-    table {
-      border: 3px solid ${th('colorContent')};
-      font-size: 0.9em;
-    }
-
-    table tr {
-      border-bottom: 2px solid ${th('colorContent')};
-    }
-
-    table tr:nth-of-type(odd) {
-      background: ${th('colorLightGrey')};
-    }
-
-    table td,
-    th {
-      border: 1px solid ${th('colorContent')};
-      padding: 1em 1ch;
-    }
-
-    table th {
-      padding-left: 2ch;
-      text-align: left;
-    }
-
-    table > tbody > tr > th {
-      background-color: #e9e9e9;
-      border: 1px solid ${th('colorContent')};
-      color: ${th('colorContent')};
-      font-size: 0.9em;
-    }
-
-    table > tbody > tr > td > p {
-      margin-bottom: 0.4em;
-    }
-
-    table p:empty {
-      margin: 0;
-    }
-
     /* stylelint-disable-next-line order/properties-alphabetical-order */
     ${override('Wax.ProseMirror')}
   }
