@@ -101,7 +101,7 @@ const Toolbar = () => {
   } = useContext(AiDesignerContext)
 
   const scrollToSelectedNode = () => {
-    const node = document.querySelector(`[data-aidctx="${selectedCtx.dataRef}"`)
+    const node = document.querySelector(`[data-aidctx="${selectedCtx.aidctx}"`)
     node &&
       editorContainerRef?.current &&
       editorContainerRef.current.scrollTo(0, node.offsetTop)
@@ -120,7 +120,7 @@ const Toolbar = () => {
     selection: {
       src: handCursor,
       onClick: () => {
-        AiDesigner.addAidCtx()
+        AiDesigner.updateContext()
         mutateSettings('editor', {
           enableSelection: !enableSelection,
         })

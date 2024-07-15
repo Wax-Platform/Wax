@@ -60,8 +60,8 @@ function addAidctxPlugin(setAidctx) {
               //   } catch (err) {
               //     console.warn(err)
               //   }
-              console.log(aidCtx)
-              setAidctx(aidCtx || aidctx) // handle on react effect based on this state (same name)
+              // console.log(aidCtx)
+              // setAidctx(aidCtx || aidctx) // handle on react effect based on this state (same name)
               AiDesigner.select(aidCtx || aidctx, console.log)
               // }
             }

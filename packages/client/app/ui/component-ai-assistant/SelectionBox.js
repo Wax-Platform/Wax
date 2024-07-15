@@ -110,7 +110,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
 
   return (
     <AbsoluteContainer
-      data-rel-aidctx={selectedCtx?.dataRef}
+      data-rel-aidctx={selectedCtx?.aidctx}
       ref={selectionBoxRef}
       selectionColor={settings.editor.selectionColor}
       {...rest}
@@ -286,7 +286,7 @@ const AddSnippetButton = () => {
 
   useEffect(() => {
     setShowSnippets(false)
-  }, [selectedCtx.dataRef])
+  }, [selectedCtx.aidctx])
 
   const isAdded = name => getCtxNode()?.classList?.contains(`aid-snip-${name}`)
   const isMarked = name => name === markedSnippet
@@ -321,7 +321,7 @@ const AddSnippetButton = () => {
     }
 
     return sorted
-  }, [showSnippets, markedSnippet, selectedCtx.dataRef])
+  }, [showSnippets, markedSnippet, selectedCtx.aidctx])
 
   return (
     <Root $active data-element="element-options">
@@ -410,7 +410,7 @@ const AddSnippetButton = () => {
                           e.stopPropagation()
                           onHistory.addRegistry('undo')
                           // WaxDesignerUtils.states.view.focus()
-                          console.log(selectedCtx.dataRef)
+                          console.log(selectedCtx.aidctx)
                           AiDesigner.snippets.toggle(`aid-snip-${className}`)
                           debounce(() => {
                             setShowSnippets(true)

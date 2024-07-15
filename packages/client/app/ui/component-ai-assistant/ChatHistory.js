@@ -218,10 +218,10 @@ const ChatHistory = ({ nomessages, ...props }) => {
   return (
     <ChatHistoryContainer ref={threadRef} {...props}>
       <link href={prismcss} rel="stylesheet" />
-      {selectedCtx?.history?.length > 0 ? (
-        selectedCtx.history.map(({ role, content }, i) => {
+      {selectedCtx?.conversation?.length > 0 ? (
+        selectedCtx.conversation.map(({ role, content }, i) => {
           const forgotten =
-            i < selectedCtx.history.length - settings.chat.historyMax - 1
+            i < selectedCtx.conversation.length - settings.chat.historyMax - 1
 
           const messageid = `${role}-${i}`
 
@@ -274,7 +274,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
                         clipboardText && <small>copied!!</small>}
                       <CopyOutlined onClick={copyText} title="Copy message" />
                     </span>
-                    {i === selectedCtx.history.length - 1 && (
+                    {i === selectedCtx.conversation.length - 1 && (
                       <DeleteOutlined
                         onClick={deleteLastMessage}
                         title="Remove from history (not undoable)"

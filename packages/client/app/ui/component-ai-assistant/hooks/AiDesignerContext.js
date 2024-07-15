@@ -108,7 +108,6 @@ export const AiDesignerContext = createContext()
 // eslint-disable-next-line react/prop-types
 export const AiDesignerProvider = ({ children }) => {
   // #region HOOKS ----------------------------------------------------------------
-  const context = useRef([])
   const history = useRef({
     prompts: { active: true, index: 0 },
     source: { redo: [], undo: [], limit: { undo: 20, redo: 20 } },
@@ -165,64 +164,35 @@ export const AiDesignerProvider = ({ children }) => {
   const updateTools = updateObjectStateFromKey(setTools)
 
   const getCtxNode = (dom = document) =>
-    dom.querySelector(`[data-aidctx="${selectedCtx.dataRef}"]`)
+    dom.querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
 
-  AiDesigner.setHandlers(() => ({
-    onSelect: ctx => {
-      // TODO: select context here and handle onclick tools
-      // all context.current related operations needs to be modified
-      // to match the following shape:
-      const node = ctx.node()
-      tools.dropper.active && updateTools('brush', { data: node.className })
-      tools.brush.active &&
-        tools.brush.data &&
-        AiDesigner.snippets.toggle(tools.brush.data)
-      console.log('Node:', node)
-      console.log('Class:', node.className)
-      console.log('Tools', tools)
-      // setSelectedNode(node)
-      // setSelectedCtx(ctx)
-      // setMarkedSnippet('')
-      console.log(ctx)
-    },
-    // selectedContextMutation: ctx => setSelectedCtx(ctx)
-  }))
+  const onSelect = ctx => {
+    const node = ctx.node
+    tools.dropper.active && updateTools('brush', { data: node.className })
+    tools.brush.active &&
+      tools.brush.data &&
+      AiDesigner.snippets.toggle(tools.brush.data)
+
+    setSelectedNode(node)
+    setSelectedCtx(ctx)
+    setMarkedSnippet('')
+  }
+
+  AiDesigner.on('select', onSelect)
+  AiDesigner.on('addtocontext', console.log)
   // #endregion HOOKS ----------------------------------------------------------------
 
   // #region CONTEXT ----------------------------------------------------------------
 
-  const addToCtx = ctx => {
-    const buildCtx = ({ node, dataRef }) => {
-      const tagName = node.localName || node.tagName?.toLowerCase()
-
-      return {
-        node,
-        dataRef,
-        tagName,
-        history: [],
-      }
-    }
-    const newCtx = buildCtx(ctx)
-    context.current = [...context.current, newCtx]
-    return ctx
-  }
-
-  const getCtxBy = (prop, getAll) => {
-    const [[attr, value]] = entries(prop)
-    const method = getAll ? 'filter' : 'find'
-    const match = ctx => ctx[attr] === value
-    return context.current[method](match)
-  }
-
   const clearHistory = () => {
-    selectedCtx.history = []
+    selectedCtx.conversation = []
     setSelectedCtx({ ...selectedCtx })
   }
 
   const deleteLastMessage = () => {
-    const newHistory = [...selectedCtx.history]
+    const newHistory = [...selectedCtx.conversation]
     newHistory.pop()
-    selectedCtx.history = newHistory
+    selectedCtx.conversation = newHistory
     setSelectedCtx({ ...selectedCtx })
   }
 
@@ -431,14 +401,13 @@ export const AiDesignerProvider = ({ children }) => {
 
   const ctx = useMemo(() => {
     return {
-      context,
       history,
       selectedNode,
       selectedCtx,
       setSelectedCtx,
       setSelectedNode,
     }
-  }, [context, history, selectedCtx, selectedNode])
+  }, [history, selectedCtx, selectedNode])
 
   const chatGpt = useMemo(() => {
     return {
@@ -463,8 +432,6 @@ export const AiDesignerProvider = ({ children }) => {
         promptRef,
         layout,
         updateLayout,
-        addToCtx,
-        getCtxBy,
         clearHistory,
         editorContent,
         selectionBoxRef,

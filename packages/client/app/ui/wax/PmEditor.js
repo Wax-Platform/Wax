@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { yCursorPlugin, ySyncPlugin, yUndoPlugin } from 'y-prosemirror'
+// import { yCursorPlugin, ySyncPlugin, yUndoPlugin } from 'y-prosemirror'
 import { Wax } from 'wax-prosemirror-core'
-import { TablesService } from 'wax-table-service'
+// import { TablesService } from 'wax-table-service'
 import usePrintArea from './usePrintArea'
 import config from './config/config'
 import layout from './layout'
@@ -11,7 +11,6 @@ import YjsContext from '../../yjsProvider'
 import { Result, Spin } from '../common'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
-import useWaxSelectionHandler from '../component-ai-assistant/components/waxSelectionHandler'
 import { snippetsToCssText } from '../component-ai-assistant/utils'
 import AiDesigner from '../component-ai-assistant/utils/AiDesigner'
 import { debounce } from 'lodash'
@@ -52,18 +51,13 @@ const PmEditor = ({
     setHtmlSrc,
     htmlSrc,
     setEditorContent,
-    setSelectedCtx,
-    addToCtx,
-    getCtxBy,
     css,
-    setSelectedNode,
     settings,
     updatePreview,
   } = useContext(AiDesignerContext)
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
-  const selectionHandler = useWaxSelectionHandler()
 
   const editorRef = useRef(null)
   useDomObserver({
@@ -79,15 +73,12 @@ const PmEditor = ({
 
   useEffect(() => {
     if (htmlSrc) {
-      addToCtx({ node: htmlSrc, dataRef: 'aid-ctx-main' })
-      setSelectedCtx(getCtxBy({ node: htmlSrc }))
-      setSelectedNode(htmlSrc)
+      AiDesigner.addToContext({ node: htmlSrc, aidctx: 'aid-ctx-main' })
     }
   }, [htmlSrc])
 
   const [showSpinner, setShowSpinner] = useState(false)
   const [WaxConfig, setWaxConfig] = useState(null)
-  const [aidCtx, setAidCtx] = useState('')
 
   const { refElement } = usePrintArea({})
 
@@ -104,13 +95,10 @@ const PmEditor = ({
   }, [docIdentifier])
 
   useEffect(() => {
-    aidCtx && selectionHandler(aidCtx)
-  }, [aidCtx])
-
-  useEffect(() => {
     if (yjsProvider) {
-      const configObj = config(yjsProvider, ydoc, docIdentifier, setAidCtx)
+      const configObj = config(yjsProvider, ydoc, docIdentifier)
       setWaxConfig(configObj)
+      console.log(configObj)
     }
   }, [yjsProvider?.doc?.guid])
 
@@ -144,11 +132,10 @@ const PmEditor = ({
         layout={layout}
         onChange={value => {
           setEditorContent(value)
-          debounce(AiDesigner.addAidCtx, 1000)()
+          debounce(AiDesigner.updateContext, 1000)()
           updatePreview()
         }}
         // readonly={!contentEditable}
-        // value={editorContent}
         placeholder="Type Something ..."
         ref={refElement}
         scrollThreshold={50}

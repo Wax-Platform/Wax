@@ -1,6 +1,9 @@
-import { entries, isArray } from 'lodash'
+import { capitalize, entries, isArray } from 'lodash'
 import { safeId } from './helpers'
 import { onEntries, safeCall } from './utils'
+import { StateManager } from './StateManager'
+import { SET } from './SetExtension'
+import EventEmitter from './EventEmitter'
 function getAllDescendants(node) {
   let descendants = []
 
@@ -26,50 +29,22 @@ function findInPmDoc(doc, ref) {
   })
   return found
 }
-const setMethods = set => ({
-  add: set.add,
-  remove: set.delete,
-  toggle: item => (set.has(item) ? set.delete(item) : set.add(item)),
-})
-export default class AiDesigner {
+
+export default class AiDesigner extends StateManager {
   constructor() {
+    super()
     this.mainContext = {
       aidctx: 'main',
+      conversation: [],
     }
     this.context = []
-    this.selectedContext = null
-    this.states = {}
-    this.handlers = {}
-  }
-
-  static setStates(cb) {
-    const newStates = cb(this.states)
-    this.states = newStates
-  }
-
-  static setHandlers(cb) {
-    const newHandlers = safeCall(cb)(this.handlers)
-    this.handlers = newHandlers || this.handlers
+    this.selected = ''
   }
 
   static select(aidctx, cb) {
-    const { onSelect } = AiDesigner.handlers ?? {}
-
-    this.selectedContext = this.getBy({ aidctx })
-    safeCall(onSelect)(AiDesigner.selectedContext)
-    safeCall(cb)(AiDesigner.selectedContext)
-  }
-
-  static updateSelected(props) {
-    if (!this.selectedContext) return
-    onEntries(props, (prop, val) => {
-      this.selectedContext[prop] = val
-    })
-    safeCall(this?.handlers?.onUpdateSelected)(this.selectedContext)
-  }
-
-  static updateConversation(record) {
-    this.updateSelected({ conversation: record })
+    this.selected = this.getBy({ aidctx })
+    safeCall(cb)(AiDesigner.selected)
+    this.emit('select', this.selected)
   }
 
   static getBy(prop) {
@@ -82,23 +57,22 @@ export default class AiDesigner {
     if (!this?.states?.view) return
 
     const { view } = this.states
-    const { aidctx, node: domNode } = this.selectedContext || {}
+    const { aidctx, node: domNode } = this.selected || {}
+    const { tr, doc } = view.state
 
-    const pos = findInPmDoc(view.state.doc, aidctx)?.pos
+    const pos = findInPmDoc(doc, aidctx)?.pos
 
-    if (pos === null || !domNode()) return
-    const tr = view.state.tr
-    const resolvedPos = view.state.doc.resolve(pos)
+    if (pos === null || !domNode) return
+    const resolvedPos = doc.resolve(pos)
     const pmNode = resolvedPos.node()
 
     const classes = isArray(classNames)
       ? classNames
       : classNames?.split(' ') ?? []
 
-    const domClasses = new Set(domNode()?.className?.split(' ') || [])
+    const domClasses = SET(domNode?.className?.split(' ') || [])
 
-    const onClasses = setMethods(domClasses)
-    classes.forEach(onClasses[method]) // add, remove or toggle
+    classes.forEach(domClasses[method]) // add, remove or toggle
     const updatedClasses = [...domClasses].join(' ')
 
     tr.setNodeMarkup(pos, null, {
@@ -118,42 +92,51 @@ export default class AiDesigner {
     }
   }
 
-  static addAidCtx() {
+  static get allInDom() {
+    return [...document.querySelectorAll('[data-aidctx]')]
+      .map(n => n.dataset.aidctx)
+      .filter(Boolean)
+  }
+
+  static updateContext() {
     if (!this.states?.view?.docView) return
     const { view } = this.states
     view.state.doc.descendants((node, pos) => {
       if (node.attrs.dataset) {
-        const contexts = new Set([
-          ...view.docView.children
-            .map(node => node?.node?.attrs?.dataset?.aidctx)
-            .filter(Boolean),
-          ...(AiDesigner.context?.map(ctx => ctx.aidctx) || []),
-        ])
-        const aidctx =
-          node.attrs.dataset?.aidctx ?? safeId('aid-ctx', [...contexts])
+        const currentAid = node?.attrs?.dataset?.aidctx || ''
 
-        if (!this.getBy({ aidctx })) {
+        const allInDom = this.allInDom
+        const aidsInCtx = [...allInDom, ...(currentAid || [])]
+
+        const isDuplicated = aidsInCtx.filter(n => n === currentAid).length > 1
+
+        const aidctx =
+          currentAid && !isDuplicated ? currentAid : safeId('aid-ctx', allInDom)
+
+        if (aidctx) {
           const tr = view.state.tr
           tr.setNodeMarkup(pos, null, { ...node.attrs, dataset: { aidctx } })
           view.dispatch(tr)
-          this.addToContext(aidctx, node, pos)
+          !this.getBy({ aidctx }) && this.addToContext({ aidctx })
         }
-        console.log(this.context)
-        console.log(this.context.length === new Set(this.context))
       }
     })
+    console.log('context updated')
   }
 
-  static addToContext(aidctx, node, pos, cb) {
+  static addToContext({ aidctx, node }) {
     const newContext = {
       aidctx,
       conversation: [],
-      node: (scope = document) => {
-        return scope.querySelector(`[data-aidctx="${aidctx}"]`)
+      get node() {
+        return document.querySelector(`[data-aidctx="${aidctx}"]`) || node
       },
-      pmNode: node,
-      pmPos: pos,
+      get tagName() {
+        const node = document.querySelector(`[data-aidctx="${aidctx}"]`)
+        return node.localName || node.tagName?.toLowerCase()
+      },
     }
     this.context = [...(this.context || []), newContext]
+    this.emit('addtocontext', this.context, newContext)
   }
 }

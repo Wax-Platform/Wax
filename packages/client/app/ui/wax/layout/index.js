@@ -22,6 +22,7 @@ import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import AiDesigner from '../../component-ai-assistant/utils/AiDesigner'
+import { debounce } from 'lodash'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -238,10 +239,11 @@ const RightArea = ComponentPlugin('rightArea')
 
 /* eslint-disable-next-line react/prop-types */
 const Layout = props => {
+  const context = useContext(WaxContext)
   const {
     options,
     pmViews: { main },
-  } = useContext(WaxContext)
+  } = context
   const { sharedUsers, yjsCurrentUser } = useContext(YjsContext)
   const {
     editorContainerRef,
@@ -250,10 +252,8 @@ const Layout = props => {
     updatePreview,
     previewRef,
     previewSource,
-    setSelectedCtx,
-    getCtxBy,
+    setEditorContent,
     htmlSrc,
-    setSelectedNode,
     updateLayout,
     css,
     editorContent,
@@ -293,22 +293,24 @@ const Layout = props => {
 
   useEffect(() => {
     if (!layout.editor) {
-      setSelectedCtx(getCtxBy({ node: htmlSrc }))
-      setSelectedNode(htmlSrc)
       !layout.preview && updateLayout({ preview: true })
     }
-    console.log(previewSource)
     updatePreview()
   }, [layout.editor])
 
   useEffect(() => {
     if (main?.docView) {
+      console.log(context)
       setWaxContext(main)
-      main.state && AiDesigner.addAidCtx()
-      console.log(main)
-      AiDesigner.setStates(prev => ({ ...prev, view: main }))
+      AiDesigner.setStates(prev => ({
+        ...prev,
+        get view() {
+          return context.activeView
+        },
+      }))
+      main.state && AiDesigner.updateContext()
     }
-  }, [main?.docView])
+  }, [context.activeView])
 
   const showMore = () => {
     toggleMenu(!open)

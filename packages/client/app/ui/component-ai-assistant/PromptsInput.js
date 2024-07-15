@@ -104,7 +104,9 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
       Enter: () => !e.shiftKey && onSend(e),
       ArrowDown: () => {
         if (!e.shiftKey) return
-        const userHistory = selectedCtx.history.filter(v => v.role === 'user')
+        const userHistory = selectedCtx.conversation.filter(
+          v => v.role === 'user',
+        )
         if (userHistory.length < 1) return
         history.current.prompts.index > 0
           ? (history.current.prompts.index -= 1)

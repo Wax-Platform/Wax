@@ -66,7 +66,6 @@ const useAssistant = () => {
     setUserImages,
     updatePreview,
     previewRef,
-    getCtxBy,
     settings,
     css,
     useRag,
@@ -78,7 +77,7 @@ const useAssistant = () => {
 
   const client = useApolloClient()
   useEffect(() => {
-    console.log('from useai', selectedCtx.dataRef)
+    console.log('from useai', selectedCtx.aidctx)
   }, [selectedCtx])
   // const currentUser = useCurrentUser()
 
@@ -115,19 +114,19 @@ const useAssistant = () => {
         snippet: val => {
           addSnippet(null, val)
           AiDesigner.snippets.add(
-            selectedCtx.dataRef,
+            selectedCtx.aidctx,
             `aid-snip-${val.className}`,
           )
         },
         feedback: val => {
           setFeedback(val)
-          selectedCtx.history.push({ role: 'assistant', content: val })
+          selectedCtx.conversation.push({ role: 'assistant', content: val })
         },
         content: val => {
           setEditorContent(
             parseContent(editorContent, dom => {
               const selectedElement = dom.querySelector(
-                `[data-aidctx="${selectedCtx.dataRef}"]`,
+                `[data-aidctx="${selectedCtx.aidctx}"]`,
               )
 
               selectedElement && (selectedElement.innerHTML = val)
@@ -138,7 +137,7 @@ const useAssistant = () => {
           setEditorContent(
             parseContent(editorContent, doc => {
               const node = doc.querySelector(
-                `[data-aidctx="${selectedCtx.dataRef}"]`,
+                `[data-aidctx="${selectedCtx.aidctx}"]`,
               )
 
               addElement(node, {
@@ -157,7 +156,7 @@ const useAssistant = () => {
               setEditorContent(
                 parseContent(editorContent, doc => {
                   const node = doc.querySelector(
-                    `[data-aidctx="${selectedCtx.dataRef}"]`,
+                    `[data-aidctx="${selectedCtx.aidctx}"]`,
                   )
 
                   addElement(node, {
@@ -176,7 +175,7 @@ const useAssistant = () => {
             'The requested AI service is currently unavaiable\n Please, try again in a few seconds'
 
           setFeedback(feedback)
-          selectedCtx.history.push({
+          selectedCtx.conversation.push({
             role: 'assistant',
             content: feedback,
           })
@@ -232,10 +231,10 @@ const useAssistant = () => {
     }
 
     const clampedHistory =
-      takeRight(selectedCtx.history, settings.chat.historyMax) || []
+      takeRight(selectedCtx.conversation, settings.chat.historyMax) || []
 
     const systemPayload = {
-      ctx: selectedCtx ?? getCtxBy({ node: htmlSrc }),
+      ctx: AiDesigner.selected,
       sheet: css,
       selectors: getNodes(htmlSrc, '*', 'localName'),
       providedText: selectedCtx?.node !== htmlSrc && selectedCtx.node.innerHTML,
@@ -272,7 +271,7 @@ const useAssistant = () => {
       },
     })
 
-    selectedCtx.history.push({ role: 'user', content: userPrompt })
+    selectedCtx.conversation.push({ role: 'user', content: userPrompt })
   }
 
   const updateImageUrl = async (imagekey, cb) =>
