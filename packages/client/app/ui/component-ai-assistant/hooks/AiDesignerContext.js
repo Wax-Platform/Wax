@@ -168,14 +168,14 @@ export const AiDesignerProvider = ({ children }) => {
 
   const onSelect = ctx => {
     const node = ctx.node
+    setSelectedNode(node)
+    setSelectedCtx(ctx)
+    setMarkedSnippet('')
+
     tools.dropper.active && updateTools('brush', { data: node.className })
     tools.brush.active &&
       tools.brush.data &&
       AiDesigner.snippets.toggle(tools.brush.data)
-
-    setSelectedNode(node)
-    setSelectedCtx(ctx)
-    setMarkedSnippet('')
   }
 
   AiDesigner.on('select', onSelect)
@@ -302,33 +302,33 @@ export const AiDesignerProvider = ({ children }) => {
 
   // #region SNIPPETS -------------------------------------------------------------------
   const addSnippet = (node, snippet) => {
-    const snippetToAdd = !settings.snippetsManager.createNewSnippetVersions
+    const { snippets, createNewSnippetVersions, markNewSnippet } =
+      settings.snippetsManager
+    const snippetToAdd = !createNewSnippetVersions
       ? snippet
       : newSnippet(
           snippet,
-          settings.snippetsManager.snippets.map(s => s.className),
+          snippets.map(s => s.className),
         )
 
     node && node.classList.toggle(`aid-snip-${snippetToAdd.className}`)
 
-    const foundIndex = settings.snippetsManager.snippets.findIndex(
+    const foundIndex = snippets.findIndex(
       s => s.className === snippetToAdd.className,
     )
 
-    let snippets = [...settings.snippetsManager.snippets]
+    let finalOutput = [...snippets]
     foundIndex >= 0
-      ? (snippets[foundIndex] = snippetToAdd)
-      : (snippets = [...snippets, snippetToAdd])
+      ? (finalOutput[foundIndex] = snippetToAdd)
+      : (finalOutput = [...finalOutput, snippetToAdd])
 
     setSettings(prev => {
       const temp = prev
-      temp.snippetsManager.snippets = snippets
+      temp.snippetsManager.snippets = finalOutput
       return temp
     })
 
-    settings.snippetsManager.markNewSnippet &&
-      !markedSnippet &&
-      setMarkedSnippet(snippetToAdd.className)
+    markNewSnippet && !markedSnippet && setMarkedSnippet(snippetToAdd.className)
   }
 
   const removeSnippet = (snippetName, node) => {

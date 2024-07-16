@@ -1,5 +1,4 @@
-import { capitalize } from 'lodash'
-import { mapEntries, safeCall } from '../ui/component-ai-assistant/utils/utils'
+import { safeCall } from '../ui/component-ai-assistant/utils/utils'
 import EventEmitter from './EventEmitter'
 
 export class StateManager extends EventEmitter {

@@ -1,3 +1,5 @@
+/* stylelint-disable string-quotes */
+/* stylelint-disable no-descending-specificity */
 import React, { useContext } from 'react'
 import { FilePdfOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
@@ -21,42 +23,41 @@ import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 const DesignerTools = styled.div`
   --snippet-icon-st: #fff;
-  display: flex;
   align-items: center;
-  flex-direction: column;
   background: #fff;
   border-right: 1px solid #0002;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  width: 50px;
   outline: none;
   padding: 0;
   position: relative;
+  width: 50px;
 
   img:not(:first-child),
   .anticon svg,
   button > img {
-    object-fit: contain;
-    width: 100%;
-    height: 18px;
     color: var(--color-blue);
+    height: 18px;
+    object-fit: contain;
     transition: all 0.5s;
-  }
-  button {
-    filter: grayscale();
+    width: 100%;
   }
 
   > :first-child {
-    width: 22px;
-    margin: 8px 6px 10px 2px;
     height: 22px;
+    margin: 8px 6px 10px 2px;
+    width: 22px;
   }
+
   > *:not(:first-child) {
     border-bottom: 1px solid var(--color-blue-alpha-2);
-    padding: 5px;
-    height: 35px;
     border-radius: 3px;
-    width: 50px;
+    height: 35px;
+    padding: 5px;
     transition: all 0.3s;
+    width: 50px;
+
     &:hover {
       background: var(--color-blue-alpha-2);
     }
@@ -65,14 +66,15 @@ const DesignerTools = styled.div`
   button {
     background: none;
     border: none;
+    cursor: pointer;
+    filter: grayscale();
+    margin: 0;
     outline: none;
     padding: 0;
-    margin: 0;
-    cursor: pointer;
 
     > svg {
-      width: 20px;
       height: 20px;
+      width: 20px;
     }
   }
 
@@ -83,6 +85,7 @@ const DesignerTools = styled.div`
   svg {
     fill: var(--color-blue);
   }
+
   z-index: 999;
 `
 
@@ -110,7 +113,6 @@ const Toolbar = () => {
   const renderTool = ({ src, Icon, imgProps, ...rest }) => {
     return (
       <button type="button" {...rest}>
-        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         {Icon ? <Icon {...imgProps} /> : <img src={src} {...imgProps} />}
       </button>
     )

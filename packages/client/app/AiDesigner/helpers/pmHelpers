@@ -1,0 +1,60 @@
+import { isArray } from 'lodash'
+import AiDesigner from '../AiDesigner'
+import { SET } from '../../ui/component-ai-assistant/utils/SetExtension'
+
+export const getAllDescendants = node => {
+  let descendants = []
+
+  if (!node?.children?.length) {
+    return descendants
+  }
+
+  for (let child of node.children) {
+    descendants.push(child)
+    descendants = descendants.concat(getAllDescendants(child))
+  }
+
+  return descendants
+}
+
+export const findInPmDoc = (doc, ref) => {
+  let found
+  doc.descendants((node, pos) => {
+    if (node?.attrs?.dataset?.aidctx === ref) {
+      found = { node, pos }
+      return false
+    }
+  })
+  return found
+}
+
+export const onSnippet = (method, classNames) => {
+  if (!AiDesigner?.states?.view) return
+
+  const { view } = AiDesigner.states
+  const { aidctx, node: domNode } = AiDesigner.selected || {}
+  const { tr, doc } = view.state
+
+  const pos = findInPmDoc(doc, aidctx)?.pos
+
+  if (pos === null || !domNode) return
+  const resolvedPos = doc.resolve(pos)
+  const pmNode = resolvedPos.node()
+
+  const classes = isArray(classNames)
+    ? classNames
+    : classNames?.split(' ') ?? []
+
+  const domClasses = SET(domNode?.className?.split(' ') || [])
+
+  classes.forEach(domClasses[method]) // add, remove or toggle
+  const updatedClasses = [...domClasses].join(' ')
+
+  tr.setNodeMarkup(pos, null, {
+    ...pmNode.attrs,
+    dataset: { aidctx },
+    class: updatedClasses,
+  })
+
+  view.dispatch(tr)
+}

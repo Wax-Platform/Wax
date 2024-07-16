@@ -1,33 +1,51 @@
-import { capitalize, entries, isArray } from 'lodash'
+import { entries, keys } from 'lodash'
 import { safeId } from '../ui/component-ai-assistant/utils/helpers'
-import { onEntries, safeCall } from '../ui/component-ai-assistant/utils/utils'
+import {
+  onEntries,
+  onKeys,
+  safeCall,
+} from '../ui/component-ai-assistant/utils/utils'
 import { StateManager } from './StateManager'
-import { SET } from '../ui/component-ai-assistant/utils/SetExtension'
-import EventEmitter from './EventEmitter'
-function getAllDescendants(node) {
-  let descendants = []
-
-  if (!node?.children?.length) {
-    return descendants
-  }
-
-  for (let child of node.children) {
-    descendants.push(child)
-    descendants = descendants.concat(getAllDescendants(child))
-  }
-
-  return descendants
+import { onSnippet } from './helpers/pmHelpers'
+const defaultConfig = {
+  gui: {
+    showChatBubble: false,
+    advancedTools: true,
+  },
+  editor: {
+    contentEditable: true,
+    enablePaste: true,
+    displayStyles: true,
+    enableSelection: true,
+    selectionColor: {
+      bg: 'var(--color-blue-alpha-2)',
+      border: 'var(--color-blue-alpha-1)',
+    },
+  },
+  chat: {
+    historyMax: 6,
+  },
+  preview: {
+    livePreview: true,
+  },
 }
-
-function findInPmDoc(doc, ref) {
-  let found
-  doc.descendants((node, pos) => {
-    if (node?.attrs?.dataset?.aidctx === ref) {
-      found = { node, pos }
-      return false
-    }
+const updateObjectFromKey = (obj, setting, value) => {
+  const temp = { ...prev }
+  temp[setting] = { ...(temp[setting] || {}), ...value }
+  return temp
+}
+const validate = (src, input) => {
+  const newSrc = src
+  const validValues = {}
+  onEntries(
+    src,
+    (k, v) => valueToCheck =>
+      (validValues[k] = typeof valueToCheck === typeof v),
+  )
+  onEntries(input, (k, v) => {
+    if (input[k] && validValues[k](v)) newSrc[k] = v
   })
-  return found
+  return newSrc
 }
 
 export default class AiDesigner extends StateManager {
@@ -40,8 +58,33 @@ export default class AiDesigner extends StateManager {
     this.context = []
     this.selected = ''
   }
+  static config = defaultConfig
+
+  static setConfig(config) {
+    this.config = config
+    this.emit('setconfig', config)
+  }
+
+  static updateConfig(newConfig) {
+    onEntries(newConfig, (k, v) => (this.config[k] = v))
+    this.emit('updateconfig', newConfig, this.config)
+  }
+
+  static get snippets() {
+    const callbacks = {}
+    const keys = ['add', 'remove', 'toggle']
+    keys.forEach(k => (callbacks[k] = cls => onSnippet(k, cls)))
+    return callbacks
+  }
+
+  static get allInDom() {
+    return [...document.querySelectorAll('[data-aidctx]')]
+      .map(n => n.dataset.aidctx)
+      .filter(Boolean)
+  }
 
   static select(aidctx, cb) {
+    if (!this.getBy({ aidctx }) || !this.config.editor.enableSelection) return
     this.selected = this.getBy({ aidctx })
     safeCall(cb)(AiDesigner.selected)
     this.emit('select', this.selected)
@@ -53,65 +96,18 @@ export default class AiDesigner extends StateManager {
     return this.context?.find(match)
   }
 
-  static onClassNames(method, classNames) {
-    if (!this?.states?.view) return
-
-    const { view } = this.states
-    const { aidctx, node: domNode } = this.selected || {}
-    const { tr, doc } = view.state
-
-    const pos = findInPmDoc(doc, aidctx)?.pos
-
-    if (pos === null || !domNode) return
-    const resolvedPos = doc.resolve(pos)
-    const pmNode = resolvedPos.node()
-
-    const classes = isArray(classNames)
-      ? classNames
-      : classNames?.split(' ') ?? []
-
-    const domClasses = SET(domNode?.className?.split(' ') || [])
-
-    classes.forEach(domClasses[method]) // add, remove or toggle
-    const updatedClasses = [...domClasses].join(' ')
-
-    tr.setNodeMarkup(pos, null, {
-      ...pmNode.attrs,
-      dataset: { aidctx },
-      class: updatedClasses,
-    })
-
-    view.dispatch(tr)
-  }
-
-  static get snippets() {
-    return {
-      add: cls => this.onClassNames('add', cls),
-      remove: cls => this.onClassNames('remove', cls),
-      toggle: cls => this.onClassNames('toggle', cls),
-    }
-  }
-
-  static get allInDom() {
-    return [...document.querySelectorAll('[data-aidctx]')]
-      .map(n => n.dataset.aidctx)
-      .filter(Boolean)
-  }
-
   static updateContext() {
     if (!this.states?.view?.docView) return
     const { view } = this.states
     view.state.doc.descendants((node, pos) => {
       if (node.attrs.dataset) {
         const currentAid = node?.attrs?.dataset?.aidctx || ''
-
-        const allInDom = this.allInDom
-        const aidsInCtx = [...allInDom, ...(currentAid || [])]
-
+        const aidsInCtx = [...this.allInDom, ...(currentAid || [])]
         const isDuplicated = aidsInCtx.filter(n => n === currentAid).length > 1
-
         const aidctx =
-          currentAid && !isDuplicated ? currentAid : safeId('aid-ctx', allInDom)
+          currentAid && !isDuplicated
+            ? currentAid
+            : safeId('aid-ctx', this.allInDom)
 
         if (aidctx) {
           const tr = view.state.tr
@@ -133,7 +129,7 @@ export default class AiDesigner extends StateManager {
       },
       get tagName() {
         const node = document.querySelector(`[data-aidctx="${aidctx}"]`)
-        return node.localName || node.tagName?.toLowerCase()
+        return node?.localName || node?.tagName?.toLowerCase()
       },
     }
     this.context = [...(this.context || []), newContext]
