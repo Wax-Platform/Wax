@@ -21,8 +21,8 @@ import 'wax-prosemirror-services/dist/index.css'
 import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
-import AiDesigner from '../../component-ai-assistant/utils/AiDesigner'
 import { debounce } from 'lodash'
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;

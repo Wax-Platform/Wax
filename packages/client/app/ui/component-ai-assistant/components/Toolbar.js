@@ -17,7 +17,7 @@ import paintBucketIcon from '../../../../static/paint-bucket-icon.svg'
 import waxIcon from '../../../../static/waxdesignerwhite.svg'
 // import { SnippetIcon } from '../utils'
 import Each from '../utils/Each'
-import AiDesigner from '../utils/AiDesigner'
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 const DesignerTools = styled.div`
   --snippet-icon-st: #fff;

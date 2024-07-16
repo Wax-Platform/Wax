@@ -1,8 +1,8 @@
 import { capitalize, entries, isArray } from 'lodash'
-import { safeId } from './helpers'
-import { onEntries, safeCall } from './utils'
+import { safeId } from '../ui/component-ai-assistant/utils/helpers'
+import { onEntries, safeCall } from '../ui/component-ai-assistant/utils/utils'
 import { StateManager } from './StateManager'
-import { SET } from './SetExtension'
+import { SET } from '../ui/component-ai-assistant/utils/SetExtension'
 import EventEmitter from './EventEmitter'
 function getAllDescendants(node) {
   let descendants = []

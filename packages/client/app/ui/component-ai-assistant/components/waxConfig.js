@@ -10,7 +10,7 @@ import {
 } from 'wax-prosemirror-services'
 
 import AiStudioSchema from './waxSchema'
-import addAidctxPlugin from './addAidCtxPlugin'
+import addAidctxPlugin from '../../wax/pmPlugins/addAidCtxPlugin'
 
 const SchemaService = AiStudioSchema()
 const waxConfig = {

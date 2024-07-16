@@ -213,7 +213,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
     }
 
     return () => observer.disconnect()
-  }, [feedback])
+  }, [feedback, selectedCtx.conversation])
 
   return (
     <ChatHistoryContainer ref={threadRef} {...props}>

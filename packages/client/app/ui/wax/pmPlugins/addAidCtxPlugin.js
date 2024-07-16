@@ -1,8 +1,8 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Plugin } from 'prosemirror-state'
-import AiDesigner from '../utils/AiDesigner'
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 
-function addAidctxPlugin(setAidctx) {
+function addAidctxPlugin() {
   return new Plugin({
     props: {
       handleDOMEvents: {

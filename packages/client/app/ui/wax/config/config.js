@@ -7,7 +7,7 @@ import {
   InlineAnnotationsService,
   BaseService,
   CommentsService,
-  ImageService,
+  // ImageService,
   LinkService,
   ListsService,
   DisplayBlockLevelService,
@@ -28,11 +28,11 @@ import {
 
 import { TablesService, columnResizing } from 'wax-table-service'
 
-import { EditoriaSchema } from 'wax-prosemirror-core'
+// import { EditoriaSchema } from 'wax-prosemirror-core'
 
 import CharactersList from './characterList'
 import AiStudioSchema from '../../component-ai-assistant/components/waxSchema'
-import addAidctxPlugin from '../../component-ai-assistant/components/addAidCtxPlugin'
+import addAidctxPlugin from '../pmPlugins/addAidCtxPlugin'
 
 // import YjsService from './YjsService'
 

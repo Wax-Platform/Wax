@@ -17,7 +17,7 @@ import {
   srcdoc,
   initialPagedJSCSS,
 } from '../utils'
-import AiDesigner from '../utils/AiDesigner'
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 const defaultSettings = {
   gui: {

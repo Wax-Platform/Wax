@@ -19,7 +19,7 @@ export default class EventEmitter {
   }
 
   static emit(eventName, ...args) {
-    console.log('emmitting' + eventName, this.events[eventName])
+    console.log(`emmitting ${eventName}`, this.events[eventName])
     if (this.events[eventName]) {
       this.events[eventName].forEach(listener => listener.cb(...args))
     }

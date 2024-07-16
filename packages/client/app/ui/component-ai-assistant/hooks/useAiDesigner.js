@@ -29,7 +29,7 @@ import {
   GET_DOCUMENTS,
   GET_FILES_FROM_DOCUMENT,
 } from '../queries/documentAndSections'
-import AiDesigner from '../utils/AiDesigner'
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 const voidElements = [
   'area',

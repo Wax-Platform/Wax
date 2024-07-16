@@ -104,7 +104,7 @@ const nodeConfig = {
             src: dom.getAttribute('src'),
             alt: dom.getAttribute('alt'),
             id: dom.getAttribute('data-id'),
-            class: dom.getAttribute('class') || 'aid-snip-img-default',
+            class: dom.getAttribute('class').concat('aid-snip-img-default'),
             group: dom.getAttribute('data-group'),
             viewid: dom.getAttribute('data-viewid'),
             dataset: {
@@ -133,7 +133,41 @@ const nodeConfig = {
   blockquote: { group: 'block', content: 'block+' },
   article: { group: 'block', content: 'block+' },
   figure: { group: 'block', content: 'block+' },
-  table: { group: 'block', content: 'table_row+' },
+  table: {
+    group: 'block',
+    content: 'table_row+',
+    parseDOM: [
+      {
+        tag: 'table',
+        getAttrs(dom) {
+          return {
+            src: dom.getAttribute('src'),
+            alt: dom.getAttribute('alt'),
+            id: dom.getAttribute('data-id'),
+            class: dom.getAttribute('class'),
+            group: dom.getAttribute('data-group'),
+            viewid: dom.getAttribute('data-viewid'),
+            dataset: {
+              aidctx: dom.getAttribute('data-aidctx'),
+            },
+          }
+        },
+      },
+    ],
+    toDOM(node) {
+      const attrs = {
+        id: node.attrs.id,
+        class: node.attrs.class,
+        src: node.attrs.src,
+        alt: node.attrs.alt,
+        'data-group': node.attrs.group,
+        'data-viewid': node.attrs.viewid,
+        'data-aidctx': node.attrs.dataset.aidctx,
+      }
+
+      return ['table', attrs, 0]
+    },
+  },
   table_row: { group: 'block', content: '(table_cell | table_header)*' },
   list_item: { group: 'block', content: 'list_item block' },
   bullet_list: { group: 'block', content: 'list_item+' },

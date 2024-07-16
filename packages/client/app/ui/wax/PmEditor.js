@@ -12,8 +12,8 @@ import { Result, Spin } from '../common'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
 import { snippetsToCssText } from '../component-ai-assistant/utils'
-import AiDesigner from '../component-ai-assistant/utils/AiDesigner'
 import { debounce } from 'lodash'
+import AiDesigner from '../../AiDesigner/AiDesigner'
 
 const SpinnerWrapper = styled.div`
   display: ${props => (props.showSpinner ? 'block' : 'none')};
