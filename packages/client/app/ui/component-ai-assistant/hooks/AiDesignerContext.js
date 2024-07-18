@@ -134,6 +134,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [useRag, setUseRag] = useState(false)
   const [model, setModel] = useState(['openAi', 'gpt-4o', 'GPT-4o'])
   const [userImages, setUserImages] = useState('')
+  const [showSnippets, setShowSnippets] = useState(true)
   const [userPrompt, setUserPrompt] = useState('')
   // const [waxContext, setWaxContext] = useState({})
 
@@ -464,6 +465,8 @@ export const AiDesignerProvider = ({ children }) => {
         mutateSettings,
         getCtxNode,
         updateTools,
+        showSnippets,
+        setShowSnippets,
         tools,
         useRag,
         setUseRag,

@@ -22,6 +22,7 @@ import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
+import { debounce } from 'lodash'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -254,7 +255,7 @@ const Layout = props => {
     css,
     editorContent,
     settings,
-    setWaxContext,
+    updateSelectionBoxPosition,
   } = useContext(AiDesignerContext)
   const { loading, handleScroll } = useAssistant()
 
@@ -293,6 +294,10 @@ const Layout = props => {
     }
     updatePreview()
   }, [layout.editor])
+
+  useEffect(() => {
+    debounce(updateSelectionBoxPosition, 501)()
+  }, [layout])
 
   useEffect(() => {
     if (main?.docView) {

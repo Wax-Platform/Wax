@@ -45,13 +45,13 @@ const PromptBoxWrapper = styled.div`
   flex-direction: column;
   gap: 1rem;
   justify-content: space-between;
+  overflow: hidden;
+  padding: 8px;
+  position: absolute;
   right: ${p => {
     if (p.$showChat) return '20px'
     return p.$bothEditors ? '7.05%' : '22.5%'
   }};
-  overflow: hidden;
-  padding: 8px;
-  position: absolute;
   transition: all 0.5s;
   width: ${p => {
     if (p.$showChat) return 'calc(25% - 60px)'

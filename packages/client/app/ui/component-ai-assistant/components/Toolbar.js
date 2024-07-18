@@ -4,7 +4,7 @@
 import React, { useContext, useState } from 'react'
 import { FilePdfOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
-import { debounce, values } from 'lodash'
+import { values } from 'lodash'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import AidLogoSmall from '../../../../static/AI Design Studio-Icon.svg'
 import handCursor from '../../../../static/cursor-hand3.svg'
@@ -21,6 +21,7 @@ import waxIcon from '../../../../static/waxdesignerwhite.svg'
 // import { SnippetIcon } from '../utils'
 import Each from '../utils/Each'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
+import { SnipsDropDown } from './SnipsDropdown'
 
 const DesignerTools = styled.div`
   --snippet-icon-st: #fff;
@@ -49,17 +50,36 @@ const DesignerTools = styled.div`
   transition: transform 0.5s;
   user-select: none;
   width: 50px;
+  z-index: 99999999;
 
-  img,
-  .anticon svg,
-  button > img {
+  #snips-dropdown {
+    right: ${p => (p.$horizontal ? '0' : '53px')};
+    top: ${p => (p.$horizontal ? '53px' : '-1px')};
+    transition: all 0.4s;
+    z-index: 1;
+  }
+
+  > button,
+  > :first-child {
+    border: 1px solid #0000;
+    border-bottom: ${p =>
+      !p.$horizontal
+        ? '1px solid var(--color-blue-alpha-2)'
+        : '1px solid #0000'};
+    border-right: ${p =>
+      p.$horizontal
+        ? '1px solid var(--color-blue-alpha-2)'
+        : '1px solid #0000'};
+    height: ${p => (p.$horizontal ? '40px' : '30px')};
     transform: rotateZ(${p => (p.$horizontal ? '90deg' : '0')});
     transition: all 0.8s;
+    width: ${p => (p.$horizontal ? '40px' : '40px')};
+    z-index: 9;
   }
 
   img:not(:first-child),
-  .anticon svg,
-  button > img {
+  .anticon svg:not(#snips-dropdown .anticon svg),
+  > button > img {
     color: var(--color-blue);
     height: 18px;
     object-fit: contain;
@@ -73,12 +93,9 @@ const DesignerTools = styled.div`
   }
 
   > *:not(:first-child) {
-    border-bottom: 1px solid var(--color-blue-alpha-2);
     border-radius: 3px;
-    height: 35px;
     padding: 5px;
     transition: all 0.3s;
-    width: 50px;
 
     &:hover {
       background: var(--color-blue-alpha-2);
@@ -87,7 +104,6 @@ const DesignerTools = styled.div`
 
   button {
     background: none;
-    border: none;
     cursor: pointer;
     filter: grayscale();
     margin: 0;
@@ -104,11 +120,13 @@ const DesignerTools = styled.div`
     filter: none;
   }
 
+  button[data-dropdown='true'] {
+    background: var(--color-blue-alpha-2);
+  }
+
   svg {
     fill: var(--color-blue);
   }
-
-  z-index: 999;
 `
 
 const DragButton = styled.button`
@@ -125,7 +143,9 @@ const Toolbar = props => {
     tools: ctxTools,
     layout,
     selectedCtx,
+    showSnippets,
     editorContainerRef,
+    setShowSnippets,
     settings: {
       editor: { contentEditable, enableSelection, displayStyles },
     },
@@ -172,10 +192,11 @@ const Toolbar = props => {
       })
   }
 
-  const renderTool = ({ src, Icon, imgProps, ...rest }) => {
+  const renderTool = ({ src, Icon, imgProps, DropDown, ...rest }) => {
     return (
       <button type="button" {...rest}>
         {Icon ? <Icon {...imgProps} /> : <img src={src} {...imgProps} />}
+        {DropDown && <DropDown />}
       </button>
     )
   }
@@ -223,8 +244,14 @@ const Toolbar = props => {
       onClick: () => {
         updateTools('brush', { active: !ctxTools.brush.active }, ['dropper'])
       },
+      onDoubleClick: () => {
+        setShowSnippets(!showSnippets)
+      },
       imgProps: { style: { height: '22px' } },
-      'data-active': ctxTools.brush.active,
+      'data-active': showSnippets || ctxTools.brush.active,
+      'data-dropdown': showSnippets,
+      DropDown: SnipsDropDown,
+      style: { position: 'relative' },
     },
     paintBucket: {
       onClick: () => {

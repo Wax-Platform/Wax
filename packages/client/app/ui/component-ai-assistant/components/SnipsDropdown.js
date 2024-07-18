@@ -1,32 +1,36 @@
+/* stylelint-disable indentation */
+/* stylelint-disable no-descending-specificity */
 import { capitalize, debounce } from 'lodash'
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
+import { AiDesignerContext } from '../hooks/AiDesignerContext'
+import { EditOutlined, SearchOutlined } from '@ant-design/icons'
+import { htmlTagNames } from '../utils'
 const Root = styled.div`
+  font-size: 12px;
+  position: absolute;
+
   > :first-child {
-    background: ${p =>
-      p.$marked ? 'var(--color-green)' : 'var(--color-blue)'};
-    opacity: ${p => (p.$active ? 1 : 0.4)};
+    background: var(--color-blue);
+    opacity: ${p => (p.$active ? 1 : 0)};
     transform: scale(${p => (p.$active ? 1 : 0.9)});
+    transform-origin: inherit;
     transition: all 0.3s;
   }
 `
 
 const SubMenu = styled.div`
   background: ${p => (p.$marked ? 'var(--color-green)' : 'var(--color-blue)')};
-  border-radius: 5px;
   box-shadow: 0 0 5px #0001;
   display: flex;
   flex-direction: column;
   max-height: ${p => (p.$show ? '220px' : 0)};
-  max-width: ${p => (p.$show ? '300px' : 0)};
-  min-width: ${p => (p.$show ? '200px' : 0)};
+  max-width: 220px;
+  min-width: 220px;
   opacity: ${p => (p.$show ? 1 : 0.5)};
   overflow: hidden;
   padding: 0;
-  position: absolute;
-  right: -2px;
-  top: 27px;
   transition: all 0.3s linear, z-index 0s;
   width: fit-content;
   z-index: ${p => (p.$show ? 9 : 1)};
@@ -114,11 +118,11 @@ const Snippet = styled.span`
   color: #555;
   display: flex;
   gap: 4px;
+  height: 25px;
   outline: none;
   padding: 8px 5px;
   pointer-events: all;
   transition: all 0.2s;
-  width: 100%;
 
   > button {
     background: #0000;
@@ -134,7 +138,7 @@ const Snippet = styled.span`
     background: #f5fdfd;
   }
 `
-export const AddSnippetButton = ({ showSnippets, setShowSnippets }) => {
+export const SnipsDropDown = () => {
   const {
     settings,
     onHistory,
@@ -143,6 +147,8 @@ export const AddSnippetButton = ({ showSnippets, setShowSnippets }) => {
     markedSnippet,
     getCtxNode,
     updatePreview,
+    showSnippets,
+    setShowSnippets,
   } = useContext(AiDesignerContext)
 
   if (!settings.editor.enableSelection) return null
@@ -154,10 +160,6 @@ export const AddSnippetButton = ({ showSnippets, setShowSnippets }) => {
   const handleSearch = e => {
     setSearch(e.target.value)
   }
-
-  useEffect(() => {
-    setShowSnippets(false)
-  }, [selectedCtx.aidctx])
 
   const isAdded = name => getCtxNode()?.classList?.contains(`aid-snip-${name}`)
   const isMarked = name => name === markedSnippet
@@ -195,14 +197,13 @@ export const AddSnippetButton = ({ showSnippets, setShowSnippets }) => {
   }, [showSnippets, markedSnippet, selectedCtx.aidctx])
 
   return (
-    <Root $active data-element="element-options">
+    <Root $active data-element="element-options" id="snips-dropdown">
       <SubMenu
         $show={showSnippets}
         data-element="element-options"
         onMouseLeave={() => setShowSnippets(false)}
-        style={{ marginTop: '7px' }}
       >
-        <span data-element="element-options">
+        <span data-element="element-options" style={{}}>
           <small>Filter by:</small>
           <button
             data-element="element-options"
@@ -221,7 +222,13 @@ export const AddSnippetButton = ({ showSnippets, setShowSnippets }) => {
             name
           </button>
         </span>
-        <span style={{ width: '100%', padding: '3px 0.7rem 3px 0.7rem' }}>
+        <span
+          style={{
+            width: '100%',
+            padding: '3px 0.7rem 3px 0.7rem',
+            display: 'flex',
+          }}
+        >
           <SearchOutlined />
           <input
             data-element="element-options"
@@ -257,11 +264,9 @@ export const AddSnippetButton = ({ showSnippets, setShowSnippets }) => {
                     <Snippet
                       $active={!isMarked(className) && isAdded(className)}
                       $marked={isMarked(className)}
-                      data-element="element-options"
                       key={`${className}boxmenu`}
                     >
                       <button
-                        data-element="element-options"
                         onClick={e => {
                           e.preventDefault()
                           e.stopPropagation()
@@ -280,7 +285,6 @@ export const AddSnippetButton = ({ showSnippets, setShowSnippets }) => {
                         {capitalize(className?.replaceAll('-', ' '))}
                       </button>
                       <button
-                        data-element="element-options"
                         onClick={e => {
                           e.preventDefault()
                           e.stopPropagation()
