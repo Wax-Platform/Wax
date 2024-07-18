@@ -66,6 +66,7 @@ export default createGlobalStyle`
 
   div#assistant-ctx,
   .Prosemirror * {
+    content-visibility: auto;
     font-family: var(--font-family);
   }
 

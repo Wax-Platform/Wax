@@ -45,23 +45,7 @@ function addAidctxPlugin() {
             if (node && !node.isText) {
               const aidctx = node.attrs?.dataset?.aidctx
               //   const aidctx = node.attrs?.dataset?.aidctx ?? selectedCtx
-
-              //   const newAttrs = {
-              //     ...node.attrs,
-              //     dataset: { ...node.attrs.dataset, aidctx },
-              //     ...(tools.brush.active && tools.dropper.data
-              //       ? { class: tools.dropper.data }
-              //       : {}),
-              //   }
-
-              //   try {
-              //     tr.setNodeMarkup(nodePos, null, newAttrs)
-              //     dispatch(tr)
-              //   } catch (err) {
-              //     console.warn(err)
-              //   }
               // console.log(aidCtx)
-              // setAidctx(aidCtx || aidctx) // handle on react effect based on this state (same name)
               AiDesigner.select(aidCtx || aidctx, console.log)
               // }
             }

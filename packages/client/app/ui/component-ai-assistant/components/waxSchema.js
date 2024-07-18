@@ -8,6 +8,7 @@ const nodeDomMap = {
   blockquote: 'blockquote',
   code_block: 'pre',
   heading: 'h1',
+  title: 'h1',
   horizontal_rule: 'hr',
   bullet_list: 'ul',
   ordered_list: 'ol',
@@ -46,10 +47,10 @@ const nodeDomMap = {
 }
 
 const commonAttrs = {
-  id: { default: '' },
-  class: { default: '' },
-  group: { default: '' },
-  viewid: { default: '' },
+  id: { default: null },
+  class: { default: null },
+  group: { default: null },
+  viewid: { default: null },
   dataset: { default: {} },
 }
 
@@ -67,8 +68,28 @@ const generateHeadingsConfig = level => ({
   }),
 })
 
-const nodeConfig = {
+const nodesConfig = {
   heading: {
+    attrs: {
+      ...commonAttrs,
+      level: { default: 1 },
+    },
+    content: 'inline*',
+    group: 'block',
+    parseDOM: [1, 2, 3, 4, 5, 6].map(generateHeadingsConfig),
+    toDOM: node => {
+      const attrs = {
+        id: node.attrs.id,
+        class: node.attrs.class,
+        'data-group': node.attrs.group,
+        'data-viewid': node.attrs.viewid,
+        'data-aidctx': node.attrs.dataset.aidctx,
+      }
+
+      return [`h${node.attrs.level}`, attrs, 0]
+    },
+  },
+  title: {
     attrs: {
       ...commonAttrs,
       level: { default: 1 },
@@ -104,12 +125,12 @@ const nodeConfig = {
             src: dom.getAttribute('src'),
             alt: dom.getAttribute('alt'),
             id: dom.getAttribute('data-id'),
-            class: dom.getAttribute('class').concat('aid-snip-img-default'),
+            class: dom.getAttribute('class').concat(' aid-snip-img-default'),
             group: dom.getAttribute('data-group'),
             viewid: dom.getAttribute('data-viewid'),
+            imagekey: dom.getAttribute('data-imagekey'),
             dataset: {
               aidctx: dom.getAttribute('data-aidctx'),
-              imagekey: dom.getAttribute('data-imagekey'),
             },
           }
         },
@@ -124,7 +145,7 @@ const nodeConfig = {
         'data-group': node.attrs.group,
         'data-viewid': node.attrs.viewid,
         'data-aidctx': node.attrs.dataset.aidctx,
-        'data-imagekey': node.attrs.dataset.imagekey,
+        'data-imagekey': node.attrs.imagekey,
       }
 
       return ['img', attrs, 0]
@@ -185,7 +206,7 @@ const createNodeSchema = () => {
         group: 'inline',
       }
     } else {
-      const config = nodeConfig[pmName] || {}
+      const config = nodesConfig[pmName] || {}
       nodes[pmName] = {
         group: config.group || 'block',
         content: config.content || 'inline*',
@@ -222,6 +243,7 @@ const createNodeSchema = () => {
       }
     }
   })
+  console.log(nodes)
 
   return nodes
 }

@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
 import { emDash, ellipsis } from 'prosemirror-inputrules'
-import { yCursorPlugin, ySyncPlugin, yUndoPlugin } from 'y-prosemirror'
 
 import {
   InlineAnnotationsService,
@@ -33,8 +32,6 @@ import { TablesService, columnResizing } from 'wax-table-service'
 import CharactersList from './characterList'
 import AiStudioSchema from '../../component-ai-assistant/components/waxSchema'
 import addAidctxPlugin from '../pmPlugins/addAidCtxPlugin'
-
-// import YjsService from './YjsService'
 
 const { SERVER_URL } = process.env
 
@@ -109,7 +106,7 @@ const config = (yjsProvider, ydoc, docIdentifier) => ({
     ExternalAPIContentTransformation,
   },
   SchemaService: AiStudioSchema,
-  TitleService: { updateTitle: () => {} },
+  TitleService: { updateTitle: console.log },
   SpecialCharactersService: CharactersList,
   RulesService: [emDash, ellipsis],
   ShortCutsService: {},

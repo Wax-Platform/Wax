@@ -28,7 +28,7 @@ const defaultSettings = {
     contentEditable: true,
     enablePaste: true,
     displayStyles: true,
-    enableSelection: true,
+    enableSelection: false,
     selectionColor: {
       bg: 'var(--color-blue-alpha-2)',
       border: 'var(--color-blue-alpha-1)',
@@ -135,7 +135,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [model, setModel] = useState(['openAi', 'gpt-4o', 'GPT-4o'])
   const [userImages, setUserImages] = useState('')
   const [userPrompt, setUserPrompt] = useState('')
-  const [waxContext, setWaxContext] = useState({})
+  // const [waxContext, setWaxContext] = useState({})
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -145,7 +145,7 @@ export const AiDesignerProvider = ({ children }) => {
   // })
 
   const [layout, setLayout] = useState({
-    preview: true,
+    preview: false,
     editor: true,
     chat: false,
     input: true,
@@ -154,7 +154,8 @@ export const AiDesignerProvider = ({ children }) => {
 
   const [tools, setTools] = useState({
     dropper: { active: false, data: '' },
-    brush: { active: true, data: '', properties: {} },
+    brush: { active: false, data: '', properties: {} },
+    paintBucket: { active: false, data: '', properties: {} },
   })
 
   const updateLayout = updateObjectState(setLayout)
@@ -451,8 +452,8 @@ export const AiDesignerProvider = ({ children }) => {
         updateSnippetName,
         saveSession,
 
-        waxContext,
-        setWaxContext,
+        // waxContext,
+        // setWaxContext,
         editorContainerRef,
 
         previewScrollTopRef,

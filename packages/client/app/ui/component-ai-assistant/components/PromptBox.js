@@ -46,8 +46,8 @@ const PromptBoxWrapper = styled.div`
   gap: 1rem;
   justify-content: space-between;
   right: ${p => {
-    if (p.$showChat) return '70px'
-    return p.$bothEditors ? '10%' : '24.3%'
+    if (p.$showChat) return '20px'
+    return p.$bothEditors ? '7.05%' : '22.5%'
   }};
   overflow: hidden;
   padding: 8px;

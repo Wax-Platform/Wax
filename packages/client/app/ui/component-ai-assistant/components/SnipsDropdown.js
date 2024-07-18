@@ -1,136 +1,7 @@
-/* stylelint-disable no-descending-specificity */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable no-unused-vars */
-import React, {
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { capitalize, debounce } from 'lodash'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
-import { capitalize, debounce, uniqueId } from 'lodash'
-import { AiDesignerContext } from './hooks/AiDesignerContext'
-import { htmlTagNames, parseContent } from './utils'
-import AiDesigner from '../../AiDesigner/AiDesigner'
-
-const AbsoluteContainer = styled.span`
-  background-color: ${p => p.selectionColor.bg || 'var(--color-blue-alpha-2)'};
-  border: 1px dashed
-    ${p => p.selectionColor.border || 'var(--color-blue-alpha-1)'};
-  display: flex;
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  transition: top 0.3s, left 0.3s, width 0.3s, height 0.3s, opacity 0.3s;
-  z-index: 999;
-`
-
-const RelativeContainer = styled.div`
-  align-items: center;
-  display: flex;
-  font-size: 14px;
-  gap: 5px;
-  height: 35px;
-  justify-content: space-between;
-  margin-top: -35px;
-  position: relative;
-  white-space: nowrap;
-  width: 100%;
-  z-index: 999;
-
-  button {
-    background: var(--color-blue);
-    border: none;
-    border-radius: 50%;
-    box-shadow: 0 0 4px #0002;
-    color: #eee;
-    cursor: pointer;
-    outline: none;
-    padding: 5px;
-    pointer-events: all;
-  }
-
-  > span,
-  > span > span {
-    display: flex;
-    gap: 4px;
-  }
-
-  > small.element-type {
-    background-color: #fffe;
-    border-radius: 5px;
-    box-shadow: 0 0 4px #0002;
-    color: var(--color-blue);
-    line-height: 1;
-    padding: 5px 8px;
-  }
-`
-
-/* eslint-disable react/prop-types */
-const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
-  const {
-    selectionBoxRef,
-    selectedCtx,
-    updateSelectionBoxPosition,
-    settings,
-    selectedNode,
-    editorContainerRef,
-  } = useContext(AiDesignerContext)
-
-  const { advancedTools } = settings.gui
-
-  useLayoutEffect(() => {
-    if (!settings.editor.enableSelection) return
-    updateSelectionBoxPosition(yOffset, xOffset)
-    editorContainerRef?.current?.addEventListener(
-      'scroll',
-      updateSelectionBoxPosition,
-    )
-    editorContainerRef?.current?.addEventListener(
-      'resize',
-      updateSelectionBoxPosition,
-    )
-
-    return () => {
-      editorContainerRef?.current?.removeEventListener(
-        'scroll',
-        updateSelectionBoxPosition,
-      )
-
-      editorContainerRef?.current?.removeEventListener(
-        'resize',
-        updateSelectionBoxPosition,
-      )
-    }
-  }, [selectedNode])
-  if (!settings.editor.enableSelection) return null
-
-  return (
-    <AbsoluteContainer
-      data-rel-aidctx={selectedCtx?.aidctx}
-      ref={selectionBoxRef}
-      selectionColor={settings.editor.selectionColor}
-      {...rest}
-    >
-      {advancedTools && (
-        <RelativeContainer>
-          <small className="element-type">
-            {htmlTagNames[selectedCtx?.tagName] || 'Element'}
-          </small>
-          <span>
-            <AddSnippetButton data-element="element-options" />
-          </span>
-        </RelativeContainer>
-      )}
-    </AbsoluteContainer>
-  )
-}
-
-export default SelectionBox
-
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 const Root = styled.div`
   > :first-child {
     background: ${p =>
@@ -263,8 +134,7 @@ const Snippet = styled.span`
     background: #f5fdfd;
   }
 `
-
-const AddSnippetButton = () => {
+export const AddSnippetButton = ({ showSnippets, setShowSnippets }) => {
   const {
     settings,
     onHistory,
@@ -278,7 +148,6 @@ const AddSnippetButton = () => {
   if (!settings.editor.enableSelection) return null
 
   const searchSnippetRef = useRef(null)
-  const [showSnippets, setShowSnippets] = useState(false)
   const [search, setSearch] = useState('')
   const [searchByName, setSearchByName] = useState(false)
 
@@ -327,19 +196,6 @@ const AddSnippetButton = () => {
 
   return (
     <Root $active data-element="element-options">
-      <button
-        data-element="element-options"
-        label="show snippets"
-        onClick={() => setShowSnippets(!showSnippets)}
-        style={{ background: '#fffe', color: 'var(--color-blue)' }}
-        title="Add snippet"
-        type="button"
-      >
-        <PlusOutlined
-          data-element="element-options"
-          style={{ pointerEvents: 'none' }}
-        />
-      </button>
       <SubMenu
         $show={showSnippets}
         data-element="element-options"

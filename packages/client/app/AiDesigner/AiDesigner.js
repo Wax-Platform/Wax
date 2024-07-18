@@ -1,12 +1,8 @@
-import { entries, keys } from 'lodash'
+import { entries } from 'lodash'
 import { safeId } from '../ui/component-ai-assistant/utils/helpers'
-import {
-  onEntries,
-  onKeys,
-  safeCall,
-} from '../ui/component-ai-assistant/utils/utils'
+import { onEntries, safeCall } from '../ui/component-ai-assistant/utils/utils'
 import { StateManager } from './StateManager'
-import { onSnippet } from './helpers/pmHelpers'
+import { addClass } from './helpers/pmHelpers.js'
 const defaultConfig = {
   gui: {
     showChatBubble: false,
@@ -28,24 +24,6 @@ const defaultConfig = {
   preview: {
     livePreview: true,
   },
-}
-const updateObjectFromKey = (obj, setting, value) => {
-  const temp = { ...prev }
-  temp[setting] = { ...(temp[setting] || {}), ...value }
-  return temp
-}
-const validate = (src, input) => {
-  const newSrc = src
-  const validValues = {}
-  onEntries(
-    src,
-    (k, v) => valueToCheck =>
-      (validValues[k] = typeof valueToCheck === typeof v),
-  )
-  onEntries(input, (k, v) => {
-    if (input[k] && validValues[k](v)) newSrc[k] = v
-  })
-  return newSrc
 }
 
 export default class AiDesigner extends StateManager {
@@ -71,10 +49,10 @@ export default class AiDesigner extends StateManager {
   }
 
   static get snippets() {
-    const callbacks = {}
+    const actions = {}
     const keys = ['add', 'remove', 'toggle']
-    keys.forEach(k => (callbacks[k] = cls => onSnippet(k, cls)))
-    return callbacks
+    keys.forEach(k => (actions[k] = cls => addClass(k, cls)))
+    return actions
   }
 
   static get allInDom() {
@@ -96,18 +74,14 @@ export default class AiDesigner extends StateManager {
     return this.context?.find(match)
   }
 
-  static updateContext() {
-    if (!this.states?.view?.docView) return
-    const { view } = this.states
+  static updateContext(params) {
+    if (!params && !this.states?.view?.docView) return
+    const { view } = params ?? this.states
+
     view.state.doc.descendants((node, pos) => {
-      if (node.attrs.dataset) {
+      if (node && !node.isText) {
         const currentAid = node?.attrs?.dataset?.aidctx || ''
-        const aidsInCtx = [...this.allInDom, ...(currentAid || [])]
-        const isDuplicated = aidsInCtx.filter(n => n === currentAid).length > 1
-        const aidctx =
-          currentAid && !isDuplicated
-            ? currentAid
-            : safeId('aid-ctx', this.allInDom)
+        const aidctx = AiDesigner.idGen(currentAid)
 
         if (aidctx) {
           const tr = view.state.tr
@@ -118,6 +92,16 @@ export default class AiDesigner extends StateManager {
       }
     })
     console.log('context updated')
+  }
+
+  static idGen(currentAid) {
+    const aidsInCtx = [...this.allInDom, ...(currentAid || [])]
+    const isDuplicated = aidsInCtx.filter(n => n === currentAid).length > 1
+    const aidctx =
+      currentAid && !isDuplicated
+        ? currentAid
+        : safeId('aid-ctx', this.allInDom)
+    return aidctx
   }
 
   static addToContext({ aidctx, node }) {

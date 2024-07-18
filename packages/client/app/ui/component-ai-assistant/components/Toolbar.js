@@ -1,9 +1,10 @@
+/* stylelint-disable indentation */
 /* stylelint-disable string-quotes */
 /* stylelint-disable no-descending-specificity */
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { FilePdfOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
-import { values } from 'lodash'
+import { debounce, values } from 'lodash'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import AidLogoSmall from '../../../../static/AI Design Studio-Icon.svg'
 import handCursor from '../../../../static/cursor-hand3.svg'
@@ -24,15 +25,37 @@ import AiDesigner from '../../../AiDesigner/AiDesigner'
 const DesignerTools = styled.div`
   --snippet-icon-st: #fff;
   align-items: center;
-  background: #fff;
-  border-right: 1px solid #0002;
+  background: linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(
+        45deg,
+        var(--color-green),
+        var(--color-yellow),
+        var(--color-orange),
+        var(--color-blue)
+      )
+      border-box;
+  border: 3px solid transparent;
+  border-radius: 1.5rem;
+  box-shadow: 0 0 4px #0004, inset 0 0 2px #000a;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  /* height: 100%; */
   outline: none;
-  padding: 0;
-  position: relative;
+  padding: 10px 0;
+  position: absolute;
+  transform: rotateZ(${p => (p.$horizontal ? '-90deg' : '0')})
+    translateY(${p => (p.$horizontal ? '-60px' : '0')});
+  transform-origin: top right;
+  transition: transform 0.5s;
+  user-select: none;
   width: 50px;
+
+  img,
+  .anticon svg,
+  button > img {
+    transform: rotateZ(${p => (p.$horizontal ? '90deg' : '0')});
+    transition: all 0.8s;
+  }
 
   img:not(:first-child),
   .anticon svg,
@@ -40,13 +63,12 @@ const DesignerTools = styled.div`
     color: var(--color-blue);
     height: 18px;
     object-fit: contain;
-    transition: all 0.5s;
     width: 100%;
   }
 
   > :first-child {
     height: 22px;
-    margin: 8px 6px 10px 2px;
+    margin: ${p => (!p.$horizontal ? '8px 6px 10px 2px' : '8px 0px 10px 3px')};
     width: 22px;
   }
 
@@ -89,7 +111,13 @@ const DesignerTools = styled.div`
   z-index: 999;
 `
 
-const Toolbar = () => {
+const DragButton = styled.button`
+  background-color: #ddd;
+  height: 5px;
+  width: 15px;
+`
+
+const Toolbar = props => {
   const {
     mutateSettings,
     updateLayout,
@@ -102,12 +130,46 @@ const Toolbar = () => {
       editor: { contentEditable, enableSelection, displayStyles },
     },
   } = useContext(AiDesignerContext)
+  const [horizontal, setHorizontal] = useState(false)
+  const [position, setPosition] = useState({
+    top: 145,
+    left: window.visualViewport.width - 80,
+  })
+  const [cursor, setCursor] = useState('grab')
 
+  const handleMouseDown = event => {
+    event.preventDefault()
+    event.stopPropagation()
+    setCursor('grabbing')
+    // Capture initial mouse position relative to the viewport
+    let initialX = event.clientX - parseInt(position.left, 10)
+    let initialY = event.clientY - parseInt(position.top, 10)
+
+    const moveMouse = e => {
+      const newX = e.clientX - initialX
+      const newY = e.clientY - initialY
+
+      setPosition({
+        left: `${newX}px`,
+        top: `${newY}px`,
+      })
+    }
+
+    document.addEventListener('mousemove', moveMouse)
+
+    document.onclick = () => {
+      document.removeEventListener('mousemove', moveMouse)
+      document.onclick = null
+      setCursor('grab')
+    }
+  }
   const scrollToSelectedNode = () => {
     const node = document.querySelector(`[data-aidctx="${selectedCtx.aidctx}"`)
     node &&
       editorContainerRef?.current &&
-      editorContainerRef.current.scrollTo(0, node.offsetTop)
+      editorContainerRef.current.scrollTo(0, node.offsetTop, {
+        behavior: 'smooth',
+      })
   }
 
   const renderTool = ({ src, Icon, imgProps, ...rest }) => {
@@ -128,12 +190,13 @@ const Toolbar = () => {
         })
       },
       imgProps: {},
-      title: 'Selection box',
+      title: `${!enableSelection ? 'Enable' : 'Disable'} element selection`,
       'data-active': enableSelection,
     },
     goToSelectedNode: {
       src: targetIcon,
       onClick: scrollToSelectedNode,
+      title: 'Scroll to selected node',
       imgProps: {},
     },
     enableEdit: {
@@ -144,7 +207,7 @@ const Toolbar = () => {
         })
       },
       imgProps: { style: { height: '22px' } },
-      title: `Text editing (${contentEditable ? 'enabled' : 'disabled'} )`,
+      title: `${!contentEditable ? 'Enable' : 'Disable'} Text editing`,
       'data-active': contentEditable,
     },
     dropper: {
@@ -160,12 +223,18 @@ const Toolbar = () => {
       onClick: () => {
         updateTools('brush', { active: !ctxTools.brush.active }, ['dropper'])
       },
-      imgProps: { style: { transform: 'scaleX(-1)', height: '22px' } },
+      imgProps: { style: { height: '22px' } },
       'data-active': ctxTools.brush.active,
     },
     paintBucket: {
+      onClick: () => {
+        updateTools('paintBucket', { active: !ctxTools.paintBucket.active }, [
+          'dropper',
+          'brush',
+        ])
+      },
       src: paintBucketIcon,
-      imgProps: { style: { transform: 'scaleX(-1)', height: '22px' } },
+      imgProps: { style: { height: '22px' } },
       'data-active': ctxTools?.paintBucket?.active,
     },
     toggleChat: {
@@ -213,8 +282,17 @@ const Toolbar = () => {
   }
 
   return (
-    <DesignerTools>
-      <img alt="aid-logo" src={AidLogoSmall} />
+    <DesignerTools $horizontal={horizontal} {...props} style={{ ...position }}>
+      <img
+        onMouseDown={handleMouseDown}
+        onDoubleClick={() => {
+          setHorizontal(!horizontal)
+        }}
+        style={{ cursor }}
+        alt="aid-logo"
+        src={AidLogoSmall}
+      />
+
       <Each fallback={null} of={values(tools)} render={renderTool} />
     </DesignerTools>
   )

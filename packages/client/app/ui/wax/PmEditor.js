@@ -14,6 +14,7 @@ import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
 import { snippetsToCssText } from '../component-ai-assistant/utils'
 import { debounce } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
+import Toolbar from '../component-ai-assistant/components/Toolbar'
 
 const SpinnerWrapper = styled.div`
   display: ${props => (props.showSpinner ? 'block' : 'none')};
@@ -56,7 +57,7 @@ const PmEditor = ({
     updatePreview,
   } = useContext(AiDesignerContext)
 
-  const { displayStyles } = settings.editor
+  const { displayStyles, contentEditable } = settings.editor
   const { snippets } = settings.snippetsManager
 
   const editorRef = useRef(null)
@@ -126,6 +127,8 @@ const PmEditor = ({
           )}
         </style>
       )}
+      <Toolbar />
+
       <Wax
         config={WaxConfig}
         fileUpload={file => renderImage(file)}

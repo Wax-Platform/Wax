@@ -1,3 +1,4 @@
+/* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-no-important */
 /* stylelint-disable string-quotes */
 import React, { useContext, useEffect, useRef, useState } from 'react'
@@ -11,7 +12,6 @@ import YjsContext from '../../../yjsProvider'
 import theme from '../../../theme'
 import commonStyles from './cokoDocsWaxStyles'
 import MenuComponent from './MenuComponent'
-import Toolbar from '../../component-ai-assistant/components/Toolbar'
 
 import DocTreeManager from '../../dashboard/DocTreeManager/DocTreeManager'
 
@@ -21,7 +21,6 @@ import 'wax-prosemirror-services/dist/index.css'
 import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
-import { debounce } from 'lodash'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 const Wrapper = styled.div`
@@ -33,8 +32,8 @@ const Wrapper = styled.div`
   font-size: ${th('fontSizeBase')};
   height: 100%;
   line-height: ${grid(4)};
-  width: 100%;
   min-width: 100%;
+  width: 100%;
 
   * {
     box-sizing: border-box;
@@ -58,8 +57,8 @@ const InfoContainer = styled.div`
   }
 
   div div div div {
-    display: flex;
     color: #525e76;
+    display: flex;
     height: fit-content;
     margin: 0;
     padding-bottom: 6px;
@@ -71,10 +70,10 @@ const InfoContainer = styled.div`
 
     > div {
       height: fit-content;
-      width: fit-content;
       min-height: 240px;
       min-width: 300px;
       white-space: nowrap;
+      width: fit-content;
     }
   }
 `
@@ -152,7 +151,7 @@ const PreviewIframe = styled.iframe`
   border: none;
   display: flex;
   height: calc(100% - 10px);
-
+  pointer-events: none;
   width: 100%;
 `
 const ShowMore = styled(EllipsisOutlined)`
@@ -199,10 +198,8 @@ const WaxSurfaceScroll = styled.div`
   margin: 0;
   overflow: scroll;
   position: relative;
+  scroll-behavior: smooth;
   width: 100%;
-
-  /* stylelint-disable-next-line order/properties-alphabetical-order */
-  /* ${override('Wax.WaxSurfaceScroll')} */
 `
 
 const WaxEditorWrapper = styled.div`
@@ -300,7 +297,7 @@ const Layout = props => {
   useEffect(() => {
     if (main?.docView) {
       console.log(context)
-      setWaxContext(main)
+      // setWaxContext(main)
       AiDesigner.setStates(prev => ({
         ...prev,
         get view() {
@@ -417,7 +414,6 @@ const Layout = props => {
             </WindowHeading>
             <ChatHistory />
           </StyledWindow>
-          <Toolbar />
         </WaxEditorWrapper>
       </Wrapper>
     </ThemeProvider>
