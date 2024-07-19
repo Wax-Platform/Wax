@@ -1,5 +1,5 @@
 /* eslint-disable react/function-component-definition */
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { useApolloClient } from '@apollo/client'
 import {
   Route,
@@ -8,7 +8,8 @@ import {
   useLocation,
   useHistory,
 } from 'react-router-dom'
-
+import brushIcon from '../static/brush-icon.svg'
+import dropperIcon from '../static/dropper-icon.svg'
 import styled from 'styled-components'
 
 import {
@@ -34,12 +35,36 @@ import {
 } from './pages'
 
 import { CURRENT_USER } from './graphql'
-import { AiDesignerProvider } from './ui/component-ai-assistant/hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  AiDesignerProvider,
+} from './ui/component-ai-assistant/hooks/AiDesignerContext'
+import { entries, values } from 'lodash'
+import { mapEntries } from './ui/component-ai-assistant/utils'
 
 const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100dvh;
+`
+const FakeCursor = styled.div`
+  background: none;
+  cursor: none;
+  display: flex;
+  filter: brightness(0) drop-shadow(1px 0 0 white) drop-shadow(-1px 0 0 white)
+    drop-shadow(0 1px 0 white) drop-shadow(0 -1px 0 white);
+  height: 30px;
+  padding: 8px;
+  pointer-events: none;
+  position: absolute;
+  width: 30px;
+  z-index: 99999999999;
+
+  img {
+    height: auto;
+    object-fit: contain;
+    width: ${p => (p.tool === 'dropper' ? '25px' : '100%')};
+  }
 `
 
 const regexPaths = [
@@ -72,9 +97,55 @@ const regexPaths = [
     name: 'Email Not Verified page',
   },
 ]
+const ToolsCursor = () => {
+  const { tools } = useContext(AiDesignerContext)
+  const [position, setPosition] = useState({
+    top: 145,
+    left: window.visualViewport.width - 80,
+  })
 
+  const moveMouse = e => {
+    const newX = e.clientX
+    const newY = e.clientY
+
+    setPosition({
+      left: `${newX - 18}px`,
+      top: `${newY - 23}px`,
+    })
+  }
+  useLayoutEffect(() => {
+    document.querySelector('#layout-root').style.cursor =
+      values(tools)
+        .map(t => t.active)
+        .filter(Boolean).length > 0
+        ? 'none'
+        : 'unset'
+  }, [tools.brush.active, tools.dropper.active])
+
+  useEffect(() => {
+    document.addEventListener('mousemove', moveMouse)
+    return () => {
+      document.removeEventListener('mousemove', moveMouse)
+    }
+  }, [])
+
+  const cursors = {
+    brush: brushIcon,
+    dropper: dropperIcon,
+  }
+  const activeTool = mapEntries(tools, (k, v) => !!v.active && k).filter(
+    Boolean,
+  )[0]
+  return values(tools)
+    .map(t => t.active)
+    .filter(Boolean).length > 0 ? (
+    <FakeCursor style={{ ...position }} tool={activeTool}>
+      <img src={cursors[activeTool]} style={{ transform: 'scaleX(-1)' }} />
+    </FakeCursor>
+  ) : null
+}
 const Layout = props => {
-  const { children } = props
+  const { children, id } = props
   const history = useHistory()
 
   useEffect(() => {
@@ -100,7 +171,8 @@ const Layout = props => {
   }, [])
 
   return (
-    <LayoutWrapper>
+    <LayoutWrapper id={id}>
+      <ToolsCursor />
       {children}
       <VisuallyHiddenElement
         aria-live="polite"
@@ -195,10 +267,10 @@ const Authenticated = ({ children }) => {
 }
 
 const routes = enableLogin => (
-  <Layout>
-    <GlobalStyles />
-    <YjsProvider enableLogin={enableLogin}>
-      <AiDesignerProvider>
+  <AiDesignerProvider>
+    <Layout id="layout-root">
+      <GlobalStyles />
+      <YjsProvider enableLogin={enableLogin}>
         <SiteHeader enableLogin={enableLogin} />
         <StyledPage fadeInPages={false} padPages={false}>
           <Switch>
@@ -240,9 +312,9 @@ const routes = enableLogin => (
             <Route component={() => <Redirect to="/" />} path="*" />
           </Switch>
         </StyledPage>
-      </AiDesignerProvider>
-    </YjsProvider>
-  </Layout>
+      </YjsProvider>
+    </Layout>
+  </AiDesignerProvider>
 )
 
 export default enableLogin => {

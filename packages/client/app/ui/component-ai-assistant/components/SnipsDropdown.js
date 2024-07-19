@@ -1,12 +1,13 @@
 /* stylelint-disable indentation */
 /* stylelint-disable no-descending-specificity */
-import { capitalize, debounce } from 'lodash'
+import { capitalize, debounce, isString } from 'lodash'
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import { EditOutlined, SearchOutlined } from '@ant-design/icons'
 import { htmlTagNames } from '../utils'
+import { SET } from '../utils/SetExtension'
 const Root = styled.div`
   font-size: 12px;
   position: absolute;
@@ -27,22 +28,27 @@ const SubMenu = styled.div`
   flex-direction: column;
   max-height: ${p => (p.$show ? '220px' : 0)};
   max-width: 220px;
-  min-width: 220px;
+  min-width: ${p => (p.$show ? '220px' : 0)};
   opacity: ${p => (p.$show ? 1 : 0.5)};
   overflow: hidden;
   padding: 0;
   transition: all 0.3s linear, z-index 0s;
-  width: fit-content;
+  width: ${p => (p.$show ? '220px' : 0)};
   z-index: ${p => (p.$show ? 9 : 1)};
 
   > :first-child {
+    align-items: center;
     background: #0002;
+    display: flex;
+    height: 17px;
     padding: 0.3rem 0;
+    width: 220px;
 
     button {
       border-radius: 0;
       color: #fffb;
       font-size: 9px;
+      height: 20px;
       padding: 0 0.3rem;
       text-transform: uppercase;
     }
@@ -77,6 +83,10 @@ const SubMenu = styled.div`
       ::placeholder {
         color: #fff9;
       }
+    }
+
+    .anticon svg {
+      fill: #fff;
     }
   }
 
@@ -124,7 +134,8 @@ const Snippet = styled.span`
   pointer-events: all;
   transition: all 0.2s;
 
-  > button {
+  > button,
+  .anticon svg {
     background: #0000;
     border: none;
     border-radius: 0;
@@ -146,9 +157,11 @@ export const SnipsDropDown = () => {
     setMarkedSnippet,
     markedSnippet,
     getCtxNode,
-    updatePreview,
     showSnippets,
     setShowSnippets,
+    tools,
+    updateTools,
+    updateSelectionBoxPosition,
   } = useContext(AiDesignerContext)
 
   if (!settings.editor.enableSelection) return null
@@ -161,27 +174,32 @@ export const SnipsDropDown = () => {
     setSearch(e.target.value)
   }
 
-  const isAdded = name => getCtxNode()?.classList?.contains(`aid-snip-${name}`)
+  const isAdded = name =>
+    isString(tools.brush.data) && tools.brush.data.includes(`aid-snip-${name}`)
   const isMarked = name => name === markedSnippet
 
   const sortedSnippets = useMemo(() => {
     const { snippets } = settings.snippetsManager
 
     const sorted = [
-      ...snippets.map(s => isAdded(s.className) && s),
-      ...snippets.map(
-        s =>
-          !isAdded(s.className) &&
-          s.elementType === getCtxNode()?.localName &&
-          s,
+      ...SET(
+        [
+          ...snippets.map(s => isAdded(s.className) && s),
+          ...snippets.map(
+            s =>
+              (isAdded(s.className) ||
+                s.elementType === getCtxNode()?.localName) &&
+              s,
+          ),
+          ...snippets.map(
+            s =>
+              (isAdded(s.className) ||
+                s.elementType !== getCtxNode()?.localName) &&
+              s,
+          ),
+        ].filter(Boolean),
       ),
-      ...snippets.map(
-        s =>
-          !isAdded(s.className) &&
-          s.elementType !== getCtxNode()?.localName &&
-          s,
-      ),
-    ].filter(Boolean)
+    ]
 
     const markedSnip = sorted.find(s => s.className === markedSnippet)
 
@@ -193,8 +211,18 @@ export const SnipsDropDown = () => {
       sorted.unshift(markedSnip)
     }
 
-    return sorted
+    return [
+      ...SET(
+        [...snippets.filter(s => isAdded(s.className)), ...sorted].filter(
+          Boolean,
+        ),
+      ),
+    ]
   }, [showSnippets, markedSnippet, selectedCtx.aidctx])
+
+  // useEffect(() => {
+  //   selectedCtx?.tagName && setSearch(htmlTagNames[selectedCtx.tagName])
+  // }, [selectedCtx?.tagName])
 
   return (
     <Root $active data-element="element-options" id="snips-dropdown">
@@ -203,7 +231,7 @@ export const SnipsDropDown = () => {
         data-element="element-options"
         onMouseLeave={() => setShowSnippets(false)}
       >
-        <span data-element="element-options" style={{}}>
+        <span data-element="element-options">
           <small>Filter by:</small>
           <button
             data-element="element-options"
@@ -224,7 +252,6 @@ export const SnipsDropDown = () => {
         </span>
         <span
           style={{
-            width: '100%',
             padding: '3px 0.7rem 3px 0.7rem',
             display: 'flex',
           }}
@@ -271,12 +298,12 @@ export const SnipsDropDown = () => {
                           e.preventDefault()
                           e.stopPropagation()
                           onHistory.addRegistry('undo')
-                          AiDesigner.snippets.toggle(`aid-snip-${className}`)
-                          debounce(() => {
-                            setShowSnippets(true)
-                          }, 100)()
-
-                          updatePreview()
+                          const toolsToSET = SET(tools.brush.data.split(' '))
+                          const data = [
+                            ...toolsToSET.toggle(`aid-snip-${className}`),
+                          ].join(' ')
+                          updateTools('brush', { data })
+                          debounce(updateSelectionBoxPosition, 800)()
                           isMarked(className) && setMarkedSnippet('')
                         }}
                         title={description}

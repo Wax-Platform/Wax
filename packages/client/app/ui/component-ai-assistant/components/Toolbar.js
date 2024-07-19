@@ -1,10 +1,16 @@
 /* stylelint-disable indentation */
 /* stylelint-disable string-quotes */
 /* stylelint-disable no-descending-specificity */
-import React, { useContext, useState } from 'react'
+import React, {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { FilePdfOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
-import { values } from 'lodash'
+import { debounce, values } from 'lodash'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import AidLogoSmall from '../../../../static/AI Design Studio-Icon.svg'
 import handCursor from '../../../../static/cursor-hand3.svg'
@@ -55,7 +61,7 @@ const DesignerTools = styled.div`
   #snips-dropdown {
     right: ${p => (p.$horizontal ? '0' : '53px')};
     top: ${p => (p.$horizontal ? '53px' : '-1px')};
-    transition: all 0.4s;
+    transition: all 0.3s;
     z-index: 1;
   }
 
@@ -105,10 +111,14 @@ const DesignerTools = styled.div`
   button {
     background: none;
     cursor: pointer;
-    filter: grayscale();
     margin: 0;
     outline: none;
     padding: 0;
+
+    .anticon svg:not(#snips-dropdown .anticon svg),
+    > img {
+      filter: grayscale();
+    }
 
     > svg {
       height: 20px;
@@ -117,7 +127,10 @@ const DesignerTools = styled.div`
   }
 
   button[data-active='true'] {
-    filter: none;
+    .anticon svg:not(#snips-dropdown .anticon svg),
+    > img {
+      filter: none;
+    }
   }
 
   button[data-dropdown='true'] {
@@ -150,9 +163,11 @@ const Toolbar = props => {
       editor: { contentEditable, enableSelection, displayStyles },
     },
   } = useContext(AiDesignerContext)
+
+  const toolbarRef = useRef(null)
   const [horizontal, setHorizontal] = useState(false)
   const [position, setPosition] = useState({
-    top: 145,
+    top: 135,
     left: window.visualViewport.width - 80,
   })
   const [cursor, setCursor] = useState('grab')
@@ -161,18 +176,17 @@ const Toolbar = props => {
     event.preventDefault()
     event.stopPropagation()
     setCursor('grabbing')
-    // Capture initial mouse position relative to the viewport
+    toolbarRef.current.style.transition &&
+      (toolbarRef.current.style.transition = '')
+
     let initialX = event.clientX - parseInt(position.left, 10)
     let initialY = event.clientY - parseInt(position.top, 10)
 
     const moveMouse = e => {
-      const newX = e.clientX - initialX
-      const newY = e.clientY - initialY
+      const left = e.clientX - initialX > 80 ? e.clientX - initialX : 80
+      const top = e.clientY - initialY > 135 ? e.clientY - initialY : 135
 
-      setPosition({
-        left: `${newX}px`,
-        top: `${newY}px`,
-      })
+      setPosition({ left, top })
     }
 
     document.addEventListener('mousemove', moveMouse)
@@ -183,6 +197,37 @@ const Toolbar = props => {
       setCursor('grab')
     }
   }
+  const limitPosition = () => {
+    const { width, height } = toolbarRef?.current?.getBoundingClientRect() || {}
+    const axis = horizontal ? width : 56
+    const top =
+      position.top + 15 > window.visualViewport.height - height
+        ? window.visualViewport.height - height - 15
+        : position.top
+    const left =
+      position.left + 20 > window.visualViewport.width - width
+        ? window.visualViewport.width - axis - 20
+        : position.left
+    setPosition({
+      top,
+      left,
+    })
+  }
+  useLayoutEffect(() => {
+    limitPosition()
+  }, [position.left, position.top])
+
+  useEffect(() => {
+    toolbarRef.current.style.transition = 'all 0.5s'
+    debounce(() => {
+      if (!toolbarRef?.current) return
+      limitPosition()
+      debounce(() => {
+        if (!toolbarRef?.current) return
+        toolbarRef.current.style.transition = ''
+      }, 500)()
+    }, 300)()
+  }, [horizontal])
   const scrollToSelectedNode = () => {
     const node = document.querySelector(`[data-aidctx="${selectedCtx.aidctx}"`)
     node &&
@@ -242,13 +287,14 @@ const Toolbar = props => {
     brush: {
       src: brushIcon,
       onClick: () => {
-        updateTools('brush', { active: !ctxTools.brush.active }, ['dropper'])
+        !showSnippets &&
+          updateTools('brush', { active: !ctxTools.brush.active }, ['dropper'])
       },
       onDoubleClick: () => {
         setShowSnippets(!showSnippets)
       },
       imgProps: { style: { height: '22px' } },
-      'data-active': showSnippets || ctxTools.brush.active,
+      'data-active': ctxTools.brush.active,
       'data-dropdown': showSnippets,
       DropDown: SnipsDropDown,
       style: { position: 'relative' },
@@ -308,8 +354,17 @@ const Toolbar = props => {
     },
   }
 
+  useEffect(() => {
+    !enableSelection && AiDesigner.select('aid-ctx-main')
+  }, [enableSelection])
+
   return (
-    <DesignerTools $horizontal={horizontal} {...props} style={{ ...position }}>
+    <DesignerTools
+      ref={toolbarRef}
+      $horizontal={horizontal}
+      {...props}
+      style={{ top: `${position.top}px`, left: `${position.left}px` }}
+    >
       <img
         onMouseDown={handleMouseDown}
         onDoubleClick={() => {
