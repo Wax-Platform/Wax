@@ -535,7 +535,7 @@ export const AiDesignerSystem = ({
   snippets,
   waxClass,
 }) => {
-  const isSE = providedText
+  const isSE = ctx?.aidctx !== 'aid-ctx-main'
 
   const context = generatedContext(
     isSE,

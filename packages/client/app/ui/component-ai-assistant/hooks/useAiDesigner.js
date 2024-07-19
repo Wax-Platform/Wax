@@ -181,7 +181,6 @@ const useAssistant = () => {
       })
 
       updatePreview(true)
-      setUserPrompt('')
     },
   })
 
@@ -214,6 +213,7 @@ const useAssistant = () => {
   const handleSend = async e => {
     if (loading || userPrompt?.length < 2 || !selectedCtx?.node) return
     e?.preventDefault()
+    setFeedback(userPrompt)
 
     const input = {
       text: [userPrompt],
@@ -233,6 +233,7 @@ const useAssistant = () => {
       waxClass: '.ProseMirror[contenteditable]',
     }
 
+    selectedCtx.conversation.push({ role: 'user', content: userPrompt })
     const system = AiDesignerSystem(systemPayload)
 
     if (useRag) {
@@ -260,8 +261,7 @@ const useAssistant = () => {
         model,
       },
     })
-
-    selectedCtx.conversation.push({ role: 'user', content: userPrompt })
+    setUserPrompt('')
   }
 
   const updateImageUrl = async (imagekey, cb) =>

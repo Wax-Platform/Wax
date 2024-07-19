@@ -1,7 +1,13 @@
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-no-important */
 /* stylelint-disable string-quotes */
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import styled, { ThemeProvider } from 'styled-components'
 import { WaxContext, ComponentPlugin, WaxView } from 'wax-prosemirror-core'
 import { grid, th, override } from '@coko/client'
@@ -109,6 +115,10 @@ const MenuWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
   font-size: 16px;
+  /* max-height: ${p => (p.$show ? '80px' : '0')};
+  opacity: ${p => (p.$show ? '1' : '0')};
+  pointer-events: ${p => (p.$show ? 'all' : 'none')}; */
+  transition: all 0.3s;
 
   div:last-child {
     margin-left: auto;
@@ -292,12 +302,14 @@ const Layout = props => {
     if (!layout.editor) {
       !layout.preview && updateLayout({ preview: true })
     }
+    debounce(updateSelectionBoxPosition, 800)()
+
     updatePreview()
   }, [layout.editor])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     debounce(updateSelectionBoxPosition, 501)()
-  }, [layout])
+  }, [layout.editor, layout.preview, layout.chat])
 
   useEffect(() => {
     if (main?.docView) {
@@ -310,6 +322,7 @@ const Layout = props => {
         },
       }))
       main.state && AiDesigner.updateContext()
+      main.state && AiDesigner.select('aid-ctx-main')
     }
   }, [context.activeView])
 
@@ -357,12 +370,14 @@ const Layout = props => {
         }}
       >
         <PromptBox></PromptBox>
-        <MenuWrapper>
+
+        <MenuWrapper $show={!settings.editor.enableSelection}>
           {main && (
             <MenuComponent fullScreen={fullScreen} open={open} ref={ref} />
           )}
           <ShowMore onClick={showMore} />
         </MenuWrapper>
+
         <WaxEditorWrapper>
           {props.showFilemanager && (
             <FileManagerWrapper>

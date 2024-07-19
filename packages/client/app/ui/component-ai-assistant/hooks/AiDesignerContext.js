@@ -18,6 +18,7 @@ import {
   initialPagedJSCSS,
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
+import { snippets } from '../utils/snippets'
 
 const defaultSettings = {
   gui: {
@@ -39,53 +40,7 @@ const defaultSettings = {
     showCssByDefault: true,
     createNewSnippetVersions: false,
     markNewSnippet: true,
-    snippets: [
-      {
-        className: 'red-color',
-        elementType: 'p',
-        description: 'red color',
-        classBody: 'color: red;',
-      },
-      {
-        className: 'img-default',
-        elementType: 'img',
-        description: 'Default styles for images',
-        classBody: 'width: 100%; height: auto; object-fit: contain;',
-      },
-      {
-        className: 'excel-table',
-        elementType: 'table',
-        description:
-          'Styles the table to resemble an Excel spreadsheet with professional styling.',
-        classBody:
-          "border-collapse: collapse; width: 100%;\n  th, td {\n    border: 1px solid #dddddd;\n    text-align: left;\n    padding: 8px;\n  }\n  th {\n    background-color: #f2f2f2;\n    color: #333;\n  }\n  tr:nth-child(even) {\n    background-color: #f9f9f9;\n  }\n  tr:hover {\n    background-color: #f1f1f1;\n  }\n  td {\n    font-family: Arial, sans-serif;\n  }\n  th {\n    font-family: 'Calibri', sans-serif;\n    font-weight: bold;\n  }\n",
-      },
-      {
-        className: 'text-flow-around-image',
-        elementType: 'any',
-        description: 'Makes the text flow around the images',
-        classBody: `img, figure, picture, svg {\n\tfloat: left;\n\tmargin-right: 2ch;\n}\np {\n\ttext-align: justify;\n}`,
-      },
-      {
-        className: 'scale',
-        elementType: 'any',
-        description: 'scales the element',
-        classBody: 'transform: scale(1.1);',
-      },
-      {
-        className: 'grayscale',
-        elementType: 'any',
-        description: 'grayscale the element',
-        classBody: 'filter: grayscale(100%);',
-      },
-      // {
-      //   className: 'tibetan-to-phonetics',
-      //   description:
-      //     'this is the snippet applied to all tibetan to phonetics translations',
-      //   classBody: 'color: red;\nfont-style: italic;',
-      //   elementType: 'any',
-      // },
-    ],
+    snippets,
   },
   Icons: {
     SendIcon,
@@ -134,7 +89,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [useRag, setUseRag] = useState(false)
   const [model, setModel] = useState(['openAi', 'gpt-4o', 'GPT-4o'])
   const [userImages, setUserImages] = useState('')
-  const [showSnippets, setShowSnippets] = useState(true)
+  const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
   // const [waxContext, setWaxContext] = useState({})
 
@@ -173,6 +128,8 @@ export const AiDesignerProvider = ({ children }) => {
     setSelectedNode(node)
     setSelectedCtx(ctx)
     setMarkedSnippet('')
+
+    if (node === htmlSrc) return
 
     tools.dropper.active && updateTools('brush', { data: node.className })
     tools.brush.active &&

@@ -294,7 +294,7 @@ const AiStudioSchema = {
       selectable: false,
       parseDOM: [{ tag: 'br' }],
       toDOM() {
-        return ['br']
+        return null
       },
     },
   },

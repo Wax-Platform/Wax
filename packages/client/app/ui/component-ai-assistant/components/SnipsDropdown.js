@@ -1,9 +1,8 @@
 /* stylelint-disable indentation */
 /* stylelint-disable no-descending-specificity */
 import { capitalize, debounce, isString } from 'lodash'
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useContext, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
-import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import { EditOutlined, SearchOutlined } from '@ant-design/icons'
 import { htmlTagNames } from '../utils'
