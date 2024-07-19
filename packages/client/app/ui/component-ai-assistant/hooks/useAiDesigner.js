@@ -150,17 +150,10 @@ const useAssistant = () => {
             variables: { input: val },
           }).then(({ data: { generateImages: aiImages } }) => {
             isSingleNode &&
-              setEditorContent(
-                parseContent(editorContent, doc => {
-                  const node = doc.querySelector(
-                    `[data-aidctx="${selectedCtx.aidctx}"]`,
-                  )
-
-                  addElement(node, {
-                    html: `<img class="aid-snip-img-default" src="${aiImages.s3url}" data-imgkey="${aiImages.imageKey}" />`,
-                  })
-                }),
-              )
+              AiDesigner.insertImage({
+                src: aiImages.s3url,
+                'data-imagekey': aiImages.imageKey,
+              })
             client.refetchQueries({
               include: [GET_IMAGES_URL],
             })

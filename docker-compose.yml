@@ -82,6 +82,12 @@ services:
       - MAILER_PASSWORD=${MAILER_PASSWORD}
       - PASSWORD_RESET_PATH=${PASSWORD_RESET_PATH:-password-reset}
       - CLIENT_SHOW_EMAIL_LOGIN_OPTION=${CLIENT_SHOW_EMAIL_LOGIN_OPTION:-true}
+      - S3_PROTOCOL=http
+      - S3_HOST=${S3_HOST:-filehosting}
+      - S3_PORT=${S3_PORT:-9000}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-nonRootUser}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-nonRootPassword}
+      - S3_BUCKET=${S3_BUCKET:-uploads}
     volumes:
       - ./packages/server/api:/home/node/wax/api
       - ./packages/server/config:/home/node/wax/config
@@ -132,7 +138,7 @@ services:
         /usr/bin/mc admin user add cokoServer/ ${S3_ACCESS_KEY_ID:-nonRootUser} ${S3_SECRET_ACCESS_KEY:-nonRootPassword};
         /usr/bin/mc admin user enable cokoServer/ ${S3_ACCESS_KEY_ID:-nonRootUser};
         /usr/bin/mc mb cokoServer/${S3_BUCKET:-uploads};
-        /usr/bin/mc admin policy set cokoServer/ readwrite user=${S3_ACCESS_KEY_ID:-nonRootUser};
+        /usr/bin/mc admin policy attach cokoServer/ readwrite --user ${S3_ACCESS_KEY_ID:-nonRootUser};
         exit 0;
       "
 

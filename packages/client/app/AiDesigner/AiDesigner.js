@@ -2,7 +2,7 @@ import { entries } from 'lodash'
 import { safeId } from '../ui/component-ai-assistant/utils/helpers'
 import { onEntries, safeCall } from '../ui/component-ai-assistant/utils/utils'
 import { StateManager } from './StateManager'
-import { addClass } from './helpers/pmHelpers.js'
+import { addClass, insertImageAfterNode } from './helpers/pmHelpers.js'
 const defaultConfig = {
   gui: {
     showChatBubble: false,
@@ -53,6 +53,10 @@ export default class AiDesigner extends StateManager {
     const keys = ['add', 'remove', 'toggle']
     keys.forEach(k => (actions[k] = cls => addClass(k, cls)))
     return actions
+  }
+
+  static insertImage(imgAttrs) {
+    insertImageAfterNode(imgAttrs)
   }
 
   static get allInDom() {

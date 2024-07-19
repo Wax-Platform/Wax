@@ -40,6 +40,7 @@ module.exports = {
     host: 'localhost',
     uploads: 'uploads',
     pool: { min: 0, max: 10, idleTimeoutMillis: 1000 },
+    useFileStorage: true,
   },
   teams: {
     global: {

@@ -117,6 +117,9 @@ const nodesConfig = {
       class: { default: 'aid-snip-img-default' },
       dataset: { default: {} },
     },
+    inline: false,
+    group: 'block',
+    content: '',
     parseDOM: [
       {
         tag: 'img',

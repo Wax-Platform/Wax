@@ -8,17 +8,22 @@ const elementFromString = string => {
   return doc.body
 }
 
-export const insertImageAfterNode = (view, pos, imgAttrs) => {
+export const insertImageAfterNode = imgAttrs => {
+  const { view } = AiDesigner.states
+
   const { state, dispatch } = view
-  const { tr } = state
+  const { tr, doc, schema } = state
+
+  const { aidctx } = AiDesigner.selected
+
+  const { pos } = findInPmDoc(doc, aidctx) || {}
 
   const $pos = state.doc.resolve(pos)
   const imageNode = schema.nodes.image.create({
     ...imgAttrs,
   })
 
-  const insertPos =
-    $pos.pos + ($pos.nodeAfter ? $pos.nodeAfter.content.size : 0)
+  const insertPos = $pos.pos + 1
 
   const transaction = tr.insert(insertPos, imageNode)
 
