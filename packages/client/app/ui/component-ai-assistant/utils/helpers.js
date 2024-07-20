@@ -21,6 +21,13 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
     <body>
       ${htmlSrc}
       <script>
+          window.addEventListener('click', (event) => {
+              const { target } = event;
+            if (!target.hasAttribute('data-aidctx')) event.preventDefault();
+              const aidctx = event.target.getAttribute('data-aidctx');
+
+              if (aidctx) window.parent.postMessage({ aidctx }, '*');
+          });
         document.addEventListener("DOMContentLoaded", () => {
           const scopeIsReady = document.getElementById("css-assistant-scope")
 
@@ -33,6 +40,7 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
 
           setTimeout(() => document.documentElement.scrollTo(0, ${scrollPos}), 100)
         });
+
           document.addEventListener("scroll", () => {
             if(document.documentElement.scrollTop < 10) {
               document.documentElement.scrollTo(0, 10)

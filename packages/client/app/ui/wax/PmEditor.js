@@ -84,6 +84,18 @@ const PmEditor = ({
   const { refElement } = usePrintArea({})
 
   useEffect(() => {
+    const handleMessage = e => {
+      const aidctx = e.data.aidctx
+      AiDesigner.select(aidctx)
+    }
+
+    window.addEventListener('message', handleMessage)
+
+    return () => {
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [])
+  useEffect(() => {
     if (docIdentifier) {
       yjsProvider?.disconnect()
       setShowSpinner(true)

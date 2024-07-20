@@ -130,9 +130,9 @@ const ToolsCursor = () => {
   }, [tools.brush.active, tools.dropper.active, enableSelection])
 
   useEffect(() => {
-    document.addEventListener('mousemove', moveMouse)
+    window.addEventListener('mousemove', moveMouse)
     return () => {
-      document.removeEventListener('mousemove', moveMouse)
+      window.removeEventListener('mousemove', moveMouse)
     }
   }, [])
 

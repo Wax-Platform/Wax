@@ -162,7 +162,7 @@ const PreviewIframe = styled.iframe`
   border: none;
   display: flex;
   height: calc(100% - 10px);
-  pointer-events: none;
+  /* pointer-events: none; */
   width: 100%;
 `
 const ShowMore = styled(EllipsisOutlined)`

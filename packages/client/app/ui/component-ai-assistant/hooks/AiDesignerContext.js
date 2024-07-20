@@ -114,6 +114,14 @@ export const AiDesignerProvider = ({ children }) => {
     paintBucket: { active: false, data: '', properties: {} },
   })
 
+  const [userInteractions, setUserInteraction] = useState({
+    mousedown: false,
+    mousemove: false,
+    shift: false,
+    ctrl: false,
+    alt: false,
+  })
+
   const updateLayout = updateObjectState(setLayout)
 
   const mutateSettings = updateObjectStateFromKey(setSettings)
