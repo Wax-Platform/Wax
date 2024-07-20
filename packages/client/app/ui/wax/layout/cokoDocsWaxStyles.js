@@ -10,7 +10,7 @@ export default css`
     --wght: 300;
     --slnt: 1;
     --crsv: 0.7;
-
+    background: var(--color-background, #fff);
     font-family: '${th('fontContent')}';
     font-size: 0.95em;
     font-variation-settings: 'MONO' var(--mono), 'CASL' var(--casl),
@@ -50,6 +50,11 @@ export default css`
       counter-increment: item;
     }
 
+    img {
+      height: auto;
+      object-fit: contain;
+      width: 100%;
+    }
     /* stylelint-disable-next-line order/properties-alphabetical-order */
     ${override('Wax.ProseMirror')}
   }

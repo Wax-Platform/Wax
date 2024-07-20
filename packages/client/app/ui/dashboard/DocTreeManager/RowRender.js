@@ -15,8 +15,8 @@ const RowContainer = styled.div`
   flex-direction: column;
   margin-top: 10px;
   margin-bottom: 5px;
-  color: ${props => (props.isActive ? 'black' : 'inherit')}
-  font-weight: ${props => (props.isActive ? '600' : 'normal')}
+  color: ${props => (props.isActive ? 'black' : 'inherit')};
+  font-weight: ${props => (props.isActive ? '600' : 'normal')};
 `
 const TitleToolsContainer = styled.div`
   display: flex;
