@@ -237,13 +237,13 @@ const Toolbar = props => {
       })
   }
 
-  const renderTool = ({ src, Icon, imgProps, DropDown, ...rest }) => {
-    return (
+  const renderTool = ({ src, Icon, imgProps, DropDown, disabled, ...rest }) => {
+    return !disabled ? (
       <button type="button" {...rest}>
         {Icon ? <Icon {...imgProps} /> : <img src={src} {...imgProps} />}
         {DropDown && <DropDown />}
       </button>
-    )
+    ) : null
   }
 
   const tools = {
@@ -277,14 +277,16 @@ const Toolbar = props => {
       'data-active': contentEditable,
     },
     dropper: {
+      disabled: !enableSelection,
       src: dropperIcon,
       onClick: () => {
         updateTools('dropper', { active: !ctxTools.dropper.active }, ['brush'])
       },
-      imgProps: { style: { height: '18px' } },
+      imgProps: { style: { height: '18px', transform: 'scaleX(-1)' } },
       'data-active': ctxTools.dropper.active,
     },
     brush: {
+      disabled: !enableSelection,
       src: brushIcon,
       onClick: () => {
         !showSnippets &&
@@ -293,7 +295,7 @@ const Toolbar = props => {
       onDoubleClick: () => {
         setShowSnippets(!showSnippets)
       },
-      imgProps: { style: { height: '22px' } },
+      imgProps: { style: { height: '22px', transform: 'scaleX(-1)' } },
       'data-active': ctxTools.brush.active,
       'data-dropdown': showSnippets,
       DropDown: SnipsDropDown,

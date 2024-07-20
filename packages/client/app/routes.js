@@ -52,7 +52,8 @@ const FakeCursor = styled.div`
   cursor: none;
   display: flex;
   filter: brightness(0) drop-shadow(1px 0 0 white) drop-shadow(-1px 0 0 white)
-    drop-shadow(0 1px 0 white) drop-shadow(0 -1px 0 white);
+    drop-shadow(0 1px 0 white) drop-shadow(0 -1px 0 white)
+    drop-shadow(1px 1px 1px #0005);
   height: 30px;
   padding: 8px;
   pointer-events: none;
@@ -98,7 +99,12 @@ const regexPaths = [
   },
 ]
 const ToolsCursor = () => {
-  const { tools } = useContext(AiDesignerContext)
+  const {
+    tools,
+    settings: {
+      editor: { enableSelection },
+    },
+  } = useContext(AiDesignerContext)
   const [position, setPosition] = useState({
     top: 145,
     left: window.visualViewport.width - 80,
@@ -115,12 +121,13 @@ const ToolsCursor = () => {
   }
   useLayoutEffect(() => {
     document.querySelector('#layout-root').style.cursor =
+      enableSelection &&
       values(tools)
         .map(t => t.active)
         .filter(Boolean).length > 0
         ? 'none'
         : 'unset'
-  }, [tools.brush.active, tools.dropper.active])
+  }, [tools.brush.active, tools.dropper.active, enableSelection])
 
   useEffect(() => {
     document.addEventListener('mousemove', moveMouse)
@@ -136,9 +143,10 @@ const ToolsCursor = () => {
   const activeTool = mapEntries(tools, (k, v) => !!v.active && k).filter(
     Boolean,
   )[0]
-  return values(tools)
-    .map(t => t.active)
-    .filter(Boolean).length > 0 ? (
+  return enableSelection &&
+    values(tools)
+      .map(t => t.active)
+      .filter(Boolean).length > 0 ? (
     <FakeCursor style={{ ...position }} tool={activeTool}>
       <img src={cursors[activeTool]} style={{ transform: 'scaleX(-1)' }} />
     </FakeCursor>

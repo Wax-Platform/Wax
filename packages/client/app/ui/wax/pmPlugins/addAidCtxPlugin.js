@@ -44,10 +44,7 @@ function addAidctxPlugin() {
 
             if (node && !node.isText) {
               const aidctx = node.attrs?.dataset?.aidctx
-              //   const aidctx = node.attrs?.dataset?.aidctx ?? selectedCtx
-              // console.log(aidCtx)
-              AiDesigner.select(aidCtx || aidctx, console.log)
-              // }
+              AiDesigner.select(aidCtx || aidctx)
             }
           }
 

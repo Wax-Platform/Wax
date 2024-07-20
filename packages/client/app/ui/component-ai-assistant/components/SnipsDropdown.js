@@ -163,8 +163,6 @@ export const SnipsDropDown = () => {
     updateSelectionBoxPosition,
   } = useContext(AiDesignerContext)
 
-  if (!settings.editor.enableSelection) return null
-
   const searchSnippetRef = useRef(null)
   const [search, setSearch] = useState('')
   const [searchByName, setSearchByName] = useState(false)
