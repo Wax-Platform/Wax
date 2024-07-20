@@ -227,7 +227,7 @@ const Toolbar = props => {
         toolbarRef.current.style.transition = ''
       }, 500)()
     }, 300)()
-  }, [horizontal])
+  }, [horizontal, enableSelection])
   const scrollToSelectedNode = () => {
     const node = document.querySelector(`[data-aidctx="${selectedCtx.aidctx}"`)
     node &&
