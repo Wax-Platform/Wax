@@ -26,7 +26,31 @@ const defaultConfig = {
   },
 }
 
+class AidCtx {
+  constructor({ aidctx, conversation }) {
+    this.aidctx = aidctx
+    this.conversation = conversation || []
+  }
+  get node() {
+    return document.querySelector(`[data-aidctx="${this.aidctx}"]`)
+  }
+
+  get tagName() {
+    const node = document.querySelector(`[data-aidctx="${this.aidctx}"]`)
+    return node?.localName || node?.tagName?.toLowerCase()
+  }
+
+  get snippets() {
+    const actions = {}
+    const keys = ['add', 'remove', 'toggle']
+    keys.forEach(k => (actions[k] = cls => addClass(k, cls, this)))
+    return actions
+  }
+}
+
 export default class AiDesigner extends StateManager {
+  static config = defaultConfig
+
   constructor() {
     super()
     this.mainContext = {
@@ -36,27 +60,27 @@ export default class AiDesigner extends StateManager {
     this.context = []
     this.selected = ''
   }
-  static config = defaultConfig
 
   static setConfig(config) {
     this.config = config
-    this.emit('setconfig', config)
+    this.emit('setconfig', this.config)
   }
 
-  static updateConfig(newConfig) {
-    onEntries(newConfig, (k, v) => (this.config[k] = v))
+  static updateConfig(cb) {
+    this.setConfig(safeCall(cb)(this.config) ?? this.config)
     this.emit('updateconfig', newConfig, this.config)
   }
 
   static get snippets() {
     const actions = {}
     const keys = ['add', 'remove', 'toggle']
-    keys.forEach(k => (actions[k] = cls => addClass(k, cls)))
+    keys.forEach(k => (actions[k] = cls => addClass(k, cls, this.selected)))
     return actions
   }
 
   static insertImage(imgAttrs) {
     insertImageAfterNode(imgAttrs)
+    this.emit('insertimage', this, imgAttrs)
   }
 
   static get allInDom() {
@@ -65,11 +89,12 @@ export default class AiDesigner extends StateManager {
       .filter(Boolean)
   }
 
-  static select(aidctx, cb) {
+  static select(aidctx, options = {}) {
     if (!this.getBy({ aidctx }) || !this.config.editor.enableSelection) return
-    this.selected = this.getBy({ aidctx })
-    safeCall(cb)(AiDesigner.selected)
-    this.emit('select', this.selected)
+    const { getOnly } = options
+    const foundInCtx = this.getBy({ aidctx })
+    !getOnly && (this.selected = foundInCtx)
+    this.emit('select', foundInCtx, options)
   }
 
   static getBy(prop) {
@@ -108,18 +133,8 @@ export default class AiDesigner extends StateManager {
     return aidctx
   }
 
-  static addToContext({ aidctx, node }) {
-    const newContext = {
-      aidctx,
-      conversation: [],
-      get node() {
-        return document.querySelector(`[data-aidctx="${aidctx}"]`) || node
-      },
-      get tagName() {
-        const node = document.querySelector(`[data-aidctx="${aidctx}"]`)
-        return node?.localName || node?.tagName?.toLowerCase()
-      },
-    }
+  static addToContext({ aidctx }) {
+    const newContext = new AidCtx({ aidctx })
     this.context = [...(this.context || []), newContext]
     this.emit('addtocontext', this.context, newContext)
   }

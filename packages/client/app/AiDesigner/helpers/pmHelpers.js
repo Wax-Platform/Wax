@@ -97,11 +97,11 @@ export const findInPmDoc = (doc, ref) => {
   return found
 }
 
-export const addClass = (method, classNames) => {
+export const addClass = (method, classNames, selected) => {
   if (!AiDesigner?.states?.view) return
 
   const { view } = AiDesigner.states
-  const { aidctx, node: domNode } = AiDesigner.selected || {}
+  const { aidctx, node: domNode } = selected || {}
   const { tr, doc } = view.state
 
   const { node, pos } = findInPmDoc(doc, aidctx) || {}
