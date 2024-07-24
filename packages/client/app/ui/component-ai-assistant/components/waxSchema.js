@@ -91,12 +91,27 @@ const nodesConfig = {
   },
   title: {
     attrs: {
-      ...commonAttrs,
+      id: { default: null },
+      class: { default: null },
+      group: { default: null },
+      viewid: { default: null },
+      dataset: { default: {} },
       level: { default: 1 },
     },
     content: 'inline*',
     group: 'block',
-    parseDOM: [1, 2, 3, 4, 5, 6].map(generateHeadingsConfig),
+    parseDOM: {
+      tag: `h1`,
+      getAttrs: dom => ({
+        id: dom.getAttribute('data-id'),
+        class: dom.getAttribute('class'),
+        group: dom.getAttribute('data-group'),
+        viewid: dom.getAttribute('data-viewid'),
+        dataset: {
+          aidctx: dom.getAttribute('data-aidctx'),
+        },
+      }),
+    },
     toDOM: node => {
       const attrs = {
         id: node.attrs.id,
@@ -106,7 +121,7 @@ const nodesConfig = {
         'data-aidctx': node.attrs.dataset.aidctx,
       }
 
-      return [`h${node.attrs.level}`, attrs, 0]
+      return [`h1`, attrs, 0]
     },
   },
   image: {

@@ -106,7 +106,7 @@ const config = (yjsProvider, ydoc, docIdentifier) => ({
     ExternalAPIContentTransformation,
   },
   SchemaService: AiStudioSchema,
-  TitleService: { updateTitle: console.log },
+  // TitleService: { updateTitle: console.log },
   SpecialCharactersService: CharactersList,
   RulesService: [emDash, ellipsis],
   ShortCutsService: {},

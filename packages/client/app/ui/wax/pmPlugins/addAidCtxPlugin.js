@@ -52,6 +52,37 @@ function addAidctxPlugin() {
         },
       },
     },
+    appendTransaction: (transactions, oldState, newState) => {
+      let tr = newState.tr
+
+      // Iterate over all nodes in the document
+      newState.doc.descendants((node, pos) => {
+        if (node.isText) return
+        // Check if the node lacks the 'data-aidctx' attribute
+        if (!node.attrs.dataset?.aidctx) {
+          // Generate a unique aidctx value if missing
+          const aidctx = AiDesigner.idGen(node.attrs.dataset?.aidctx || '')
+
+          // Update the node to include the 'data-aidctx' attribute
+          tr.setNodeMarkup(pos, null, {
+            ...node.attrs,
+            class: 'aid-snip-red-color',
+            dataset: {
+              ...node.attrs.dataset,
+              aidctx: aidctx,
+            },
+          })
+
+          // Optionally, add the node to the AiDesigner context if it wasn't already present
+          if (!AiDesigner.getBy({ aidctx })) {
+            AiDesigner.addToContext({ aidctx })
+          }
+        }
+      })
+
+      // Return the transaction if modifications were made, otherwise return null
+      return tr.docChanged ? tr : null
+    },
   })
 }
 
