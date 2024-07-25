@@ -1,16 +1,286 @@
+/* stylelint-disable no-descending-specificity */
 /* stylelint-disable length-zero-no-unit */
 /* stylelint-disable indentation */
 /* stylelint-disable string-quotes */
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import useAssistant from '../hooks/useAiDesigner'
 import styled from 'styled-components'
 import PromptsInput from '../PromptsInput'
 import {
+  DownOutlined,
   FileSyncOutlined,
   PictureOutlined,
   PrinterOutlined,
 } from '@ant-design/icons'
+import { ModelsList, htmlTagNames } from '../utils'
+import Toolbar from './Toolbar'
+import { AddSnippetButton } from '../SelectionBox'
+
+const Dropdown = styled.div`
+  background: linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(
+        90deg,
+        var(--color-green),
+        var(--color-yellow),
+        var(--color-orange),
+        var(--color-blue)
+      )
+      border-box;
+  border: ${p => (p.$open ? '3px' : '0px')} solid transparent;
+  border-radius: 15px;
+  bottom: ${p => (p.$open ? '-15px' : '5px')};
+  height: fit-content;
+  max-height: ${p => (p.$open ? '200px' : '0')};
+  max-width: ${p => (p.$open ? '180px' : '0')};
+  overflow: hidden;
+  position: absolute;
+  right: calc(100% + ${p => (p.$open ? '20px' : '1px')});
+  transition: all 0.5s;
+  width: 180px;
+  z-index: 999;
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    small {
+      background-color: transparent;
+      color: #f1f1f1;
+      padding: 2px 4px;
+      width: 100%;
+    }
+
+    li {
+      align-items: center;
+      display: flex;
+      height: 25px;
+      margin: 0;
+      padding: 8px 10px;
+
+      button {
+        align-items: center;
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        display: flex;
+        font-size: 11px;
+        justify-content: space-between;
+        margin: 0;
+        outline: none;
+        padding: 0;
+        text-align: left;
+        width: 100%;
+
+        &::after {
+          background-color: #bbb;
+          border-radius: 50%;
+          content: ' ';
+          display: flex;
+          height: 5px;
+          width: 5px;
+        }
+      }
+
+      button[data-selected='true'] {
+        color: var(--color-blue);
+
+        &::after {
+          background-color: var(--color-blue);
+        }
+      }
+
+      &:hover {
+        background-color: var(--color-blue-alpha-2);
+      }
+    }
+
+    li:not(:last-child) {
+      border-bottom: 1px solid #0001;
+    }
+  }
+`
+
+const ModelsDropdown = () => {
+  const { model, setModel } = useContext(AiDesignerContext)
+  const [openDropdown, setOpenDropdown] = useState(false)
+  const handleOpen = () => setOpenDropdown(!openDropdown)
+
+  return (
+    <span
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '12px',
+        borderBottom: '1px solid var(--color-blue-alpha)',
+        padding: '3px 3px 3px 8px',
+        gap: '0.5rem',
+        position: 'relative',
+        minWidth: '100px',
+        justifyContent: 'space-between',
+      }}
+    >
+      <button
+        onClick={handleOpen}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'none',
+          margin: '0',
+          outline: 'none',
+          padding: '0',
+          border: 'none',
+          width: '100%',
+          height: '100%',
+          cursor: 'pointer',
+          color: 'var(--color-blue)',
+        }}
+        type="button"
+      >
+        <small>{model[2]}</small>
+        <DownOutlined data-modelicon label={model[2]} title="Select model" />
+      </button>
+      <Dropdown $open={openDropdown}>
+        {Object.entries(ModelsList).map(([api, list]) => (
+          <ul key={api}>
+            <small>{api}</small>
+            {list.map(({ model: mod, label }) => {
+              const handleSetModel = () => {
+                setModel([api, mod, label])
+                setOpenDropdown(false)
+              }
+
+              return (
+                <li key={label}>
+                  <button
+                    data-selected={model[2] === label}
+                    onClick={handleSetModel}
+                    type="button"
+                  >
+                    {label}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        ))}
+      </Dropdown>
+    </span>
+  )
+}
+
+const StyledToolbar = styled(Toolbar)`
+  --snippet-icon-st: #fff;
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  /* height: 100%; */
+  outline: none;
+  padding: 0;
+  /* position: absolute; */
+  position: static;
+  transform: none;
+  transform-origin: top right;
+  transition: transform 0.5s;
+  user-select: none;
+  width: fit-content;
+  z-index: 99999999;
+
+  #snips-dropdown {
+    right: ${p => (p.$horizontal ? '0' : '53px')};
+    top: ${p => (p.$horizontal ? '53px' : '-1px')};
+    transition: all 0.3s;
+    z-index: 1;
+  }
+
+  > button,
+  > :first-child {
+    background: #fff;
+    border-radius: 50%;
+    border-right: 1px solid var(--color-blue-alpha-2);
+    height: 20px;
+    transform: rotateZ(${p => (p.$horizontal ? '90deg' : '0')});
+    transition: all 0.8s;
+    width: 20px;
+    z-index: 9;
+  }
+
+  img:not(:first-child),
+  .anticon svg:not(#snips-dropdown .anticon svg),
+  > button > img {
+    color: var(--color-blue);
+    height: 18px;
+    object-fit: contain;
+    width: 100%;
+  }
+
+  > :first-child {
+    display: none;
+    height: 22px;
+    margin: ${p => (!p.$horizontal ? '8px 6px 10px 2px' : '8px 0px 10px 3px')};
+    width: 22px;
+  }
+
+  > *:not(:first-child) {
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 0 4px #0002;
+    color: #eee;
+    cursor: pointer;
+    outline: none;
+    padding: 5px;
+    pointer-events: all;
+    transition: all 0.3s;
+
+    &:hover {
+      background: var(--color-blue-alpha-2);
+    }
+  }
+
+  button {
+    background: none;
+    cursor: pointer;
+    margin: 0;
+    outline: none;
+    padding: 0;
+
+    .anticon svg:not(#snips-dropdown .anticon svg),
+    > img {
+      filter: grayscale();
+    }
+
+    > svg {
+      height: 20px;
+      width: 20px;
+    }
+  }
+
+  button[data-active='true'] {
+    .anticon svg:not(#snips-dropdown .anticon svg),
+    > img {
+      filter: none;
+    }
+  }
+
+  button[data-dropdown='true'] {
+    background: var(--color-blue-alpha-2);
+  }
+
+  svg {
+    fill: var(--color-blue);
+  }
+`
 
 const Assistant = styled(PromptsInput)`
   border: none;
@@ -25,6 +295,24 @@ const Assistant = styled(PromptsInput)`
     width: 15px;
   }
 `
+const AbsoluteContainer = styled.div`
+  bottom: ${p => (p.$show ? '15px' : '-140px')};
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  position: absolute;
+  right: ${p => {
+    if (p.$showChat) return '43px'
+    return p.$bothEditors ? '7.05%' : '24%'
+  }};
+  transition: all 0.5s;
+  width: ${p => {
+    if (p.$showChat) return 'calc(25% - 60px)'
+    if (p.$bothEditors) return '32%'
+    return '50%'
+  }};
+`
+
 const PromptBoxWrapper = styled.div`
   align-items: center;
   background: linear-gradient(#fff, #fff) padding-box,
@@ -38,35 +326,18 @@ const PromptBoxWrapper = styled.div`
       border-box;
   border: 3px solid transparent;
   border-radius: 15px;
-  bottom: 15px;
   box-shadow: 0 0 4px #0004, inset 0 0 2px #000a;
   display: flex;
-
   flex-direction: column;
   gap: 1rem;
   justify-content: space-between;
-  overflow: hidden;
+  /* overflow: hidden; */
   padding: 8px;
-  position: absolute;
-  right: ${p => {
-    if (p.$showChat) return '20px'
-    return p.$bothEditors ? '7.05%' : '22.5%'
-  }};
   transition: all 0.5s;
-  width: ${p => {
-    if (p.$showChat) return 'calc(25% - 60px)'
-    if (p.$bothEditors) return '32%'
-    return '50%'
-  }};
+  width: 100%;
 
   > :first-child {
     align-items: center;
-  }
-
-  &[data-collapsed='true'] {
-    bottom: -200px;
-    opacity: 0;
-    pointer-events: none;
   }
 
   > :last-child {
@@ -110,9 +381,59 @@ const PromptBoxWrapper = styled.div`
   }
   z-index: 999;
 `
+
+const RelativeContainer = styled.div`
+  align-items: center;
+  display: flex;
+  font-size: 14px;
+  gap: 5px;
+  height: 35px;
+  justify-content: space-between;
+  margin-top: -35px;
+  position: relative;
+  white-space: nowrap;
+  width: 100%;
+  z-index: 9999999999999999;
+
+  button#element-snippets {
+    background: var(--color-blue);
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 0 4px #0002;
+    color: #eee;
+    cursor: pointer;
+    outline: none;
+    padding: 5px;
+    pointer-events: all;
+  }
+
+  > span,
+  > span > span {
+    display: flex;
+    gap: 4px;
+  }
+
+  > small.element-type {
+    background-color: #fffe;
+    border-radius: 5px;
+    box-shadow: 0 0 4px #0002;
+    color: var(--color-blue);
+    line-height: 1;
+    padding: 5px 8px;
+  }
+`
 export const PromptBox = () => {
-  const { layout, settings, onHistory, useRag, setUseRag, updatePreview } =
-    useContext(AiDesignerContext)
+  const {
+    layout,
+    settings,
+    onHistory,
+    // useRag,
+    // setUseRag,
+    previewRef,
+    updatePreview,
+    selectedCtx,
+    designerOn,
+  } = useContext(AiDesignerContext)
 
   const {
     loading,
@@ -123,68 +444,89 @@ export const PromptBox = () => {
   } = useAssistant()
 
   return (
-    <PromptBoxWrapper
+    <AbsoluteContainer
       $bothEditors={layout.preview && layout.editor}
       $showChat={layout.chat}
-      data-collapsed={!layout.input}
+      $show={designerOn}
     >
-      <Assistant
-        loading={loading || ragSearchLoading || dalleLoading}
-        onSend={handleSend}
-        placeholder="Type here how your article should look..."
-      />
-      <span
-        style={{
-          display: 'flex',
-          width: '100%',
-          justifyContent: 'space-between',
-        }}
-      >
-        {/* <ModelsDropdown model={model} setModel={setModel} /> */}
+      <RelativeContainer>
+        <small className="element-type">
+          {htmlTagNames[selectedCtx?.tagName] || 'Document'}
+        </small>
+
         <span>
-          <settings.Icons.UndoIcon
-            onClick={() => onHistory.apply('undo')}
-            title="Undo (Ctrl + z)"
-          />
-          <settings.Icons.RedoIcon
-            onClick={() => onHistory.apply('redo')}
-            title="Redo (Ctrl + y)"
-          />
-          <settings.Icons.RefreshIcon
-            onClick={updatePreview}
-            title="Update preview"
-            type="button"
-          />
-          <PrinterOutlined
-            as="button"
-            onClick={() => previewRef?.current?.contentWindow?.print()}
-            title="Print"
-            type="button"
-          />
-          <FileSyncOutlined
-            data-inactive={!useRag}
-            onClick={() => setUseRag(!useRag)}
-            style={{ color: 'var(--color-green)' }}
-            title={`Use uploaded documents`}
-          />
-          <input
-            accept=".png,.jpg,.webp,.gif,.jpeg"
-            id="add-file-to-prompt"
-            onChange={handleImageUpload}
-            style={{ display: 'none' }}
-            type="file"
-          />
-          <label
-            contextMenu="form"
-            htmlFor="add-file-to-prompt"
-            style={{ cursor: 'pointer' }}
-            title="Attach image"
-          >
-            <PictureOutlined style={{ color: 'var(--color-blue)' }} />
-          </label>
+          <StyledToolbar />
+          {!!selectedCtx?.node && (
+            <AddSnippetButton data-element="element-options" />
+          )}
         </span>
-      </span>
-    </PromptBoxWrapper>
+      </RelativeContainer>
+      <PromptBoxWrapper>
+        <Assistant
+          loading={loading || ragSearchLoading || dalleLoading}
+          onSend={handleSend}
+          placeholder="Type here how your document should look..."
+        />
+        <span
+          style={{
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'space-between',
+          }}
+        >
+          <ModelsDropdown />
+          <span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <settings.Icons.UndoIcon
+                onClick={() => onHistory.apply('undo')}
+                title="Undo (Ctrl + z)"
+              />
+              <settings.Icons.RedoIcon
+                onClick={() => onHistory.apply('redo')}
+                title="Redo (Ctrl + y)"
+              />
+              <settings.Icons.RefreshIcon
+                onClick={updatePreview}
+                title="Update preview"
+                type="button"
+              />
+              <PrinterOutlined
+                as="button"
+                onClick={() => previewRef?.current?.contentWindow?.print()}
+                title="Print"
+                type="button"
+              />
+              {/* <FileSyncOutlined
+              data-inactive={!useRag}
+              onClick={() => setUseRag(!useRag)}
+              style={{ color: 'var(--color-green)' }}
+              title={`Use uploaded documents`}
+            /> */}
+              <input
+                accept=".png,.jpg,.webp,.gif,.jpeg"
+                id="add-file-to-prompt"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+                type="file"
+              />
+              <label
+                contextMenu="form"
+                htmlFor="add-file-to-prompt"
+                style={{ cursor: 'pointer' }}
+                title="Attach image"
+              >
+                <PictureOutlined style={{ color: 'var(--color-blue)' }} />
+              </label>
+            </span>
+            {/* <p>{`Selected: ${
+              selectedCtx?.tagName
+                ? htmlTagNames[selectedCtx.tagName]
+                : 'Document'
+            }`}</p> */}
+          </span>
+        </span>
+      </PromptBoxWrapper>
+    </AbsoluteContainer>
   )
 }
 export default PromptBox

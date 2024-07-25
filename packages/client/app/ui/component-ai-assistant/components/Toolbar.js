@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { FilePdfOutlined } from '@ant-design/icons'
+import { FilePdfOutlined, LayoutOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
 import { debounce, values } from 'lodash'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
@@ -16,7 +16,7 @@ import AidLogoSmall from '../../../../static/AI Design Studio-Icon.svg'
 import handCursor from '../../../../static/cursor-hand3.svg'
 import dropperIcon from '../../../../static/dropper-icon.svg'
 import brushIcon from '../../../../static/brush-icon.svg'
-import chatIcon from '../../../../static/chat-icon.svg'
+import chatIcon from '../../../../static/chat-icon2.svg'
 // import modelIcon from '../../../../static/model-icon.svg'
 import targetIcon from '../../../../static/target-icon.svg'
 import inputIcon from '../../../../static/input-icon.svg'
@@ -118,6 +118,7 @@ const DesignerTools = styled.div`
     .anticon svg:not(#snips-dropdown .anticon svg),
     > img {
       filter: grayscale();
+      opacity: 0.5;
     }
 
     > svg {
@@ -130,6 +131,7 @@ const DesignerTools = styled.div`
     .anticon svg:not(#snips-dropdown .anticon svg),
     > img {
       filter: none;
+      opacity: 1;
     }
   }
 
@@ -148,7 +150,7 @@ const DragButton = styled.button`
   width: 15px;
 `
 
-const Toolbar = props => {
+const Toolbar = ({ drag, ...props }) => {
   const {
     mutateSettings,
     updateLayout,
@@ -175,6 +177,7 @@ const Toolbar = props => {
   const [cursor, setCursor] = useState('grab')
 
   const handleMouseDown = event => {
+    if (!drag) return
     event.preventDefault()
     event.stopPropagation()
     setCursor('grabbing')
@@ -216,10 +219,11 @@ const Toolbar = props => {
     })
   }
   useLayoutEffect(() => {
-    limitPosition()
-  }, [position.left, position.top])
+    drag && limitPosition()
+  }, [position.left, position.top, drag])
 
   useEffect(() => {
+    if (!drag) return
     toolbarRef.current.style.transition = 'all 0.5s'
     debounce(() => {
       if (!toolbarRef?.current) return
@@ -229,7 +233,8 @@ const Toolbar = props => {
         toolbarRef.current.style.transition = ''
       }, 500)()
     }, 300)()
-  }, [horizontal, enableSelection])
+  }, [horizontal, enableSelection, drag])
+
   const scrollToSelectedNode = () => {
     const node = document.querySelector(`[data-aidctx="${selectedCtx.aidctx}"`)
     node &&
@@ -249,23 +254,25 @@ const Toolbar = props => {
   }
 
   const tools = {
-    selection: {
-      src: handCursor,
-      onClick: () => {
-        AiDesigner.updateContext()
-        enableSelection && AiDesigner.select('aid-ctx-main')
-        mutateSettings('editor', {
-          enableSelection: !enableSelection,
-        })
-      },
-      imgProps: {},
-      title: `${!enableSelection ? 'Enable' : 'Disable'} element selection`,
-      'data-active': enableSelection,
-    },
+    // selection: {
+    //   src: handCursor,
+    //   onClick: () => {
+    //     AiDesigner.updateContext()
+    //     enableSelection && AiDesigner.select('aid-ctx-main')
+    //     mutateSettings('editor', {
+    //       enableSelection: !enableSelection,
+    //     })
+    //   },
+    //   imgProps: {},
+    //   title: `${!enableSelection ? 'Enable' : 'Disable'} element selection`,
+    //   'data-active': enableSelection,
+    // },
     goToSelectedNode: {
       src: targetIcon,
       onClick: scrollToSelectedNode,
       title: 'Scroll to selected node',
+      disabled: !selectedCtx?.node,
+      'data-active': !!selectedCtx?.node,
       imgProps: {},
     },
     // enableEdit: {
@@ -288,22 +295,22 @@ const Toolbar = props => {
     //   imgProps: { style: { height: '18px', transform: 'scaleX(-1)' } },
     //   'data-active': ctxTools.dropper.active,
     // },
-    brush: {
-      disabled: !enableSelection,
-      src: brushIcon,
-      onClick: () => {
-        !showSnippets &&
-          updateTools('brush', { active: !ctxTools.brush.active }, ['dropper'])
-      },
-      onDoubleClick: () => {
-        setShowSnippets(!showSnippets)
-      },
-      imgProps: { style: { height: '22px', transform: 'scaleX(-1)' } },
-      'data-active': ctxTools.brush.active,
-      'data-dropdown': showSnippets,
-      DropDown: SnipsDropDown,
-      style: { position: 'relative' },
-    },
+    // brush: {
+    //   disabled: !enableSelection,
+    //   src: brushIcon,
+    //   onClick: () => {
+    //     !showSnippets &&
+    //       updateTools('brush', { active: !ctxTools.brush.active }, ['dropper'])
+    //   },
+    //   onDoubleClick: () => {
+    //     setShowSnippets(!showSnippets)
+    //   },
+    //   imgProps: { style: { height: '22px', transform: 'scaleX(-1)' } },
+    //   'data-active': ctxTools.brush.active,
+    //   'data-dropdown': showSnippets,
+    //   DropDown: SnipsDropDown,
+    //   style: { position: 'relative' },
+    // },
     // paintBucket: {
     //   onClick: () => {
     //     updateTools('paintBucket', { active: !ctxTools.paintBucket.active }, [
@@ -324,21 +331,22 @@ const Toolbar = props => {
       'data-active': layout.chat,
     },
     toggleWax: {
-      src: waxIcon,
+      // src: waxIcon,
+      Icon: LayoutOutlined,
       onClick: () => {
         updateLayout({ editor: !layout.editor })
       },
-      imgProps: { style: { width: '30px', paddingTop: '2px' } },
+      imgProps: { style: { width: '15px', paddingTop: '2px' } },
       'data-active': layout.editor,
     },
-    toggleInput: {
-      src: inputIcon,
-      onClick: () => {
-        updateLayout({ input: !layout.input })
-      },
-      imgProps: {},
-      'data-active': layout.input,
-    },
+    // toggleInput: {
+    //   src: inputIcon,
+    //   onClick: () => {
+    //     updateLayout({ input: !layout.input })
+    //   },
+    //   imgProps: {},
+    //   'data-active': layout.input,
+    // },
     // togglePreview: {
     //   Icon: FilePdfOutlined,
     //   onClick: () => {
@@ -370,15 +378,19 @@ const Toolbar = props => {
       {...props}
       style={{ top: `${position.top}px`, left: `${position.left}px` }}
     >
-      <img
-        onMouseDown={handleMouseDown}
-        onDoubleClick={() => {
-          setHorizontal(!horizontal)
-        }}
-        style={{ cursor }}
-        alt="aid-logo"
-        src={AidLogoSmall}
-      />
+      {drag ? (
+        <img
+          onMouseDown={handleMouseDown}
+          onDoubleClick={() => {
+            setHorizontal(!horizontal)
+          }}
+          style={{ cursor }}
+          alt="aid-logo"
+          src={AidLogoSmall}
+        />
+      ) : (
+        <span></span>
+      )}
 
       <Each fallback={null} of={values(tools)} render={renderTool} />
     </DesignerTools>

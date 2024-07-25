@@ -9,34 +9,38 @@ import styled from 'styled-components'
 import { th, useCurrentUser } from '@coko/client'
 import { PlusCircleOutlined } from '@ant-design/icons'
 
-import logoMobile from '../../../static/wax-purple.png'
+import logoMobile from '../../../static/waxdesignerwhite.svg'
 import aiDesignerLogo from '../../../static/AI Design Studio-Icon.svg'
 import TeamPopup from './TeamPopup'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import AiDesigner from '../../AiDesigner/AiDesigner'
+import Toggle from '../component-ai-assistant/components/Toggle'
 
 // #region styles
 const StyledHeader = styled.header`
   align-items: center;
   background-color: ${th('colorBody')};
-  /* box-shadow: -5px 5px 18px -2px ${th('colorText')}; */
+  /* box-shadow: 0 0 15px #0003; */
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
-  padding: ${th('headerPaddingVertical')} 20px;
+  padding: 0 10px 0 0;
+  /* z-index: 99; */
 `
 
 const Logo = styled.img`
-  height: 50px;
+  height: 80px;
   object-fit: contain;
   width: auto;
 `
 
 const UserMenu = styled.div`
-  align-items: center;
+  align-items: flex-end;
   display: flex;
-  gap: 30px;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  justify-content: flex-end;
 
   .anticon svg {
     height: 25px;
@@ -57,6 +61,18 @@ const UserMenu = styled.div`
       object-fit: contain;
       width: 25px;
     }
+  }
+
+  > :last-child {
+    align-items: center;
+    /* background-color: ${p => (p.$designerOn ? '#027a04' : '#00696e')}; */
+    border-radius: 0.3rem;
+    color: ${p => (p.$designerOn ? '#027a04' : '#00696e')};
+    display: flex;
+    gap: 10px;
+    line-height: 1;
+    padding: 0.7rem 0 0.1rem;
+    /* width: 100px; */
   }
 `
 
@@ -89,22 +105,7 @@ const Header = props => {
   return (
     <StyledHeader role="banner" {...rest}>
       <Logo src={logoMobile} alt="Wax platform"></Logo>
-      <UserMenu>
-        <button
-          onClick={() => {
-            setDesignerOn(!designerOn)
-            !designerOn
-              ? updateLayout({ preview: true, editor: false })
-              : updateLayout({ preview: false, editor: true })
-            AiDesigner.updateContext()
-          }}
-          style={{
-            transition: 'filter 0.5s',
-            filter: `grayscale(${designerOn ? '0' : '100%'})`,
-          }}
-        >
-          <img src={aiDesignerLogo} />
-        </button>
+      <UserMenu $designerOn={designerOn}>
         <span>
           <CreateNew>
             <Link target="_blank" to={`/${identifier}`}>
@@ -112,6 +113,41 @@ const Header = props => {
             </Link>
           </CreateNew>
           <TeamPopup enableLogin={enableLogin} onLogout={onLogout} />
+        </span>
+        <span>
+          <small
+            style={{
+              fontWeight: 'bold',
+              color: designerOn ? '#0004' : 'var(--color-blue)',
+              transform: `scale(${designerOn ? '0.9' : '1'})`,
+              transformOrigin: 'center',
+              transition: 'all 0.3s',
+            }}
+          >
+            Editing mode
+          </small>
+
+          <small
+            style={{
+              fontWeight: 'bold',
+              color: designerOn ? 'var(--color-green)' : '#0004',
+              transform: `scale(${designerOn ? '1' : '0.9'})`,
+              transformOrigin: 'center',
+              transition: 'all 0.3s',
+            }}
+          >
+            Design mode
+          </small>
+          <Toggle
+            handleChange={() => {
+              setDesignerOn(!designerOn)
+              !designerOn
+                ? updateLayout({ preview: true, editor: false })
+                : updateLayout({ preview: false, editor: true })
+              AiDesigner.updateContext()
+            }}
+            checked={designerOn}
+          />
         </span>
       </UserMenu>
     </StyledHeader>
