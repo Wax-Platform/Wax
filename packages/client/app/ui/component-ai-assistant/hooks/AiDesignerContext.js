@@ -140,7 +140,7 @@ export const AiDesignerProvider = ({ children }) => {
     setMarkedSnippet('')
 
     if (node === htmlSrc) return
-
+    console.log(tools)
     tools.dropper.active && updateTools('brush', { data: node.className })
     tools.brush.active &&
       tools.brush.data &&
@@ -171,25 +171,26 @@ export const AiDesignerProvider = ({ children }) => {
 
   const updateSelectionBoxPosition = (yOffset = 10, xOffset = 10) => {
     if (!settings.editor.enableSelection && !selectionBoxRef?.current) return
-    if (selectedNode === htmlSrc) selectionBoxRef.current.style.opacity = 0
-    else {
-      const { top, left, height, width } =
-        selectedNode?.getBoundingClientRect() ?? {}
-
-      if (!left && !top) return
-
-      const parent = selectionBoxRef?.current?.parentNode
-      const { left: pLeft, top: pTop } = parent.getBoundingClientRect()
-
-      setInlineStyle(selectionBoxRef.current, {
-        opacity: 1,
-        left: `${Math.floor(parent.scrollLeft + left - pLeft - xOffset)}px`,
-        top: `${Math.floor(parent.scrollTop + top - pTop - yOffset)}px`,
-        width: `${width + xOffset * 2}px`,
-        height: `${height + yOffset * 2}px`,
-        zIndex: '9',
-      })
+    if (selectedCtx.aidctx === 'aid-ctx-main' || !designerOn) {
+      selectionBoxRef.current.style.opacity = 0
+      return
     }
+    const { top, left, height, width } =
+      selectedCtx.node?.getBoundingClientRect() ?? {}
+
+    if (!left && !top) return
+
+    const parent = selectionBoxRef?.current?.parentNode
+    const { left: pLeft, top: pTop } = parent.getBoundingClientRect()
+
+    setInlineStyle(selectionBoxRef.current, {
+      opacity: 1,
+      left: `${Math.floor(parent.scrollLeft + left - pLeft - xOffset)}px`,
+      top: `${Math.floor(parent.scrollTop + top - pTop - yOffset)}px`,
+      width: `${width + xOffset * 2}px`,
+      height: `${height + yOffset * 2}px`,
+      zIndex: '9',
+    })
   }
 
   const saveSession = () => {

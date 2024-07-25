@@ -105,7 +105,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
         updateSelectionBoxPosition,
       )
     }
-  }, [selectedNode])
+  }, [selectedCtx?.node])
   if (!settings.editor.enableSelection) return null
 
   return (
@@ -118,7 +118,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
       {advancedTools && (
         <RelativeContainer>
           <small className="element-type">
-            {htmlTagNames[selectedCtx?.tagName] || 'Element'}
+            {htmlTagNames[selectedCtx?.tagName] || 'Document'}
           </small>
           <span>
             <AddSnippetButton data-element="element-options" />
@@ -144,6 +144,7 @@ const Root = styled.div`
 const SubMenu = styled.div`
   background: ${p => (p.$marked ? 'var(--color-green)' : 'var(--color-blue)')};
   border-radius: 5px;
+  bottom: 27px;
   box-shadow: 0 0 5px #0001;
   display: flex;
   flex-direction: column;
@@ -155,7 +156,6 @@ const SubMenu = styled.div`
   padding: 0;
   position: absolute;
   right: -2px;
-  top: 27px;
   transition: all 0.3s linear, z-index 0s;
   width: fit-content;
   z-index: ${p => (p.$show ? 9 : 1)};
@@ -197,7 +197,7 @@ const SubMenu = styled.div`
       margin-left: 5px;
       outline: none;
       padding: 5px 0;
-      width: 100%;
+      /* width: 100%; */
 
       ::placeholder {
         color: #fff9;
@@ -217,7 +217,7 @@ const SubMenu = styled.div`
     padding: 8px 5px;
     pointer-events: all;
     transition: all 0.2s;
-    width: 100%;
+    /* width: 100%; */
   }
 `
 
@@ -247,7 +247,7 @@ const Snippet = styled.span`
   padding: 8px 5px;
   pointer-events: all;
   transition: all 0.2s;
-  width: 100%;
+  /* width: 100%; */
 
   > button {
     background: #0000;
@@ -264,7 +264,7 @@ const Snippet = styled.span`
   }
 `
 
-const AddSnippetButton = () => {
+export const AddSnippetButton = () => {
   const {
     settings,
     onHistory,
@@ -328,6 +328,7 @@ const AddSnippetButton = () => {
   return (
     <Root $active data-element="element-options">
       <button
+        id="element-snippets"
         data-element="element-options"
         label="show snippets"
         onClick={() => setShowSnippets(!showSnippets)}

@@ -90,6 +90,7 @@ const EditorContainer = styled.div`
   height: 100%;
   padding-block: 45px;
   position: relative;
+  width: 1200px;
 
   .ProseMirror {
     box-shadow: 0 0 8px #ecedf1;
@@ -98,7 +99,6 @@ const EditorContainer = styled.div`
     min-height: 100%;
     min-width: 650px;
     padding: 10% !important;
-    width: unset;
   }
 
   > div > :first-child {
@@ -211,7 +211,7 @@ const WaxSurfaceScroll = styled.div`
 const WaxEditorWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: 95%;
+  height: 100%;
   min-width: 100%;
 `
 
@@ -258,7 +258,6 @@ const Layout = props => {
     css,
     editorContent,
     settings,
-    updateSelectionBoxPosition,
     designerOn,
   } = useContext(AiDesignerContext)
   const { loading, handleScroll } = useAssistant()
@@ -296,14 +295,8 @@ const Layout = props => {
     if (!layout.editor) {
       !layout.preview && updateLayout({ preview: true })
     }
-    debounce(updateSelectionBoxPosition, 800)()
-
     updatePreview()
   }, [layout.editor])
-
-  useLayoutEffect(() => {
-    debounce(updateSelectionBoxPosition, 501)()
-  }, [layout.editor, layout.preview, layout.chat])
 
   useEffect(() => {
     if (main?.docView) {
@@ -353,8 +346,7 @@ const Layout = props => {
         menuHeight={menuHeight}
         style={fullScreenStyles}
       >
-        {designerOn && <PromptBox />}
-
+        <PromptBox />
         <MenuWrapper $show={layout.editor}>
           {main && (
             <MenuComponent fullScreen={fullScreen} open={open} ref={ref} />
@@ -384,7 +376,6 @@ const Layout = props => {
               <EditorContainer>
                 <WaxView {...props} />
               </EditorContainer>
-              <SelectionBox></SelectionBox>
               <CommentsContainer>
                 <RightArea area="main" users={users} />
               </CommentsContainer>

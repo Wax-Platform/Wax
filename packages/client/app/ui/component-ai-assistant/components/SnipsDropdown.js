@@ -300,7 +300,6 @@ export const SnipsDropDown = () => {
                             ...toolsToSET.toggle(`aid-snip-${className}`),
                           ].join(' ')
                           updateTools('brush', { data })
-                          debounce(updateSelectionBoxPosition, 800)()
                           isMarked(className) && setMarkedSnippet('')
                         }}
                         title={description}

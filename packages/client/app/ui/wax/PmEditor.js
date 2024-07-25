@@ -139,7 +139,6 @@ const PmEditor = ({
           )}
         </style>
       )}
-      <Toolbar />
 
       <Wax
         config={WaxConfig}
