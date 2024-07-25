@@ -28,8 +28,8 @@ const defaultSettings = {
   editor: {
     contentEditable: true,
     enablePaste: true,
-    displayStyles: true,
-    enableSelection: false,
+    displayStyles: false,
+    enableSelection: true,
     selectionColor: {
       bg: 'var(--color-blue-alpha-2)',
       border: 'var(--color-blue-alpha-1)',

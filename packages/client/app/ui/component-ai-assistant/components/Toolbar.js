@@ -162,8 +162,10 @@ const Toolbar = props => {
     settings: {
       editor: { contentEditable, enableSelection, displayStyles },
     },
+    designerOn,
   } = useContext(AiDesignerContext)
 
+  if (!designerOn) return null
   const toolbarRef = useRef(null)
   const [horizontal, setHorizontal] = useState(false)
   const [position, setPosition] = useState({
@@ -251,6 +253,7 @@ const Toolbar = props => {
       src: handCursor,
       onClick: () => {
         AiDesigner.updateContext()
+        enableSelection && AiDesigner.select('aid-ctx-main')
         mutateSettings('editor', {
           enableSelection: !enableSelection,
         })
@@ -265,26 +268,26 @@ const Toolbar = props => {
       title: 'Scroll to selected node',
       imgProps: {},
     },
-    enableEdit: {
-      src: textIcon,
-      onClick: () => {
-        mutateSettings('editor', {
-          contentEditable: !contentEditable,
-        })
-      },
-      imgProps: { style: { height: '22px' } },
-      title: `${!contentEditable ? 'Enable' : 'Disable'} Text editing`,
-      'data-active': contentEditable,
-    },
-    dropper: {
-      disabled: !enableSelection,
-      src: dropperIcon,
-      onClick: () => {
-        updateTools('dropper', { active: !ctxTools.dropper.active }, ['brush'])
-      },
-      imgProps: { style: { height: '18px', transform: 'scaleX(-1)' } },
-      'data-active': ctxTools.dropper.active,
-    },
+    // enableEdit: {
+    //   src: textIcon,
+    //   onClick: () => {
+    //     mutateSettings('editor', {
+    //       contentEditable: !contentEditable,
+    //     })
+    //   },
+    //   imgProps: { style: { height: '22px' } },
+    //   title: `${!contentEditable ? 'Enable' : 'Disable'} Text editing`,
+    //   'data-active': contentEditable,
+    // },
+    // dropper: {
+    //   disabled: !enableSelection,
+    //   src: dropperIcon,
+    //   onClick: () => {
+    //     updateTools('dropper', { active: !ctxTools.dropper.active }, ['brush'])
+    //   },
+    //   imgProps: { style: { height: '18px', transform: 'scaleX(-1)' } },
+    //   'data-active': ctxTools.dropper.active,
+    // },
     brush: {
       disabled: !enableSelection,
       src: brushIcon,
@@ -301,17 +304,17 @@ const Toolbar = props => {
       DropDown: SnipsDropDown,
       style: { position: 'relative' },
     },
-    paintBucket: {
-      onClick: () => {
-        updateTools('paintBucket', { active: !ctxTools.paintBucket.active }, [
-          'dropper',
-          'brush',
-        ])
-      },
-      src: paintBucketIcon,
-      imgProps: { style: { height: '22px' } },
-      'data-active': ctxTools?.paintBucket?.active,
-    },
+    // paintBucket: {
+    //   onClick: () => {
+    //     updateTools('paintBucket', { active: !ctxTools.paintBucket.active }, [
+    //       'dropper',
+    //       'brush',
+    //     ])
+    //   },
+    //   src: paintBucketIcon,
+    //   imgProps: { style: { height: '22px' } },
+    //   'data-active': ctxTools?.paintBucket?.active,
+    // },
     toggleChat: {
       src: chatIcon,
       onClick: () => {
@@ -336,24 +339,24 @@ const Toolbar = props => {
       imgProps: {},
       'data-active': layout.input,
     },
-    togglePreview: {
-      Icon: FilePdfOutlined,
-      onClick: () => {
-        updateLayout({ preview: !layout.preview })
-      },
-      imgProps: {},
-      'data-active': layout.preview,
-    },
+    // togglePreview: {
+    //   Icon: FilePdfOutlined,
+    //   onClick: () => {
+    //     updateLayout({ preview: !layout.preview })
+    //   },
+    //   imgProps: {},
+    //   'data-active': layout.preview,
+    // },
     // model: { src: modelIcon, onClick: () => {}, imgProps: {} },
-    displayStyles: {
-      src: paintIcon,
-      onClick: () => {
-        mutateSettings('editor', {
-          displayStyles: !displayStyles,
-        })
-      },
-      'data-active': displayStyles,
-    },
+    // displayStyles: {
+    //   src: paintIcon,
+    //   onClick: () => {
+    //     mutateSettings('editor', {
+    //       displayStyles: !displayStyles,
+    //     })
+    //   },
+    //   'data-active': displayStyles,
+    // },
   }
 
   useEffect(() => {
