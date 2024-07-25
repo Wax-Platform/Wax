@@ -16,6 +16,7 @@ import {
   snippetsToCssText,
   srcdoc,
   initialPagedJSCSS,
+  parseContent,
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
@@ -247,7 +248,14 @@ export const AiDesignerProvider = ({ children }) => {
       (settings.preview.livePreview || manualUpdate) &&
       setPreviewSource(
         srcdoc(
-          editorContent,
+          parseContent(
+            editorContent,
+            doc =>
+              !!selectedCtx?.node &&
+              doc
+                .querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
+                ?.classList?.add('selected-aidctx'),
+          ),
           css.replaceAll(
             '.ProseMirror[contenteditable]',
             '.pagedjs_page_content',
