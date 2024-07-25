@@ -540,7 +540,7 @@ export const AiDesignerSystem = ({
   const context = generatedContext(
     isSE,
     sheet,
-    getSnippetsByNode(ctx.node, snippets),
+    !isSE && getSnippetsByNode(ctx.node, snippets),
     providedText,
     ctx,
     selectors,

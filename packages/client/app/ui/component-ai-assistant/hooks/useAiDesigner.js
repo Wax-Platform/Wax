@@ -211,7 +211,7 @@ const useAssistant = () => {
   }
 
   const handleSend = async e => {
-    if (loading || userPrompt?.length < 2 || !selectedCtx?.node) return
+    if (loading || userPrompt?.length < 2) return
     e?.preventDefault()
     setFeedback(userPrompt)
 
@@ -227,9 +227,12 @@ const useAssistant = () => {
       ctx: AiDesigner.selected,
       sheet: css,
       selectors: getNodes(htmlSrc, '*', 'localName'),
-      providedText: selectedCtx?.node !== htmlSrc && selectedCtx.node.innerHTML,
+      providedText:
+        selectedCtx?.aidctx !== 'aid-ctx-main' && selectedCtx.node.innerHTML,
       markedSnippet,
-      snippets: settings.snippetsManager.snippets,
+      snippets:
+        selectedCtx?.aidctx !== 'aid-ctx-main' &&
+        settings.snippetsManager.snippets,
       waxClass: '.ProseMirror[contenteditable]',
     }
 

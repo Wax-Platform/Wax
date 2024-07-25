@@ -140,7 +140,7 @@ const TeamPopup = ({ onLogout, enableLogin }) => {
               <ColoredCircle
                 color={yjsCurrentUser.color}
                 onClick={() => toggleColorPicker(!openColorPicker)}
-                size="35px"
+                size="20px"
               />
               {openColorPicker && (
                 <ColorBlock>

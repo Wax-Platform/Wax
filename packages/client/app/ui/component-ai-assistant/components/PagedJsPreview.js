@@ -24,11 +24,11 @@ const PreviewIframe = styled.iframe`
 export const PagedJsPreview = () => {
   const { previewRef, layout, updatePreview, previewSource } =
     useContext(AiDesignerContext)
-  const [contentWindow, setContentWindow] = useState(null)
 
   useEffect(() => {
     const handleMessage = e => {
       const aidctx = e.data.aidctx
+      if (!aidctx) return
       document.querySelector(`[data-aidctx="${aidctx}"]`)?.click()
       previewRef?.current?.click()
     }

@@ -24,8 +24,8 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
           window.addEventListener('click', (event) => {
               const { target } = event;
             if (!target.hasAttribute('data-aidctx')) event.preventDefault();
-              const aidctx = event.target.getAttribute('data-aidctx');
-
+              let aidctx = event.target.getAttribute('data-aidctx') || event.target.parentElement.getAttribute('data-aidctx');
+              if (event.target.contains(document.documentElement.querySelector('.pagedjs_page_content'))) {aidctx = 'aid-ctx-main'}
               if (aidctx) window.parent.postMessage({ aidctx }, '*');
           });
         document.addEventListener("DOMContentLoaded", () => {
@@ -164,6 +164,7 @@ export const snippetsToCssText = (
     .join('\n')
 
 export const getSnippetsByNode = (node, snippets) => {
+  if (!node) return
   const classList = [...node.classList].map(c => c.replace('aid-snip-', ''))
 
   const snips = snippets

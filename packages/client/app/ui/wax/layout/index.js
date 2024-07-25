@@ -29,6 +29,7 @@ import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesigner
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { debounce } from 'lodash'
+import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsPreview'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -115,9 +116,9 @@ const MenuWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
   font-size: 16px;
-  /* max-height: ${p => (p.$show ? '80px' : '0')};
+  max-height: ${p => (p.$show ? '80px' : '0')};
   opacity: ${p => (p.$show ? '1' : '0')};
-  pointer-events: ${p => (p.$show ? 'all' : 'none')}; */
+  pointer-events: ${p => (p.$show ? 'all' : 'none')};
   transition: all 0.3s;
 
   div:last-child {
@@ -158,13 +159,7 @@ const WindowHeading = styled.div`
     color: #aaa;
   }
 `
-const PreviewIframe = styled.iframe`
-  border: none;
-  display: flex;
-  height: calc(100% - 10px);
-  /* pointer-events: none; */
-  width: 100%;
-`
+
 const ShowMore = styled(EllipsisOutlined)`
   display: none;
   font-size: 40px;
@@ -258,14 +253,13 @@ const Layout = props => {
     layout,
     clearHistory,
     updatePreview,
-    previewRef,
-    previewSource,
     htmlSrc,
     updateLayout,
     css,
     editorContent,
     settings,
     updateSelectionBoxPosition,
+    designerOn,
   } = useContext(AiDesignerContext)
   const { loading, handleScroll } = useAssistant()
 
@@ -314,7 +308,6 @@ const Layout = props => {
   useEffect(() => {
     if (main?.docView) {
       console.log(context)
-      // setWaxContext(main)
       AiDesigner.setStates(prev => ({
         ...prev,
         get view() {
@@ -359,19 +352,10 @@ const Layout = props => {
         id="wax-container"
         menuHeight={menuHeight}
         style={fullScreenStyles}
-        onClick={({ target }) => {
-          // if (
-          //   htmlSrc.contains(target) ||
-          //   target?.dataset?.element === 'element-options'
-          // )
-          //   return
-          // setSelectedCtx(getCtxBy('node', htmlSrc))
-          // setSelectedNode(htmlSrc)
-        }}
       >
-        <PromptBox></PromptBox>
+        {designerOn && <PromptBox />}
 
-        <MenuWrapper $show={!settings.editor.enableSelection}>
+        <MenuWrapper $show={layout.editor}>
           {main && (
             <MenuComponent fullScreen={fullScreen} open={open} ref={ref} />
           )}
@@ -392,6 +376,7 @@ const Layout = props => {
           )}
           <StyledWindow $show={layout.editor}>
             <WaxSurfaceScroll
+              id="wax-surface-scroll"
               $loading={loading}
               onScroll={handleScroll}
               ref={editorContainerRef}
@@ -410,19 +395,11 @@ const Layout = props => {
               </InfoContainer>
             </WaxBottomRightInfo>
           </StyledWindow>
-          <StyledWindow $show={layout.preview}>
-            {/* <WindowHeading>
-              <span>PDF PREVIEW</span>
-            </WindowHeading> */}
-            <PreviewIframe
-              onLoad={updatePreview}
-              ref={previewRef}
-              srcDoc={previewSource}
-              title="Article preview"
-            />
+          <StyledWindow $show={designerOn && layout.preview}>
+            <PagedJsPreview />
           </StyledWindow>
           <StyledWindow
-            $show={layout.chat}
+            $show={designerOn && layout.chat}
             style={{ maxWidth: '25%', background: '#f5f5f5' }}
           >
             <WindowHeading>

@@ -91,6 +91,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [userImages, setUserImages] = useState('')
   const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
+  const [designerOn, setDesignerOn] = useState(false)
   // const [waxContext, setWaxContext] = useState({})
 
   // const [userInput, setUserInput] = useState({
@@ -418,8 +419,6 @@ export const AiDesignerProvider = ({ children }) => {
         updateSnippetName,
         saveSession,
 
-        // waxContext,
-        // setWaxContext,
         editorContainerRef,
 
         previewScrollTopRef,
@@ -437,6 +436,8 @@ export const AiDesignerProvider = ({ children }) => {
         setUseRag,
         model,
         setModel,
+        designerOn,
+        setDesignerOn,
       }}
     >
       {children}

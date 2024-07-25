@@ -43,8 +43,8 @@ function addAidctxPlugin() {
             }
 
             if (node && !node.isText) {
-              const aidctx = node.attrs?.dataset?.aidctx
-              AiDesigner.select(aidCtx || aidctx)
+              const aidctx = aidCtx || node.attrs?.dataset?.aidctx
+              AiDesigner.select(aidctx)
             }
           }
 
@@ -52,37 +52,30 @@ function addAidctxPlugin() {
         },
       },
     },
-    appendTransaction: (transactions, oldState, newState) => {
-      let tr = newState.tr
+    //   appendTransaction: (transactions, oldState, newState) => {
+    //     const tr = newState.tr
 
-      // Iterate over all nodes in the document
-      newState.doc.descendants((node, pos) => {
-        if (node.isText) return
-        // Check if the node lacks the 'data-aidctx' attribute
-        if (!node.attrs.dataset?.aidctx) {
-          // Generate a unique aidctx value if missing
-          const aidctx = AiDesigner.idGen(node.attrs.dataset?.aidctx || '')
+    //     newState.doc.descendants((node, pos) => {
+    //       if (node.isText) return
+    //       let aidctx = node.attrs.dataset?.aidctx
+    //       if (!aidctx) {
+    //         aidctx = AiDesigner.idGen('')
 
-          // Update the node to include the 'data-aidctx' attribute
-          tr.setNodeMarkup(pos, null, {
-            ...node.attrs,
-            class: 'aid-snip-red-color',
-            dataset: {
-              ...node.attrs.dataset,
-              aidctx: aidctx,
-            },
-          })
+    //         tr.setNodeMarkup(pos, null, {
+    //           ...node.attrs,
+    //           dataset: {
+    //             ...node.attrs.dataset,
+    //             aidctx,
+    //           },
+    //         })
+    //         if (aidctx && !AiDesigner.getBy({ aidctx })) {
+    //           AiDesigner.addToContext({ aidctx })
+    //         }
+    //       }
+    //     })
 
-          // Optionally, add the node to the AiDesigner context if it wasn't already present
-          if (!AiDesigner.getBy({ aidctx })) {
-            AiDesigner.addToContext({ aidctx })
-          }
-        }
-      })
-
-      // Return the transaction if modifications were made, otherwise return null
-      return tr.docChanged ? tr : null
-    },
+    //     return tr.docChanged ? tr : null
+    //   },
   })
 }
 
