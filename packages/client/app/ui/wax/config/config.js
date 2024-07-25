@@ -139,7 +139,7 @@ const config = (yjsProvider, ydoc, docIdentifier) => ({
     },
   },
 
-  PmPlugins: [columnResizing(), addAidctxPlugin()],
+  PmPlugins: [columnResizing()],
   services: [
     new ExternalAPIContentService(),
     new YjsService(),
