@@ -139,8 +139,10 @@ export const cssTemplate1 = /* css */ `
 /* To define how the book look on the screen: */
 @media screen, pagedjs-ignore {
     body {
-        background-color: whitesmoke;
+        background-color: #dedede;
     }
+
+
 
     .pagedjs_pages {
         display: flex;
@@ -148,14 +150,27 @@ export const cssTemplate1 = /* css */ `
         flex: 0;
         flex-wrap: wrap;
         margin: 0 auto;
+
     }
 
     .pagedjs_page {
-
-        margin: 0;
-        flex-shrink: 0;
-        flex-grow: 0;
-        margin-top: 10mm;
+      box-shadow: 0 0 8px #0004;
+      margin: 0;
+      flex-shrink: 0;
+      flex-grow: 0;
+      margin-top: 10mm;
+      
+      * {
+        transition: all 0.5s;
+        outline: 2px dashed #0000;
+        outline-offset: 12px;
+      }   
+      
+      .selected-aidctx {
+        outline: 2px dashed #009d98;
+        outline-offset: 8px;
+      }
+        
     }
 
     .pagedjs_first_page {
@@ -278,6 +293,7 @@ export const initialPagedJSCSS = /* css */ `
       font-family: var(--font-family);
       margin:  20mm;
       size: A4;
+
       @bottom-center {
         content: string(title);
         font-size: 11pt;

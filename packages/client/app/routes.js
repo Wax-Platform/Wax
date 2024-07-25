@@ -202,7 +202,7 @@ const PageWrapper = props => {
   return (
     <StyledPage
       {...props}
-      $height={`calc(100% - ${layout.editor ? '82px' : '42px'})`}
+      $height={`calc(100% - 82px)`}
     />
   )
 }
