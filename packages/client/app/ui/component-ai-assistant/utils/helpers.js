@@ -26,7 +26,11 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
             if (!target.hasAttribute('data-aidctx')) event.preventDefault();
               let aidctx = event.target.getAttribute('data-aidctx') || event.target.parentElement.getAttribute('data-aidctx');
               if (event.target.contains(document.documentElement.querySelector('.pagedjs_page_content'))) {aidctx = 'aid-ctx-main'}
-              if (aidctx) window.parent.postMessage({ aidctx }, '*');
+              if (aidctx) {
+                document.documentElement.querySelector('.selected-aidctx')?.classList.remove('selected-aidctx')
+                aidctx !== 'aid-ctx-main' && document.documentElement.querySelector('[data-aidctx="' + aidctx + '"]').classList.add('selected-aidctx')
+                window.parent.postMessage({ aidctx }, '*')
+              };
           });
         document.addEventListener("DOMContentLoaded", () => {
           const scopeIsReady = document.getElementById("css-assistant-scope")

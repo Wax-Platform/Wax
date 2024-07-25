@@ -17,20 +17,17 @@ const PreviewIframe = styled.iframe`
   border: none;
   display: flex;
   height: calc(100%);
-  /* pointer-events: none; */
   width: 100%;
 `
 
 export const PagedJsPreview = () => {
-  const { previewRef, layout, updatePreview, previewSource } =
-    useContext(AiDesignerContext)
+  const { previewRef, layout, previewSource } = useContext(AiDesignerContext)
 
   useEffect(() => {
     const handleMessage = e => {
       const aidctx = e.data.aidctx
       if (!aidctx) return
-      document.querySelector(`[data-aidctx="${aidctx}"]`)?.click()
-      previewRef?.current?.click()
+      AiDesigner.select(aidctx)
     }
 
     window.addEventListener('message', handleMessage)
@@ -40,33 +37,9 @@ export const PagedJsPreview = () => {
     }
   }, [])
 
-  useEffect(() => {
-    previewRef?.current?.contentDocument &&
-      previewRef?.current.contentDocument.addEventListener(
-        'mousemove',
-        console.log,
-      )
-  }, [previewRef?.current?.contentDocument, updatePreview])
-
   return (
     <StyledWindow $show={layout.preview}>
-      {previewRef?.current?.contentDocument && (
-        <ToolsCursor container={previewRef.current.contentDocument} />
-      )}
       <PreviewIframe
-        // style={{
-        //   height: previewRef?.current?.contentDocument
-        //     ? previewRef.current.contentDocument.scrollHeight
-        //     : '15px',
-        // }}
-        onLoad={e =>
-          setTimeout(
-            console.log(
-              e.target.contentDocument.querySelector('html').scrollHeight,
-            ),
-            2000,
-          )
-        }
         ref={previewRef}
         srcDoc={previewSource}
         title="Article preview"
