@@ -1,3 +1,4 @@
+/* stylelint-disable indentation */
 /* stylelint-disable no-descending-specificity */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-vars */
@@ -10,10 +11,16 @@ import React, {
   useState,
 } from 'react'
 import styled from 'styled-components'
-import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
-import { capitalize, debounce, uniqueId } from 'lodash'
+import {
+  DeleteOutlined,
+  EditOutlined,
+  MinusOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons'
+import { capitalize, debounce } from 'lodash'
 import { AiDesignerContext } from './hooks/AiDesignerContext'
-import { htmlTagNames, parseContent } from './utils'
+import { htmlTagNames } from './utils'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 
 const AbsoluteContainer = styled.span`
@@ -42,7 +49,7 @@ const RelativeContainer = styled.div`
   z-index: 999;
 
   button {
-    background: var(--color-blue);
+    background: var(--color-trois);
     border: none;
     border-radius: 50%;
     box-shadow: 0 0 4px #0002;
@@ -63,7 +70,7 @@ const RelativeContainer = styled.div`
     background-color: #fffe;
     border-radius: 5px;
     box-shadow: 0 0 4px #0002;
-    color: var(--color-blue);
+    color: var(--color-trois);
     line-height: 1;
     padding: 5px 8px;
   }
@@ -76,7 +83,6 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
     selectedCtx,
     updateSelectionBoxPosition,
     settings,
-    selectedNode,
     editorContainerRef,
   } = useContext(AiDesignerContext)
 
@@ -121,7 +127,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
             {htmlTagNames[selectedCtx?.tagName] || 'Document'}
           </small>
           <span>
-            <AddSnippetButton data-element="element-options" />
+            <AddSnippetButton />
           </span>
         </RelativeContainer>
       )}
@@ -133,30 +139,41 @@ export default SelectionBox
 
 const Root = styled.div`
   > :first-child {
-    background: ${p =>
-      p.$marked ? 'var(--color-green)' : 'var(--color-blue)'};
     opacity: ${p => (p.$active ? 1 : 0.4)};
     transform: scale(${p => (p.$active ? 1 : 0.9)});
     transition: all 0.3s;
+    z-index: 99;
   }
 `
 
 const SubMenu = styled.div`
-  background: ${p => (p.$marked ? 'var(--color-green)' : 'var(--color-blue)')};
+  --background: ${p =>
+    p.$show ? (p.$ctrlPressed ? 'var(--color-secondary)' : '#ddd') : '#0000'};
+  background: linear-gradient(
+        0deg,
+        var(--color-secondary),
+        var(--color-trois) 90%
+      )
+      padding-box,
+    linear-gradient(0deg, var(--color-secondary), var(--color-trois) 90%)
+      border-box;
+  border: ${p => (p.$show ? '4px' : 0)} solid transparent;
   border-radius: 5px;
-  bottom: 27px;
+  border-top-width: 3px;
+  bottom: 12px;
   box-shadow: 0 0 5px #0001;
   display: flex;
   flex-direction: column;
-  max-height: ${p => (p.$show ? '220px' : 0)};
-  max-width: ${p => (p.$show ? '300px' : 0)};
-  min-width: ${p => (p.$show ? '200px' : 0)};
+  max-height: ${p => (p.$show ? '228px' : 0)};
+  max-width: ${p => (p.$show ? 'calc(300px)' : 0)};
+  min-height: ${p => (p.$show ? '228px' : 0)};
+  min-width: ${p => (p.$show ? 'calc(300px)' : 0)};
   opacity: ${p => (p.$show ? 1 : 0.5)};
   overflow: hidden;
   padding: 0;
   position: absolute;
-  right: -2px;
-  transition: all 0.3s linear, z-index 0s;
+  right: 5px;
+  transition: max-height 0.4s linear, min-width 0.5s 0.5s, man-width 0.5s 0.5s;
   width: fit-content;
   z-index: ${p => (p.$show ? 9 : 1)};
 
@@ -185,22 +202,26 @@ const SubMenu = styled.div`
     padding: 8px;
     pointer-events: all;
 
-    > button {
+    button {
       background: none;
     }
 
-    > input {
-      background: none;
-      border: none;
-      border-bottom: 1px solid #fff9;
-      color: #fffb;
-      margin-left: 5px;
-      outline: none;
-      padding: 5px 0;
-      /* width: 100%; */
+    > span {
+      > input {
+        background: none;
+        border: none;
+        border-bottom: 1px solid #fff9;
+        color: #fffb;
+        margin-left: 5px;
+        max-width: ${p => (p.$showSearchInput ? '150px' : '0')};
+        outline: none;
+        padding: 5px 0;
+        /* width: 100%; */
+        transition: all 0.3s;
 
-      ::placeholder {
-        color: #fff9;
+        ::placeholder {
+          color: #fff9;
+        }
       }
     }
   }
@@ -224,43 +245,79 @@ const SubMenu = styled.div`
 const Snippet = styled.span`
   --color-states: ${p =>
     p.$active
-      ? 'var(--color-green)'
+      ? 'var(--color-primary)'
       : p.$marked
-      ? 'var(--color-orange)'
-      : '#fff0'};
+      ? 'var(--color-yellow)'
+      : '#ddd'};
   --color-states-dark: ${p =>
     p.$active
-      ? 'var(--color-green-dark)'
+      ? 'var(--color-primary-dark)'
       : p.$marked
-      ? 'var(--color-orange-dark)'
-      : 'var(--color-blue-dark)'};
+      ? 'var(--color-yellow-dark)'
+      : 'var(--color-trois)'};
+  --font-weight: ${p => (p.$active || p.$marked ? '700' : '200')};
 
   background: #fafafa;
   border: none;
-  border-left: 3px solid var(--color-states);
+  border-left: 4px solid var(--color-states);
   border-radius: 0;
   box-shadow: inset 0 0 5px #0001;
   color: #555;
   display: flex;
   gap: 4px;
+  justify-content: space-between;
   outline: none;
   padding: 8px 5px;
   pointer-events: all;
   transition: all 0.2s;
-  /* width: 100%; */
 
-  > button {
+  button {
     background: #0000;
     border: none;
     border-radius: 0;
     box-shadow: none;
+    cursor: pointer;
+  }
+
+  .snippet-actions {
+    gap: 3px;
+    opacity: 0;
+    transition: opacity 0.5s;
+
+    > button {
+      color: var(--color-states-dark);
+      height: 15px;
+      padding: 3px;
+      width: 15px;
+
+      .anticon {
+        font-size: 12px;
+        transition: transform 0.3s;
+      }
+    }
+  }
+
+  > button,
+  > span:not(.snippet-actions) > button {
     color: var(--color-states-dark);
+    font-weight: var(--font-weight);
     text-align: left;
-    width: 100%;
   }
 
   &:hover {
-    background: #f5fdfd;
+    background: var(--color-secondary-fade);
+
+    .snippet-actions {
+      opacity: 1;
+
+      > button {
+        &:hover {
+          .anticon {
+            transform: scale(1.2) translateY(-5px);
+          }
+        }
+      }
+    }
   }
 `
 
@@ -273,6 +330,8 @@ export const AddSnippetButton = () => {
     markedSnippet,
     getCtxNode,
     updatePreview,
+    userInteractions,
+    removeSnippet,
   } = useContext(AiDesignerContext)
 
   if (!settings.editor.enableSelection) return null
@@ -281,6 +340,7 @@ export const AddSnippetButton = () => {
   const [showSnippets, setShowSnippets] = useState(false)
   const [search, setSearch] = useState('')
   const [searchByName, setSearchByName] = useState(false)
+  const [showSearchInput, setShowSearchInput] = useState(false)
 
   const handleSearch = e => {
     setSearch(e.target.value)
@@ -323,34 +383,25 @@ export const AddSnippetButton = () => {
     }
 
     return sorted
-  }, [showSnippets, markedSnippet, selectedCtx.aidctx])
+  }, [
+    showSnippets,
+    markedSnippet,
+    selectedCtx.aidctx,
+    settings.snippetsManager.snippets,
+  ])
 
   return (
-    <Root $active data-element="element-options">
-      <button
-        id="element-snippets"
-        data-element="element-options"
-        label="show snippets"
-        onClick={() => setShowSnippets(!showSnippets)}
-        style={{ background: '#fffe', color: 'var(--color-blue)' }}
-        title="Add snippet"
-        type="button"
-      >
-        <PlusOutlined
-          data-element="element-options"
-          style={{ pointerEvents: 'none' }}
-        />
-      </button>
+    <Root $active>
       <SubMenu
+        $showSearchInput={showSearchInput}
+        $ctrlPressed={!!userInteractions.ctrl}
         $show={showSnippets}
-        data-element="element-options"
-        onMouseLeave={() => setShowSnippets(false)}
+        // onMouseLeave={() => setShowSnippets(false)}
         style={{ marginTop: '7px' }}
       >
-        <span data-element="element-options">
+        <span>
           <small>Filter by:</small>
           <button
-            data-element="element-options"
             onClick={() => setSearchByName(false)}
             style={{ border: `1px solid ${searchByName ? '#fff0' : '#fff5'}` }}
             type="button"
@@ -358,7 +409,6 @@ export const AddSnippetButton = () => {
             type
           </button>
           <button
-            data-element="element-options"
             onClick={() => setSearchByName(true)}
             style={{ border: `1px solid ${searchByName ? '#fff5' : '#fff0'}` }}
             type="button"
@@ -366,15 +416,28 @@ export const AddSnippetButton = () => {
             name
           </button>
         </span>
-        <span style={{ width: '100%', padding: '3px 0.7rem 3px 0.7rem' }}>
-          <SearchOutlined />
-          <input
-            data-element="element-options"
-            onChange={handleSearch}
-            placeholder="Search snippet"
-            ref={searchSnippetRef}
-            value={search}
-          />
+        <span
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: '3px 0.7rem 3px 0.7rem',
+            alignItems: 'center',
+          }}
+        >
+          <span>
+            {userInteractions.ctrl
+              ? `All ${htmlTagNames[selectedCtx.tagName]}s`
+              : `${htmlTagNames[selectedCtx.tagName]}`}
+          </span>
+          <span>
+            <input
+              onChange={handleSearch}
+              placeholder="Search snippet"
+              ref={searchSnippetRef}
+              value={search}
+            />
+            <SearchOutlined onClick={() => setShowSearchInput(p => !p)} />
+          </span>
         </span>
         <div
           style={{
@@ -382,6 +445,10 @@ export const AddSnippetButton = () => {
             overflowY: 'auto',
             overflowX: 'hidden',
             background: '#fff',
+            borderRadius: '3px',
+            boxShadow: 'inset 0 0 3px #0004',
+            paddingBottom: '20px',
+            height: '160px%',
           }}
         >
           {sortedSnippets?.length > 0
@@ -395,6 +462,34 @@ export const AddSnippetButton = () => {
                   ? search?.toLowerCase()?.replaceAll(' ', '-')
                   : search?.toLowerCase()
 
+                const handleSnippets = e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  const action =
+                    e.target.getAttribute('data-action') ?? 'toggle'
+                  const { tagName } = selectedCtx
+                  onHistory.addRegistry('undo')
+
+                  if (action === 'delete') {
+                    removeSnippet(className)
+                    AiDesigner.filterBy({ tagName }, c =>
+                      c.snippets.remove(`aid-snip-${className}`),
+                    )
+                  } else {
+                    userInteractions.ctrl
+                      ? AiDesigner.filterBy({ tagName }, c =>
+                          c.snippets[action](`aid-snip-${className}`),
+                        )
+                      : selectedCtx.snippets[action](`aid-snip-${className}`)
+                  }
+
+                  debounce(() => {
+                    setShowSnippets(true)
+                  }, 100)()
+
+                  updatePreview()
+                  isMarked(className) && setMarkedSnippet('')
+                }
                 return (
                   (search.length <= 1 ||
                     (search?.length > 1 &&
@@ -402,43 +497,58 @@ export const AddSnippetButton = () => {
                     <Snippet
                       $active={!isMarked(className) && isAdded(className)}
                       $marked={isMarked(className)}
-                      data-element="element-options"
                       key={`${className}boxmenu`}
                     >
                       <button
-                        data-element="element-options"
-                        onClick={e => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          onHistory.addRegistry('undo')
-                          AiDesigner.snippets.toggle(`aid-snip-${className}`)
-                          debounce(() => {
-                            setShowSnippets(true)
-                          }, 100)()
-
-                          updatePreview()
-                          isMarked(className) && setMarkedSnippet('')
-                        }}
+                        data-action="toggle"
+                        onClick={handleSnippets}
                         title={description}
                         type="button"
                       >
                         {capitalize(className?.replaceAll('-', ' '))}
                       </button>
-                      <button
-                        data-element="element-options"
-                        onClick={e => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          setMarkedSnippet(isMarked(className) ? '' : className)
-                        }}
-                        style={{ width: 'fit-content' }}
-                        title={`Edit snippet via prompt: \nYou can change the styles, description\n name of the snippet and/or create a copy.\n Only one snippet can be edited at a time.\n`}
-                        type="button"
+                      <span
+                        className="snippet-actions"
+                        style={{ display: 'flex' }}
                       >
-                        {isAdded(className) && (
+                        <button
+                          data-action="add"
+                          onClick={handleSnippets}
+                          title={description}
+                          type="button"
+                        >
+                          <PlusOutlined style={{ pointerEvents: 'none' }} />
+                        </button>{' '}
+                        <button
+                          data-action="remove"
+                          onClick={handleSnippets}
+                          title={description}
+                          type="button"
+                        >
+                          <MinusOutlined style={{ pointerEvents: 'none' }} />
+                        </button>
+                        <button
+                          onClick={e => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setMarkedSnippet(
+                              isMarked(className) ? '' : className,
+                            )
+                          }}
+                          title={`Edit snippet via prompt: \nYou can change the styles, description\n name of the snippet and/or create a copy.\n Only one snippet can be edited at a time.\n`}
+                          type="button"
+                        >
                           <EditOutlined style={{ pointerEvents: 'none' }} />
-                        )}
-                      </button>
+                        </button>
+                        <button
+                          data-action="delete"
+                          onClick={handleSnippets}
+                          title={`Delete snipet (not undoable)`}
+                          type="button"
+                        >
+                          <DeleteOutlined style={{ pointerEvents: 'none' }} />
+                        </button>
+                      </span>
                     </Snippet>
                   )
                 )
@@ -446,6 +556,29 @@ export const AddSnippetButton = () => {
             : null}
         </div>
       </SubMenu>
+      <button
+        id="element-snippets"
+        label="show snippets"
+        onClick={() => setShowSnippets(!showSnippets)}
+        style={{
+          background: '#fffe',
+          color: 'var(--color-trois)',
+          position: 'relative',
+          transform: `scale(${showSnippets ? '0.7' : '1'})`,
+          transition: 'all 0.5s',
+          zIndex: '99',
+        }}
+        title="Add snippet"
+        type="button"
+      >
+        <PlusOutlined
+          style={{
+            pointerEvents: 'none',
+            transition: 'all 0.5s',
+            transform: `rotate(${showSnippets ? '45deg' : '0'})`,
+          }}
+        />
+      </button>
     </Root>
   )
 }

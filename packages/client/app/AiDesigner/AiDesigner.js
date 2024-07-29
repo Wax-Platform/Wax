@@ -103,8 +103,16 @@ export default class AiDesigner extends StateManager {
     return this.context?.find(match)
   }
 
+  static filterBy(prop, walk) {
+    const [attr, value] = entries(prop).flat()
+    const match = ctx => ctx[attr] === value
+    const found = this.context?.filter(match)
+    walk && found.forEach(safeCall(walk))
+    return found
+  }
+
   static updateContext(params) {
-    if (!params && !this.states?.view?.docView) return
+    if (!params?.docView && !this.states?.view?.docView) return
     const { view } = params ?? this.states
 
     view.state.doc.descendants((node, pos) => {

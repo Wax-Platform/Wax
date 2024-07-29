@@ -113,7 +113,7 @@ const useAssistant = () => {
         },
         snippet: val => {
           addSnippet(null, val)
-          AiDesigner.snippets.add(`aid-snip-${val.className}`)
+          selectedCtx.snippets.add(`aid-snip-${val.className}`)
         },
         feedback: val => {
           setFeedback(val)
@@ -203,6 +203,7 @@ const useAssistant = () => {
     useLazyQuery(RAG_SEARCH_QUERY)
 
   // #endregion GQL Hooks ----------------------------------------------------------------
+
   const handleScroll = e => {
     const iframeElement = previewRef?.current?.contentDocument?.documentElement
     if (!iframeElement) return

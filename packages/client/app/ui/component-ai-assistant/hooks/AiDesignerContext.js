@@ -116,7 +116,7 @@ export const AiDesignerProvider = ({ children }) => {
     paintBucket: { active: false, data: '', properties: {} },
   })
 
-  const [userInteractions, setUserInteraction] = useState({
+  const [userInteractions, setUserInteractions] = useState({
     mousedown: false,
     mousemove: false,
     shift: false,
@@ -308,32 +308,25 @@ export const AiDesignerProvider = ({ children }) => {
     markNewSnippet && !markedSnippet && setMarkedSnippet(snippetToAdd.className)
   }
 
-  const removeSnippet = (snippetName, node) => {
-    if (!node) {
-      const updatedSnippets = settings.snippetsManager.snippets
+  const removeSnippet = (snippetName) => {
+    const updatedSnippets = settings.snippetsManager.snippets
 
-      const removeSnip = name => {
-        const index = updatedSnippets.findIndex(s => s.className === name)
-        updatedSnippets.splice(index, 1)
-      }
-
-      isString(snippetName)
-        ? removeSnip(snippetName)
-        : Array.isArray(snippetName) && snippetName.forEach(removeSnip)
-
-      setSettings(prev => {
-        return merge(
-          {},
-          { ...prev },
-          { snippetsManager: { snippets: updatedSnippets } },
-        )
-      })
-      document.querySelectorAll(`aid-snip-${snippetName}`).forEach(n => {
-        n.classList.remove(`aid-snip-${snippetName}`)
-      })
-    } else {
-      getCtxNode().classList.remove(`aid-snip-${snippetName}`)
+    const removeSnip = name => {
+      const index = updatedSnippets.findIndex(s => s.className === name)
+      updatedSnippets.splice(index, 1)
     }
+
+    isString(snippetName)
+      ? removeSnip(snippetName)
+      : Array.isArray(snippetName) && snippetName.forEach(removeSnip)
+
+    setSettings(prev => {
+      return merge(
+        {},
+        { ...prev },
+        { snippetsManager: { snippets: updatedSnippets } },
+      )
+    })
   }
 
   const updateSnippetDescription = (snippetName, description) => {
@@ -447,6 +440,8 @@ export const AiDesignerProvider = ({ children }) => {
         setModel,
         designerOn,
         setDesignerOn,
+        userInteractions,
+        setUserInteractions,
       }}
     >
       {children}

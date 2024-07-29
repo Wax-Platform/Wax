@@ -161,6 +161,7 @@ const Toolbar = ({ drag, ...props }) => {
     showSnippets,
     editorContainerRef,
     setShowSnippets,
+    previewRef,
     settings: {
       editor: { contentEditable, enableSelection, displayStyles },
     },
@@ -236,12 +237,14 @@ const Toolbar = ({ drag, ...props }) => {
   }, [horizontal, enableSelection, drag])
 
   const scrollToSelectedNode = () => {
-    const node = document.querySelector(`[data-aidctx="${selectedCtx.aidctx}"`)
+    const iframeElement = previewRef?.current?.contentDocument?.documentElement
+    if (!iframeElement) return
+    const node = iframeElement.querySelector(
+      `[data-aidctx="${selectedCtx.aidctx}"`,
+    )
     node &&
-      editorContainerRef?.current &&
-      editorContainerRef.current.scrollTo(0, node.offsetTop, {
-        behavior: 'smooth',
-      })
+      iframeElement &&
+      node.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   const renderTool = ({ src, Icon, imgProps, DropDown, disabled, ...rest }) => {

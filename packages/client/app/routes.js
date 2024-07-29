@@ -198,13 +198,21 @@ const Authenticated = ({ children }) => {
   )
 }
 const PageWrapper = props => {
-  const { layout } = useContext(AiDesignerContext)
-  return (
-    <StyledPage
-      {...props}
-      $height={`calc(100% - 82px)`}
-    />
-  )
+  const { setUserInteractions } = useContext(AiDesignerContext)
+  useEffect(() => {
+    const keydownHandler = e => {
+      console.log(e.ctrlKey)
+      setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
+    }
+    window.addEventListener('keydown', keydownHandler)
+    window.addEventListener('keyup', keydownHandler)
+
+    return () => {
+      window.removeEventListener('keydown', keydownHandler)
+      window.removeEventListener('keyup', keydownHandler)
+    }
+  }, [])
+  return <StyledPage {...props} $height={`calc(100% - 82px)`} />
 }
 
 const routes = enableLogin => (
