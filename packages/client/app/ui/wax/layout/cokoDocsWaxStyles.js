@@ -11,6 +11,7 @@ export default css`
     --slnt: 1;
     --crsv: 0.7;
     background: var(--color-background, #fff);
+    box-shadow: 0 0 12px #0003;
     font-family: '${th('fontContent')}';
     font-size: 0.95em;
     font-variation-settings: 'MONO' var(--mono), 'CASL' var(--casl),

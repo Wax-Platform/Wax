@@ -18,24 +18,18 @@ import Toolbar from './Toolbar'
 import { AddSnippetButton } from '../SelectionBox'
 
 const Dropdown = styled.div`
-  background: linear-gradient(#fff, #fff) padding-box,
-    linear-gradient(
-        90deg,
-        var(--color-green),
-        var(--color-yellow),
-        var(--color-orange),
-        var(--color-blue)
-      )
-      border-box;
+  background: linear-gradient(90deg, var(--color-purple), var(--color-trois))
+      padding-box,
+    linear-gradient(90deg, var(--color-purple), var(--color-trois)) border-box;
   border: ${p => (p.$open ? '3px' : '0px')} solid transparent;
-  border-radius: 15px;
-  bottom: ${p => (p.$open ? '-15px' : '5px')};
+  border-radius: 5px;
+  bottom: 0;
   height: fit-content;
-  max-height: ${p => (p.$open ? '200px' : '0')};
+  max-height: ${p => (p.$open ? '150px' : '0')};
   max-width: ${p => (p.$open ? '180px' : '0')};
   overflow: hidden;
   position: absolute;
-  right: calc(100% + ${p => (p.$open ? '20px' : '1px')});
+  right: calc(100% + ${p => (p.$open ? '20px' : '8px')});
   transition: all 0.5s;
   width: 180px;
   z-index: 999;
@@ -56,10 +50,11 @@ const Dropdown = styled.div`
 
     li {
       align-items: center;
+      background-color: #fff;
       display: flex;
       height: 25px;
       margin: 0;
-      padding: 8px 10px;
+      padding: 0 10px;
 
       button {
         align-items: center;
@@ -87,15 +82,15 @@ const Dropdown = styled.div`
       }
 
       button[data-selected='true'] {
-        color: var(--color-blue);
+        color: var(--color-trois);
 
         &::after {
-          background-color: var(--color-blue);
+          background-color: var(--color-trois);
         }
       }
 
       &:hover {
-        background-color: var(--color-blue-alpha-2);
+        background-color: #fffd;
       }
     }
 
@@ -138,7 +133,7 @@ const ModelsDropdown = () => {
           width: '100%',
           height: '100%',
           cursor: 'pointer',
-          color: 'var(--color-blue)',
+          color: 'var(--color-trois)',
         }}
         type="button"
       >
@@ -188,7 +183,7 @@ const StyledToolbar = styled(Toolbar)`
   outline: none;
   padding: 0;
   /* position: absolute; */
-  position: static;
+  position: unset;
   transform: none;
   transform-origin: top right;
   transition: transform 0.5s;
@@ -218,8 +213,8 @@ const StyledToolbar = styled(Toolbar)`
   img:not(:first-child),
   .anticon svg:not(#snips-dropdown .anticon svg),
   > button > img {
-    color: var(--color-blue);
-    height: 18px;
+    color: var(--color-trois);
+    height: 14px;
     object-fit: contain;
     width: 100%;
   }
@@ -233,19 +228,14 @@ const StyledToolbar = styled(Toolbar)`
 
   > *:not(:first-child) {
     background: #fff;
-    border: none;
     border-radius: 50%;
-    box-shadow: 0 0 4px #0002;
+    box-shadow: 0 0 4px #0004;
     color: #eee;
     cursor: pointer;
     outline: none;
-    padding: 5px;
+    padding: 2px;
     pointer-events: all;
     transition: all 0.3s;
-
-    &:hover {
-      background: var(--color-blue-alpha-2);
-    }
   }
 
   button {
@@ -278,7 +268,7 @@ const StyledToolbar = styled(Toolbar)`
   }
 
   svg {
-    fill: var(--color-blue);
+    fill: var(--color-trois);
   }
 `
 
@@ -290,21 +280,23 @@ const Assistant = styled(PromptsInput)`
   width: 100%;
 
   svg {
-    fill: var(--color-blue);
+    fill: var(--color-trois);
     height: 15px;
     width: 15px;
   }
 `
 const AbsoluteContainer = styled.div`
+  align-items: center;
   bottom: ${p => (p.$show ? '15px' : '-140px')};
   display: flex;
   flex-direction: column;
-  opacity: 1;
+  opacity: ${p => (p.$show ? '1' : '0')};
   position: absolute;
   right: ${p => {
-    if (p.$showChat) return '43px'
-    return p.$bothEditors ? '7.05%' : '24%'
+    if (p.$showChat) return '30px'
+    return p.$bothEditors ? '8.2%' : '23.4%'
   }};
+
   transition: all 0.5s;
   width: ${p => {
     if (p.$showChat) return 'calc(25% - 60px)'
@@ -318,10 +310,9 @@ const PromptBoxWrapper = styled.div`
   background: linear-gradient(#fff, #fff) padding-box,
     linear-gradient(
         90deg,
-        var(--color-blue),
-        var(--color-orange),
-        var(--color-yellow),
-        var(--color-green)
+        var(--color-trois),
+        var(--color-pink),
+        var(--color-secondary)
       )
       border-box;
   border: 3px solid transparent;
@@ -347,7 +338,7 @@ const PromptBoxWrapper = styled.div`
     gap: 0;
 
     svg {
-      color: var(--color-blue);
+      color: var(--color-trois);
       height: 18px;
       transition: all 0.3s;
       width: 18px;
@@ -366,7 +357,7 @@ const PromptBoxWrapper = styled.div`
     }
 
     span[data-inactive='false'] svg {
-      color: var(--color-green);
+      color: var(--color-secondary);
     }
 
     span[data-modelicon='true'] svg {
@@ -396,7 +387,7 @@ const RelativeContainer = styled.div`
   z-index: 9999999999999999;
 
   button#element-snippets {
-    background: var(--color-blue);
+    background: var(--color-trois);
     border: none;
     border-radius: 50%;
     box-shadow: 0 0 4px #0002;
@@ -417,7 +408,7 @@ const RelativeContainer = styled.div`
     background-color: #fffe;
     border-radius: 5px;
     box-shadow: 0 0 4px #0002;
-    color: var(--color-blue);
+    color: var(--color-trois);
     line-height: 1;
     padding: 5px 8px;
   }
@@ -496,12 +487,6 @@ export const PromptBox = () => {
                 title="Print"
                 type="button"
               />
-              {/* <FileSyncOutlined
-              data-inactive={!useRag}
-              onClick={() => setUseRag(!useRag)}
-              style={{ color: 'var(--color-green)' }}
-              title={`Use uploaded documents`}
-            /> */}
               <input
                 accept=".png,.jpg,.webp,.gif,.jpeg"
                 id="add-file-to-prompt"
@@ -515,14 +500,9 @@ export const PromptBox = () => {
                 style={{ cursor: 'pointer' }}
                 title="Attach image"
               >
-                <PictureOutlined style={{ color: 'var(--color-blue)' }} />
+                <PictureOutlined style={{ color: 'var(--color-trois)' }} />
               </label>
             </span>
-            {/* <p>{`Selected: ${
-              selectedCtx?.tagName
-                ? htmlTagNames[selectedCtx.tagName]
-                : 'Document'
-            }`}</p> */}
           </span>
         </span>
       </PromptBoxWrapper>

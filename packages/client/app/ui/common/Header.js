@@ -20,6 +20,8 @@ import Toggle from '../component-ai-assistant/components/Toggle'
 const StyledHeader = styled.header`
   align-items: center;
   background-color: ${th('colorBody')};
+  border-bottom: 1px solid #0003;
+
   /* box-shadow: 0 0 15px #0003; */
   display: flex;
   flex-flow: row wrap;
@@ -35,12 +37,12 @@ const Logo = styled.img`
 `
 
 const UserMenu = styled.div`
-  align-items: flex-end;
+  align-items: center;
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  gap: 20px;
   height: 100%;
-  justify-content: flex-end;
+  justify-content: space-between;
+  padding-right: 20px;
 
   .anticon svg {
     height: 25px;
@@ -63,15 +65,13 @@ const UserMenu = styled.div`
     }
   }
 
-  > :last-child {
+  > :first-child {
     align-items: center;
-    /* background-color: ${p => (p.$designerOn ? '#027a04' : '#00696e')}; */
-    border-radius: 0.3rem;
-    color: ${p => (p.$designerOn ? '#027a04' : '#00696e')};
+    border-right: 1px solid #0004;
     display: flex;
     gap: 10px;
     line-height: 1;
-    padding: 0.7rem 0 0.1rem;
+    padding: 0.7rem 20px;
     /* width: 100px; */
   }
 `
@@ -79,6 +79,10 @@ const UserMenu = styled.div`
 const CreateNew = styled.span`
   font-size: 20px;
   padding-right: 10px;
+
+  a {
+    color: var(--color-trois);
+  }
 `
 
 // #endregion styles
@@ -107,36 +111,16 @@ const Header = props => {
       <Logo src={logoMobile} alt="Wax platform"></Logo>
       <UserMenu $designerOn={designerOn}>
         <span>
-          <CreateNew>
-            <Link target="_blank" to={`/${identifier}`}>
-              <PlusCircleOutlined />
-            </Link>
-          </CreateNew>
-          <TeamPopup enableLogin={enableLogin} onLogout={onLogout} />
-        </span>
-        <span>
           <small
             style={{
               fontWeight: 'bold',
-              color: designerOn ? '#0004' : 'var(--color-blue)',
+              color: designerOn ? '#0004' : 'var(--color-trois)',
               transform: `scale(${designerOn ? '0.9' : '1'})`,
               transformOrigin: 'center',
               transition: 'all 0.3s',
             }}
           >
-            Editing mode
-          </small>
-
-          <small
-            style={{
-              fontWeight: 'bold',
-              color: designerOn ? 'var(--color-green)' : '#0004',
-              transform: `scale(${designerOn ? '1' : '0.9'})`,
-              transformOrigin: 'center',
-              transition: 'all 0.3s',
-            }}
-          >
-            Design mode
+            Editing
           </small>
           <Toggle
             handleChange={() => {
@@ -148,6 +132,25 @@ const Header = props => {
             }}
             checked={designerOn}
           />
+          <small
+            style={{
+              fontWeight: 'bold',
+              color: designerOn ? 'var(--color-secondary)' : '#0004',
+              transform: `scale(${designerOn ? '1' : '0.9'})`,
+              transformOrigin: 'center',
+              transition: 'all 0.3s',
+            }}
+          >
+            Design
+          </small>
+        </span>
+        <span>
+          <CreateNew>
+            <Link target="_blank" to={`/${identifier}`}>
+              <PlusCircleOutlined />
+            </Link>
+          </CreateNew>
+          <TeamPopup enableLogin={enableLogin} onLogout={onLogout} />
         </span>
       </UserMenu>
     </StyledHeader>

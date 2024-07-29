@@ -84,7 +84,7 @@ const MessageContainer = styled.div`
     margin: 5px 0;
   }
   a {
-    color: var(--color-blue);
+    color: var(--color-trois);
   }
   ul,
   ol {
@@ -115,7 +115,7 @@ const MessageContainer = styled.div`
     }
   }
   strong {
-    color: var(--color-blue-dark);
+    color: var(--color-purple);
   }
 `
 
@@ -249,7 +249,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
                       <img
                         alt="user-profile"
                         src={userSmall}
-                        style={{ background: 'var(--color-blue)' }}
+                        style={{ background: 'var(--color-trois)' }}
                       />
                       <strong>@You</strong>
                     </span>

@@ -12,7 +12,7 @@ const Root = styled.div`
   position: absolute;
 
   > :first-child {
-    background: var(--color-blue);
+    background: var(--color-trois);
     opacity: ${p => (p.$active ? 1 : 0)};
     transform: scale(${p => (p.$active ? 1 : 0.9)});
     transform-origin: inherit;
@@ -21,7 +21,8 @@ const Root = styled.div`
 `
 
 const SubMenu = styled.div`
-  background: ${p => (p.$marked ? 'var(--color-green)' : 'var(--color-blue)')};
+  background: ${p =>
+    p.$marked ? 'var(--color-secondary)' : 'var(--color-trois)'};
   box-shadow: 0 0 5px #0001;
   display: flex;
   flex-direction: column;
@@ -108,7 +109,7 @@ const SubMenu = styled.div`
 const Snippet = styled.span`
   --color-states: ${p =>
     p.$active
-      ? 'var(--color-green)'
+      ? 'var(--color-secondary)'
       : p.$marked
       ? 'var(--color-orange)'
       : '#fff0'};
@@ -117,7 +118,7 @@ const Snippet = styled.span`
       ? 'var(--color-green-dark)'
       : p.$marked
       ? 'var(--color-orange-dark)'
-      : 'var(--color-blue-dark)'};
+      : 'var(--color-purple)'};
 
   background: #fafafa;
   border: none;

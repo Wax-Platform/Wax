@@ -273,4 +273,20 @@ export const snippets = [
     description: 'Underlined text for headings',
     classBody: 'text-decoration: underline;',
   },
+  {
+    className: 'menu-style',
+    elementType: 'ol',
+    description:
+      'A snippet to style the ordered list like a restaurant menu, removing list markers and adding menu-like appearance.',
+    classBody:
+      'list-style-type: none;\npadding: 0;\nmargin: 0;\n\nli {\n  padding: 10px 0;\n  border-bottom: 1px solid #ccc;\n}\n\nli:last-child {\n  border-bottom: none;\n}\n\np {\n  margin: 0;\n  padding: 5px 0;\n}\n\nstrong {\n  display: block;\n  font-size: 1.2em;\n  color: #333;\n  margin-bottom: 5px;\n}\n\nol {\n  background-color: #f9f9f9;\n  border: 1px solid #ddd;\n  padding: 20px;\n  border-radius: 5px;\n}',
+  },
+  {
+    className: 'paragraph-as-h1',
+    elementType: 'p',
+    description:
+      'This snippet styles the paragraph to look like an h1 element.',
+    classBody:
+      '\n  font-size: 2em;\n  font-weight: bold;\n  margin: 0.67em 0;\n  text-align: left;\n',
+  },
 ]

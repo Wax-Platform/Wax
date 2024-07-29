@@ -1,3 +1,4 @@
+/* stylelint-disable color-hex-length */
 /* stylelint-disable max-line-length */
 /* stylelint-disable declaration-no-important */
 /* stylelint-disable string-quotes */
@@ -35,7 +36,20 @@ export default createGlobalStyle`
     --color-orange-alpha-2: #fe7b4d11;
     --color-green-alpha-2: #6fab6a11;
     --color-blue-alpha-2: #21799e11;
-    --scrollbar: #004a5c48;
+    --scrollbar: #a34ba160;
+
+    /* Coko colors */
+
+    --color-body: #222222;
+    --color-gris: #272727ff;
+    --color-pink: #e0387aff;
+    --color-purple: #612e61;
+    --color-primary: #21b1acff;
+    --color-primary-dark: #187f7cff;
+    --color-secondary: #e177a2ff;
+    --color-secondary-fade: #e0387a0d;
+    --color-trois: #a34ba1;
+
     height: 100dvh;
   }
 

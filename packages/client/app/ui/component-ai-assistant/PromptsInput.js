@@ -19,28 +19,30 @@ const StyledForm = styled.form`
   border: 1px solid var(--color-border);
   border-radius: 5px;
   display: flex;
+  filter: ${p => (p.$enabled ? 'none' : 'grayscale(100%)')};
   font-size: var(--font-size);
   gap: 8px;
   height: fit-content;
-  min-height: 32px;
   justify-content: center;
   margin: 0;
+  min-height: 32px;
+  opacity: ${p => (p.$enabled ? '1' : '0.2')};
   overflow: visible;
   position: relative;
   transition: all 1s;
-  filter: ${p => (p.$enabled ? 'none' : 'grayscale(100%)')};
-  opacity: ${p => (p.$enabled ? '1' : '0.2')};
   width: 500px;
+
   > span > span {
     border: 1px solid var(--color-blue-alpha-2);
-    width: fit-content;
     border-radius: 0.3rem;
     display: flex;
-    /* flex-direction: column; */
+    width: fit-content;
   }
+
   button {
     padding: 0;
   }
+
   textarea {
     --height: ${p => p.height || `22px`};
     background: none;
@@ -63,8 +65,8 @@ export const StyledSpinner = styled.div`
 
   &::after {
     animation: ${rotate360} 1s linear infinite;
-    border: 2px solid #00495c;
-    border-color: #00495c transparent;
+    border: 2px solid var(--color-trois);
+    border-color: var(--color-trois) transparent;
     border-radius: 50%;
     /* stylelint-disable-next-line string-quotes */
     content: ' ';
@@ -161,7 +163,12 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
               <img
                 alt="userimage"
                 src={userImages?.src || userImages.base64Img}
-                style={{ marginRight: '5px' }}
+                style={{
+                  marginRight: '5px',
+                  width: '50px',
+                  height: '50px',
+                  objectFit: 'contain',
+                }}
               />
               <CloseOutlined
                 onClick={() => {
@@ -174,7 +181,8 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
             <div
               style={{
                 position: 'absolute',
-                bottom: '-265px',
+                top: '-265px',
+                right: 0,
                 padding: '10px',
                 background: '#f5f5f5',
                 boxShadow: '0 0 10px #0002',
@@ -187,7 +195,11 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
               <img
                 alt="userimage"
                 src={userImages?.src || userImages.base64Img}
-                style={{ width: '230px', height: '230px' }}
+                style={{
+                  width: '230px',
+                  objectFit: 'contain',
+                  height: '230px',
+                }}
               />
             </div>
           </span>

@@ -142,7 +142,16 @@ export const cssTemplate1 = /* css */ `
         background-color: #dedede;
     }
 
-
+      * {
+        transition: all 0.5s;
+        outline: 2px dashed #0000;
+        outline-offset: 12px;
+      }   
+      
+      .selected-aidctx {
+        outline: 1px dashed #a34ba1;
+        outline-offset: 8px;
+      }
 
     .pagedjs_pages {
         display: flex;
@@ -159,18 +168,6 @@ export const cssTemplate1 = /* css */ `
       flex-shrink: 0;
       flex-grow: 0;
       margin-top: 10mm;
-      
-      * {
-        transition: all 0.5s;
-        outline: 2px dashed #0000;
-        outline-offset: 12px;
-      }   
-      
-      .selected-aidctx {
-        outline: 2px dashed #009d98;
-        outline-offset: 8px;
-      }
-        
     }
 
     .pagedjs_first_page {

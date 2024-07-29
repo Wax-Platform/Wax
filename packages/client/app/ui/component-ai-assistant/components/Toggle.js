@@ -14,7 +14,7 @@ const Root = styled.div`
 const Container = styled.div`
   aspect-ratio: 16 / 7;
   background-color: ${p =>
-    !p.checked ? 'var(--color-blue)' : 'var(--color-green)'};
+    !p.checked ? 'var(--color-trois)' : 'var(--color-secondary)'};
   border-radius: var(--height);
   box-shadow: inset 0 0 4px #fff4, 0 0 2px #0002;
   box-sizing: content-box !important;

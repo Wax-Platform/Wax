@@ -33,6 +33,7 @@ import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsP
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
+  --styledwindow-height: ${p => (p.$menuvisible ? '100%' : '100% - 36px')};
   background: ${th('colorBackground')};
   display: flex;
   flex-direction: column;
@@ -87,7 +88,6 @@ const InfoContainer = styled.div`
 `
 
 const EditorContainer = styled.div`
-  height: 100%;
   padding-block: 45px;
   position: relative;
   width: 1200px;
@@ -112,10 +112,10 @@ const EditorContainer = styled.div`
 const MenuWrapper = styled.div`
   background-color: white;
   border-bottom: 1px solid gainsboro;
-  border-top: 1px solid gainsboro;
   display: flex;
   flex-flow: row nowrap;
   font-size: 16px;
+  height: 40px;
   max-height: ${p => (p.$show ? '80px' : '0')};
   opacity: ${p => (p.$show ? '1' : '0')};
   pointer-events: ${p => (p.$show ? 'all' : 'none')};
@@ -126,12 +126,13 @@ const MenuWrapper = styled.div`
   }
 `
 const StyledWindow = styled.div`
+  border-left: 1px solid #0004;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: var(--styledwindow-height);
   overflow: hidden;
   position: relative;
-  transition: width 0.5s ease;
+  transition: width 0.5s linear;
   width: ${p => (p.$show ? '100%' : '0')};
 `
 
@@ -212,6 +213,7 @@ const WaxEditorWrapper = styled.div`
   display: flex;
   flex-direction: row;
   height: 100%;
+  justify-content: space-between;
   min-width: 100%;
 `
 
@@ -219,23 +221,6 @@ const FileManagerWrapper = styled.div`
   display: flex;
   width: fit-content;
 `
-
-const MyComp = ({ name }) => {
-  // console.log(name)
-  return (
-    <div>
-      <span>{name}</span>
-      <button
-        onClick={() => {
-          // console.log('ffff')
-        }}
-      >
-        {' '}
-        change config
-      </button>
-    </div>
-  )
-}
 
 const BottomRightInfo = ComponentPlugin('BottomRightInfo')
 const RightArea = ComponentPlugin('rightArea')
@@ -345,6 +330,7 @@ const Layout = props => {
         id="wax-container"
         menuHeight={menuHeight}
         style={fullScreenStyles}
+        $menudisplayed={layout.editor}
       >
         <PromptBox />
         <MenuWrapper $show={layout.editor}>

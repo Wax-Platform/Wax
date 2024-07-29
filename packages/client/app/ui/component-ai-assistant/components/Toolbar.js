@@ -16,7 +16,7 @@ import AidLogoSmall from '../../../../static/AI Design Studio-Icon.svg'
 import handCursor from '../../../../static/cursor-hand3.svg'
 import dropperIcon from '../../../../static/dropper-icon.svg'
 import brushIcon from '../../../../static/brush-icon.svg'
-import chatIcon from '../../../../static/chat-icon2.svg'
+import chatIcon from '../../../../static/chat-icon.svg'
 // import modelIcon from '../../../../static/model-icon.svg'
 import targetIcon from '../../../../static/target-icon.svg'
 import inputIcon from '../../../../static/input-icon.svg'
@@ -35,10 +35,10 @@ const DesignerTools = styled.div`
   background: linear-gradient(#fff, #fff) padding-box,
     linear-gradient(
         45deg,
-        var(--color-green),
-        var(--color-yellow),
+        var(--color-secondary),
+        var(--color-pink),
         var(--color-orange),
-        var(--color-blue)
+        var(--color-trois)
       )
       border-box;
   border: 3px solid transparent;
@@ -86,10 +86,10 @@ const DesignerTools = styled.div`
   img:not(:first-child),
   .anticon svg:not(#snips-dropdown .anticon svg),
   > button > img {
-    color: var(--color-blue);
-    height: 18px;
+    color: var(--color-trois);
+    height: 15px;
     object-fit: contain;
-    width: 100%;
+    width: 15px;
   }
 
   > :first-child {
@@ -100,11 +100,11 @@ const DesignerTools = styled.div`
 
   > *:not(:first-child) {
     border-radius: 3px;
-    padding: 5px;
+    padding: 2px;
     transition: all 0.3s;
 
     &:hover {
-      background: var(--color-blue-alpha-2);
+      transform: scale(1.08);
     }
   }
 
@@ -140,7 +140,7 @@ const DesignerTools = styled.div`
   }
 
   svg {
-    fill: var(--color-blue);
+    fill: var(--color-trois);
   }
 `
 
