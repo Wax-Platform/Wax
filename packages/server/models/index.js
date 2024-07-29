@@ -3,6 +3,7 @@ const Doc = require('./doc/doc.model')
 const Document = require('./document/document.model')
 const Embedding = require('./embeddings/embedding.model')
 const Settings = require('./settings/settings.model')
+const AiDesignerMisc = require('./aiDesignerMisc/aiDesignerMisc.model')
 
 module.exports = {
   User,
@@ -10,4 +11,5 @@ module.exports = {
   Settings,
   Embedding,
   Document,
+  AiDesignerMisc,
 }

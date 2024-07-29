@@ -15,6 +15,7 @@ module.exports = [
   './models/settings',
   './models/embeddings',
   './models/document',
+  './models/aiDesignerMisc',
   // local api
   './api',
   './api/rest/chatgpt',
