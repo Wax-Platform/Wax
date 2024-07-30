@@ -1,0 +1,45 @@
+type AiDesignerMisc {
+  id: ID!
+  userId: ID
+  templates: [Template!]!
+  snippets: [Snippet!]!
+}
+type Template {
+  relatedDocs: [ID!]!
+  name: String!
+  css: String!
+}
+
+type Snippet {
+  className: String!
+  elementType: String!
+  description: String!
+  classBody: String!
+}
+input TemplateInput {
+  relatedDocs: [ID!]!
+  name: String!
+  css: String!
+}
+
+input SnippetInput {
+  className: String!
+  elementType: String!
+  description: String!
+  classBody: String!
+}
+
+input FindOrCreateAiDesignerMiscInput {
+  userId: ID!
+  docId: ID!
+}
+
+input UpdateSnippetsInput {
+  userId: ID!
+  snippets: [SnippetInput!]!
+}
+
+extend type Mutation {
+  getAidMiscByUserId(input: FindOrCreateAiDesignerMiscInput!): AiDesignerMisc!
+  updateSnippets(input: UpdateSnippetsInput!): AiDesignerMisc!
+}

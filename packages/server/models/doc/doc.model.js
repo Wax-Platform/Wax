@@ -130,13 +130,19 @@ class Doc extends BaseModel {
     return allDocs
   }
 
-
   static async isMyDoc(id, userId) {
     let teamMember = null
-    const teamAuthorOfDoc = await Team.query().findOne({ objectType: 'doc', objectId: id, role: 'author' })
+    const teamAuthorOfDoc = await Team.query().findOne({
+      objectType: 'doc',
+      objectId: id,
+      role: 'author',
+    })
 
     if (teamAuthorOfDoc) {
-      teamMember = await TeamMember.query().findOne({ teamId: teamAuthorOfDoc.id, userId })
+      teamMember = await TeamMember.query().findOne({
+        teamId: teamAuthorOfDoc.id,
+        userId,
+      })
     }
 
     return teamMember ? true : false

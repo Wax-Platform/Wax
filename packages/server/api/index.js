@@ -5,6 +5,7 @@ const docTree = require('./docTree')
 const aiService = require('./aiService')
 const settings = require('./settings')
 const document = require('./document')
+const aiDesignerMisc = require('./aiDesignerMisc')
 
 module.exports = {
   typeDefs: [
@@ -12,8 +13,9 @@ module.exports = {
     doc.typeDefs,
     docTree.typeDefs,
     aiService.typeDefs,
-    settings.typeDefs,
+    // settings.typeDefs,
     document.typeDefs,
+    aiDesignerMisc.typeDefs,
   ].join(' '),
   resolvers: merge(
     {},
@@ -21,7 +23,8 @@ module.exports = {
     doc.resolvers,
     docTree.resolvers,
     aiService.resolvers,
-    settings.resolvers,
+    // settings.resolvers,
     document.resolvers,
+    aiDesignerMisc.resolvers,
   ),
 }
