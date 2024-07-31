@@ -372,9 +372,8 @@ const Layout = props => {
               </InfoContainer>
             </WaxBottomRightInfo>
           </StyledWindow>
-          <StyledWindow $show={designerOn && layout.preview}>
-            <PagedJsPreview />
-          </StyledWindow>
+
+          <PagedJsPreview $show={designerOn} />
           <StyledWindow
             $show={designerOn && layout.chat}
             style={{ maxWidth: '25%', background: '#f5f5f5' }}

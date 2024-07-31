@@ -8,9 +8,11 @@ const StyledWindow = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  opacity: ${p => (p.$show ? '1' : '0')};
+
   overflow: hidden;
   position: relative;
-  transition: width 0.5s ease;
+  transition: width 0.5s linear, opacity 0.5s linear;
   width: ${p => (p.$show ? '100%' : '0')};
 `
 const PreviewIframe = styled.iframe`
@@ -20,8 +22,8 @@ const PreviewIframe = styled.iframe`
   width: 100%;
 `
 
-export const PagedJsPreview = () => {
-  const { previewRef, layout, previewSource } = useContext(AiDesignerContext)
+export const PagedJsPreview = props => {
+  const { previewRef, previewSource } = useContext(AiDesignerContext)
 
   useEffect(() => {
     const handleMessage = e => {
@@ -38,7 +40,7 @@ export const PagedJsPreview = () => {
   }, [])
 
   return (
-    <StyledWindow $show={layout.preview}>
+    <StyledWindow {...props}>
       <PreviewIframe
         ref={previewRef}
         srcDoc={previewSource}

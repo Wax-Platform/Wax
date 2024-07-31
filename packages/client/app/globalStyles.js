@@ -54,6 +54,7 @@ export default createGlobalStyle`
   }
 
   html {
+    height: 100dvh;
     overflow: hidden;
   }
 
