@@ -143,7 +143,7 @@ export const cssTemplate1 = /* css */ `
     }
 
       * {
-        transition: all 0.5s;
+        transition: outline 0.5s;
         outline: 2px dashed #0000;
         outline-offset: 12px;
       }   

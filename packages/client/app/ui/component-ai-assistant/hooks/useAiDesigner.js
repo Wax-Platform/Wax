@@ -226,12 +226,12 @@ const useAssistant = () => {
 
   // #endregion GQL Hooks ----------------------------------------------------------------
 
-  const handleScroll = e => {
-    const iframeElement = previewRef?.current?.contentDocument?.documentElement
-    if (!iframeElement) return
-    const percentage = Math.round(getScrollPercent(e.target))
-    iframeElement.scrollTo(0, setScrollFromPercent(iframeElement, percentage))
-  }
+  // const handleScroll = e => {
+  //   const iframeElement = previewRef?.current?.contentDocument?.documentElement
+  //   if (!iframeElement) return
+  //   const percentage = Math.round(getScrollPercent(e.target))
+  //   iframeElement.scrollTo(0, setScrollFromPercent(iframeElement, percentage))
+  // }
 
   const handleSend = async e => {
     if (loading || userPrompt?.length < 2) return
@@ -324,7 +324,7 @@ const useAssistant = () => {
     slicedChunksLoading,
     ragSearchQuery,
     ragSearchLoading,
-    handleScroll,
+    // handleScroll,
     handleSend,
     updateImageUrl,
     handleImageUpload,

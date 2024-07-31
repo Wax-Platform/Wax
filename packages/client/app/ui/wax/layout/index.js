@@ -39,9 +39,10 @@ const Wrapper = styled.div`
   flex-direction: column;
   font-family: '${th('fontInterface')}';
   font-size: ${th('fontSizeBase')};
-  height: 100%;
+  height: 100dvh;
   line-height: ${grid(4)};
   min-width: 100%;
+  overflow: hidden;
   width: 100%;
 
   * {
@@ -200,7 +201,7 @@ const CommentsContainer = styled.div`
 const WaxSurfaceScroll = styled.div`
   box-sizing: border-box;
   display: flex;
-  height: 100%;
+  height: calc(100dvh - 120px);
   justify-content: center;
   margin: 0;
   overflow: scroll;
@@ -245,7 +246,7 @@ const Layout = props => {
     settings,
     designerOn,
   } = useContext(AiDesignerContext)
-  const { loading, handleScroll } = useAssistant()
+  const { loading } = useAssistant()
 
   const ref = useRef(null)
   const [open, toggleMenu] = useState(false)
@@ -356,7 +357,6 @@ const Layout = props => {
             <WaxSurfaceScroll
               id="wax-surface-scroll"
               $loading={loading}
-              onScroll={handleScroll}
               ref={editorContainerRef}
             >
               <EditorContainer>

@@ -30,16 +30,20 @@ const ControlsWrappers = styled.div`
 
 const FilesWrapper = styled.div`
   background: white;
+  border-right: 1px solid gainsboro;
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: auto;
-  padding: ${p => (p.expand ? '8px' : '0')};
+  padding: ${p => (p.expand ? '8px' : '8px 0')};
   padding-left: 0;
   width: 25dvw;
   max-width: ${p => (p.expand ? '25dvw' : '0')};
+  left: 49px;
+  position: absolute;
   transition: all 0.5s;
   visibility: ${props => (props.defaultState ? 'visible' : 'hidden')};
+  z-index: 99;
   .ant-tree {
     background: white;
   }

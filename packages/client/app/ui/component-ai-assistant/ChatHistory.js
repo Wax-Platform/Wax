@@ -1,7 +1,9 @@
+/* stylelint-disable string-quotes */
+/* stylelint-disable declaration-no-important */
 /* stylelint-disable no-descending-specificity */
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
-import { fadeIn } from '@coko/client'
+import { fadeIn, useCurrentUser } from '@coko/client'
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons'
 import { debounce } from 'lodash'
 import ReactMarkdown from 'react-markdown'
@@ -36,10 +38,11 @@ const ChatHistoryContainer = styled.div`
   padding: 25px;
   position: relative;
   scroll-behavior: smooth;
+  scrollbar-color: #0002;
   transition: width 0.5s;
   user-select: none;
   white-space: pre-line;
-  scrollbar-color: #0002;
+
   ::-webkit-scrollbar {
     height: 5px;
     width: 5px;
@@ -55,6 +58,7 @@ const ChatHistoryContainer = styled.div`
     background: #fff0;
     padding: 5px;
   }
+
   > * {
     animation: ${fadeIn} 1s;
     margin: 0 0 1em;
@@ -83,29 +87,35 @@ const MessageContainer = styled.div`
   h6 {
     margin: 5px 0;
   }
+
   a {
     color: var(--color-trois);
   }
+
   ul,
   ol {
     font-size: 0;
     list-style: none;
+
     > * {
       font-size: 14px;
       padding: 0 0 0 5px;
     }
+
     li {
       margin: 2px 0;
     }
   }
+
   pre [class*='language-'] {
     border-width: 0;
     box-shadow: none;
     margin: 5px 0;
   }
+
   [class*='language-'] {
-    border-radius: 0.5rem;
     background: #222;
+    border-radius: 0.5rem;
     text-shadow: none;
 
     span.token {
@@ -114,6 +124,7 @@ const MessageContainer = styled.div`
       }
     }
   }
+
   strong {
     color: var(--color-purple);
   }
@@ -178,7 +189,7 @@ const MessageContent = styled.div`
 const ChatHistory = ({ nomessages, ...props }) => {
   const { selectedCtx, htmlSrc, feedback, deleteLastMessage, settings } =
     useContext(AiDesignerContext)
-
+  const { currentUser } = useCurrentUser()
   const [clipboardText, setClipboardText] = useState('')
 
   const getClipboardText = async () => {
@@ -197,6 +208,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
   }, 200)
 
   useEffect(() => {
+    console.log(currentUser)
     const observer = new MutationObserver(mutations => {
       mutations.forEach(
         mutation =>
@@ -251,7 +263,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
                         src={userSmall}
                         style={{ background: 'var(--color-trois)' }}
                       />
-                      <strong>@You</strong>
+                      <strong>@{currentUser?.displayName}</strong>
                     </span>
                   ) : (
                     <span>

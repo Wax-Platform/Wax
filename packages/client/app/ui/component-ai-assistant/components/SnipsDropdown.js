@@ -223,16 +223,11 @@ export const SnipsDropDown = () => {
   // }, [selectedCtx?.tagName])
 
   return (
-    <Root $active data-element="element-options" id="snips-dropdown">
-      <SubMenu
-        $show={showSnippets}
-        data-element="element-options"
-        onMouseLeave={() => setShowSnippets(false)}
-      >
-        <span data-element="element-options">
+    <Root $active id="snips-dropdown">
+      <SubMenu $show={showSnippets} onMouseLeave={() => setShowSnippets(false)}>
+        <span>
           <small>Filter by:</small>
           <button
-            data-element="element-options"
             onClick={() => setSearchByName(false)}
             style={{ border: `1px solid ${searchByName ? '#fff0' : '#fff5'}` }}
             type="button"
@@ -240,7 +235,6 @@ export const SnipsDropDown = () => {
             type
           </button>
           <button
-            data-element="element-options"
             onClick={() => setSearchByName(true)}
             style={{ border: `1px solid ${searchByName ? '#fff5' : '#fff0'}` }}
             type="button"
@@ -256,7 +250,6 @@ export const SnipsDropDown = () => {
         >
           <SearchOutlined />
           <input
-            data-element="element-options"
             onChange={handleSearch}
             placeholder="Search snippet"
             ref={searchSnippetRef}

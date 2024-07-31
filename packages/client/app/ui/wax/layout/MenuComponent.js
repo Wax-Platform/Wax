@@ -11,18 +11,18 @@ import BlockDropDownComponent from './BlockDropDownComponent'
 
 const Menu = styled.div`
   background: white;
+  border-bottom: 1px solid #0004;
   display: flex;
   flex-wrap: wrap;
   font-family: ${th('fontInterface')};
   font-size: 16px;
-  height: ${props => (props.openMenu === true ? '100%' : '40px')};
-  overflow: hidden;
+  height: 40px;
+  overflow: ${p => (p.openMenu ? 'visible' : 'hidden')};
   width: 100%;
 
   > div:last-child {
     border: none;
-    margin-left: ${props =>
-      props.openMenu === true ? 'unset !important' : 'auto'};
+    margin-left: ${p => (p.openMenu ? 'unset !important' : 'auto')};
   }
 `
 
@@ -30,7 +30,7 @@ const MenuToolGroup = styled.div`
   align-items: center;
   border-right: 1px solid;
   display: flex;
-  height: ${props => (props.openMenu === true ? '100%' : '40px')};
+  height: ${p => (p.openMenu ? '100%' : '40px')};
   padding: 0 4px;
 
   button {
@@ -59,7 +59,7 @@ const MenuToolGroupDropDown = styled(MenuToolGroup)`
 `
 
 const MenuToolSearchAndReplace = styled(MenuToolGroup)`
-  flex-grow: ${props => (props.open ? 'unset' : '1')};
+  flex-grow: ${p => (p.open ? 'unset' : '1')};
 
   div:first-child {
     z-index: 1;
@@ -71,7 +71,7 @@ const MenuLines = styled.div`
   pointer-events: none;
   position: absolute;
   right: 0;
-  top: ${props => (props.fullScreen ? 0 : 132)}px;
+  top: ${p => (p.fullScreen ? 0 : 132)}px;
 `
 
 const MenuLine = styled.div`

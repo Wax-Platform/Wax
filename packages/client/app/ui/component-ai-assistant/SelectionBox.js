@@ -127,7 +127,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
             {htmlTagNames[selectedCtx?.tagName] || 'Document'}
           </small>
           <span>
-            <AddSnippetButton />
+            <SnippetsDropdown />
           </span>
         </RelativeContainer>
       )}
@@ -321,7 +321,7 @@ const Snippet = styled.span`
   }
 `
 
-export const AddSnippetButton = () => {
+export const SnippetsDropdown = () => {
   const {
     settings,
     onHistory,

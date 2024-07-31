@@ -54,7 +54,7 @@ export default createGlobalStyle`
   }
 
   html {
-    height: 100dvh;
+    box-sizing: border-box;
     overflow: hidden;
   }
 
@@ -94,7 +94,7 @@ export default createGlobalStyle`
     font-style: normal;
     height: 100%;
     line-height: ${th('lineHeightBase')} !important;
-    overflow: auto;
+    overflow: hidden;
 
     .ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector {
       color: rgb(0 0 0 / 50%);

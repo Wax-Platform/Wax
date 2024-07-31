@@ -178,6 +178,7 @@ const nodesConfig = {
   article: { group: 'block', content: 'block+' },
   figure: { group: 'block', content: 'block+' },
   table: {
+    attrs: { ...commonAttrs },
     group: 'block',
     content: 'table_row+',
     parseDOM: [

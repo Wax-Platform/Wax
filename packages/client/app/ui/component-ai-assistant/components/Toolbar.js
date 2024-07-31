@@ -87,21 +87,22 @@ const DesignerTools = styled.div`
   .anticon svg:not(#snips-dropdown .anticon svg),
   > button > img {
     color: var(--color-trois);
-    height: 15px;
     object-fit: contain;
-    width: 15px;
+    padding: 0;
   }
 
   > :first-child {
-    height: 22px;
+    height: 25px;
     margin: ${p => (!p.$horizontal ? '8px 6px 10px 2px' : '8px 0px 10px 3px')};
-    width: 22px;
+    width: 25px;
   }
 
   > *:not(:first-child) {
     border-radius: 3px;
-    padding: 2px;
+    height: 26px;
+    padding: 0;
     transition: all 0.3s;
+    width: 26px;
 
     &:hover {
       transform: scale(1.08);
@@ -327,6 +328,7 @@ const Toolbar = ({ drag, ...props }) => {
     // },
     toggleChat: {
       src: chatIcon,
+      title: 'Show chat',
       onClick: () => {
         updateLayout({ chat: !layout.chat })
       },
@@ -335,11 +337,11 @@ const Toolbar = ({ drag, ...props }) => {
     },
     toggleWax: {
       // src: waxIcon,
+      title: 'Toggle dual view',
       Icon: LayoutOutlined,
       onClick: () => {
         updateLayout({ editor: !layout.editor })
       },
-      imgProps: { style: { width: '15px', paddingTop: '2px' } },
       'data-active': layout.editor,
     },
     // toggleInput: {

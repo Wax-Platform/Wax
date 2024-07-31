@@ -72,7 +72,6 @@ export const AiDesignerProvider = ({ children }) => {
   })
 
   const selectionBoxRef = useRef(null)
-  const previewScrollTopRef = useRef(0)
   const promptRef = useRef(null)
   const editorContainerRef = useRef(null)
   const previewRef = useRef(null)
@@ -95,7 +94,6 @@ export const AiDesignerProvider = ({ children }) => {
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
   const [docId, setDocId] = useState('')
-  // const [waxContext, setWaxContext] = useState({})
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -244,9 +242,6 @@ export const AiDesignerProvider = ({ children }) => {
 
   const updatePreview = manualUpdate => {
     const previewDoc = previewRef?.current?.contentDocument?.documentElement
-    previewDoc &&
-      previewDoc.scrollTop > 0 &&
-      (previewScrollTopRef.current = previewDoc.scrollTop)
 
     css &&
       htmlSrc?.outerHTML &&
@@ -273,9 +268,11 @@ export const AiDesignerProvider = ({ children }) => {
               settings.snippetsManager.snippets,
               '.pagedjs_page_content .aid-snip-',
             ),
-          previewScrollTopRef.current,
+          previewDoc?.scrollTop ?? 0,
         ),
       )
+    document.querySelector('html').scrollTop = 0
+
     // updateCtxNodes()
   }
 
@@ -332,6 +329,7 @@ export const AiDesignerProvider = ({ children }) => {
         { snippetsManager: { snippets: updatedSnippets } },
       )
     })
+    updateSnippets({ variables: { snippets: updatedSnippets } })
   }
 
   const updateSnippetDescription = (snippetName, description) => {
@@ -426,7 +424,6 @@ export const AiDesignerProvider = ({ children }) => {
 
         editorContainerRef,
 
-        previewScrollTopRef,
         previewRef,
         previewSource,
         setPreviewSource,

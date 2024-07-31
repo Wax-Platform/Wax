@@ -15,7 +15,7 @@ import {
 } from '@ant-design/icons'
 import { ModelsList, htmlTagNames } from '../utils'
 import Toolbar from './Toolbar'
-import { AddSnippetButton } from '../SelectionBox'
+import { SnippetsDropdown } from '../SelectionBox'
 
 const Dropdown = styled.div`
   background: linear-gradient(90deg, var(--color-purple), var(--color-trois))
@@ -447,9 +447,7 @@ export const PromptBox = () => {
 
         <span>
           <StyledToolbar />
-          {!!selectedCtx?.node && (
-            <AddSnippetButton data-element="element-options" />
-          )}
+          {!!selectedCtx?.node && <SnippetsDropdown />}
         </span>
       </RelativeContainer>
       <PromptBoxWrapper>
