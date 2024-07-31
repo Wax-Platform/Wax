@@ -1,9 +1,14 @@
 const {
-  getAidMiscByUserIdResolver,
+  getOrCreateAidMiscResolver,
+  getAidMiscById,
+  getCssTemplate,
+  updateSnippetsResolver,
 } = require('../../controllers/aiDesignerMisc.controller')
 
 module.exports = {
+  Query: { getAidMiscById, getCssTemplate },
   Mutation: {
-    getAidMiscByUserId: getAidMiscByUserIdResolver,
+    getOrCreateAidMisc: getOrCreateAidMiscResolver,
+    updateSnippets: updateSnippetsResolver,
   },
 }

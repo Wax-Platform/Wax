@@ -5,7 +5,7 @@ type AiDesignerMisc {
   snippets: [Snippet!]!
 }
 type Template {
-  relatedDocs: [ID!]!
+  docId: String
   name: String!
   css: String!
 }
@@ -17,7 +17,7 @@ type Snippet {
   classBody: String!
 }
 input TemplateInput {
-  relatedDocs: [ID!]!
+  docId: String
   name: String!
   css: String!
 }
@@ -30,16 +30,19 @@ input SnippetInput {
 }
 
 input FindOrCreateAiDesignerMiscInput {
-  userId: ID!
   docId: ID!
 }
 
 input UpdateSnippetsInput {
-  userId: ID!
   snippets: [SnippetInput!]!
 }
 
+extend type Query {
+  getAidMiscById(id: ID): AiDesignerMisc
+  getCssTemplate(name: String, css: String, docId: String): Template!
+}
+
 extend type Mutation {
-  getAidMiscByUserId(input: FindOrCreateAiDesignerMiscInput!): AiDesignerMisc!
-  updateSnippets(input: UpdateSnippetsInput!): AiDesignerMisc!
+  getOrCreateAidMisc(input: FindOrCreateAiDesignerMiscInput!): AiDesignerMisc!
+  updateSnippets(snippets: [SnippetInput!]!): [Snippet!]!
 }

@@ -1,7 +1,7 @@
-module.exports = docId => [
+module.exports = (docId = none) => [
   {
-    name: 'default',
-    relatedDocuments: [docId ?? '*'],
+    name: 'untitled',
+    docId,
     css: /* css */ `
 :root {
     --color-background: #fff;

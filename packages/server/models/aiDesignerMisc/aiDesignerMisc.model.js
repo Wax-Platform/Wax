@@ -1,5 +1,5 @@
 const { BaseModel, modelTypes, logger } = require('@coko/server')
-const { string, arrayOfIds } = modelTypes
+const { string } = modelTypes
 const defaultSnippets = require('./helpers/defaultSnippets')
 const defaultTemplates = require('./helpers/defaultTemplates')
 
@@ -23,9 +23,9 @@ class AiDesignerMisc extends BaseModel {
           items: {
             type: 'object',
             properties: {
-              relatedDocs: arrayOfIds,
-              name: { type: 'string' },
-              css: { type: 'string' },
+              docId: string,
+              name: string,
+              css: string,
             },
             required: ['name', 'css'],
           },
@@ -35,10 +35,10 @@ class AiDesignerMisc extends BaseModel {
           items: {
             type: 'object',
             properties: {
-              className: { type: 'string' },
-              elementType: { type: 'string' },
-              description: { type: 'string' },
-              classBody: { type: 'string' },
+              className: string,
+              elementType: string,
+              description: string,
+              classBody: string,
             },
             required: ['className', 'elementType', 'description', 'classBody'],
           },
@@ -52,45 +52,79 @@ class AiDesignerMisc extends BaseModel {
     let record
     try {
       record = await this.query().where({ userId }).first()
+      logger.info('was fetched')
     } catch (error) {
       logger.info(error)
     }
-    try {
-      record = await this.insert({
-        userId,
-        templates: defaultTemplates(docId),
-        snippets: defaultSnippets,
-      })
-    } catch (error) {
-      logger.info(error)
+    if (!record) {
+      try {
+        record = await this.insert({
+          userId,
+          templates: defaultTemplates(docId),
+          snippets: defaultSnippets,
+        })
+        logger.info('was created')
+      } catch (error) {
+        logger.info(error)
+      }
     }
 
     return record
   }
+  static async updateTemplates({ userId, docId, css, name }) {
+    const record = await this.query().where({ userId }).first()
+    logger.info(`\x1b[31mRecord: ${JSON.stringify(record)}\x1b[37m`)
+    if (!record) {
+      throw new Error('No record found with the given docId.')
+    }
+    const templates = record.templates
+    let index = templates.findIndex(template => template.docId === docId)
 
-  static async updateSnippets(userId, newSnippets) {
-    const recordToUpdate = await this.query().where({ userId }).first()
+    if (!templates[index]) {
+      templates.push(defaultTemplates(docId)[0])
+      index = templates.length - 1
+    }
 
-    if (!recordToUpdate) {
+    if (css || name) {
+      css && (templates[index].css = css)
+      name && (templates[index].name = name)
+
+      await this.query().where({ userId }).update({ templates })
+    }
+    logger.info(`\x1b[32mTemplate: ${JSON.stringify(templates[index])}\x1b[37m`)
+    return templates[index]
+  }
+
+  static async updateSnippets(userId, snippets) {
+    const record = await this.query().where({ userId }).first()
+
+    if (!record) {
       throw new Error('No AiDesignerMisc record found for the given userId.')
     }
 
-    const updatedSnippets = [...recordToUpdate.snippets]
-    newSnippets.forEach(newSnippet => {
-      const index = updatedSnippets.findIndex(
-        snippet => snippet.className === newSnippet.className,
-      )
-      if (index !== -1) {
-        updatedSnippets[index] = newSnippet
-      } else {
-        updatedSnippets.push(newSnippet)
-      }
-    })
+    await this.query().where({ userId }).update({ snippets })
 
-    return this.query()
-      .update({ snippets: updatedSnippets })
-      .where({ userId })
-      .returning('*')
+    return snippets
+  }
+
+  static async addSnippet(userId, snippet) {
+    const record = await this.query().where({ userId }).first()
+
+    if (!record) {
+      throw new Error('No AiDesignerMisc record found for the given userId.')
+    }
+
+    const updatedSnippets = [...record.snippets]
+    const index = updatedSnippets.findIndex(
+      snippet => snippet.className === snippet.className,
+    )
+
+    index !== -1
+      ? (updatedSnippets[index] = { ...updatedSnippets[index], ...snippet })
+      : updatedSnippets.push(snippet)
+    
+    await this.query().where({ userId }).update({ snippets: updatedSnippets })
+    return updatedSnippets
   }
 }
 
