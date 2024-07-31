@@ -30,6 +30,11 @@ import {
   GET_FILES_FROM_DOCUMENT,
 } from '../queries/documentAndSections'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
+import {
+  GET_AID_MISC,
+  GET_AID_MISC_BY_ID,
+  GET_CSS,
+} from '../../../graphql/aiDesignerMisc'
 
 const voidElements = [
   'area',
@@ -67,10 +72,11 @@ const useAssistant = () => {
     updatePreview,
     previewRef,
     settings,
+    setSettings,
     css,
     useRag,
     model,
-    selectedNode,
+    docId,
   } = useContext(AiDesignerContext)
 
   // #region GQL Hooks ----------------------------------------------------------------
@@ -100,7 +106,7 @@ const useAssistant = () => {
       // eslint-disable-next-line camelcase
       const { message, finish_reason } = JSON.parse(aiService)
       const response = safeParse(message.content, 'default')
-      const isSingleNode = selectedNode !== htmlSrc
+      const isSingleNode = selectedCtx.aidctx !== 'aid-ctx-main'
 
       if (isSingleNode || response?.css) {
         onHistory.addRegistry('undo')
@@ -108,8 +114,8 @@ const useAssistant = () => {
       }
 
       const actions = {
-        css: val => {
-          setCss(val)
+        css: async val => {
+          getCssTemplate({ variables: { docId, css: val } })
         },
         snippet: val => {
           addSnippet(null, val)
@@ -201,6 +207,22 @@ const useAssistant = () => {
 
   const [ragSearchQuery, { loading: ragSearchLoading }] =
     useLazyQuery(RAG_SEARCH_QUERY)
+
+  const [getAidMisc, { data: aidMisc }] = useMutation(GET_AID_MISC, {
+    onCompleted: ({ getOrCreateAidMisc: { snippets } }) => {
+      setSettings(prev => {
+        const temp = prev
+        temp.snippetsManager.snippets = snippets
+        return temp
+      })
+    },
+  })
+  const [getAidMiscById] = useLazyQuery(GET_AID_MISC_BY_ID)
+  const [getCssTemplate] = useLazyQuery(GET_CSS, {
+    onCompleted: async ({ getCssTemplate: { css } }) => {
+      setCss(css)
+    },
+  })
 
   // #endregion GQL Hooks ----------------------------------------------------------------
 
@@ -306,6 +328,10 @@ const useAssistant = () => {
     handleSend,
     updateImageUrl,
     handleImageUpload,
+    getAidMisc,
+    getAidMiscById,
+    aidMisc,
+    getCssTemplate,
   }
 
   return values

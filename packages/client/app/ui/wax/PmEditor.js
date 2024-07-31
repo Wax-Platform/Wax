@@ -15,6 +15,8 @@ import { snippetsToCssText } from '../component-ai-assistant/utils'
 import { debounce } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 import Toolbar from '../component-ai-assistant/components/Toolbar'
+import { useCurrentUser } from '@coko/client'
+import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
 
 const SpinnerWrapper = styled.div`
   display: ${props => (props.showSpinner ? 'block' : 'none')};
@@ -55,9 +57,11 @@ const PmEditor = ({
     css,
     settings,
     updatePreview,
+    setDocId,
   } = useContext(AiDesignerContext)
+  const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
 
-  const { displayStyles, contentEditable } = settings.editor
+  const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
 
   const editorRef = useRef(null)
@@ -74,13 +78,13 @@ const PmEditor = ({
 
   useEffect(() => {
     if (htmlSrc) {
-      AiDesigner.addToContext({ node: htmlSrc, aidctx: 'aid-ctx-main' })
+      AiDesigner.addToContext({ aidctx: 'aid-ctx-main' })
+      AiDesigner.select('aid-ctx-main')
     }
   }, [htmlSrc])
 
   const [showSpinner, setShowSpinner] = useState(false)
   const [WaxConfig, setWaxConfig] = useState(null)
-
   const { refElement } = usePrintArea({})
 
   useEffect(() => {
@@ -100,18 +104,31 @@ const PmEditor = ({
       yjsProvider?.disconnect()
       setShowSpinner(true)
 
-      setTimeout(() => {
+      debounce(() => {
         createYjsProvider(docIdentifier)
+        getAidMisc({
+          variables: {
+            input: { docId: docIdentifier },
+          },
+        })
+        setDocId(docIdentifier)
         setShowSpinner(false)
-      }, 1000)
+      }, 1000)()
     }
   }, [docIdentifier])
+
+  useEffect(() => {
+    aidMisc && console.log(aidMisc)
+    aidMisc &&
+      getCssTemplate({
+        variables: { docId: docIdentifier},
+      }).then(console.log)
+  }, [aidMisc])
 
   useEffect(() => {
     if (yjsProvider) {
       const configObj = config(yjsProvider, ydoc, docIdentifier)
       setWaxConfig(configObj)
-      console.log(configObj)
     }
   }, [yjsProvider?.doc?.guid])
 

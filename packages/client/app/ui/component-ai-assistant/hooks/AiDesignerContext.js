@@ -20,6 +20,8 @@ import {
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
+import { UPDATE_SNIPPETS } from '../../../graphql/aiDesignerMisc'
+import { useMutation } from '@apollo/client'
 
 const defaultSettings = {
   gui: {
@@ -76,7 +78,6 @@ export const AiDesignerProvider = ({ children }) => {
   const previewRef = useRef(null)
 
   const [selectedCtx, setSelectedCtx] = useState([])
-  const [selectedNode, setSelectedNode] = useState(null)
 
   const [htmlSrc, setHtmlSrc] = useState(null)
   const [css, setCss] = useState(initialPagedJSCSS)
@@ -93,6 +94,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
+  const [docId, setDocId] = useState('')
   // const [waxContext, setWaxContext] = useState({})
 
   // const [userInput, setUserInput] = useState({
@@ -134,18 +136,20 @@ export const AiDesignerProvider = ({ children }) => {
     dom.querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
 
   const onSelect = ctx => {
-    const node = ctx.node
-    setSelectedNode(node)
     setSelectedCtx(ctx)
-    setMarkedSnippet('')
 
-    if (node === htmlSrc) return
-    console.log(tools)
-    tools.dropper.active && updateTools('brush', { data: node.className })
-    tools.brush.active &&
-      tools.brush.data &&
-      AiDesigner.snippets.toggle(tools.brush.data)
+    markedSnippet && setMarkedSnippet('')
+    showSnippets && setShowSnippets(false)
+    if (ctx.aidctx === 'aid-ctx-main') return
+
+    // TODO: this should be moved to a separate function
+    // const node = ctx.node
+    // tools.dropper.active && updateTools('brush', { data: node.className })
+    // tools.brush.active &&
+    //   tools.brush.data &&
+    //   AiDesigner.snippets.toggle(tools.brush.data)
   }
+  const [updateSnippets] = useMutation(UPDATE_SNIPPETS)
 
   AiDesigner.on('select', onSelect)
   AiDesigner.on('addtocontext', console.log)
@@ -304,11 +308,12 @@ export const AiDesignerProvider = ({ children }) => {
       temp.snippetsManager.snippets = finalOutput
       return temp
     })
+    updateSnippets({ variables: { snippets: finalOutput } })
 
     markNewSnippet && !markedSnippet && setMarkedSnippet(snippetToAdd.className)
   }
 
-  const removeSnippet = (snippetName) => {
+  const removeSnippet = snippetName => {
     const updatedSnippets = settings.snippetsManager.snippets
 
     const removeSnip = name => {
@@ -372,12 +377,10 @@ export const AiDesignerProvider = ({ children }) => {
   const ctx = useMemo(() => {
     return {
       history,
-      selectedNode,
       selectedCtx,
       setSelectedCtx,
-      setSelectedNode,
     }
-  }, [history, selectedCtx, selectedNode])
+  }, [history, selectedCtx])
 
   const chatGpt = useMemo(() => {
     return {
@@ -442,6 +445,8 @@ export const AiDesignerProvider = ({ children }) => {
         setDesignerOn,
         userInteractions,
         setUserInteractions,
+        docId,
+        setDocId,
       }}
     >
       {children}
