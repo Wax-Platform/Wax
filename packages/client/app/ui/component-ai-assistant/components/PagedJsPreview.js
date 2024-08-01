@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { ToolsCursor } from './ToolsCursor'
+import { debounce } from 'lodash'
 
 const StyledWindow = styled.div`
   display: flex;
@@ -25,6 +26,9 @@ const PreviewIframe = styled.iframe`
 
 export const PagedJsPreview = props => {
   const { previewRef, previewSource } = useContext(AiDesignerContext)
+  const [fakeSrc, setFakeSrc] = useState('')
+  const [mainSrc, setMainSrc] = useState('')
+  const [showMain, setShowMain] = useState(true)
 
   useEffect(() => {
     const handleMessage = e => {
@@ -39,12 +43,33 @@ export const PagedJsPreview = props => {
       window.removeEventListener('message', handleMessage)
     }
   }, [])
+  useLayoutEffect(() => {
+    setFakeSrc(previewSource)
+    debounce(src => {
+      setShowMain(false)
+      setMainSrc(src)
+      debounce(() => {
+        setFakeSrc('')
+        setShowMain(true)
+      }, 1000)()
+    }, 1000)(previewSource)
+  }, [previewSource])
 
   return (
     <StyledWindow {...props}>
       <PreviewIframe
         ref={previewRef}
-        srcDoc={previewSource}
+        srcDoc={mainSrc}
+        title="Article preview"
+        style={{ opacity: showMain ? 1 : 0 }}
+      />
+      <PreviewIframe
+        style={{
+          position: 'absolute',
+          opacity: !showMain ? 1 : 0,
+          pointerEvents: 'none',
+        }}
+        srcDoc={fakeSrc}
         title="Article preview"
       />
     </StyledWindow>

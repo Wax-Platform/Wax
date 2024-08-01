@@ -79,7 +79,7 @@ export const AiDesignerProvider = ({ children }) => {
 
   const [htmlSrc, setHtmlSrc] = useState(null)
   const [css, setCss] = useState('')
-  const [previewSource, setPreviewSource] = useState('<h1>Nothing</h1>')
+  const [previewSource, setPreviewSource] = useState('')
   const [editorContent, setEditorContent] = useState('')
   const [markedSnippet, setMarkedSnippet] = useState('')
 
