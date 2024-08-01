@@ -98,7 +98,7 @@ const EditorContainer = styled.div`
     box-shadow: 0 0 8px #ecedf1;
     height: fit-content;
     max-width: 1000px;
-    min-height: 100%;
+    min-height: 150dvh;
     padding: 10% !important;
     transform: scale(${p => (p.$all ? '0.65' : p.$both ? '0.8' : '1')});
     transform-origin: top center;
@@ -138,7 +138,7 @@ const StyledWindow = styled.div`
   opacity: ${p => (p.$show ? '1' : '0')};
   overflow: hidden;
   position: relative;
-  transition: width 0.5s linear, opacity 0.5s linear;
+  transition: all 0.5s linear;
   width: ${p => (p.$show ? '100%' : '0')};
 `
 

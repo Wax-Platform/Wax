@@ -10,13 +10,17 @@ services:
         - client_websocket_url=${CLIENT_WEBSOCKET_URL}
         - client_load_extra_theme=${CLIENT_LOAD_EXTRA_THEME}
         - client_show_email_login_option=${CLIENT_SHOW_EMAIL_LOGIN_OPTION}
+    command: ['npx', 'serve', '-p', '4000', '--single', './_build']
     ports:
-      - ${CLIENT_PORT}:8080
+      - ${CLIENT_PORT:-4000}:4000
 
   server:
     build:
       context: ./packages/server
       dockerfile: ./Dockerfile-production
+    depends_on:
+      - db
+      - createbucket
     entrypoint: ['sh', 'scripts/setupDevServer.sh']
     command: ['node', 'startServer.js']
     ports:
@@ -24,19 +28,79 @@ services:
       - ${WS_SERVER_PORT}:${WS_SERVER_PORT}
     environment:
       - NODE_ENV=production
-      - PUBSWEET_SECRET=${PUBSWEET_SECRET}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - WS_SERVER_PORT=${WS_SERVER_PORT}
-      - CLIENT_URL=${CLIENT_URL}
+      - PUBSWEET_SECRET=${PUBSWEET_SECRET:-dev_secret}
+      - POSTGRES_HOST=${POSTGRES_HOST:-db}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_DB=${POSTGRES_DB:-wax_dev}
+      - POSTGRES_USER=${POSTGRES_USER:-dev_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev_user_password}
+      - SERVER_PORT=${SERVER_PORT:-3000}
+      - WS_SERVER_PORT=${WS_SERVER_PORT:-3001}
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:4000}
       - CHATGPT_URL=${CHATGPT_URL}
       - CHATGPT_KEY=${CHATGPT_KEY}
-      - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - MAILER_SENDER=${MAILER_SENDER}
       - MAILER_HOSTNAME=${MAILER_HOSTNAME}
       - MAILER_PORT=${MAILER_PORT}
       - MAILER_USER=${MAILER_USER}
       - MAILER_PASSWORD=${MAILER_PASSWORD}
       - PASSWORD_RESET_PATH=${PASSWORD_RESET_PATH:-password-reset}
+      - CLIENT_SHOW_EMAIL_LOGIN_OPTION=${CLIENT_SHOW_EMAIL_LOGIN_OPTION:-true}
+      - S3_PROTOCOL=http
+      - S3_HOST=${S3_HOST:-filehosting}
+      - S3_PORT=${S3_PORT:-9000}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-nonRootUser}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-nonRootPassword}
+      - S3_BUCKET=${S3_BUCKET:-uploads}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile-pgvector
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-wax_dev}
+      - POSTGRES_USER=${POSTGRES_USER:-wax_dev_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-wax_dev_user_password}
+    volumes:
+      - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/init-pgboss.sql
+
+  filehosting:
+    image: minio/minio
+    ports:
+      - ${S3_PORT:-9000}:9000
+      - ${MINIO_CONSOLE_PORT:-9001}:9001
+    volumes:
+      - minio_storage:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-admin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-superSecretAdminPassword}
+    command: server --console-address ":${MINIO_CONSOLE_PORT:-9001}" /data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  createbucket:
+    image: minio/mc
+    depends_on:
+      filehosting:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        /usr/bin/mc config host add cokoServer http://filehosting:${S3_PORT:-9000} ${MINIO_ROOT_USER:-admin} ${MINIO_ROOT_PASSWORD:-superSecretAdminPassword};
+        /usr/bin/mc admin user add cokoServer/ ${S3_ACCESS_KEY_ID:-nonRootUser} ${S3_SECRET_ACCESS_KEY:-nonRootPassword};
+        /usr/bin/mc admin user enable cokoServer/ ${S3_ACCESS_KEY_ID:-nonRootUser};
+        /usr/bin/mc mb cokoServer/${S3_BUCKET:-uploads};
+        /usr/bin/mc admin policy attach cokoServer/ readwrite --user ${S3_ACCESS_KEY_ID:-nonRootUser};
+        exit 0;
+      "
+
+volumes:
+  minio_storage:

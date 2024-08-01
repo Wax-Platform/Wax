@@ -121,7 +121,7 @@ const PmEditor = ({
     aidMisc && console.log(aidMisc)
     aidMisc &&
       getCssTemplate({
-        variables: { docId: docIdentifier},
+        variables: { docId: docIdentifier },
       }).then(console.log)
   }, [aidMisc])
 

@@ -1,5 +1,18 @@
 FROM cokoapps/base:18-latest
 
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jdk-headless && \
+    apt-get install -y ca-certificates-java && \
+    apt-get clean && \
+    update-ca-certificates -f;
+
+# Set JAVA_HOME environment variable
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+
+RUN apt-get update \ 
+    && apt-get upgrade -y \
+    && apt-get install -y ranger vim
+
 WORKDIR /home/node/wax
 
 COPY package.json .

@@ -110,7 +110,7 @@ const Header = props => {
       <Logo src={logoMobile} alt="Wax platform"></Logo>
       <UserMenu $designerOn={designerOn}>
         <span>
-          <small
+          <p
             style={{
               fontWeight: 'bold',
               color: designerOn ? '#0004' : 'var(--color-trois)',
@@ -120,7 +120,7 @@ const Header = props => {
             }}
           >
             Editing
-          </small>
+          </p>
           <Toggle
             handleChange={() => {
               setDesignerOn(!designerOn)
@@ -131,17 +131,17 @@ const Header = props => {
             }}
             checked={designerOn}
           />
-          <small
+          <p
             style={{
               fontWeight: 'bold',
-              color: designerOn ? 'var(--color-secondary)' : '#0004',
+              color: designerOn ? 'var(--color-trois)' : '#0004',
               transform: `scale(${designerOn ? '1' : '0.9'})`,
               transformOrigin: 'center',
               transition: 'all 0.3s',
             }}
           >
             Design
-          </small>
+          </p>
         </span>
         <span>
           <CreateNew>

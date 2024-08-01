@@ -4,15 +4,18 @@ import styled from 'styled-components'
 import { Form, Input, Page } from '../common'
 import AuthenticationForm from './AuthenticationForm'
 import AuthenticationWrapper from './AuthenticationWrapper'
-import logoVertical from '../../../static/logoVertical.png'
+import logoVertical from '../../../static/waxdesignerwhite.svg'
 
 const CenteredLogo = styled.div`
-  background-image: ${`url(${logoVertical})`};
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: 520px 142px;
   height: 200px;
   margin-bottom: 10px;
+  width: 100%;
+
+  img {
+    height: auto;
+    object-fit: contain;
+    width: 100%;
+  }
 `
 
 const StyledPage = styled(Page)`
@@ -29,7 +32,9 @@ const Login = props => {
   return (
     <StyledPage maxWidth={600}>
       <AuthenticationWrapper className={className}>
-        <CenteredLogo />
+        <CenteredLogo>
+          <img src={logoVertical} alt="wax.is logo" />
+        </CenteredLogo>
         <AuthenticationForm
           alternativeActionLabel="Do you want to signup instead?"
           alternativeActionLink="/signup"

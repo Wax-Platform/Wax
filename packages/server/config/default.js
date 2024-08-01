@@ -10,7 +10,7 @@ module.exports = {
     path: 'password-reset',
   },
   mailer: {
-    from: 'info@wax.net',
+    from: 'info@wax.is',
     path: path.join(__dirname, 'mailer'),
   },
   permissions,

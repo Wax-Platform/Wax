@@ -4,7 +4,21 @@ import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { ToolsCursor } from './ToolsCursor'
 import { debounce } from 'lodash'
+import { Result, Spin } from 'antd'
 
+const SpinnerWrapper = styled.div`
+  align-items: center;
+  background: #fffa;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  opacity: ${p => (p.showSpinner ? '1' : '0')};
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 0.5s;
+  width: 100%;
+  z-index: 999;
+`
 const StyledWindow = styled.div`
   display: flex;
   flex-direction: column;
@@ -14,7 +28,7 @@ const StyledWindow = styled.div`
 
   overflow: hidden;
   position: relative;
-  transition: width 0.5s linear, opacity 0.5s linear;
+  transition: all 0.5s linear;
   width: ${p => (p.$show ? '100%' : '0')};
 `
 const PreviewIframe = styled.iframe`
@@ -26,8 +40,8 @@ const PreviewIframe = styled.iframe`
 
 export const PagedJsPreview = props => {
   const { previewRef, previewSource } = useContext(AiDesignerContext)
-  const [fakeSrc, setFakeSrc] = useState('')
-  const [mainSrc, setMainSrc] = useState('')
+  const [fakeSrc, setFakeSrc] = useState(null)
+  const [mainSrc, setMainSrc] = useState(null)
   const [showMain, setShowMain] = useState(true)
 
   useEffect(() => {
@@ -43,16 +57,17 @@ export const PagedJsPreview = props => {
       window.removeEventListener('message', handleMessage)
     }
   }, [])
+
   useLayoutEffect(() => {
     setFakeSrc(previewSource)
     debounce(src => {
-      setShowMain(false)
       setMainSrc(src)
+      setShowMain(false)
       debounce(() => {
-        setFakeSrc('')
         setShowMain(true)
-      }, 1000)()
-    }, 1000)(previewSource)
+        setFakeSrc('')
+      }, 1200)()
+    }, 1200)(previewSource)
   }, [previewSource])
 
   return (
@@ -61,17 +76,24 @@ export const PagedJsPreview = props => {
         ref={previewRef}
         srcDoc={mainSrc}
         title="Article preview"
-        style={{ opacity: showMain ? 1 : 0 }}
+        style={{ opacity: showMain ? 1 : 0, zIndex: 10 }}
       />
       <PreviewIframe
         style={{
           position: 'absolute',
           opacity: !showMain ? 1 : 0,
           pointerEvents: 'none',
+          zIndex: 99,
         }}
         srcDoc={fakeSrc}
         title="Article preview"
       />
+      <SpinnerWrapper showSpinner={!showMain && !fakeSrc}>
+        <Result
+          icon={<Spin size={18} spinning />}
+          title="Applying changes..."
+        />
+      </SpinnerWrapper>
     </StyledWindow>
   )
 }
