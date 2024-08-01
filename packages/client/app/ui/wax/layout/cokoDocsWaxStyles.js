@@ -18,7 +18,6 @@ export default css`
       'slnt' var(--slnt), 'CSRV' var(--crsv);
     font-weight: 400;
     padding: 3em 10ch;
-    width: var(--pm-editor-width, 1000px);
 
     p {
       font-size: 1.05em;

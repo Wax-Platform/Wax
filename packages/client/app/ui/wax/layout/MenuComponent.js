@@ -16,8 +16,9 @@ const Menu = styled.div`
   flex-wrap: wrap;
   font-family: ${th('fontInterface')};
   font-size: 16px;
-  height: 40px;
+  height: var(--menu-height);
   overflow: ${p => (p.openMenu ? 'visible' : 'hidden')};
+  transition: all 0.5s;
   width: 100%;
 
   > div:last-child {
@@ -30,7 +31,7 @@ const MenuToolGroup = styled.div`
   align-items: center;
   border-right: 1px solid;
   display: flex;
-  height: ${p => (p.openMenu ? '100%' : '40px')};
+  height: var(--menu-height);
   padding: 0 4px;
 
   button {
@@ -66,13 +67,13 @@ const MenuToolSearchAndReplace = styled(MenuToolGroup)`
   }
 `
 
-const MenuLines = styled.div`
-  left: 0;
-  pointer-events: none;
-  position: absolute;
-  right: 0;
-  top: ${p => (p.fullScreen ? 0 : 132)}px;
-`
+// const MenuLines = styled.div`
+//   left: 0;
+//   pointer-events: none;
+//   position: absolute;
+//   right: 0;
+//   top: ${p => (p.fullScreen ? 0 : 132)}px;
+// `
 
 const MenuLine = styled.div`
   box-shadow: 0 1px 0 0.2px #efefef;
@@ -97,16 +98,16 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
   const FindAndReplaceTool = app.container.get('FindAndReplaceTool')
   const FullScreen = app.container.get('FullScreen')
 
-  let Lines = []
+  // let Lines = []
 
-  useCallback(() => {
-    if (ref.current) {
-      Lines = Array.from(
-        { length: Math.round(ref.current.clientHeight / 40) },
-        (_, i) => <MenuLine key={`${i}-line`} />,
-      )
-    }
-  }, [Lines])
+  // useCallback(() => {
+  //   if (ref.current) {
+  //     Lines = Array.from(
+  //       { length: Math.round(ref.current.clientHeight / 40) },
+  //       (_, i) => <MenuLine key={`${i}-line`} />,
+  //     )
+  //   }
+  // }, [Lines])
 
   const FindAndReplaceComponent = useMemo(() => {
     return (
@@ -162,9 +163,9 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
       <MenuToolGroup>
         {FullScreen._tools.map(tool => tool.renderTool(activeView))}
       </MenuToolGroup>
-      {open && (
+      {/* {open && (
         <MenuLines fullScreen={fullScreen}>{Lines.map(Line => Line)}</MenuLines>
-      )}
+      )} */}
     </Menu>
   )
 })

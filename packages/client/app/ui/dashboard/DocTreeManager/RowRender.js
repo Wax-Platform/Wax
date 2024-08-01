@@ -1,3 +1,5 @@
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable declaration-no-important */
 import React, { useLayoutEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
@@ -11,48 +13,63 @@ import {
 import Button from '../../common/Button'
 
 const RowContainer = styled.div`
+  border-bottom: 1px solid var(--color-trois-alpha);
+  color: ${props => (props.isActive ? 'black' : 'inherit')};
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  color: ${props => (props.isActive ? 'black' : 'inherit')};
   font-weight: ${props => (props.isActive ? '600' : 'normal')};
+  padding: 10px;
+  width: 100%;
+
+  #tools-container {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:hover {
+    #tools-container {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
 `
 const TitleToolsContainer = styled.div`
+  align-items: center;
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
 `
 
 const ToolsContainer = styled.div`
   display: flex;
-  flex-direction: row;
-  margin-left: auto;
+  gap: 4px;
+  transition: opacity 0.3s;
 `
 
 const StyledFolderFileBtn = styled(Button)`
   background-color: transparent;
-  text-decoration: none;
   border: none;
   outline: 0 !important;
-  width: fit-content;
   padding: 0;
-  margin-left: 10px;
+  text-decoration: none;
+  width: fit-content;
 
   svg {
-    fill: #6db6d6;
+    fill: var(--color-primary);
+
     &:active,
     &:focus,
     &:hover {
-      fill: #49a4cc;
+      fill: var(--color-primary-dark);
     }
   }
 `
 const StyledInput = styled.input`
+  background-color: #f6edf6;
+  border: 2px solid #a34ba1;
   margin-right: 5px;
 
-  border: 2px solid #a34ba1;
-  background-color: #f6edf6;
-  :focus {
+  &:focus {
     outline: none;
   }
 `
@@ -60,6 +77,7 @@ const StyledInput = styled.input`
 const StyledApplyButton = styled(Button)`
   background-color: #a34ba1;
   color: #fff;
+
   &:hover {
     background-color: #a34ba1 !important;
     color: #fff !important;
@@ -67,12 +85,16 @@ const StyledApplyButton = styled(Button)`
 `
 
 const IconTitleContainer = styled.div`
+  align-items: center;
   display: flex;
   flex-direction: row;
+  gap: 8px;
+  min-height: 30px;
 
   span {
-    margin-right: 5px;
-    margin-bottom: 10px;
+    line-height: 1;
+    /* margin-bottom: 10px;
+    margin-right: 5px; */
 
     svg {
       fill: #a34ba1;
@@ -170,7 +192,7 @@ const RowRender = row => {
           </>
         ) : (
           <IconTitleContainer>
-            {isFolder && <FolderAddFilled style={{ fontSize: '19px' }} />}
+            {isFolder && <FolderAddFilled style={{ fontSize: '18px' }} />}
             <span>
               {!row.isRoot && title.length > 18
                 ? `${title.substring(0, 18)}...`
@@ -179,7 +201,7 @@ const RowRender = row => {
           </IconTitleContainer>
         )}
         {!row.isRoot && (
-          <ToolsContainer>
+          <ToolsContainer id="tools-container">
             {isFolder && addResource && (
               <>
                 <StyledFolderFileBtn
@@ -188,7 +210,7 @@ const RowRender = row => {
                   }
                   title="Add Folder"
                 >
-                  <FolderAddFilled style={{ fontSize: '19px' }} />
+                  <FolderAddFilled style={{ fontSize: '18px' }} />
                 </StyledFolderFileBtn>
                 <StyledFolderFileBtn
                   onClick={() =>
@@ -196,7 +218,7 @@ const RowRender = row => {
                   }
                   title="Add File"
                 >
-                  <FileAddFilled style={{ fontSize: '19px' }} />
+                  <FileAddFilled style={{ fontSize: '18px' }} />
                 </StyledFolderFileBtn>
               </>
             )}
@@ -209,7 +231,7 @@ const RowRender = row => {
                 }}
                 title="Delete"
               >
-                <DeleteFilled style={{ fontSize: '19px' }} />
+                <DeleteFilled style={{ fontSize: '18px' }} />
               </StyledFolderFileBtn>
             )}
 
@@ -221,7 +243,7 @@ const RowRender = row => {
                 }}
                 title="Close"
               >
-                <CloseCircleFilled style={{ fontSize: '22px' }} />
+                <CloseCircleFilled style={{ fontSize: '18px' }} />
               </StyledFolderFileBtn>
             ) : (
               renameResource && (
@@ -232,7 +254,7 @@ const RowRender = row => {
                   }}
                   title="Rename"
                 >
-                  <EditFilled style={{ fontSize: '22px' }} />
+                  <EditFilled style={{ fontSize: '18px' }} />
                 </StyledFolderFileBtn>
               )
             )}

@@ -1,3 +1,4 @@
+/* stylelint-disable string-quotes */
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable rule-empty-line-before */
 /* stylelint-disable declaration-no-important */
@@ -19,24 +20,30 @@ import { findParentNode, findChildNodeByIdentifier } from './utils'
 
 const ControlsWrappers = styled.div`
   background: #f6edf6;
+  border-right: 1px solid #0004;
   display: flex;
   align-items: center;
   flex-direction: column;
   height: 100%;
   width: 50px;
   padding: ${grid(2)};
-  z-index: 1;
+  padding-top: 0;
+  z-index: 101;
+
+  > button {
+    font-size: 15px !important;
+  }
 `
 
 const FilesWrapper = styled.div`
   background: white;
-  border-right: 1px solid gainsboro;
+  border-right: 1px solid #0004;
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: auto;
-  padding: ${p => (p.expand ? '8px' : '8px 0')};
-  padding-left: 0;
+  padding-right: ${p => (p.expand ? '15px' : '0')};
+  padding-top: 15px;
   width: 25dvw;
   max-width: ${p => (p.expand ? '25dvw' : '0')};
   left: 49px;
@@ -44,9 +51,15 @@ const FilesWrapper = styled.div`
   transition: all 0.5s;
   visibility: ${props => (props.defaultState ? 'visible' : 'hidden')};
   z-index: 99;
-  .ant-tree {
-    background: white;
+
+  * {
+    background: #fff0 !important;
   }
+
+  .ant-tree {
+    width: 100%;
+  }
+
   .ant-tree-treenode-disabled {
     color: black !important;
     span {
@@ -54,39 +67,83 @@ const FilesWrapper = styled.div`
     }
   }
 
-  .ant-tree-title:hover {
-    background: #c8e4f0 !important;
+  .ant-tree .ant-tree-switcher-noop {
+    padding: 0 10px;
+    align-items: center;
+    flex: unset;
+  }
+
+  .ant-tree .ant-tree-switcher {
+    align-self: unset;
+    flex: unset;
+  }
+
+  [data-icon='folder-add'] {
+    margin-top: -5px !important;
+  }
+
+  .ant-tree-title {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+  }
+
+  .ant-tree-treenode {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    &:hover {
+      background: #fff0 !important;
+      color: var(--color-trois) !important;
+    }
   }
 
   span.ant-tree-node-selected {
-    background: #edf6fa !important;
+    background: #fff0 !important;
   }
 
-  .ant-tree-switcher {
-    margin-top: 10px;
+  span.ant-tree-node-content-wrapper {
+    background: #fff0 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
   }
+
+  /*
+  .ant-tree-switcher {
+  } */
 
   .ant-tree-draggable-icon {
-    margin-top: 10px;
     cursor: grab;
     opacity: 1 !important;
     span svg {
-      fill: #6db6d6;
+      fill: var(--color-trois);
+      margin: 0 !important;
     }
   }
 `
 
 const StyledMainButton = styled(Button)`
   background-color: transparent;
+  border-bottom: 1px solid var(--color-trois-alpha) !important;
+  border-radius: 0;
+
   text-decoration: none;
   border: none;
   outline: 0 !important;
   width: fit-content;
   padding: 0;
-  margin-bottom: ${grid(4)};
+  padding-top: 5px;
+  /* margin-bottom: ${grid(4)}; */
 
   svg {
     fill: #a34ba1;
+    height: 30px;
+    padding: 3px 0;
+    width: 30px;
     &:active,
     &:focus,
     &:hover {
@@ -282,7 +339,7 @@ const DocTreeManager = ({
         </StyledMainButtonExpand>
       </ControlsWrappers>
       <FilesWrapper expand={expandFilesArea} defaultState={defaultState}>
-        <span style={{ width: '25dvh' }}>
+        <span style={{ minWidth: '23dvw' }}>
           <Tree
             key="myDocs"
             className="draggable-tree"
