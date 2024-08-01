@@ -10,7 +10,6 @@ import { th, useCurrentUser } from '@coko/client'
 import { PlusCircleOutlined } from '@ant-design/icons'
 
 import logoMobile from '../../../static/waxdesignerwhite.svg'
-import aiDesignerLogo from '../../../static/AI Design Studio-Icon.svg'
 import TeamPopup from './TeamPopup'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import AiDesigner from '../../AiDesigner/AiDesigner'
@@ -25,13 +24,13 @@ const StyledHeader = styled.header`
   /* box-shadow: 0 0 15px #0003; */
   display: flex;
   flex-flow: row wrap;
+  height: var(--header-height);
   justify-content: space-between;
   padding: 0 10px 0 0;
   /* z-index: 99; */
 `
 
 const Logo = styled.img`
-  height: 80px;
   object-fit: contain;
   width: auto;
 `

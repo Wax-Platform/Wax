@@ -49,11 +49,18 @@ export default createGlobalStyle`
     --color-secondary: #e177a2ff;
     --color-secondary-fade: #e0387a0d;
     --color-trois: #a34ba1;
+    --color-trois-alpha: #a34ba129;
+ 
+    /* layout */
+
+    --header-height: 50px;
+    --menu-height: 40px;
 
     height: 100dvh;
   }
 
-  html {
+  html,
+  body {
     box-sizing: border-box;
     overflow: hidden;
   }

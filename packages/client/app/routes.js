@@ -43,7 +43,7 @@ import {
 const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 104dvh;
 `
 
 const regexPaths = [
@@ -117,7 +117,7 @@ const Layout = props => {
 }
 
 const StyledPage = styled(Page)`
-  height: calc(100% - 90px);
+  height: calc(100dvh);
 
   > div {
     display: flex;
@@ -204,12 +204,18 @@ const PageWrapper = props => {
       console.log(e.ctrlKey)
       setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
     }
+    const scrollHandler = () => {
+      document.querySelector('body').scrollTop = 0
+      document.querySelector('html').scrollTop = 0
+    }
     window.addEventListener('keydown', keydownHandler)
     window.addEventListener('keyup', keydownHandler)
+    window.addEventListener('scroll', scrollHandler)
 
     return () => {
       window.removeEventListener('keydown', keydownHandler)
       window.removeEventListener('keyup', keydownHandler)
+      window.removeEventListener('scroll', scrollHandler)
     }
   }, [])
   return <StyledPage {...props} $height={`calc(100% - 82px)`} />

@@ -30,10 +30,11 @@ import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { debounce } from 'lodash'
 import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsPreview'
+import { setInlineStyle } from '../../component-ai-assistant/utils'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
-  --styledwindow-height: ${p => (p.$menuvisible ? '100%' : '100% - 36px')};
+  --menu-height: ${p => (p.$menuvisible ? '40px' : '0px')};
   background: ${th('colorBackground')};
   display: flex;
   flex-direction: column;
@@ -96,10 +97,13 @@ const EditorContainer = styled.div`
   .ProseMirror {
     box-shadow: 0 0 8px #ecedf1;
     height: fit-content;
-    max-width: 1200px;
+    max-width: 1000px;
     min-height: 100%;
-    min-width: 650px;
     padding: 10% !important;
+    transform: scale(${p => (p.$all ? '0.65' : p.$both ? '0.8' : '1')});
+    transform-origin: top center;
+    transition: transform 0.3s;
+    width: 1200px;
   }
 
   > div > :first-child {
@@ -112,53 +116,54 @@ const EditorContainer = styled.div`
 
 const MenuWrapper = styled.div`
   background-color: white;
-  border-bottom: 1px solid gainsboro;
+  border-bottom: ${p => (p.$show ? '1px' : '0px')} solid gainsboro;
   display: flex;
   flex-flow: row nowrap;
   font-size: 16px;
-  height: 40px;
-  max-height: ${p => (p.$show ? '80px' : '0')};
+  height: var(--menu-height);
+  max-height: var(--menu-height);
   opacity: ${p => (p.$show ? '1' : '0')};
   pointer-events: ${p => (p.$show ? 'all' : 'none')};
-  transition: all 0.3s;
+  transition: all 0.5s;
 
   div:last-child {
     margin-left: auto;
   }
 `
 const StyledWindow = styled.div`
-  border-left: 1px solid #0004;
+  border-right: ${p => (p.$show ? '1px' : '0px')} solid #0004;
   display: flex;
   flex-direction: column;
-  height: var(--styledwindow-height);
+  /* height: var(--styledwindow-height); */
+  opacity: ${p => (p.$show ? '1' : '0')};
   overflow: hidden;
   position: relative;
-  transition: width 0.5s linear;
+  transition: width 0.5s linear, opacity 0.5s linear;
   width: ${p => (p.$show ? '100%' : '0')};
 `
 
 const WindowHeading = styled.div`
   align-items: center;
-  background-color: #efefef;
-  box-shadow: inset 0 0 5px #fff4, 0 0 2px #0009;
-  color: #777;
+  background-color: var(--color-trois);
+  box-shadow: inset 0 0 5px #fff4, 0 0 2px var(--color-purple);
+  color: #fff;
   display: flex;
   font-size: 12px;
   font-weight: bold;
   justify-content: space-between;
   line-height: 1;
-  min-height: 23px;
-  padding: 2px 10px;
+  min-height: 28px;
+  padding: 5px 10px;
   white-space: nowrap;
   z-index: 99;
 
   svg {
-    fill: #00495c;
-    stroke: #00495c;
+    fill: #fff;
+    stroke: #fff;
   }
 
   > :first-child {
-    color: #aaa;
+    color: #fff;
   }
 `
 
@@ -201,7 +206,7 @@ const CommentsContainer = styled.div`
 const WaxSurfaceScroll = styled.div`
   box-sizing: border-box;
   display: flex;
-  height: calc(100dvh - 120px);
+  height: calc(100dvh - (var(--header-height) + var(--menu-height)));
   justify-content: center;
   margin: 0;
   overflow: scroll;
@@ -213,7 +218,8 @@ const WaxSurfaceScroll = styled.div`
 const WaxEditorWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: 100%;
+  height: calc(100dvh - (var(--header-height) + var(--menu-height)));
+
   justify-content: space-between;
   min-width: 100%;
 `
@@ -245,28 +251,29 @@ const Layout = props => {
     editorContent,
     settings,
     designerOn,
+    previewRef,
   } = useContext(AiDesignerContext)
   const { loading } = useAssistant()
 
   const ref = useRef(null)
   const [open, toggleMenu] = useState(false)
-  const [menuHeight, setMenuHeight] = useState(42)
+  // const [menuHeight, setMenuHeight] = useState(42)
 
-  useEffect(() => {
-    if (ref.current) {
-      setMenuHeight(ref.current.clientHeight + 2)
-    }
-  }, [open])
+  // useEffect(() => {
+  //   if (ref.current) {
+  //     setMenuHeight(ref.current.clientHeight + 2)
+  //   }
+  // }, [open])
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (ref.current) {
-        setMenuHeight(ref.current.clientHeight + 2)
-      }
-    }
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (ref.current) {
+  //       setMenuHeight(ref.current.clientHeight + 2)
+  //     }
+  //   }
 
-    window.addEventListener('resize', handleResize)
-  })
+  //   window.addEventListener('resize', handleResize)
+  // })
 
   useEffect(() => {
     layout.preview && settings.preview.livePreview && updatePreview()
@@ -281,8 +288,22 @@ const Layout = props => {
     if (!layout.editor) {
       !layout.preview && updateLayout({ preview: true })
     }
-    updatePreview()
   }, [layout.editor])
+
+  useEffect(() => {
+    const pages = previewRef?.current?.contentDocument?.documentElement
+    console.log(pages)
+    pages &&
+      setInlineStyle(pages, {
+        transition: `transform 0.5s`,
+        transformOrigin: 'top left',
+        transform: `scale(${
+          designerOn && layout.chat && layout.editor ? '0.8' : '1'
+        }) translateX(${
+          designerOn && layout.chat && layout.editor ? '4%' : '0'
+        })`,
+      })
+  }, [layout.chat, layout.editor, updatePreview])
 
   useEffect(() => {
     if (main?.docView) {
@@ -329,9 +350,8 @@ const Layout = props => {
     <ThemeProvider theme={theme}>
       <Wrapper
         id="wax-container"
-        menuHeight={menuHeight}
         style={fullScreenStyles}
-        $menudisplayed={layout.editor}
+        $menuvisible={!!layout.editor}
       >
         <PromptBox />
         <MenuWrapper $show={layout.editor}>
@@ -359,7 +379,10 @@ const Layout = props => {
               $loading={loading}
               ref={editorContainerRef}
             >
-              <EditorContainer>
+              <EditorContainer
+                $both={!!layout.preview && !!layout.editor}
+                $all={!!layout.preview && !!layout.editor && !!layout.chat}
+              >
                 <WaxView {...props} />
               </EditorContainer>
               <CommentsContainer>
