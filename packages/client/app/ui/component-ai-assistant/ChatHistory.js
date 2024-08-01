@@ -30,12 +30,15 @@ const ChatHistoryContainer = styled.div`
   --profile-picture-size: 25px;
   --message-header-gap: 8px;
 
-  background: #f5f5f5;
+  background: #fff5ff;
+  border-left: 1px solid #0004;
   display: flex;
   flex-direction: column;
-  height: 83%;
+  height: 100%;
+  min-width: calc(25dvw);
   overflow: auto;
   padding: 25px;
+  padding-bottom: 25%;
   position: relative;
   scroll-behavior: smooth;
   scrollbar-color: #0002;
@@ -144,6 +147,10 @@ const MessageHeader = styled.div`
   > span {
     display: flex;
     gap: var(--message-header-gap);
+
+    > strong {
+      color: #555;
+    }
   }
 
   span > img,
@@ -187,7 +194,7 @@ const MessageContent = styled.div`
 // TODO: pass currentUser as prop
 // eslint-disable-next-line react/prop-types
 const ChatHistory = ({ nomessages, ...props }) => {
-  const { selectedCtx, htmlSrc, feedback, deleteLastMessage, settings } =
+  const { selectedCtx, feedback, deleteLastMessage, settings } =
     useContext(AiDesignerContext)
   const { currentUser } = useCurrentUser()
   const [clipboardText, setClipboardText] = useState('')
@@ -260,8 +267,11 @@ const ChatHistory = ({ nomessages, ...props }) => {
                     <span>
                       <img
                         alt="user-profile"
-                        src={userSmall}
-                        style={{ background: 'var(--color-trois)' }}
+                        src={currentUser?.profilePicture ?? userSmall}
+                        style={{
+                          background:
+                            currentUser?.color ?? 'var(--color-trois)',
+                        }}
                       />
                       <strong>@{currentUser?.displayName}</strong>
                     </span>
@@ -315,13 +325,9 @@ const ChatHistory = ({ nomessages, ...props }) => {
         >
           {nomessages ||
             `Make your first prompt related to ${
-              selectedCtx?.node === htmlSrc
-                ? 'the Article'
-                : `this ${
-                    selectedCtx?.tagName
-                      ? htmlTagNames[selectedCtx?.tagName]
-                      : 'selected'
-                  }`
+              selectedCtx?.tagName
+                ? `this ${htmlTagNames[selectedCtx?.tagName]}`
+                : 'the Document'
             }`}
         </span>
       )}

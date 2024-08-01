@@ -332,6 +332,7 @@ export const SnippetsDropdown = () => {
     updatePreview,
     userInteractions,
     removeSnippet,
+    designerOn,
   } = useContext(AiDesignerContext)
 
   if (!settings.editor.enableSelection) return null
@@ -395,7 +396,7 @@ export const SnippetsDropdown = () => {
       <SubMenu
         $showSearchInput={showSearchInput}
         $ctrlPressed={!!userInteractions.ctrl}
-        $show={showSnippets}
+        $show={designerOn && showSnippets}
         // onMouseLeave={() => setShowSnippets(false)}
         style={{ marginTop: '7px' }}
       >

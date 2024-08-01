@@ -1,6 +1,5 @@
 import { getSnippetsByNode } from './helpers'
 
-// IDEA:This could be used to limit the selectable nodes
 export const htmlTagNames = {
   a: 'Link',
   abbr: 'Shortened',
@@ -143,7 +142,7 @@ export const cssTemplate1 = /* css */ `
     }
 
       * {
-        transition: outline 0.5s;
+        transition: outline 0.5s, outline-offset 0.5s;
         outline: 2px dashed #0000;
         outline-offset: 12px;
       }   
@@ -273,65 +272,6 @@ export const cssTemplate1 = /* css */ `
     background: #fff0;
     padding: 5px;
   }
-`
-
-export const initialPagedJSCSS = /* css */ `
-:root {
-    --color-background: #fff;
-    --color-marginBox: transparent;
-    --pagedjs-crop-color: black;
-    --pagedjs-crop-shadow: white;
-    --pagedjs-crop-stroke: 1px;
-    --font-family: Arial, Helvetica, sans-serif;
-}
-
-  @page {
-      background: var(--color-background);
-      font-family: var(--font-family);
-      margin:  20mm;
-      size: A4;
-
-      @bottom-center {
-        content: string(title);
-        font-size: 11pt;
-        color: #707070;
-      }
-    }
-
-    @page :left {
-      @bottom-left-corner {
-        content: counter(page);
-        text-align: center;
-      }
-    }
-
-    @page :right {
-      @bottom-right-corner {
-        content: counter(page);
-        text-align: center;
-      }
-    }
-
-    @page :first {
-      margin:  3cm;
-    }
-
-    @page :left {
-      margin-left:  2cm;
-      margin-right:  2cm;
-    }
-
-    @page :right {
-      margin-left:  2cm;
-      margin-right:  2cm;
-    }
-    
-    div#assistant-ctx section {
-	    break-after: always;
-    }
-    div#assistant-ctx section > h1{
-	    string-set: title content(text);
-    }
 `
 
 export const finishReasons = {
