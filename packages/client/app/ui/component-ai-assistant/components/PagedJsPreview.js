@@ -7,7 +7,8 @@ import { ToolsCursor } from './ToolsCursor'
 const StyledWindow = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100dvh - (var(--header-height) + var(--menu-height, 0px)));
+
   opacity: ${p => (p.$show ? '1' : '0')};
 
   overflow: hidden;

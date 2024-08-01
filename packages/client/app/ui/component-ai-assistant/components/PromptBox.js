@@ -290,14 +290,13 @@ const AbsoluteContainer = styled.div`
   bottom: ${p => (p.$show ? '15px' : '-140px')};
   display: flex;
   flex-direction: column;
-  opacity: ${p => (p.$show ? '1' : '0')};
   position: absolute;
   right: ${p => {
     if (p.$showChat) return '30px'
     return p.$bothEditors ? '8.2%' : '23.4%'
   }};
 
-  transition: all 0.5s;
+  transition: all 0.5s 0.2s;
   width: ${p => {
     if (p.$showChat) return 'calc(25% - 60px)'
     if (p.$bothEditors) return '32%'

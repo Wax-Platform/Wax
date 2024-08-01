@@ -1,6 +1,6 @@
 import { entries } from 'lodash'
 import { safeId } from '../ui/component-ai-assistant/utils/helpers'
-import { onEntries, safeCall } from '../ui/component-ai-assistant/utils/utils'
+import { safeCall } from '../ui/component-ai-assistant/utils/utils'
 import { StateManager } from './StateManager'
 import { addClass, insertImageAfterNode } from './helpers/pmHelpers.js'
 const defaultConfig = {

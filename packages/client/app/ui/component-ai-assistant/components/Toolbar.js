@@ -237,15 +237,26 @@ const Toolbar = ({ drag, ...props }) => {
     }, 300)()
   }, [horizontal, enableSelection, drag])
 
-  const scrollToSelectedNode = () => {
+  const scrollToSelectedNode = e => {
+    e.preventDefault()
     const iframeElement = previewRef?.current?.contentDocument?.documentElement
     if (!iframeElement) return
-    const node = iframeElement.querySelector(
-      `[data-aidctx="${selectedCtx.aidctx}"`,
+    let node = iframeElement.querySelector(
+      `[data-aidctx="${selectedCtx.aidctx}"]`,
     )
+    let offsetTop = node.offsetTop
+    let offsetLeft = node.offsetLeft
+
+    // Traverse up the DOM tree, accumulating offsets
+    while (node.offsetParent) {
+      node = node.offsetParent
+      offsetTop += node.offsetTop
+      offsetLeft += node.offsetLeft
+    }
+    console.log(node)
     node &&
       iframeElement &&
-      node.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      iframeElement.scrollTo({ top: offsetTop - 80, behavior: 'smooth' })
   }
 
   const renderTool = ({ src, Icon, imgProps, DropDown, disabled, ...rest }) => {

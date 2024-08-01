@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import React, { createContext, useMemo, useRef, useState } from 'react'
-import { entries, isString, merge, takeRight } from 'lodash'
+import { isString, merge, takeRight } from 'lodash'
 import {
   setInlineStyle,
   SendIcon,
@@ -15,7 +15,6 @@ import {
   cssTemplate1,
   snippetsToCssText,
   srcdoc,
-  initialPagedJSCSS,
   parseContent,
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
@@ -79,7 +78,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [selectedCtx, setSelectedCtx] = useState([])
 
   const [htmlSrc, setHtmlSrc] = useState(null)
-  const [css, setCss] = useState(initialPagedJSCSS)
+  const [css, setCss] = useState('')
   const [previewSource, setPreviewSource] = useState('<h1>Nothing</h1>')
   const [editorContent, setEditorContent] = useState('')
   const [markedSnippet, setMarkedSnippet] = useState('')
@@ -271,7 +270,6 @@ export const AiDesignerProvider = ({ children }) => {
           previewDoc?.scrollTop ?? 0,
         ),
       )
-    document.querySelector('html').scrollTop = 0
 
     // updateCtxNodes()
   }
