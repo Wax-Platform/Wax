@@ -277,7 +277,7 @@ export const AiDesignerProvider = ({ children }) => {
   // #endregion HELPERS -----------------------------------------------------------------
 
   // #region SNIPPETS -------------------------------------------------------------------
-  const addSnippet = (node, snippet) => {
+  const addSnippet = (add, snippet) => {
     const { snippets, createNewSnippetVersions, markNewSnippet } =
       settings.snippetsManager
     const snippetToAdd = !createNewSnippetVersions
@@ -286,8 +286,6 @@ export const AiDesignerProvider = ({ children }) => {
           snippet,
           snippets.map(s => s.className),
         )
-
-    node && node.classList.toggle(`aid-snip-${snippetToAdd.className}`)
 
     const foundIndex = snippets.findIndex(
       s => s.className === snippetToAdd.className,
@@ -305,6 +303,7 @@ export const AiDesignerProvider = ({ children }) => {
     })
     updateSnippets({ variables: { snippets: finalOutput } })
 
+    add && selectedCtx.snippets.add(`aid-snip-${snippetToAdd.className}`)
     markNewSnippet && !markedSnippet && setMarkedSnippet(snippetToAdd.className)
   }
 

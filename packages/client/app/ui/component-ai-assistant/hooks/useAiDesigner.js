@@ -115,8 +115,7 @@ const useAssistant = () => {
           getCssTemplate({ variables: { docId, css: val } })
         },
         snippet: val => {
-          addSnippet(null, val)
-          selectedCtx.snippets.add(`aid-snip-${val.className}`)
+          addSnippet(true, val)
         },
         feedback: val => {
           selectedCtx.conversation.push({ role: 'assistant', content: val })
