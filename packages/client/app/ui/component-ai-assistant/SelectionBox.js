@@ -478,7 +478,7 @@ export const SnippetsDropdown = () => {
                     )
                   } else {
                     userInteractions.ctrl
-                      ? AiDesigner.filterBy({ tagName }, c =>
+                      ? AiDesigner.updateContext().filterBy({ tagName }, c =>
                           c.snippets[action](`aid-snip-${className}`),
                         )
                       : selectedCtx.snippets[action](`aid-snip-${className}`)

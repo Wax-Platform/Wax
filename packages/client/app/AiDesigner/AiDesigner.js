@@ -116,20 +116,16 @@ export default class AiDesigner extends StateManager {
     if (!params?.docView && !this.states?.view?.docView) return
     const { view } = params ?? this.states
 
-    view.state.doc.descendants((node, pos) => {
+    view.state.doc.descendants((node) => {
       if (node && !node.isText) {
-        const currentAid = node?.attrs?.dataset?.aidctx || ''
-        const aidctx = AiDesigner.idGen(currentAid)
+        const aidctx = node?.attrs?.dataset?.aidctx
 
         if (aidctx) {
-          const tr = view.state.tr
-          tr.setNodeMarkup(pos, null, { ...node.attrs, dataset: { aidctx } })
-          view.dispatch(tr)
           !this.getBy({ aidctx }) && this.addToContext({ aidctx })
         }
       }
     })
-    console.log('context updated')
+    return this
   }
 
   static idGen(currentAid) {

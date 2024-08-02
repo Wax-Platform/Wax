@@ -183,7 +183,7 @@ const useAssistant = () => {
         actionsApplied?.push(action)
       })
 
-      updatePreview(true)
+      debounce(() => updatePreview(true), 500)()
     },
   })
 
@@ -222,7 +222,6 @@ const useAssistant = () => {
   })
 
   // #endregion GQL Hooks ----------------------------------------------------------------
-
 
   const handleSend = async e => {
     if (loading || userPrompt?.length < 2) return
