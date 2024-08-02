@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { useContext, useEffect } from 'react'
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
-import { takeRight } from 'lodash'
+import { debounce, takeRight } from 'lodash'
 import { AiDesignerContext } from './AiDesignerContext'
 import { GET_SETTINGS, UPDATE_SETTINGS } from '../queries/settings'
 import {
