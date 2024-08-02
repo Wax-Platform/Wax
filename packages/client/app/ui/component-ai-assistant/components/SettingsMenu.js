@@ -23,7 +23,7 @@ const Container = styled.div`
   position: absolute;
   right: ${p => (p.$show ? 0 : '-3px')};
   top: -1px;
-  transition: all 0.2s linear;
+  transition: all 0.3s linear;
   width: fit-content;
   z-index: 9999999999;
 

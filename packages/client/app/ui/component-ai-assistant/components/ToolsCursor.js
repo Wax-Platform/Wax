@@ -41,7 +41,6 @@ export const ToolsCursor = ({ container = window }) => {
   })
 
   const handleMousemove = e => {
-    console.log(e.clientX)
     const newX = e.clientX
     const newY = e.clientY
 

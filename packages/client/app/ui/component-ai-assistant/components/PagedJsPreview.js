@@ -28,7 +28,7 @@ const StyledWindow = styled.div`
 
   overflow: hidden;
   position: relative;
-  transition: all 0.5s linear;
+  transition: all 0.3s linear;
   width: ${p => (p.$show ? '100%' : '0')};
 `
 const PreviewIframe = styled.iframe`

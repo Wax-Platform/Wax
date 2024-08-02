@@ -188,7 +188,7 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
                 boxShadow: '0 0 10px #0002',
                 pointerEvents: 'none',
                 userSelect: 'none',
-                transition: 'all 0.5s ease-in-out',
+                transition: 'all 0.3s ease-in-out',
                 opacity: !showImg ? '0' : '1',
               }}
             >

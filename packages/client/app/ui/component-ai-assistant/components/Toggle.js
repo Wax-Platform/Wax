@@ -32,7 +32,7 @@ const Container = styled.div`
     box-shadow: 0 0 8px #0004, inset 0 -2px 5px #fffa;
     height: 100%;
     margin-left: ${p => (p.checked ? 'calc(100% - var(--height))' : '0')};
-    transition: all 0.2s;
+    transition: all 0.3s;
   }
 
   &:hover {

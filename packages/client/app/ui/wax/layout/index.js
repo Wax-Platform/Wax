@@ -102,7 +102,7 @@ const EditorContainer = styled.div`
     padding: 10% !important;
     transform: scale(${p => (p.$all ? '0.65' : p.$both ? '0.8' : '1')});
     transform-origin: top center;
-    transition: transform 0.3s;
+    transition: transform 0.2s;
     width: 1200px;
   }
 
@@ -122,9 +122,9 @@ const MenuWrapper = styled.div`
   font-size: 16px;
   height: var(--menu-height);
   max-height: var(--menu-height);
-  opacity: ${p => (p.$show ? '1' : '0')};
+  /* opacity: ${p => (p.$show ? '1' : '0')}; */
   pointer-events: ${p => (p.$show ? 'all' : 'none')};
-  transition: all 0.5s;
+  transition: all 0.3s linear;
 
   div:last-child {
     margin-left: auto;
@@ -138,7 +138,7 @@ const StyledWindow = styled.div`
   opacity: ${p => (p.$show ? '1' : '0')};
   overflow: hidden;
   position: relative;
-  transition: all 0.5s linear;
+  transition: all 0.3s linear;
   width: ${p => (p.$show ? '100%' : '0')};
 `
 
@@ -292,10 +292,9 @@ const Layout = props => {
 
   useEffect(() => {
     const pages = previewRef?.current?.contentDocument?.documentElement
-    console.log(pages)
     pages &&
       setInlineStyle(pages, {
-        transition: `transform 0.5s`,
+        transition: `transform 0.2s`,
         transformOrigin: 'top left',
         transform: `scale(${
           designerOn && layout.chat && layout.editor ? '0.8' : '1'
@@ -307,7 +306,6 @@ const Layout = props => {
 
   useEffect(() => {
     if (main?.docView) {
-      console.log(context)
       AiDesigner.setStates(prev => ({
         ...prev,
         get view() {

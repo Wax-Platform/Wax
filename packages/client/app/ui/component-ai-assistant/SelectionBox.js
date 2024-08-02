@@ -566,7 +566,7 @@ export const SnippetsDropdown = () => {
           color: 'var(--color-trois)',
           position: 'relative',
           transform: `scale(${showSnippets ? '0.7' : '1'})`,
-          transition: 'all 0.5s',
+          transition: 'all 0.3s',
           zIndex: '99',
         }}
         title="Add snippet"
@@ -575,7 +575,7 @@ export const SnippetsDropdown = () => {
         <PlusOutlined
           style={{
             pointerEvents: 'none',
-            transition: 'all 0.5s',
+            transition: 'all 0.3s',
             transform: `rotate(${showSnippets ? '45deg' : '0'})`,
           }}
         />

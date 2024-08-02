@@ -500,7 +500,6 @@ export const AiDesignerSystem = ({
     waxClass,
   )
 
-  // console.log(context)
   const { role, task } = isSE ? taskAndRoleDefsSE(ctx.tagName) : taskAndRoleDefs
 
   const shape = {

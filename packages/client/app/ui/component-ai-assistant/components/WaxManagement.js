@@ -131,7 +131,7 @@ const ListItem = styled.li`
   padding: 0.5rem 0;
   pointer-events: all;
   transform: scale(${p => (p.$selected ? 1.01 : 0.98)});
-  transition: all 0.2s;
+  transition: all 0.3s;
 
   > span {
     padding: 0.2rem 0.5rem 0.2rem 1rem;
@@ -297,7 +297,7 @@ const SnippetOptions = styled.span`
 const SnippetsFilterButton = styled(ButtonBase)`
   margin-inline: 8px;
   padding-inline: 0;
-  transition: all 0.5s ease-in-out;
+  transition: all 0.3s ease-in-out;
 `
 
 const TypesList = styled.span`

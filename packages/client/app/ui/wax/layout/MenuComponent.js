@@ -18,7 +18,7 @@ const Menu = styled.div`
   font-size: 16px;
   height: var(--menu-height);
   overflow: ${p => (p.openMenu ? 'visible' : 'hidden')};
-  transition: all 0.5s linear;
+  transition: all 0.3s linear;
   width: 100%;
 
   > div:last-child {

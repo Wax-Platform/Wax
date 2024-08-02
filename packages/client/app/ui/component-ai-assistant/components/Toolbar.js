@@ -169,7 +169,6 @@ const Toolbar = ({ drag, ...props }) => {
     designerOn,
   } = useContext(AiDesignerContext)
 
-  if (!designerOn) return null
   const toolbarRef = useRef(null)
   const [horizontal, setHorizontal] = useState(false)
   const [position, setPosition] = useState({
@@ -226,7 +225,7 @@ const Toolbar = ({ drag, ...props }) => {
 
   useEffect(() => {
     if (!drag) return
-    toolbarRef.current.style.transition = 'all 0.5s'
+    toolbarRef.current.style.transition = 'all 0.3s'
     debounce(() => {
       if (!toolbarRef?.current) return
       limitPosition()
@@ -253,7 +252,6 @@ const Toolbar = ({ drag, ...props }) => {
       offsetTop += node.offsetTop
       offsetLeft += node.offsetLeft
     }
-    console.log(node)
     node &&
       iframeElement &&
       iframeElement.scrollTo({ top: offsetTop - 80, behavior: 'smooth' })
@@ -387,7 +385,7 @@ const Toolbar = ({ drag, ...props }) => {
     !enableSelection && AiDesigner.select('aid-ctx-main')
   }, [enableSelection])
 
-  return (
+  return !designerOn ? null : (
     <DesignerTools
       ref={toolbarRef}
       $horizontal={horizontal}

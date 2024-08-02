@@ -201,7 +201,6 @@ const PageWrapper = props => {
   const { setUserInteractions } = useContext(AiDesignerContext)
   useEffect(() => {
     const keydownHandler = e => {
-      console.log(e.ctrlKey)
       setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
     }
     const scrollHandler = () => {

@@ -101,7 +101,7 @@ const SubMenu = styled.div`
     outline: none;
     padding: 8px 5px;
     pointer-events: all;
-    transition: all 0.2s;
+    transition: all 0.3s;
     width: 100%;
   }
 `
@@ -132,7 +132,7 @@ const Snippet = styled.span`
   outline: none;
   padding: 8px 5px;
   pointer-events: all;
-  transition: all 0.2s;
+  transition: all 0.3s;
 
   > button,
   .anticon svg {

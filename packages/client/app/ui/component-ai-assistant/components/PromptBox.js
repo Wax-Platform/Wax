@@ -30,7 +30,7 @@ const Dropdown = styled.div`
   overflow: hidden;
   position: absolute;
   right: calc(100% + ${p => (p.$open ? '20px' : '8px')});
-  transition: all 0.5s;
+  transition: all 0.3s;
   width: 180px;
   z-index: 999;
 
@@ -296,7 +296,7 @@ const AbsoluteContainer = styled.div`
     return p.$bothEditors ? '8.2%' : '23.4%'
   }};
 
-  transition: all 0.5s 0.2s;
+  transition: all 0.3s 0.2s;
   width: ${p => {
     if (p.$showChat) return 'calc(25% - 60px)'
     if (p.$bothEditors) return '32%'
@@ -323,7 +323,7 @@ const PromptBoxWrapper = styled.div`
   justify-content: space-between;
   /* overflow: hidden; */
   padding: 8px;
-  transition: all 0.5s;
+  transition: all 0.3s;
   width: 100%;
 
   > :first-child {

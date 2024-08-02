@@ -215,7 +215,6 @@ const ChatHistory = ({ nomessages, ...props }) => {
   }, 200)
 
   useEffect(() => {
-    console.log(currentUser)
     const observer = new MutationObserver(mutations => {
       mutations.forEach(
         mutation =>

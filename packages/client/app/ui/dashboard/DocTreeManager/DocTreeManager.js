@@ -48,7 +48,7 @@ const FilesWrapper = styled.div`
   max-width: ${p => (p.expand ? '25dvw' : '0')};
   left: 49px;
   position: absolute;
-  transition: all 0.5s;
+  transition: all 0.3s;
   visibility: ${props => (props.defaultState ? 'visible' : 'hidden')};
   z-index: 99;
 

@@ -132,8 +132,8 @@ export const AiDesignerProvider = ({ children }) => {
   const getCtxNode = (dom = document) =>
     dom.querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
 
-  const onSelect = ctx => {
-    setSelectedCtx(ctx)
+  const onSelect = (ctx, allctxs) => {
+    ctx.aidctx && setSelectedCtx(ctx)
 
     markedSnippet && setMarkedSnippet('')
     showSnippets && setShowSnippets(false)
