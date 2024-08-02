@@ -90,11 +90,12 @@ export default class AiDesigner extends StateManager {
   }
 
   static select(aidctx, options = {}) {
-    if (!this.getBy({ aidctx }) || !this.config.editor.enableSelection) return
+    if (!this.config.editor.enableSelection || !aidctx) return
+    !this.getBy({ aidctx }) && AiDesigner.addToContext({ aidctx })
     const { getOnly } = options
     const foundInCtx = this.getBy({ aidctx })
     !getOnly && (this.selected = foundInCtx)
-    this.emit('select', foundInCtx, options)
+    this.emit('select', foundInCtx, this.context)
   }
 
   static getBy(prop) {
@@ -142,6 +143,7 @@ export default class AiDesigner extends StateManager {
   }
 
   static addToContext({ aidctx }) {
+    if (this.getBy({ aidctx })) return
     const newContext = new AidCtx({ aidctx })
     this.context = [...(this.context || []), newContext]
     this.emit('addtocontext', this.context, newContext)

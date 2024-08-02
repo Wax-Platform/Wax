@@ -73,7 +73,6 @@ class AiDesignerMisc extends BaseModel {
   }
   static async updateTemplates({ userId, docId, css, name }) {
     const record = await this.query().where({ userId }).first()
-    logger.info(`\x1b[31mRecord: ${JSON.stringify(record)}\x1b[37m`)
     if (!record) {
       throw new Error('No record found with the given docId.')
     }
@@ -91,7 +90,6 @@ class AiDesignerMisc extends BaseModel {
 
       await this.query().where({ userId }).update({ templates })
     }
-    logger.info(`\x1b[32mTemplate: ${JSON.stringify(templates[index])}\x1b[37m`)
     return templates[index]
   }
 
@@ -115,6 +113,7 @@ class AiDesignerMisc extends BaseModel {
     }
 
     const updatedSnippets = [...record.snippets]
+
     const index = updatedSnippets.findIndex(
       snippet => snippet.className === snippet.className,
     )
@@ -122,7 +121,7 @@ class AiDesignerMisc extends BaseModel {
     index !== -1
       ? (updatedSnippets[index] = { ...updatedSnippets[index], ...snippet })
       : updatedSnippets.push(snippet)
-    
+
     await this.query().where({ userId }).update({ snippets: updatedSnippets })
     return updatedSnippets
   }

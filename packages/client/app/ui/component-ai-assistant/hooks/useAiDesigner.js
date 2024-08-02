@@ -80,7 +80,7 @@ const useAssistant = () => {
 
   const client = useApolloClient()
   useEffect(() => {
-    console.log('from useai', selectedCtx.aidctx)
+    console.log('selected:', selectedCtx)
   }, [selectedCtx])
   // const currentUser = useCurrentUser()
 
@@ -119,8 +119,8 @@ const useAssistant = () => {
           selectedCtx.snippets.add(`aid-snip-${val.className}`)
         },
         feedback: val => {
-          setFeedback(val)
           selectedCtx.conversation.push({ role: 'assistant', content: val })
+          setFeedback(val)
         },
         content: val => {
           setEditorContent(

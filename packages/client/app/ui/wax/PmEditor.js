@@ -118,11 +118,10 @@ const PmEditor = ({
   }, [docIdentifier])
 
   useEffect(() => {
-    aidMisc && console.log(aidMisc)
     aidMisc &&
       getCssTemplate({
         variables: { docId: docIdentifier },
-      }).then(console.log)
+      })
   }, [aidMisc])
 
   useEffect(() => {
@@ -163,7 +162,7 @@ const PmEditor = ({
         layout={layout}
         onChange={value => {
           setEditorContent(value)
-          debounce(AiDesigner.updateContext, 1000)()
+          // debounce(AiDesigner.updateContext, 1000)()
           updatePreview()
         }}
         // readonly={!contentEditable}

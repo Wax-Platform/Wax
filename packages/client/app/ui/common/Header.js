@@ -127,7 +127,7 @@ const Header = props => {
               !designerOn
                 ? updateLayout({ preview: true, editor: false })
                 : updateLayout({ preview: false, editor: true })
-              AiDesigner.updateContext()
+              // AiDesigner.updateContext()
             }}
             checked={designerOn}
           />

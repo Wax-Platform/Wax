@@ -312,7 +312,7 @@ const Layout = props => {
           return context.activeView
         },
       }))
-      main.state && AiDesigner.updateContext()
+      // main.state && AiDesigner.updateContext()
       main.state && AiDesigner.select('aid-ctx-main')
     }
   }, [context.activeView])

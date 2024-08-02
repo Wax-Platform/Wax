@@ -1,3 +1,4 @@
+import { uuid } from '@coko/client'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { onEntries } from '../utils'
 
@@ -56,7 +57,7 @@ const commonAttrs = {
   class: { default: null },
   group: { default: null },
   viewid: { default: null },
-  dataset: { default: { aidctx: '' } },
+  dataset: { default: { aidctx: uuid() } },
 }
 
 const generateHeadingsConfig = level => ({
@@ -68,7 +69,7 @@ const generateHeadingsConfig = level => ({
     group: dom.getAttribute('data-group'),
     viewid: dom.getAttribute('data-viewid'),
     dataset: {
-      aidctx: dom.getAttribute('data-aidctx') || AiDesigner.idGen(),
+      aidctx: dom.getAttribute('data-aidctx') || uuid(),
     },
   }),
 })
@@ -113,7 +114,7 @@ const nodesConfig = {
         group: dom.getAttribute('data-group'),
         viewid: dom.getAttribute('data-viewid'),
         dataset: {
-          aidctx: dom.getAttribute('data-aidctx') || AiDesigner.idGen(),
+          aidctx: dom.getAttribute('data-aidctx') || uuid(),
         },
       }),
     },
@@ -148,12 +149,12 @@ const nodesConfig = {
             src: dom.getAttribute('src'),
             alt: dom.getAttribute('alt'),
             id: dom.getAttribute('data-id'),
-            class: dom.getAttribute('class').concat(' aid-snip-img-default'),
+            class: dom.getAttribute('class')?.concat(' aid-snip-img-default'),
             group: dom.getAttribute('data-group'),
             viewid: dom.getAttribute('data-viewid'),
             imagekey: dom.getAttribute('data-imagekey'),
             dataset: {
-              aidctx: dom.getAttribute('data-aidctx') || AiDesigner.idGen(),
+              aidctx: dom.getAttribute('data-aidctx') || uuid(),
             },
           }
         },
@@ -193,7 +194,7 @@ const nodesConfig = {
             group: dom.getAttribute('data-group'),
             viewid: dom.getAttribute('data-viewid'),
             dataset: {
-              aidctx: dom.getAttribute('data-aidctx') || AiDesigner.idGen(),
+              aidctx: dom.getAttribute('data-aidctx') || uuid(),
             },
           }
         },
@@ -245,7 +246,7 @@ const createNodeSchema = () => {
                 group: dom.getAttribute('data-group'),
                 viewid: dom.getAttribute('data-viewid'),
                 dataset: {
-                  aidctx: dom.getAttribute('data-aidctx') || AiDesigner.idGen(),
+                  aidctx: dom.getAttribute('data-aidctx') || uuid(),
                 },
               }
             },
@@ -267,7 +268,6 @@ const createNodeSchema = () => {
       }
     }
   })
-  console.log(nodes)
 
   return nodes
 }
@@ -288,7 +288,7 @@ const AiStudioSchema = {
               group: dom.getAttribute('data-group'),
               viewid: dom.getAttribute('data-viewid'),
               dataset: {
-                aidctx: dom.getAttribute('data-aidctx') || AiDesigner.idGen(),
+                aidctx: dom.getAttribute('data-aidctx') || uuid(),
               },
             }
           },
@@ -316,6 +316,37 @@ const AiStudioSchema = {
       parseDOM: [{ tag: 'br' }],
       toDOM() {
         return ['br']
+      },
+    },
+    div: {
+      content: 'block+',
+      attrs: commonAttrs,
+      parseDOM: [
+        {
+          tag: 'div',
+          getAttrs(dom) {
+            return {
+              id: dom.getAttribute('data-id'),
+              class: dom.getAttribute('class'),
+              group: dom.getAttribute('data-group'),
+              viewid: dom.getAttribute('data-viewid'),
+              dataset: {
+                aidctx: dom.getAttribute('data-aidctx') || uuid(),
+              },
+            }
+          },
+        },
+      ],
+      toDOM: node => {
+        const attrs = {
+          id: node.attrs.id,
+          class: node.attrs.class,
+          'data-group': node.attrs.group,
+          'data-viewid': node.attrs.viewid,
+          'data-aidctx': node.attrs.dataset.aidctx,
+        }
+
+        return ['div', attrs, 0]
       },
     },
   },
