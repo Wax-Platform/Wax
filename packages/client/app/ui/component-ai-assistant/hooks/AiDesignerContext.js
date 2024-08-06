@@ -132,7 +132,7 @@ export const AiDesignerProvider = ({ children }) => {
   const getCtxNode = (dom = document) =>
     dom.querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
 
-  const onSelect = (ctx, allctxs) => {
+  const onSelect = ctx => {
     ctx.aidctx && setSelectedCtx(ctx)
 
     markedSnippet && setMarkedSnippet('')
@@ -150,6 +150,7 @@ export const AiDesignerProvider = ({ children }) => {
 
   AiDesigner.on('select', onSelect)
   AiDesigner.on('addtocontext', console.log)
+  AiDesigner.on('snippets', updatePreview)
   // #endregion HOOKS ----------------------------------------------------------------
 
   // #region CONTEXT ----------------------------------------------------------------
@@ -241,14 +242,13 @@ export const AiDesignerProvider = ({ children }) => {
 
   const updatePreview = manualUpdate => {
     const previewDoc = previewRef?.current?.contentDocument?.documentElement
-
     css &&
       htmlSrc?.outerHTML &&
       (settings.preview.livePreview || manualUpdate) &&
       setPreviewSource(
         srcdoc(
           parseContent(
-            editorContent,
+            editorContainerRef?.current?.innerHTML,
             doc =>
               !!selectedCtx?.node &&
               doc

@@ -10,7 +10,6 @@ const Dashboard = ({
   getDocTreeData,
   showFilemanager,
 }) => {
-  
   const docIdentifier = useLoadFirstDocument(getDocTreeData)
 
   localStorage.removeItem('nextDocument')

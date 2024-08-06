@@ -31,6 +31,7 @@ import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { debounce } from 'lodash'
 import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsPreview'
 import { setInlineStyle } from '../../component-ai-assistant/utils'
+import { StyledWindow, WindowHeading } from '../../_styleds/common'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -130,42 +131,6 @@ const MenuWrapper = styled.div`
     margin-left: auto;
   }
 `
-const StyledWindow = styled.div`
-  border-right: ${p => (p.$show ? '1px' : '0px')} solid #0004;
-  display: flex;
-  flex-direction: column;
-  /* height: var(--styledwindow-height); */
-  opacity: ${p => (p.$show ? '1' : '0')};
-  overflow: hidden;
-  position: relative;
-  transition: all 0.3s linear;
-  width: ${p => (p.$show ? '100%' : '0')};
-`
-
-const WindowHeading = styled.div`
-  align-items: center;
-  background-color: var(--color-trois);
-  box-shadow: inset 0 0 5px #fff4, 0 0 2px var(--color-purple);
-  color: #fff;
-  display: flex;
-  font-size: 12px;
-  font-weight: bold;
-  justify-content: space-between;
-  line-height: 1;
-  min-height: 28px;
-  padding: 5px 10px;
-  white-space: nowrap;
-  z-index: 99;
-
-  svg {
-    fill: #fff;
-    stroke: #fff;
-  }
-
-  > :first-child {
-    color: #fff;
-  }
-`
 
 const ShowMore = styled(EllipsisOutlined)`
   display: none;
@@ -254,33 +219,23 @@ const Layout = props => {
     previewRef,
   } = useContext(AiDesignerContext)
   const { loading } = useAssistant()
-
+  const {
+    deleteResource,
+    renameResource,
+    addResource,
+    reorderResource,
+    getDocTreeData,
+    showFilemanager,
+  } = props
   const ref = useRef(null)
   const [open, toggleMenu] = useState(false)
-  // const [menuHeight, setMenuHeight] = useState(42)
-
-  // useEffect(() => {
-  //   if (ref.current) {
-  //     setMenuHeight(ref.current.clientHeight + 2)
-  //   }
-  // }, [open])
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (ref.current) {
-  //       setMenuHeight(ref.current.clientHeight + 2)
-  //     }
-  //   }
-
-  //   window.addEventListener('resize', handleResize)
-  // })
 
   useEffect(() => {
-    layout.preview && settings.preview.livePreview && updatePreview()
+    !!layout.preview && settings.preview.livePreview && updatePreview()
   }, [htmlSrc, css, editorContent])
 
   useEffect(() => {
-    layout.preview && updatePreview()
+    !!layout.preview && updatePreview()
     !layout.preview && !layout.editor && updateLayout({ editor: true })
   }, [layout.preview])
 
@@ -312,7 +267,6 @@ const Layout = props => {
           return context.activeView
         },
       }))
-      // main.state && AiDesigner.updateContext()
       main.state && AiDesigner.select('aid-ctx-main')
     }
   }, [context.activeView])
@@ -360,17 +314,15 @@ const Layout = props => {
         </MenuWrapper>
 
         <WaxEditorWrapper>
-          {props.showFilemanager && (
-            <FileManagerWrapper>
-              <DocTreeManager
-                deleteResource={props.deleteResource}
-                renameResource={props.renameResource}
-                addResource={props.addResource}
-                reorderResource={props.reorderResource}
-                getDocTreeData={props.getDocTreeData}
-              />
-            </FileManagerWrapper>
-          )}
+          <FileManagerWrapper>
+            <DocTreeManager
+              deleteResource={deleteResource}
+              renameResource={renameResource}
+              addResource={addResource}
+              reorderResource={reorderResource}
+              getDocTreeData={getDocTreeData}
+            />
+          </FileManagerWrapper>
           <StyledWindow $show={layout.editor}>
             <WaxSurfaceScroll
               id="wax-surface-scroll"
@@ -394,7 +346,7 @@ const Layout = props => {
             </WaxBottomRightInfo>
           </StyledWindow>
 
-          <PagedJsPreview $show={designerOn} />
+          <PagedJsPreview $show={designerOn} loading={loading} />
           <StyledWindow
             $show={designerOn && layout.chat}
             style={{ maxWidth: '25%', background: '#f5f5f5' }}

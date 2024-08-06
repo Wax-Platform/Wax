@@ -126,4 +126,6 @@ export const addClass = (method, classNames, selected) => {
   })
 
   view.dispatch(tr)
+
+  AiDesigner.emit('snippets', updatedClasses, AiDesigner.selected)
 }

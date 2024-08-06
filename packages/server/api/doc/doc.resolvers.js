@@ -1,7 +1,7 @@
-const { Doc, Team, TeamMember, User } = require('@pubsweet/models')
+const { Doc: PubSubDoc, Team, TeamMember, User } = require('@pubsweet/models')
 
 const getDocResolver = async (_, { identifier }) =>
-  Doc.query().findOne({ identifier })
+  PubSubDoc.query().findOne({ identifier })
 
 module.exports = {
   Query: {

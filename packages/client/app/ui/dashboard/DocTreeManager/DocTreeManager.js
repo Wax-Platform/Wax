@@ -3,7 +3,7 @@
 /* stylelint-disable rule-empty-line-before */
 /* stylelint-disable declaration-no-important */
 /* stylelint-disable order/properties-alphabetical-order */
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Tree } from 'antd'
 import { cloneDeep } from 'lodash'
 import styled from 'styled-components'
@@ -12,21 +12,29 @@ import {
   FolderAddFilled,
   FileAddFilled,
   VerticalAlignBottomOutlined,
+  FolderTwoTone,
+  FolderOpenFilled,
+  FolderOpenOutlined,
+  FolderOutlined,
+  FolderFilled,
 } from '@ant-design/icons'
 import Button from '../../common/Button'
 import RowRender from './RowRender'
 import ConfirmDelete from '../../modals/ConfirmDelete'
 import { findParentNode, findChildNodeByIdentifier } from './utils'
+import { safeParse } from '../../component-ai-assistant/utils'
+import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
+import { DocumentContext } from '../hooks/DocumentContext'
+import { CleanButton, FlexRow, WindowHeading } from '../../_styleds/common'
 
-const ControlsWrappers = styled.div`
-  background: #f6edf6;
-  border-right: 1px solid #0004;
+const Menu = styled.div`
+  background: #f2eff5;
+  box-shadow: inset 0 0 5px #0002;
   display: flex;
   align-items: center;
   flex-direction: column;
   height: 100%;
   width: 50px;
-  padding: ${grid(2)};
   padding-top: 0;
   z-index: 101;
 
@@ -42,21 +50,18 @@ const FilesWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   overflow: auto;
-  padding-right: ${p => (p.expand ? '15px' : '0')};
-  padding-top: 15px;
+  padding: 0;
   width: 25dvw;
   max-width: ${p => (p.expand ? '25dvw' : '0')};
-  left: 49px;
+  left: 50px;
   position: absolute;
   transition: all 0.3s;
   visibility: ${props => (props.defaultState ? 'visible' : 'hidden')};
-  z-index: 99;
-
-  * {
-    background: #fff0 !important;
-  }
+  z-index: 999;
 
   .ant-tree {
+    background: #fff0 !important;
+    padding: 0 8px 0 5px;
     width: 100%;
   }
 
@@ -81,7 +86,18 @@ const FilesWrapper = styled.div`
   [data-icon='folder-add'] {
     margin-top: -5px !important;
   }
-
+  .ant-tree-list-holder-inner {
+    > :first-child {
+      .ant-tree-draggable-icon {
+        cursor: grab;
+        opacity: 0 !important;
+        span svg {
+          fill: var(--color-trois);
+          margin: 0 !important;
+        }
+      }
+    }
+  }
   .ant-tree-title {
     align-items: center;
     display: flex;
@@ -94,6 +110,7 @@ const FilesWrapper = styled.div`
     align-items: center;
     display: flex;
     justify-content: space-between;
+    padding: 0 !important;
 
     &:hover {
       background: #fff0 !important;
@@ -119,6 +136,7 @@ const FilesWrapper = styled.div`
   .ant-tree-draggable-icon {
     cursor: grab;
     opacity: 1 !important;
+    display: none !important;
     span svg {
       fill: var(--color-trois);
       margin: 0 !important;
@@ -126,40 +144,39 @@ const FilesWrapper = styled.div`
   }
 `
 
-const StyledMainButton = styled(Button)`
-  background-color: transparent;
+const StyledMainButton = styled(CleanButton)`
+  backdrop-filter: brightness(${p => (p.$expanded ? '103%' : '100%')});
   border-bottom: 1px solid var(--color-trois-alpha) !important;
   border-radius: 0;
-
   text-decoration: none;
-  border: none;
-  outline: 0 !important;
-  width: fit-content;
-  padding: 0;
-  padding-top: 5px;
-  /* margin-bottom: ${grid(4)}; */
+  transition: backdrop-filter 0.5s;
+  width: 100%;
+  padding: 5px;
 
+  /* margin-bottom: ${grid(4)}; */
+  &:hover {
+    backdrop-filter: brightness(105%);
+  }
   svg {
     fill: #a34ba1;
     height: 30px;
     padding: 3px 0;
     width: 30px;
-    &:active,
-    &:focus,
-    &:hover {
-      fill: #723571;
-    }
   }
 `
-const StyledMainButtonExpand = styled(StyledMainButton)`
-  svg {
-    transform: ${props =>
-      props.expand === 'true' ? 'rotate(90deg)' : 'rotate(-90deg)'};
-  }
-`
+const StyledMainButtonExpand = styled(StyledMainButton)``
 
-const SharedTree = styled(Tree)`
-  margin-left: ${grid(6)};
+const SharedTree = styled(Tree)``
+
+const Heading = styled(WindowHeading)`
+  background-color: var(--color-trois);
+  box-shadow: inset 0 0 5px var(--color-trois-light);
+  width: 100%;
+  border-bottom: 1px solid var(--color-trois-alpha);
+
+  > span {
+    /* color: var(--color-trois-dark) !important; */
+  }
 `
 
 const DocTreeManager = ({
@@ -177,14 +194,14 @@ const DocTreeManager = ({
   }
 
   const [gData, setGData] = useState([])
+  const { docId } = useContext(AiDesignerContext)
+  const { setCurrentDoc } = useContext(DocumentContext)
   const [sharedDocTree, setSharedDocTree] = useState([])
   const [deleteResourceRow, setDeleteResourceRow] = useState(null)
   const [expandFilesArea, setExpandFilesArea] = useState(
     isFileManagerOpen === 'true' ? true : false,
   )
   const [defaultState, setDefaultState] = useState(expandFilesArea)
-
-  // const [expandedKeys] = useState(['0-0', '0-0-0', '0-0-0-0'])
 
   const onDrop = async info => {
     const dropKey = info.node.key
@@ -247,11 +264,9 @@ const DocTreeManager = ({
   useEffect(async () => {
     const { data } = await getDocTreeData()
     const allData = JSON.parse(data.getDocTree)
-    if (allData.length > 0) {
-      allData[0].disabled = true
-      allData[0].isRoot = true
-      allData[0].title = 'My Folders and Files'
-    }
+    if (allData.length < 1) return
+    allData[0].isRoot = true
+
     setGData([...allData])
 
     const sharedData = cloneDeep(data.getSharedDocTree)
@@ -264,9 +279,7 @@ const DocTreeManager = ({
     await addResource(variables)
     const { data } = await getDocTreeData()
     const allData = JSON.parse(data.getDocTree)
-    allData[0].disabled = true
     allData[0].isRoot = true
-    allData[0].title = 'My Folders and Files'
     setGData([...allData])
   }
 
@@ -274,9 +287,7 @@ const DocTreeManager = ({
     await renameResource(variables)
     const { data } = await getDocTreeData()
     const allData = JSON.parse(data.getDocTree)
-    allData[0].disabled = true
     allData[0].isRoot = true
-    allData[0].title = 'My Folders and Files'
     setGData([...allData])
   }
 
@@ -284,20 +295,24 @@ const DocTreeManager = ({
     await deleteResource(variables)
     const { data } = await getDocTreeData()
     const allData = JSON.parse(data.getDocTree)
-    allData[0].disabled = true
     allData[0].isRoot = true
-    allData[0].title = 'My Folders and Files'
     setGData([...allData])
 
-    const sharedData = cloneDeep(data.getSharedDocTree)
-    sharedData[0].isRoot = true
+    // const sharedData = cloneDeep(data.getSharedDocTree)
+    // sharedData[0].isRoot = true
 
-    setSharedDocTree([...sharedData])
+    // setSharedDocTree([...sharedData])
   }
 
   const confirmDelete = row => {
     setDeleteResourceRow(row)
   }
+
+  useEffect(() => {
+    // getDocTreeData()
+    const currentDocument = findChildNodeByIdentifier(gData, docId)
+    currentDocument && setCurrentDoc(currentDocument)
+  }, [gData])
 
   const parts = window.location.href.split('/')
   const currentIdentifier = parts[parts.length - 1]
@@ -309,25 +324,9 @@ const DocTreeManager = ({
 
   return (
     <>
-      <ControlsWrappers>
-        <StyledMainButton
-          onClick={() =>
-            addResourceFn({ variables: { id: null, isFolder: true } })
-          }
-          title="Add Folder"
-        >
-          <FolderAddFilled style={{ fontSize: '32px' }} />
-        </StyledMainButton>
-        <StyledMainButton
-          onClick={() =>
-            addResourceFn({ variables: { id: null, isFolder: false } })
-          }
-          title="Add File"
-        >
-          <FileAddFilled style={{ fontSize: '32px' }} />
-        </StyledMainButton>
+      <Menu>
         <StyledMainButtonExpand
-          expand={expandFilesArea.toString()}
+          $expanded={expandFilesArea}
           onClick={() => {
             setDefaultState(true)
             localStorage.setItem('isFileManagerOpen', !expandFilesArea)
@@ -335,11 +334,18 @@ const DocTreeManager = ({
           }}
           title="Show / Hide Filemanager"
         >
-          <VerticalAlignBottomOutlined style={{ fontSize: '32px' }} />
+          {!expandFilesArea ? (
+            <FolderFilled style={{ fontSize: '32px' }} />
+          ) : (
+            <FolderOpenFilled style={{ fontSize: '32px' }} />
+          )}
         </StyledMainButtonExpand>
-      </ControlsWrappers>
+      </Menu>
       <FilesWrapper expand={expandFilesArea} defaultState={defaultState}>
         <span style={{ minWidth: '23dvw' }}>
+          <Heading>
+            <span>Files</span>
+          </Heading>
           <Tree
             key="myDocs"
             className="draggable-tree"
@@ -376,7 +382,15 @@ const DocTreeManager = ({
             blockNode
             treeData={sharedDocTree}
             titleRender={rowProps => {
-              return <RowRender {...rowProps} confirmDelete={confirmDelete} />
+              return (
+                <RowRender
+                  isSharedFolder
+                  {...rowProps}
+                  // confirmDelete={confirmDelete}
+                  // addResource={addResourceFn}
+                  // renameResource={renameResourceFn}
+                />
+              )
             }}
           />
         </span>

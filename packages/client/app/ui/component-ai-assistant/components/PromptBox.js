@@ -369,7 +369,7 @@ const PromptBoxWrapper = styled.div`
       margin-left: 0.3rem;
     }
   }
-  z-index: 999;
+  z-index: 9999;
 `
 
 const RelativeContainer = styled.div`

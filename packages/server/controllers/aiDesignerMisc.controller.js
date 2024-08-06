@@ -1,15 +1,24 @@
-const { logger } = require('@coko/server')
+const { logger, useTransaction } = require('@coko/server')
 const { AiDesignerMisc } = require('../models')
 
 const getOrCreateAidMiscResolver = async (_, { input }, ctx) => {
   const { docId } = input
-  logger.info(AiDesignerMisc)
-  const foundOrNew = await AiDesignerMisc.findByUserIdOrCreate({
-    userId: ctx.user,
-    docId,
-  })
+  try {
+    const foundOrNew = await useTransaction(async trx => {
+      return await AiDesignerMisc.findByUserIdOrCreate(
+        {
+          userId: ctx.user,
+          docId,
+        },
+        trx,
+      )
+    })
 
-  return foundOrNew
+    return foundOrNew
+  } catch (error) {
+    logger.info(error)
+    throw error
+  }
 }
 const getAidMiscById = async (_, { id }) => {
   try {

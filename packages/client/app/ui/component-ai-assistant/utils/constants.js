@@ -459,7 +459,7 @@ const generatedContext = (
 ) => {
   return `${
     !isSingleElement && sheet
-      ? `This style sheet is the css context:\n${sheet}\n`
+      ? `This style sheet is the css context:\nBEGIN STYLESHEET:\n${sheet}\nEND STYLESHEET\n`
       : ''
   }${
     isSingleElement && snippets

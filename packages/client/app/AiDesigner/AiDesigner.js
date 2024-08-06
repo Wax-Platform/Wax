@@ -116,7 +116,7 @@ export default class AiDesigner extends StateManager {
     if (!params?.docView && !this.states?.view?.docView) return
     const { view } = params ?? this.states
 
-    view.state.doc.descendants((node) => {
+    view.state.doc.descendants(node => {
       if (node && !node.isText) {
         const aidctx = node?.attrs?.dataset?.aidctx
 

@@ -129,13 +129,14 @@ const addResource = async (_, { id, isFolder }, ctx) => {
 }
 
 const deleteResource = async (_, { id }, ctx) => {
-
   const deleteResourceItem = await DocTreeManager.query().findOne({ id })
 
-  const isUserTheAuthorOfTheDoc = await Doc.isMyDoc(deleteResourceItem.docId ,ctx.user)
+  const isUserTheAuthorOfTheDoc = await Doc.isMyDoc(
+    deleteResourceItem.docId,
+    ctx.user,
+  )
 
   if (isUserTheAuthorOfTheDoc) {
-
     deleteResourceRecursively(id)
 
     if (deleteResourceItem.docId) {
@@ -149,17 +150,19 @@ const deleteResource = async (_, { id }, ctx) => {
           'teamId',
           teams.map(team => team.id),
         )
-    } 
+    }
   } else {
-    const team = await Team.query().findOne({ objectId: deleteResourceItem.docId, objectType: 'doc', role: 'viewer' })
+    const team = await Team.query().findOne({
+      objectId: deleteResourceItem.docId,
+      objectType: 'doc',
+      role: 'viewer',
+    })
 
     if (team) {
-      await TeamMember.query()
-        .delete()
-        .where({
-          teamId: team.id,
-          userId: ctx.user
-        })
+      await TeamMember.query().delete().where({
+        teamId: team.id,
+        userId: ctx.user,
+      })
     }
   }
 
