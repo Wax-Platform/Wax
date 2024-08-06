@@ -1,4 +1,9 @@
-const { BaseModel, modelTypes, logger } = require('@coko/server')
+const {
+  BaseModel,
+  modelTypes,
+  logger,
+  useTransaction,
+} = require('@coko/server')
 const { string } = modelTypes
 const defaultSnippets = require('./helpers/defaultSnippets')
 const defaultTemplates = require('./helpers/defaultTemplates')
@@ -47,29 +52,34 @@ class AiDesignerMisc extends BaseModel {
     }
   }
 
-  static async findByUserIdOrCreate({ userId, docId }) {
-    logger.info(`USERID: ${userId}`)
-    let record
-    try {
-      record = await this.query().where({ userId }).first()
-      logger.info('was fetched')
-    } catch (error) {
-      logger.info(error)
-    }
-    if (!record) {
-      try {
-        record = await this.insert({
-          userId,
-          templates: defaultTemplates(docId),
-          snippets: defaultSnippets,
-        })
-        logger.info('was created')
-      } catch (error) {
-        logger.info(error)
-      }
-    }
-
-    return record
+  static async findByUserIdOrCreate({ userId, docId }, trx) {
+    return useTransaction(
+      async transaction => {
+        let record
+        try {
+          record = await this.query(transaction).where({ userId }).first()
+          logger.info('Record was fetched')
+        } catch (error) {
+          logger.info(error)
+          throw error
+        }
+        if (!record) {
+          try {
+            record = await this.query(transaction).insert({
+              userId,
+              templates: defaultTemplates(docId),
+              snippets: defaultSnippets,
+            })
+            logger.info('Record was created')
+          } catch (error) {
+            logger.info(error)
+            throw error
+          }
+        }
+        return record
+      },
+      { trx },
+    )
   }
   static async updateTemplates({ userId, docId, css, name }) {
     const record = await this.query().where({ userId }).first()

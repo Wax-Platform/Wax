@@ -48,7 +48,7 @@ class DocTreeManager extends BaseModel {
 
   static async createUserRootFolder(userId) {
     return await DocTreeManager.createResource({
-      title: 'Root Folder',
+      title: 'Root',
       isFolder: true,
       parentId: null,
       userId,
@@ -133,7 +133,7 @@ class DocTreeManager extends BaseModel {
       }
       logger.info(`\x1b[32m ${JSON.stringify(parent)}`)
       const insertedResource = await DocTreeManager.createResource({
-        title: title || 'Untitled',
+        title: title || 'New document',
         isFolder: false,
         parentId: parent.id,
         userId,
