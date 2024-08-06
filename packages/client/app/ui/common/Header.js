@@ -13,7 +13,7 @@ import TeamPopup from './TeamPopup'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import Toggle from '../component-ai-assistant/components/Toggle'
 import { DocumentContext } from '../dashboard/hooks/DocumentContext'
-import { FlexCol, FlexRow } from '../_styleds/common'
+import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
 
 // #region styles
 const StyledHeader = styled.header`
@@ -29,27 +29,21 @@ const StyledHeader = styled.header`
 
 const Logo = styled.img`
   display: flex;
-  height: 70%;
+  height: 100%;
   margin: 0;
   object-fit: contain;
-  padding: 0 0 0 8px;
 `
 
 const UserMenu = styled.div`
   align-items: center;
   display: flex;
-  gap: 20px;
+  gap: 11px;
   height: 100%;
   justify-content: space-between;
-  padding-right: 20px;
 
   .anticon svg {
     height: 25px;
     width: 25px;
-  }
-
-  span {
-    display: flex;
   }
 
   button {
@@ -76,20 +70,27 @@ const UserMenu = styled.div`
 `
 const DocumentInfoArea = styled(FlexCol)`
   border-left: 1px solid #0004;
-  font-size: 12px;
   gap: 0;
   padding: 0 8px;
 
   > div {
-    text-decoration: underline;
-    text-decoration-color: #0003;
-    text-underline-offset: 2px;
+    color: #222;
+    font-size: 18px;
   }
 
   > small {
     line-height: 1;
     text-decoration: none;
   }
+`
+
+const EditDesignLabels = styled(CleanButton)`
+  color: ${p =>
+    p.$active ? p.$activecolor ?? 'var(--active-color)' : '#0004'};
+  font-weight: bold;
+  transform: scale(${p => (p.$active ? '1' : '0.9')});
+  transform-origin: center;
+  transition: all 0.3s;
 `
 // #endregion styles
 
@@ -109,56 +110,40 @@ const Header = props => {
   const { currentDoc } = useContext(DocumentContext)
 
   useEffect(() => {
-    console.log(docId)
-  }, [docId])
+    currentDoc?.title && (document.title = `${currentDoc.title} - Wax`)
+  }, [docId, currentDoc?.title])
 
+  const toggleDesigner = () => {
+    setDesignerOn(!designerOn)
+    !designerOn
+      ? updateLayout({ preview: true, editor: false })
+      : updateLayout({ preview: false, editor: true })
+  }
   return (
     <StyledHeader role="banner" {...rest}>
-      <FlexRow style={{ gap: '8px', height: '100%' }}>
+      <FlexRow style={{ gap: '0', height: '100%' }}>
         <Logo src={logoMobile} alt="Wax platform"></Logo>
         {docId && currentDoc?.title && (
           <DocumentInfoArea>
             <FlexRow style={{ gap: '5px', lineHeight: 2 }}>
-              <FileOutlined style={{ fontSize: '14px' }} />
               {currentDoc?.title}
             </FlexRow>
           </DocumentInfoArea>
         )}
       </FlexRow>
       <UserMenu $designerOn={designerOn}>
-        <span>
-          <p
-            style={{
-              fontWeight: 'bold',
-              color: designerOn ? '#0004' : 'var(--color-trois)',
-              transform: `scale(${designerOn ? '0.9' : '1'})`,
-              transformOrigin: 'center',
-              transition: 'all 0.3s',
-            }}
-          >
-            Editing
-          </p>
-          <Toggle
-            handleChange={() => {
-              setDesignerOn(!designerOn)
-              !designerOn
-                ? updateLayout({ preview: true, editor: false })
-                : updateLayout({ preview: false, editor: true })
-            }}
-            checked={designerOn}
-          />
-          <p
-            style={{
-              fontWeight: 'bold',
-              color: designerOn ? 'var(--color-trois)' : '#0004',
-              transform: `scale(${designerOn ? '1' : '0.9'})`,
-              transformOrigin: 'center',
-              transition: 'all 0.3s',
-            }}
+        <FlexRow>
+          <EditDesignLabels $active={!designerOn} $activecolor="#222">
+            Edit
+          </EditDesignLabels>
+          <Toggle handleChange={toggleDesigner} checked={designerOn} />
+          <EditDesignLabels
+            $active={designerOn}
+            $activecolor="var(--color-trois)"
           >
             Design
-          </p>
-        </span>
+          </EditDesignLabels>
+        </FlexRow>
         <span>
           <TeamPopup enableLogin={enableLogin} onLogout={onLogout} />
         </span>
