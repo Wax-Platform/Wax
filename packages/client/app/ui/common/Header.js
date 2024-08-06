@@ -2,37 +2,37 @@
 
 /* stylelint-disable string-quotes, declaration-no-important */
 
-import React, { useContext } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { th, useCurrentUser } from '@coko/client'
-import { PlusCircleOutlined } from '@ant-design/icons'
+import { th } from '@coko/client'
+import { FileOutlined } from '@ant-design/icons'
 
 import logoMobile from '../../../static/waxdesignerwhite.svg'
 import TeamPopup from './TeamPopup'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
-import AiDesigner from '../../AiDesigner/AiDesigner'
 import Toggle from '../component-ai-assistant/components/Toggle'
+import { DocumentContext } from '../dashboard/hooks/DocumentContext'
+import { FlexCol, FlexRow } from '../_styleds/common'
 
 // #region styles
 const StyledHeader = styled.header`
   align-items: center;
   background-color: ${th('colorBody')};
   border-bottom: 1px solid #0003;
-
-  /* box-shadow: 0 0 15px #0003; */
   display: flex;
   flex-flow: row wrap;
   height: var(--header-height);
   justify-content: space-between;
   padding: 0 10px 0 0;
-  /* z-index: 99; */
 `
 
 const Logo = styled.img`
+  display: flex;
+  height: 70%;
+  margin: 0;
   object-fit: contain;
-  width: auto;
+  padding: 0 0 0 8px;
 `
 
 const UserMenu = styled.div`
@@ -74,16 +74,23 @@ const UserMenu = styled.div`
     /* width: 100px; */
   }
 `
+const DocumentInfoArea = styled(FlexCol)`
+  border-left: 1px solid #0004;
+  font-size: 12px;
+  gap: 0;
+  padding: 0 8px;
 
-const CreateNew = styled.span`
-  font-size: 20px;
-  padding-right: 10px;
+  > div {
+    text-decoration: underline;
+    text-decoration-color: #0003;
+    text-underline-offset: 2px;
+  }
 
-  a {
-    color: var(--color-trois);
+  > small {
+    line-height: 1;
+    text-decoration: none;
   }
 `
-
 // #endregion styles
 
 const Header = props => {
@@ -97,17 +104,27 @@ const Header = props => {
     enableLogin,
     ...rest
   } = props
-  const { designerOn, setDesignerOn, updateLayout } =
+  const { designerOn, setDesignerOn, updateLayout, docId } =
     useContext(AiDesignerContext)
-  const { currentUser } = useCurrentUser()
+  const { currentDoc } = useContext(DocumentContext)
 
-  const identifier = Array.from(Array(20), () =>
-    Math.floor(Math.random() * 36).toString(36),
-  ).join('')
+  useEffect(() => {
+    console.log(docId)
+  }, [docId])
 
   return (
     <StyledHeader role="banner" {...rest}>
-      <Logo src={logoMobile} alt="Wax platform"></Logo>
+      <FlexRow style={{ gap: '8px', height: '100%' }}>
+        <Logo src={logoMobile} alt="Wax platform"></Logo>
+        {docId && currentDoc?.title && (
+          <DocumentInfoArea>
+            <FlexRow style={{ gap: '5px', lineHeight: 2 }}>
+              <FileOutlined style={{ fontSize: '14px' }} />
+              {currentDoc?.title}
+            </FlexRow>
+          </DocumentInfoArea>
+        )}
+      </FlexRow>
       <UserMenu $designerOn={designerOn}>
         <span>
           <p
@@ -127,7 +144,6 @@ const Header = props => {
               !designerOn
                 ? updateLayout({ preview: true, editor: false })
                 : updateLayout({ preview: false, editor: true })
-              // AiDesigner.updateContext()
             }}
             checked={designerOn}
           />
@@ -144,11 +160,6 @@ const Header = props => {
           </p>
         </span>
         <span>
-          <CreateNew>
-            <Link target="_blank" to={`/${identifier}`}>
-              <PlusCircleOutlined />
-            </Link>
-          </CreateNew>
           <TeamPopup enableLogin={enableLogin} onLogout={onLogout} />
         </span>
       </UserMenu>

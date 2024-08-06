@@ -39,6 +39,7 @@ import {
   AiDesignerContext,
   AiDesignerProvider,
 } from './ui/component-ai-assistant/hooks/AiDesignerContext'
+import { DocumentContextProvider } from './ui/dashboard/hooks/DocumentContext'
 
 const LayoutWrapper = styled.div`
   display: flex;
@@ -224,49 +225,51 @@ const routes = enableLogin => (
   <AiDesignerProvider>
     <Layout id="layout-root">
       <GlobalStyles />
-      <YjsProvider enableLogin={enableLogin}>
-        <SiteHeader enableLogin={enableLogin} />
-        <PageWrapper fadeInPages={false} padPages={false}>
-          <Switch>
-            <Route component={Login} exact path="/login" />
-            <Route component={Signup} exact path="/signup" />
-            <Route
-              component={VerifyEmail}
-              exact
-              path="/email-verification/:token"
-            />
-            <Route
-              component={RequestPasswordReset}
-              exact
-              path="/request-password-reset"
-            />
-            <Route
-              component={ResetPassword}
-              exact
-              path="/password-reset/:token"
-            />
-            <Route
-              component={VerifyCheck}
-              exact
-              path="/ensure-verified-login"
-            />
-            <Route
-              exact
-              path={['/', '/:docIdentifier']}
-              render={() =>
-                enableLogin ? (
-                  <Authenticated>
-                    <Dashboard showFilemanager />
-                  </Authenticated>
-                ) : (
-                  <Dashboard />
-                )
-              }
-            />
-            <Route component={() => <Redirect to="/" />} path="*" />
-          </Switch>
-        </PageWrapper>
-      </YjsProvider>
+      <DocumentContextProvider>
+        <YjsProvider enableLogin={enableLogin}>
+          <SiteHeader enableLogin={enableLogin} />
+          <PageWrapper fadeInPages={false} padPages={false}>
+            <Switch>
+              <Route component={Login} exact path="/login" />
+              <Route component={Signup} exact path="/signup" />
+              <Route
+                component={VerifyEmail}
+                exact
+                path="/email-verification/:token"
+              />
+              <Route
+                component={RequestPasswordReset}
+                exact
+                path="/request-password-reset"
+              />
+              <Route
+                component={ResetPassword}
+                exact
+                path="/password-reset/:token"
+              />
+              <Route
+                component={VerifyCheck}
+                exact
+                path="/ensure-verified-login"
+              />
+              <Route
+                exact
+                path={['/', '/:docIdentifier']}
+                render={() =>
+                  enableLogin ? (
+                    <Authenticated>
+                      <Dashboard showFilemanager />
+                    </Authenticated>
+                  ) : (
+                    <Dashboard />
+                  )
+                }
+              />
+              <Route component={() => <Redirect to="/login" />} path="*" />
+            </Switch>
+          </PageWrapper>
+        </YjsProvider>
+      </DocumentContextProvider>
     </Layout>
   </AiDesignerProvider>
 )

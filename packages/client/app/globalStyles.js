@@ -49,6 +49,9 @@ export default createGlobalStyle`
     --color-secondary: #e177a2ff;
     --color-secondary-fade: #e0387a0d;
     --color-trois: #a34ba1;
+    --color-trois-light: #d3afd2;
+    --color-trois-lighter: #decfde;
+    --color-trois-dark: #6d336c;
     --color-trois-alpha: #a34ba129;
  
     /* layout */
