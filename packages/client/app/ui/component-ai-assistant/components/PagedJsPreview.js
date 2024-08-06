@@ -5,6 +5,7 @@ import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { ToolsCursor } from './ToolsCursor'
 import { debounce } from 'lodash'
 import { Result, Spin } from 'antd'
+import useAssistant from '../hooks/useAiDesigner'
 
 const SpinnerWrapper = styled.div`
   align-items: center;
@@ -13,7 +14,7 @@ const SpinnerWrapper = styled.div`
   height: 100%;
   justify-content: center;
   opacity: ${p => (p.showSpinner ? '1' : '0')};
-  pointer-events: none;
+  pointer-events: ${p => (p.showSpinner ? 'all' : 'none')};
   position: absolute;
   transition: opacity 0.5s;
   width: 100%;
@@ -40,6 +41,7 @@ const PreviewIframe = styled.iframe`
 
 export const PagedJsPreview = props => {
   const { previewRef, previewSource } = useContext(AiDesignerContext)
+  const { loading } = useAssistant()
   const [fakeSrc, setFakeSrc] = useState(null)
   const [mainSrc, setMainSrc] = useState(null)
   const [showMain, setShowMain] = useState(true)
@@ -88,7 +90,7 @@ export const PagedJsPreview = props => {
         srcDoc={fakeSrc}
         title="Article preview"
       />
-      <SpinnerWrapper showSpinner={!showMain && !fakeSrc}>
+      <SpinnerWrapper showSpinner={!!showMain === !!fakeSrc || !!loading}>
         <Result
           icon={<Spin size={18} spinning />}
           title="Applying changes..."

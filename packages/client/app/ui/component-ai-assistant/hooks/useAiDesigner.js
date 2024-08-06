@@ -79,10 +79,9 @@ const useAssistant = () => {
   // #region GQL Hooks ----------------------------------------------------------------
 
   const client = useApolloClient()
-  useEffect(() => {
-    console.log('selected:', selectedCtx)
-  }, [selectedCtx])
-  // const currentUser = useCurrentUser()
+  // useEffect(() => {
+  //   console.log('selected:', selectedCtx)
+  // }, [selectedCtx])
 
   const [getSettings] = useLazyQuery(GET_SETTINGS)
 
@@ -111,11 +110,12 @@ const useAssistant = () => {
       }
 
       const actions = {
-        css: async val => {
+        css: val => {
           getCssTemplate({ variables: { docId, css: val } })
         },
         snippet: val => {
           addSnippet(true, val)
+          updatePreview(true)
         },
         feedback: val => {
           selectedCtx.conversation.push({ role: 'assistant', content: val })
@@ -182,7 +182,7 @@ const useAssistant = () => {
         actionsApplied?.push(action)
       })
 
-      debounce(() => updatePreview(true), 500)()
+      updatePreview(true)
     },
   })
 
@@ -205,18 +205,20 @@ const useAssistant = () => {
     useLazyQuery(RAG_SEARCH_QUERY)
 
   const [getAidMisc, { data: aidMisc }] = useMutation(GET_AID_MISC, {
-    onCompleted: ({ getOrCreateAidMisc: { snippets } }) => {
+    onCompleted: ({ getOrCreateAidMisc: { snippets, templates } }) => {
       setSettings(prev => {
         const temp = prev
         temp.snippetsManager.snippets = snippets
         return temp
       })
+      console.log(templates)
     },
   })
   const [getAidMiscById] = useLazyQuery(GET_AID_MISC_BY_ID)
   const [getCssTemplate] = useLazyQuery(GET_CSS, {
     onCompleted: async ({ getCssTemplate: { css } }) => {
       setCss(css)
+      updatePreview(true)
     },
   })
 

@@ -14,18 +14,26 @@ import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
 import { snippetsToCssText } from '../component-ai-assistant/utils'
 import { debounce } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
-import Toolbar from '../component-ai-assistant/components/Toolbar'
-import { useCurrentUser } from '@coko/client'
-import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
 
-const SpinnerWrapper = styled.div`
-  display: ${props => (props.showSpinner ? 'block' : 'none')};
-  left: ${props => (props.showFilemanager ? '59%' : '50%')};
-  margin-left: -400px;
-  margin-top: -25px;
+import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
+import { FlexRow } from '../_styleds/common'
+
+const SpinnerWrapper = styled(FlexRow)`
+  backdrop-filter: blur(3px);
+  background: var(--color-trois-alpha);
+  height: 100%;
+  left: 0;
+  opacity: ${p => (p.showSpinner ? '1' : '0')};
+  pointer-events: ${p => (p.showSpinner ? 'all' : 'none')};
   position: absolute;
-  top: 50%;
-  z-index: 999;
+  top: 0;
+  transition: all 0.5s;
+  width: 100%;
+  z-index: 99999;
+
+  > * {
+    width: 100%;
+  }
 `
 
 const renderImage = file => {
@@ -56,7 +64,7 @@ const PmEditor = ({
     setEditorContent,
     css,
     settings,
-    updatePreview,
+    // updatePreview,
     setDocId,
   } = useContext(AiDesignerContext)
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
@@ -99,14 +107,14 @@ const PmEditor = ({
       window.removeEventListener('message', handleMessage)
     }
   }, [])
-  useEffect(() => {
+  useEffect(async () => {
     if (docIdentifier) {
       yjsProvider?.disconnect()
       setShowSpinner(true)
 
-      debounce(() => {
+      await debounce(async () => {
         createYjsProvider(docIdentifier)
-        getAidMisc({
+        await getAidMisc({
           variables: {
             input: { docId: docIdentifier },
           },
@@ -139,10 +147,11 @@ const PmEditor = ({
     ).join('')
 
     history.push(`/${identifier}`, { replace: true })
+    setDocId(identifier)
     return true
   }
 
-  if (!yjsProvider || !ydoc || !WaxConfig) return null
+  if (!yjsProvider || !ydoc || !WaxConfig || !docIdentifier) return null
 
   return (
     <>
@@ -162,8 +171,6 @@ const PmEditor = ({
         layout={layout}
         onChange={value => {
           setEditorContent(value)
-          // debounce(AiDesigner.updateContext, 1000)()
-          updatePreview()
         }}
         // readonly={!contentEditable}
         placeholder="Type Something ..."
