@@ -16,7 +16,7 @@ ARG client_load_extra_theme
 ARG client_show_email_login_option
 
 ENV NODE_ENV='production'
-ENV CLIENT_PAGE_TITLE='Coko docs'
+ENV CLIENT_PAGE_TITLE='Wax'
 ENV CLIENT_FAVICON_PATH='../static/favicon.png'
 ENV CLIENT_LANGUAGE='en-US'
 

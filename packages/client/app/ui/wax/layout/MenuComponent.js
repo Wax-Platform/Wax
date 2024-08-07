@@ -8,18 +8,24 @@ import { th } from '@coko/client'
 import { WaxContext, ApplicationContext } from 'wax-prosemirror-core'
 import styled from 'styled-components'
 import BlockDropDownComponent from './BlockDropDownComponent'
+import { FlexRow } from '../../_styleds/common'
 
-const Menu = styled.div`
-  background: white;
-  border-bottom: 1px solid #0004;
-  display: flex;
-  flex-wrap: wrap;
+const Menu = styled(FlexRow)`
+  background: var(--color-trois-lightest);
+  border-radius: 1.5rem;
   font-family: ${th('fontInterface')};
-  font-size: 16px;
-  height: var(--menu-height);
+  font-size: 14px;
+  height: fit-content;
+  opacity: ${p => (p.openMenu ? '1' : '0')};
   overflow: ${p => (p.openMenu ? 'visible' : 'hidden')};
+  padding: 5px 8px;
   transition: all 0.3s linear;
   width: 100%;
+  z-index: 99999999;
+
+  > * {
+    border-color: var(--color-trois-light) !important;
+  }
 
   > div:last-child {
     border: none;
@@ -31,7 +37,7 @@ const MenuToolGroup = styled.div`
   align-items: center;
   border-right: 1px solid;
   display: flex;
-  height: var(--menu-height);
+  height: 30px;
   padding: 0 4px;
 
   button {
@@ -51,7 +57,7 @@ const MenuToolGroup = styled.div`
   }
 
   @media screen and (min-width: 1050px) {
-    height: 40px;
+    height: 26px;
   }
 `
 
@@ -119,47 +125,44 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
 
   return (
     <Menu openMenu={open} ref={ref}>
-      <MenuToolGroup>
-        {Base._tools
-          .filter(tool => tool.name !== 'Save')
-          .map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      <MenuToolGroupDropDown>
-        <BlockDropDownComponent
-          tools={DropDownTools._tools}
-          view={activeView}
-        />
-      </MenuToolGroupDropDown>
-      <MenuToolGroup>
-        {Annotations._tools
-          .filter(tool => tool.name !== 'Code')
-          .map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      <MenuToolGroup>
-        {HighlightToolGroup._tools.map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      <MenuToolGroup>
-        {TransformToolGroup._tools.map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      <MenuToolGroup>
-        {Lists._tools.map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      <MenuToolGroup>
+      <FlexRow>
+        <MenuToolGroupDropDown>
+          <BlockDropDownComponent
+            tools={DropDownTools._tools}
+            view={activeView}
+          />
+        </MenuToolGroupDropDown>
+        <MenuToolGroup>
+          {Annotations._tools
+            .filter(tool => tool.name !== 'Code')
+            .map(tool => tool.renderTool(activeView))}
+        </MenuToolGroup>
+        <MenuToolGroup>
+          {HighlightToolGroup._tools.map(tool => tool.renderTool(activeView))}
+        </MenuToolGroup>
+        <MenuToolGroup>
+          {TransformToolGroup._tools.map(tool => tool.renderTool(activeView))}
+        </MenuToolGroup>
+        <MenuToolGroup>
+          {Lists._tools.map(tool => tool.renderTool(activeView))}
+        </MenuToolGroup>
+        {/* <MenuToolGroup>
         {BlockQuote._tools.map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      {/* <MenuToolGroup>
+      </MenuToolGroup> */}
+        {/* <MenuToolGroup>
         {Images._tools.map(tool => tool.renderTool(activeView))}
       </MenuToolGroup> */}
-      <MenuToolGroup>
-        {SpecialCharacters._tools.map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      <MenuToolGroup>
-        {Tables._tools.map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      <MenuToolGroup>
-        {ExternalAPIContent._tools.map(tool => tool.renderTool(activeView))}
-      </MenuToolGroup>
-      {FindAndReplaceComponent}
+        <MenuToolGroup>
+          {SpecialCharacters._tools.map(tool => tool.renderTool(activeView))}
+        </MenuToolGroup>
+        <MenuToolGroup>
+          {Tables._tools.map(tool => tool.renderTool(activeView))}
+        </MenuToolGroup>
+        <MenuToolGroup>
+          {ExternalAPIContent._tools.map(tool => tool.renderTool(activeView))}
+        </MenuToolGroup>
+        {FindAndReplaceComponent}
+      </FlexRow>
       <MenuToolGroup>
         {FullScreen._tools.map(tool => tool.renderTool(activeView))}
       </MenuToolGroup>
