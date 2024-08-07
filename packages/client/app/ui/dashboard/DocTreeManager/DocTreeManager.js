@@ -9,24 +9,18 @@ import { cloneDeep } from 'lodash'
 import styled from 'styled-components'
 import { grid } from '@coko/client'
 import {
-  FolderAddFilled,
-  FileAddFilled,
-  VerticalAlignBottomOutlined,
-  FolderTwoTone,
   FolderOpenFilled,
-  FolderOpenOutlined,
-  FolderOutlined,
   FolderFilled,
+  FileAddOutlined,
 } from '@ant-design/icons'
-import Button from '../../common/Button'
 import RowRender from './RowRender'
 import ConfirmDelete from '../../modals/ConfirmDelete'
 import { findParentNode, findChildNodeByIdentifier } from './utils'
-import { safeParse } from '../../component-ai-assistant/utils'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { DocumentContext } from '../hooks/DocumentContext'
-import { CleanButton, FlexRow, WindowHeading } from '../../_styleds/common'
+import { CleanButton, WindowHeading } from '../../_styleds/common'
 import { useDocTree } from '../hooks/useDocTree'
+import { Link } from 'react-router-dom'
 
 const Menu = styled.div`
   background: #f2eff5;
@@ -152,6 +146,7 @@ const StyledMainButton = styled(CleanButton)`
   text-decoration: none;
   transition: backdrop-filter 0.5s;
   width: 100%;
+  height: 45px;
   padding: 5px;
 
   /* margin-bottom: ${grid(4)}; */
@@ -163,6 +158,10 @@ const StyledMainButton = styled(CleanButton)`
     height: 30px;
     padding: 3px 0;
     width: 30px;
+  }
+  a svg {
+    height: 28px;
+    width: 28px;
   }
 `
 const StyledMainButtonExpand = styled(StyledMainButton)``
@@ -317,6 +316,11 @@ const DocTreeManager = () => {
           ) : (
             <FolderOpenFilled style={{ fontSize: '32px' }} />
           )}
+        </StyledMainButtonExpand>
+        <StyledMainButtonExpand title="New File">
+          <Link target="_blank" to="/">
+            <FileAddOutlined style={{ fontSize: '25px' }} />
+          </Link>
         </StyledMainButtonExpand>
       </Menu>
       <FilesWrapper expand={expandFilesArea} defaultState={defaultState}>
