@@ -20,7 +20,7 @@ import { FlexRow } from '../_styleds/common'
 
 const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
-  background: var(--color-trois-alpha);
+  background: #fff9;
   height: 100%;
   left: 0;
   opacity: ${p => (p.showSpinner ? '1' : '0')};
@@ -47,26 +47,11 @@ const renderImage = file => {
   })
 }
 
-const PmEditor = ({
-  docIdentifier,
-  showFilemanager,
-  deleteResource,
-  renameResource,
-  addResource,
-  reorderResource,
-  getDocTreeData,
-}) => {
+const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
 
-  const {
-    setHtmlSrc,
-    htmlSrc,
-    setEditorContent,
-    css,
-    settings,
-    // updatePreview,
-    setDocId,
-  } = useContext(AiDesignerContext)
+  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, setDocId } =
+    useContext(AiDesignerContext)
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
 
   const { displayStyles } = settings.editor
@@ -170,17 +155,12 @@ const PmEditor = ({
         fileUpload={file => renderImage(file)}
         layout={layout}
         onChange={value => {
-          setEditorContent(value)
+          debounce(setEditorContent, 250)(value)
         }}
         // readonly={!contentEditable}
         placeholder="Type Something ..."
         ref={refElement}
         scrollThreshold={50}
-        deleteResource={deleteResource}
-        renameResource={renameResource}
-        addResource={addResource}
-        reorderResource={reorderResource}
-        getDocTreeData={getDocTreeData}
         showFilemanager
       />
       <SpinnerWrapper

@@ -26,6 +26,7 @@ import { safeParse } from '../../component-ai-assistant/utils'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { DocumentContext } from '../hooks/DocumentContext'
 import { CleanButton, FlexRow, WindowHeading } from '../../_styleds/common'
+import { useDocTree } from '../hooks/useDocTree'
 
 const Menu = styled.div`
   background: #f2eff5;
@@ -179,13 +180,7 @@ const Heading = styled(WindowHeading)`
   }
 `
 
-const DocTreeManager = ({
-  getDocTreeData,
-  addResource,
-  renameResource,
-  reorderResource,
-  deleteResource,
-}) => {
+const DocTreeManager = () => {
   let isFileManagerOpen = true
   if (localStorage.getItem('isFileManagerOpen') !== null) {
     isFileManagerOpen = localStorage.getItem('isFileManagerOpen')
@@ -193,10 +188,23 @@ const DocTreeManager = ({
     localStorage.setItem('isFileManagerOpen', isFileManagerOpen)
   }
 
-  const [gData, setGData] = useState([])
   const { docId } = useContext(AiDesignerContext)
-  const { setCurrentDoc } = useContext(DocumentContext)
-  const [sharedDocTree, setSharedDocTree] = useState([])
+  const {
+    setCurrentDoc,
+    setDocTree,
+    docTree,
+    sharedDocTree,
+    setSharedDocTree,
+  } = useContext(DocumentContext)
+
+  const {
+    getDocTreeData,
+    addResource,
+    renameResource,
+    reorderResource,
+    deleteResource,
+  } = useDocTree()
+
   const [deleteResourceRow, setDeleteResourceRow] = useState(null)
   const [expandFilesArea, setExpandFilesArea] = useState(
     isFileManagerOpen === 'true' ? true : false,
@@ -219,7 +227,7 @@ const DocTreeManager = ({
         }
       }
     }
-    const data = [...gData]
+    const data = [...docTree]
 
     // Find dragObject
     let dragObj
@@ -249,7 +257,7 @@ const DocTreeManager = ({
         ar.splice(i + 1, 0, dragObj)
       }
     }
-    setGData(data)
+    setDocTree(data)
 
     const newParentNode = findParentNode(data, dragKey)
     if (!newParentNode) return
@@ -267,7 +275,7 @@ const DocTreeManager = ({
     if (allData.length < 1) return
     allData[0].isRoot = true
 
-    setGData([...allData])
+    setDocTree([...allData])
 
     const sharedData = cloneDeep(data.getSharedDocTree)
     sharedData[0].isRoot = true
@@ -275,44 +283,14 @@ const DocTreeManager = ({
     setSharedDocTree([...sharedData])
   }, [])
 
-  const addResourceFn = async variables => {
-    await addResource(variables)
-    const { data } = await getDocTreeData()
-    const allData = JSON.parse(data.getDocTree)
-    allData[0].isRoot = true
-    setGData([...allData])
-  }
-
-  const renameResourceFn = async variables => {
-    await renameResource(variables)
-    const { data } = await getDocTreeData()
-    const allData = JSON.parse(data.getDocTree)
-    allData[0].isRoot = true
-    setGData([...allData])
-  }
-
-  const deleteResourceFn = async variables => {
-    await deleteResource(variables)
-    const { data } = await getDocTreeData()
-    const allData = JSON.parse(data.getDocTree)
-    allData[0].isRoot = true
-    setGData([...allData])
-
-    // const sharedData = cloneDeep(data.getSharedDocTree)
-    // sharedData[0].isRoot = true
-
-    // setSharedDocTree([...sharedData])
-  }
-
   const confirmDelete = row => {
     setDeleteResourceRow(row)
   }
 
   useEffect(() => {
-    // getDocTreeData()
-    const currentDocument = findChildNodeByIdentifier(gData, docId)
+    const currentDocument = findChildNodeByIdentifier(docTree, docId)
     currentDocument && setCurrentDoc(currentDocument)
-  }, [gData])
+  }, [docTree])
 
   const parts = window.location.href.split('/')
   const currentIdentifier = parts[parts.length - 1]
@@ -364,14 +342,14 @@ const DocTreeManager = ({
 
               return true
             }}
-            treeData={gData}
+            treeData={docTree}
             titleRender={rowProps => {
               return (
                 <RowRender
                   {...rowProps}
                   confirmDelete={confirmDelete}
-                  addResource={addResourceFn}
-                  renameResource={renameResourceFn}
+                  addResource={addResource}
+                  renameResource={renameResource}
                 />
               )
             }}
@@ -396,7 +374,7 @@ const DocTreeManager = ({
         </span>
       </FilesWrapper>
       <ConfirmDelete
-        deleteResourceFn={deleteResourceFn}
+        deleteResourceFn={deleteResource}
         deleteResourceRow={
           deleteResourceRow?.isFolder
             ? getActiveDocForDeletion || deleteResourceRow

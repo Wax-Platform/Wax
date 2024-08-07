@@ -19,7 +19,6 @@ import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
 const StyledHeader = styled.header`
   align-items: center;
   background-color: ${th('colorBody')};
-  border-bottom: 1px solid #0003;
   display: flex;
   flex-flow: row wrap;
   height: var(--header-height);
@@ -69,7 +68,6 @@ const UserMenu = styled.div`
   }
 `
 const DocumentInfoArea = styled(FlexCol)`
-  border-left: 1px solid #0004;
   gap: 0;
   padding: 0 8px;
 

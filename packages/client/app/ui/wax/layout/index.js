@@ -35,7 +35,7 @@ import { StyledWindow, WindowHeading } from '../../_styleds/common'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
-  --menu-height: ${p => (p.$menuvisible ? '40px' : '0px')};
+  --menu-height: ${p => (p.$menuvisible ? '50px' : '0px')};
   background: ${th('colorBackground')};
   display: flex;
   flex-direction: column;
@@ -123,6 +123,7 @@ const MenuWrapper = styled.div`
   font-size: 16px;
   height: var(--menu-height);
   max-height: var(--menu-height);
+  padding: ${p => (p.$show ? '5px 20px' : '0')};
   /* opacity: ${p => (p.$show ? '1' : '0')}; */
   pointer-events: ${p => (p.$show ? 'all' : 'none')};
   transition: all 0.3s linear;
@@ -147,12 +148,12 @@ const ShowMore = styled(EllipsisOutlined)`
 `
 
 const CommentsContainer = styled.div`
-  bottom: 0;
   display: flex;
   flex-direction: column;
   height: fit-content;
+  margin-right: 15px;
   position: absolute;
-  right: 0;
+  top: 0;
   width: fit-content;
 
   div[data-box] {
@@ -308,7 +309,11 @@ const Layout = props => {
         <PromptBox />
         <MenuWrapper $show={layout.editor}>
           {main && (
-            <MenuComponent fullScreen={fullScreen} open={open} ref={ref} />
+            <MenuComponent
+              fullScreen={fullScreen}
+              open={layout.editor}
+              ref={ref}
+            />
           )}
           <ShowMore onClick={showMore} />
         </MenuWrapper>
