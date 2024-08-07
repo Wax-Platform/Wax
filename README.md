@@ -3,3 +3,5 @@ Wax is a content creation platform. Wax has a collaborative word processor, file
 
 All open source. Currently targeting Mistral and OpenAI models. 
 
+See https://wax.is
+
