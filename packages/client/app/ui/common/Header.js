@@ -6,7 +6,6 @@ import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { th } from '@coko/client'
-import { FileOutlined } from '@ant-design/icons'
 
 import logoMobile from '../../../static/waxdesignerwhite.svg'
 import TeamPopup from './TeamPopup'
@@ -68,16 +67,18 @@ const UserMenu = styled.div`
   }
 `
 const DocumentInfoArea = styled(FlexCol)`
-  gap: 0;
-  padding: 0 8px;
+  gap: 2px;
+  height: 100%;
+  line-height: 1;
+  padding: 0 15px;
 
-  > div {
+  > p {
     color: #222;
     font-size: 18px;
+    margin: 0;
   }
 
   > small {
-    line-height: 1;
     text-decoration: none;
   }
 `
@@ -123,9 +124,8 @@ const Header = props => {
         <Logo src={logoMobile} alt="Wax platform"></Logo>
         {docId && currentDoc?.title && (
           <DocumentInfoArea>
-            <FlexRow style={{ gap: '5px', lineHeight: 2 }}>
-              {currentDoc?.title}
-            </FlexRow>
+            <small>Editing:</small>
+            <p>{currentDoc?.title}</p>
           </DocumentInfoArea>
         )}
       </FlexRow>
@@ -142,9 +142,6 @@ const Header = props => {
             Design
           </EditDesignLabels>
         </FlexRow>
-        <span>
-          <TeamPopup enableLogin={enableLogin} onLogout={onLogout} />
-        </span>
       </UserMenu>
     </StyledHeader>
   )

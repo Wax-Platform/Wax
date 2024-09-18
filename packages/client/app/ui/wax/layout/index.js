@@ -28,15 +28,14 @@ import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
-import { debounce } from 'lodash'
 import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsPreview'
 import { setInlineStyle } from '../../component-ai-assistant/utils'
 import { StyledWindow, WindowHeading } from '../../_styleds/common'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
-  --menu-height: ${p => (p.$menuvisible ? '50px' : '0px')};
-  background: ${th('colorBackground')};
+  --menu-height: ${p => (p.$menuvisible ? '58px' : '0px')};
+  background: #ddd;
   display: flex;
   flex-direction: column;
   font-family: '${th('fontInterface')}';
@@ -123,7 +122,7 @@ const MenuWrapper = styled.div`
   font-size: 16px;
   height: var(--menu-height);
   max-height: var(--menu-height);
-  padding: ${p => (p.$show ? '5px 20px' : '0')};
+  padding: ${p => (p.$show ? '6px 15px 14px' : '0')};
   /* opacity: ${p => (p.$show ? '1' : '0')}; */
   pointer-events: ${p => (p.$show ? 'all' : 'none')};
   transition: all 0.3s linear;
@@ -220,14 +219,7 @@ const Layout = props => {
     previewRef,
   } = useContext(AiDesignerContext)
   const { loading } = useAssistant()
-  const {
-    deleteResource,
-    renameResource,
-    addResource,
-    reorderResource,
-    getDocTreeData,
-    showFilemanager,
-  } = props
+  const { enableLogin } = props
   const ref = useRef(null)
   const [open, toggleMenu] = useState(false)
 
@@ -320,13 +312,7 @@ const Layout = props => {
 
         <WaxEditorWrapper>
           <FileManagerWrapper>
-            <DocTreeManager
-              deleteResource={deleteResource}
-              renameResource={renameResource}
-              addResource={addResource}
-              reorderResource={reorderResource}
-              getDocTreeData={getDocTreeData}
-            />
+            <DocTreeManager enableLogin={enableLogin} />
           </FileManagerWrapper>
           <StyledWindow $show={layout.editor}>
             <WaxSurfaceScroll

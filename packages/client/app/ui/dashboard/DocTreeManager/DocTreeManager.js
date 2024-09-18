@@ -21,6 +21,7 @@ import { DocumentContext } from '../hooks/DocumentContext'
 import { CleanButton, WindowHeading } from '../../_styleds/common'
 import { useDocTree } from '../hooks/useDocTree'
 import { Link } from 'react-router-dom'
+import TeamPopup from '../../common/TeamPopup'
 
 const Menu = styled.div`
   background: #f2eff5;
@@ -164,22 +165,21 @@ const StyledMainButton = styled(CleanButton)`
     width: 28px;
   }
 `
-const StyledMainButtonExpand = styled(StyledMainButton)``
 
 const SharedTree = styled(Tree)``
 
 const Heading = styled(WindowHeading)`
-  background-color: var(--color-trois);
-  box-shadow: inset 0 0 5px var(--color-trois-light);
+  background-color: var(--color-trois-lightest);
   width: 100%;
   border-bottom: 1px solid var(--color-trois-alpha);
 
-  > span {
-    /* color: var(--color-trois-dark) !important; */
+  span {
+    color: #333 !important;
+    text-transform: uppercase;
   }
 `
 
-const DocTreeManager = () => {
+const DocTreeManager = ({ enableLogin }) => {
   let isFileManagerOpen = true
   if (localStorage.getItem('isFileManagerOpen') !== null) {
     isFileManagerOpen = localStorage.getItem('isFileManagerOpen')
@@ -203,7 +203,6 @@ const DocTreeManager = () => {
     reorderResource,
     deleteResource,
   } = useDocTree()
-
   const [deleteResourceRow, setDeleteResourceRow] = useState(null)
   const [expandFilesArea, setExpandFilesArea] = useState(
     isFileManagerOpen === 'true' ? true : false,
@@ -301,8 +300,9 @@ const DocTreeManager = () => {
 
   return (
     <>
+      {/* TODO: move menu outside this component, it should also have all other Options (AI chat,images,templates,snippets,etc) */}
       <Menu>
-        <StyledMainButtonExpand
+        <StyledMainButton
           $expanded={expandFilesArea}
           onClick={() => {
             setDefaultState(true)
@@ -316,17 +316,20 @@ const DocTreeManager = () => {
           ) : (
             <FolderOpenFilled style={{ fontSize: '32px' }} />
           )}
-        </StyledMainButtonExpand>
-        <StyledMainButtonExpand title="New File">
+        </StyledMainButton>
+        <StyledMainButton title="New File">
           <Link target="_blank" to="/">
             <FileAddOutlined style={{ fontSize: '25px' }} />
           </Link>
-        </StyledMainButtonExpand>
+        </StyledMainButton>
+        <StyledMainButton>
+          <TeamPopup enableLogin={enableLogin} />
+        </StyledMainButton>
       </Menu>
       <FilesWrapper expand={expandFilesArea} defaultState={defaultState}>
         <span style={{ minWidth: '23dvw' }}>
           <Heading>
-            <span>Files</span>
+            <span>Explorer</span>
           </Heading>
           <Tree
             key="myDocs"

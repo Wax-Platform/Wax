@@ -258,7 +258,7 @@ const routes = enableLogin => (
                 render={() =>
                   enableLogin ? (
                     <Authenticated>
-                      <Dashboard showFilemanager />
+                      <Dashboard showFilemanager enableLogin={enableLogin} />
                     </Authenticated>
                   ) : (
                     <Dashboard />
