@@ -58,7 +58,7 @@ export default createGlobalStyle`
     /* layout */
 
     --header-height: 50px;
-    --menu-height: 50px;
+    --menu-height: 60px;
 
     height: 100dvh;
   }

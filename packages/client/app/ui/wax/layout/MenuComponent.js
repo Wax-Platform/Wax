@@ -18,10 +18,10 @@ const Menu = styled(FlexRow)`
   height: fit-content;
   opacity: ${p => (p.openMenu ? '1' : '0')};
   overflow: ${p => (p.openMenu ? 'visible' : 'hidden')};
-  padding: 5px 8px;
-  transition: all 0.3s linear;
+  padding: 7px 8px;
+  transition: all 0.2s linear;
   width: 100%;
-  z-index: 99999999;
+  z-index: 9999;
 
   > * {
     border-color: var(--color-trois-light) !important;
@@ -96,11 +96,10 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
   const HighlightToolGroup = app.container.get('HighlightToolGroup')
   const TransformToolGroup = app.container.get('TransformToolGroup')
   const Lists = app.container.get('Lists')
-  const BlockQuote = app.container.get('BlockQuoteTool')
   // const Images = app.container.get('Images')
   const SpecialCharacters = app.container.get('SpecialCharacters')
   const Tables = app.container.get('Tables')
-  const ExternalAPIContent = app.container.get('ExternalAPIContent')
+  // const ExternalAPIContent = app.container.get('ExternalAPIContent')
   const FindAndReplaceTool = app.container.get('FindAndReplaceTool')
   const FullScreen = app.container.get('FullScreen')
 
@@ -158,9 +157,9 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
         <MenuToolGroup>
           {Tables._tools.map(tool => tool.renderTool(activeView))}
         </MenuToolGroup>
-        <MenuToolGroup>
+        {/* <MenuToolGroup>
           {ExternalAPIContent._tools.map(tool => tool.renderTool(activeView))}
-        </MenuToolGroup>
+        </MenuToolGroup> */}
         {FindAndReplaceComponent}
       </FlexRow>
       <MenuToolGroup>
