@@ -118,7 +118,7 @@ export default class AiDesigner extends StateManager {
 
     view.state.doc.descendants(node => {
       if (node && !node.isText) {
-        const aidctx = node?.attrs?.dataset?.aidctx
+        const aidctx = this.idGen(node?.attrs?.dataset?.aidctx)
 
         if (aidctx) {
           !this.getBy({ aidctx }) && this.addToContext({ aidctx })
@@ -129,13 +129,10 @@ export default class AiDesigner extends StateManager {
   }
 
   static idGen(currentAid) {
-    const aidsInCtx = [...this.allInDom, ...(currentAid || [])]
+    const aidsInCtx = [...this.allInDom, ...([currentAid] || [])]
     const isDuplicated = aidsInCtx.filter(n => n === currentAid).length > 1
-    const aidctx =
-      currentAid && !isDuplicated
-        ? currentAid
-        : safeId('aid-ctx', this.allInDom)
-    return aidctx
+    const aidctx = currentAid && !isDuplicated ? currentAid : uuid()
+    return [aidctx, aidctx === currentAid]
   }
 
   static addToContext({ aidctx }) {
