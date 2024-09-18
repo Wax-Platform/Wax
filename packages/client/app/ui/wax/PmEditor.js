@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-// import { yCursorPlugin, ySyncPlugin, yUndoPlugin } from 'y-prosemirror'
 import { Wax } from 'wax-prosemirror-core'
-// import { TablesService } from 'wax-table-service'
 import usePrintArea from './usePrintArea'
 import config from './config/config'
 import layout from './layout'
@@ -17,6 +15,8 @@ import AiDesigner from '../../AiDesigner/AiDesigner'
 
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
 import { FlexRow } from '../_styleds/common'
+// import { findChildNodeByIdentifier } from '../dashboard/DocTreeManager/utils'
+import { useDocTree } from '../dashboard/hooks/useDocTree'
 
 const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
@@ -53,6 +53,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, setDocId } =
     useContext(AiDesignerContext)
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
+  const { docTree } = useDocTree()
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
@@ -108,7 +109,9 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
         setShowSpinner(false)
       }, 1000)()
     }
-  }, [docIdentifier])
+    // docTree &&
+    //   console.log('NODE', findChildNodeByIdentifier(docTree, docIdentifier))
+  }, [docIdentifier, docTree])
 
   useEffect(() => {
     aidMisc &&

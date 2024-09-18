@@ -97,11 +97,7 @@ const nodesConfig = {
   },
   title: {
     attrs: {
-      id: { default: null },
-      class: { default: null },
-      group: { default: null },
-      viewid: { default: null },
-      dataset: { default: { aidctx: '' } },
+      ...commonAttrs,
       level: { default: 1 },
     },
     content: 'inline*',
@@ -136,7 +132,6 @@ const nodesConfig = {
       src: { default: '' },
       alt: { default: null },
       class: { default: 'aid-snip-img-default' },
-      dataset: { default: {} },
     },
     inline: false,
     group: 'block',

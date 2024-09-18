@@ -1,15 +1,11 @@
 export const findFirstDocument = data => {
-
-
   for (let node of data) {
     if (!node.isFolder && node.identifier) {
       return node
     }
     if (node.children) {
       for (let child of node.children) {
-
         return findFirstDocument([child])
-        
       }
     }
   }
