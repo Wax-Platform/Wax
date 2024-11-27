@@ -115,7 +115,6 @@ const RowRender = row => {
     isSharedFolder,
   } = row
   const { docId } = useContext(AiDesignerContext)
-  const { getAidMisc } = useAssistant()
   const history = useHistory()
   const { setCurrentDoc } = useContext(DocumentContext)
   const [updatedName, setUpdateName] = useState(title)
@@ -168,25 +167,28 @@ const RowRender = row => {
               }}
               onChange={e => setUpdateName(e.target.value)}
             />
-            <CleanButton
-              onClick={() => {
-                renameResource({ variables: { id, title: updatedName } })
-                setRename(false)
-              }}
-            >
-              <CheckCircleFilled
-                style={{ fontSize: '16px', color: 'var(--color-primary)' }}
-              />
-            </CleanButton>
-            <CleanButton
-              onMouseDown={e => {
-                e.preventDefault()
-                setRename(false)
-              }}
-              title="Close"
-            >
-              <CloseCircleFilled style={{ fontSize: '16px' }} />
-            </CleanButton>
+            <FlexRow style={{ gap: '5px' }}>
+              <CleanButton
+                onClick={e => {
+                  e.preventDefault()
+                  renameResource({ variables: { id, title: updatedName } })
+                  setRename(false)
+                }}
+              >
+                <CheckCircleFilled
+                  style={{ fontSize: '18px', color: 'var(--color-primary)' }}
+                />
+              </CleanButton>
+              <CleanButton
+                onMouseDown={e => {
+                  e.preventDefault()
+                  setRename(false)
+                }}
+                title="Close"
+              >
+                <CloseCircleFilled style={{ fontSize: '18px' }} />
+              </CleanButton>
+            </FlexRow>
           </FlexRow>
         ) : (
           <IconTitleContainer>

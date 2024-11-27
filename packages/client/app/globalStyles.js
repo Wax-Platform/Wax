@@ -51,13 +51,14 @@ export default createGlobalStyle`
     --color-trois: #a34ba1;
     --color-trois-light: #d3afd2;
     --color-trois-lighter: #decfde;
+    --color-trois-lightest: #f2eff5;
     --color-trois-dark: #6d336c;
     --color-trois-alpha: #a34ba129;
  
     /* layout */
 
     --header-height: 50px;
-    --menu-height: 40px;
+    --menu-height: 60px;
 
     height: 100dvh;
   }

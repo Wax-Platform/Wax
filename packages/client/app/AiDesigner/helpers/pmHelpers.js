@@ -87,27 +87,30 @@ export const getAllDescendants = node => {
 }
 
 export const findInPmDoc = (doc, ref) => {
-  let found
+  const found = []
   doc.descendants((node, pos) => {
     if (node?.attrs?.dataset?.aidctx === ref) {
-      found = { node, pos }
-      return false
+      found.push({ node, pos })
     }
   })
   return found
 }
+export const findInDom = aidctx =>
+  document.querySelector(`[data-aidctx="${aidctx}"]`)
 
 export const addClass = (method, classNames, selected) => {
   if (!AiDesigner?.states?.view) return
 
   const { view } = AiDesigner.states
-  const { aidctx, node: domNode } = selected || {}
+  const { aidctx } = selected || {}
+  const domNode = findInDom(aidctx)
   const { tr, doc } = view.state
 
-  const { node, pos } = findInPmDoc(doc, aidctx) || {}
+  const [firstFound] = findInPmDoc(doc, aidctx) || []
+  const { node, pos } = firstFound
 
   if (pos === null || !domNode) return
-  const resolvedPos = doc.resolve(pos)
+  // const resolvedPos = doc.resolve(pos)
   //   const pmNode = resolvedPos.node()
 
   const classes = isArray(classNames)

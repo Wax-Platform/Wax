@@ -12,7 +12,7 @@ const theme = {
   colorContent: '#111',
   colorBackground: '#eee',
   colorContentBackground: '#f6f6f6',
-  colorPrimary: '#525E76',
+  colorPrimary: '#222',
   colorSecondary: '#E7E7E7',
   colorLightGrey: '#f7f7f7',
   colorReserve: 'white',

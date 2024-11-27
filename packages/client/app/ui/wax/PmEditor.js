@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-// import { yCursorPlugin, ySyncPlugin, yUndoPlugin } from 'y-prosemirror'
 import { Wax } from 'wax-prosemirror-core'
-// import { TablesService } from 'wax-table-service'
 import usePrintArea from './usePrintArea'
 import config from './config/config'
 import layout from './layout'
@@ -17,10 +15,12 @@ import AiDesigner from '../../AiDesigner/AiDesigner'
 
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
 import { FlexRow } from '../_styleds/common'
+// import { findChildNodeByIdentifier } from '../dashboard/DocTreeManager/utils'
+import { useDocTree } from '../dashboard/hooks/useDocTree'
 
 const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
-  background: var(--color-trois-alpha);
+  background: #fff9;
   height: 100%;
   left: 0;
   opacity: ${p => (p.showSpinner ? '1' : '0')};
@@ -47,27 +47,13 @@ const renderImage = file => {
   })
 }
 
-const PmEditor = ({
-  docIdentifier,
-  showFilemanager,
-  deleteResource,
-  renameResource,
-  addResource,
-  reorderResource,
-  getDocTreeData,
-}) => {
+const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
 
-  const {
-    setHtmlSrc,
-    htmlSrc,
-    setEditorContent,
-    css,
-    settings,
-    // updatePreview,
-    setDocId,
-  } = useContext(AiDesignerContext)
+  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, setDocId } =
+    useContext(AiDesignerContext)
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
+  const { docTree } = useDocTree()
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
@@ -123,7 +109,9 @@ const PmEditor = ({
         setShowSpinner(false)
       }, 1000)()
     }
-  }, [docIdentifier])
+    // docTree &&
+    //   console.log('NODE', findChildNodeByIdentifier(docTree, docIdentifier))
+  }, [docIdentifier, docTree])
 
   useEffect(() => {
     aidMisc &&
@@ -170,17 +158,12 @@ const PmEditor = ({
         fileUpload={file => renderImage(file)}
         layout={layout}
         onChange={value => {
-          setEditorContent(value)
+          debounce(setEditorContent, 250)(value)
         }}
         // readonly={!contentEditable}
         placeholder="Type Something ..."
         ref={refElement}
         scrollThreshold={50}
-        deleteResource={deleteResource}
-        renameResource={renameResource}
-        addResource={addResource}
-        reorderResource={reorderResource}
-        getDocTreeData={getDocTreeData}
         showFilemanager
       />
       <SpinnerWrapper
