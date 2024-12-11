@@ -1,4 +1,4 @@
-const { modelTypes, BaseModel } = require('@coko/server')
+const { modelJsonSchemaTypes, BaseModel } = require('@coko/server')
 const { Team, TeamMember } = require('@pubsweet/models')
 const Y = require('yjs')
 
@@ -7,7 +7,7 @@ const config = require('config')
 const AUTHOR_TEAM = config.teams.nonGlobal.author
 const VIEWER_TEAM = config.teams.nonGlobal.viewer
 
-const { stringNotEmpty, arrayOfObjectsNullable } = modelTypes
+const { stringNotEmpty, arrayOfObjectsNullable } = modelJsonSchemaTypes
 
 class Doc extends BaseModel {
   constructor(properties) {
