@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@coko/server": "4.2.0",
-    "@pubsweet/models": "^0.3.26",
     "jsonwebtoken": "^9.0.2",
     "express": "^4.18.2",
     "axios": "^1.3.4",

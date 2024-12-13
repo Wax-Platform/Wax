@@ -1,4 +1,6 @@
-const { Doc: PubSubDoc, Team, TeamMember, User } = require('@pubsweet/models')
+const { Team, TeamMember } = require('@coko/server')
+const PubSubDoc = require('../../models/doc/doc.model')
+const User = require('../../models/user/user.model')
 
 const getDocResolver = async (_, { identifier }) =>
   PubSubDoc.query().findOne({ identifier })
