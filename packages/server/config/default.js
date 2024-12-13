@@ -3,10 +3,7 @@ const components = require('./components')
 const permissions = require('./permissions')
 
 module.exports = {
-  authsome: {
-    mode: path.join(__dirname, 'authsome.js'),
-  },
-  'password-reset': {
+  passwordReset: {
     path: 'password-reset',
   },
   mailer: {
@@ -14,53 +11,40 @@ module.exports = {
     path: path.join(__dirname, 'mailer'),
   },
   permissions,
-  pubsweet: {
-    components,
-  },
-  'pubsweet-client': {
-    API_ENDPOINT: '/api',
-  },
-  'pubsweet-server': {
-    db: {},
-    useGraphQLServer: true,
-    useJobQueue: false,
-    serveClient: false,
-    useFileStorage: false,
-    graphiql: true,
-    emailVerificationTokenExpiry: {
-      amount: 24,
-      unit: 'hours',
-    },
-    passwordResetTokenExpiry: {
-      amount: 24,
-      unit: 'hours',
-    },
-    port: 3000,
-    protocol: 'http',
-    host: 'localhost',
-    uploads: 'uploads',
-    pool: { min: 0, max: 10, idleTimeoutMillis: 1000 },
-    useFileStorage: true,
-  },
+  components,
+  db: {},
+
+  useGraphQLServer: true,
+  port: 3000,
+  useFileStorage: true,
+  subscriptionsDb: {},
   teams: {
-    global: {
-      admin: {
+    global: [
+      {
         displayName: 'Admin',
         role: 'admin',
       },
-    },
-    nonGlobal: {
-      author: {
+    ],
+    nonGlobal: [
+      {
         displayName: 'Author',
         role: 'author',
       },
-      viewer: {
+      {
         displayName: 'Viewer',
         role: 'viewer',
       },
-    },
+    ],
   },
-
+  onStartup: [
+    {
+      label: 'Init',
+      execute: async () => {
+        const init = require('./startServer')
+        return init()
+      },
+    },
+  ],
   schema: {},
   validations: path.join(__dirname, 'modules', 'validations'),
 }
