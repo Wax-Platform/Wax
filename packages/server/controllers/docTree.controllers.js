@@ -1,4 +1,5 @@
-const { DocTreeManager, Doc, Team, TeamMember } = require('@pubsweet/models')
+const { DocTreeManager, Doc } = require('../models')
+const { Team, TeamMember, logger } = require('@coko/server')
 const { v4: uuidv4 } = require('uuid')
 const createIdentifier = () => {
   return Array.from(Array(20), () =>
@@ -34,6 +35,7 @@ const deleteResourceRecursively = async id => {
 }
 
 const DocTreeNested = async (folderId, userId) => {
+  logger.info(typeof DocTreeManager.getUserTreeResources)
   const AllFiles = (await DocTreeManager.getUserTreeResources(userId)) || []
 
   const getAllDocs = await Doc.query().whereIn(

@@ -1,5 +1,5 @@
-const { logger, useTransaction } = require('@coko/server')
-const { Team, TeamMember, Doc } = require('@pubsweet/models')
+const { logger, useTransaction, Team, TeamMember } = require('@coko/server')
+const { Doc } = require('../models')
 const { User } = require('../models')
 
 const updateUserProfile = async (userId, profileData) => {

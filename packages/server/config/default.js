@@ -45,6 +45,10 @@ module.exports = {
       },
     },
   ],
+  emailVerificationTokenExpiry: {
+    amount: 24,
+    unit: 'hours',
+  },
   schema: {},
   validations: path.join(__dirname, 'modules', 'validations'),
 }
