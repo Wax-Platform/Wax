@@ -1,4 +1,4 @@
-const { Doc } = require('@pubsweet/models')
+const Doc = require('../../models/doc/doc.model')
 
 const {
   updateTreePosition,

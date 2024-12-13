@@ -5,13 +5,13 @@ const {
   Team,
   TeamMember,
 } = require('@coko/server')
-const { Doc } = require('../../models')
+const Doc = require('../../models/doc/doc.model')
 const config = require('config')
 
 const { booleanDefaultFalse, idNullable, stringNullable, arrayOfIds } =
   modelJsonSchemaTypes
 
-const AUTHOR_TEAM = config.teams.nonGlobal.author
+const AUTHOR_TEAM = config.teams.nonGlobal.find(t => t.role === 'author')
 
 class DocTreeManager extends BaseModel {
   static get tableName() {
@@ -48,7 +48,7 @@ class DocTreeManager extends BaseModel {
       }
       return insertedResource
     } catch (e) {
-      logger.info('EEEEEEEEEEEEEEEEEEEEEEE')
+      logger.error(e)
     }
   }
 

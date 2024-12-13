@@ -1,4 +1,5 @@
-const { DocTreeManager, Doc } = require('../models')
+const DocTreeManager = require('../models/docTreeManager/docTreeManager.model')
+const Doc = require('../models/doc/doc.model')
 const { Team, TeamMember, logger } = require('@coko/server')
 const { v4: uuidv4 } = require('uuid')
 const createIdentifier = () => {

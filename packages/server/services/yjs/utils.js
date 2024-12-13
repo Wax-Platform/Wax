@@ -4,7 +4,7 @@ const awarenessProtocol = require('y-protocols/dist/awareness.cjs')
 const encoding = require('lib0/encoding')
 const decoding = require('lib0/decoding')
 const Y = require('yjs')
-const { Doc } = require('@pubsweet/models')
+const Doc = require('../../models/doc/doc.model')
 const { db } = require('@coko/server')
 
 let persistence = null

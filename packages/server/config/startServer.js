@@ -2,7 +2,7 @@
 const { verifyJWT, logger } = require('@coko/server')
 const map = require('lib0/map')
 const { WebSocketServer } = require('ws')
-const { Doc, DocTreeManager } = require('@pubsweet/models')
+const { Doc, DocTreeManager } = require('../models')
 const config = require('config')
 const seedDocTree = require('../scripts/seedDocTree')
 
