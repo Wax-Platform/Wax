@@ -30,34 +30,8 @@ services:
       dockerfile: ./Dockerfile-development
     depends_on:
       - db
-    entrypoint:
-      [
-        'node_modules/.bin/wait-for-it',
-        'db:5432',
-        '--',
-        'sh',
-        'scripts/setupDevServer.sh',
-      ]
-    command:
-      [
-        'node_modules/.bin/nodemon',
-        'startServer.js',
-        '--watch',
-        'api',
-        '--watch',
-        'config',
-        '--watch',
-        'controllers',
-        '--watch',
-        'models',
-        '--watch',
-        'services',
-        '--watch',
-        'scripts',
-        '--watch',
-        '--ext',
-        'js, graphql',
-      ]
+      - filehosting
+    command: ['yarn', 'coko-server', 'start-dev']
     ports:
       - ${SERVER_PORT:-3000}:3000
       - ${WS_SERVER_PORT:-3001}:${WS_SERVER_PORT:-3001}
@@ -82,9 +56,7 @@ services:
       - MAILER_PASSWORD=${MAILER_PASSWORD}
       - PASSWORD_RESET_PATH=${PASSWORD_RESET_PATH:-password-reset}
       - CLIENT_SHOW_EMAIL_LOGIN_OPTION=${CLIENT_SHOW_EMAIL_LOGIN_OPTION:-true}
-      - S3_PROTOCOL=http
-      - S3_HOST=${S3_HOST:-filehosting}
-      - S3_PORT=${S3_PORT:-9000}
+      - S3_URL=${S3_URL:-http://fileHosting:9000}
       - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-nonRootUser}
       - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-nonRootPassword}
       - S3_BUCKET=${S3_BUCKET:-uploads}
@@ -95,7 +67,7 @@ services:
       - ./packages/server/models:/home/node/wax/models
       - ./packages/server/scripts:/home/node/wax/scripts
       - ./packages/server/services:/home/node/wax/services
-      - ./packages/server/startServer.js:/home/node/wax/startServer.js
+      # - ./packages/server/startServer.js:/home/node/wax/startServer.js
 
   db:
     build:
@@ -107,8 +79,6 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-wax_dev}
       - POSTGRES_USER=${POSTGRES_USER:-dev_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev_user_password}
-    volumes:
-      - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/init-pgboss.sql
 
   filehosting:
     image: minio/minio

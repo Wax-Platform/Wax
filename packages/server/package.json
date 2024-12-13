@@ -14,7 +14,7 @@
     "pg": "8"
   },
   "dependencies": {
-    "@coko/server": "3.13.1",
+    "@coko/server": "4.2.0",
     "@pubsweet/models": "^0.3.26",
     "jsonwebtoken": "^9.0.2",
     "express": "^4.18.2",
