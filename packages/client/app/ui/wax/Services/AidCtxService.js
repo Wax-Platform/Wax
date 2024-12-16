@@ -3,17 +3,17 @@ import { Service } from 'wax-prosemirror-core'
 const { assign } = Object
 
 function getAttrs(hook, next) {
-  console.log({ hook })
-  const aidctx = uuid()
-  const { class: cls } = hook.dom.getAttribute('class') ?? null
-  assign(hook, { aidctx, class: cls })
+  const aidctx = hook.dom.getAttribute('data-aidctx') || uuid()
+  const cls = hook.dom.getAttribute('class') || null
+  assign(hook, { dataset: { aidctx }, class: cls })
+  console.log('getAttrs updated hook:', hook)
   next()
 }
+
 const toDOM = tag => (hook, next) => {
   const { node, value } = hook
-  /* The first value is tagName (eg.: "h1, "p") */
   const [, attrs] = value
-  const aidctx = uuid()
+  const aidctx = node.attrs.dataset?.aidctx || uuid()
   hook.value = [
     tag,
     { ...attrs, 'data-aidctx': aidctx, class: node.attrs.class },
@@ -21,8 +21,7 @@ const toDOM = tag => (hook, next) => {
   ]
   next()
 }
-// TODO: This is creating the uuids every time
-// fix to add classes too
+
 class AidCtxService extends Service {
   name = 'AidCtxService'
   boot() {}
@@ -71,24 +70,28 @@ class AidCtxService extends Service {
       },
       { toWaxSchema: true },
     )
-    //   createNode(
-    //     {
-    //       paragraph: {
-    //         attrs: {
-    //           class: { default: null },
-    //           dataset: { aidctx: { default: null } },
-    //         },
-    //         parseDOM: [
-    //           {
-    //             tag: 'p',
-    //             getAttrs,
-    //           },
-    //         ],
-    //         toDOM: toDOM('p'),
-    //       },
-    //     },
-    //     { toWaxSchema: true },
-    //   )
+    createNode(
+      {
+        heading3: {
+          content: 'inline*',
+          group: 'block',
+          defining: true,
+          attrs: {
+            class: { default: null },
+            dataset: { aidctx: { default: null } },
+          },
+          parseDOM: [
+            {
+              tag: 'h3',
+              getAttrs,
+            },
+          ],
+          toDOM: toDOM('h3'),
+        },
+      },
+      { toWaxSchema: true },
+    )
   }
 }
+
 export default AidCtxService

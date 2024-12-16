@@ -107,11 +107,12 @@ export const addClass = (method, classNames, selected) => {
   const { tr, doc } = view.state
 
   const [firstFound] = findInPmDoc(doc, aidctx) || []
-  const { node, pos } = firstFound
+  const { node, pos } = firstFound ?? {}
 
-  if (pos === null || !domNode) return
-  // const resolvedPos = doc.resolve(pos)
-  //   const pmNode = resolvedPos.node()
+  if (!Number(pos) || !domNode) return
+  const resolvedPos = doc.resolve(pos)
+  const pmNode = resolvedPos.node()
+  const safeNode = node || pmNode
 
   const classes = isArray(classNames)
     ? classNames
@@ -123,7 +124,7 @@ export const addClass = (method, classNames, selected) => {
   const updatedClasses = [...domClasses].join(' ')
 
   tr.setNodeMarkup(pos, null, {
-    ...node.attrs,
+    ...safeNode.attrs,
     dataset: { aidctx },
     class: updatedClasses,
   })
