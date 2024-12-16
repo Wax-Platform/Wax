@@ -330,44 +330,6 @@ export const AiDesignerProvider = ({ children }) => {
     updateSnippets({ variables: { snippets: updatedSnippets } })
   }
 
-  const updateSnippetDescription = (snippetName, description) => {
-    const { snippets } = settings.snippetsManager
-    snippets[snippetName].description = description
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-  }
-
-  const updateSnippetBody = (snippetName, body) => {
-    const { snippets } = settings.snippetsManager
-    const index = snippets.findIndex(s => s.className === snippetName)
-    snippets[index].classBody = body
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-  }
-
-  const updateSnippetName = (snippetName, name) => {
-    const { snippets } = settings.snippetsManager
-
-    const foundSnippet =
-      snippets[snippets.findIndex(s => s.className === snippetName)]
-
-    snippets[snippets.findIndex(s => s.className === snippetName)].className =
-      name
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-    document
-      .querySelectorAll(`.aid-snip-${foundSnippet.className}`)
-      .forEach(el => {
-        el.classList.replace(
-          `aid-snip-${foundSnippet.className}`,
-          `aid-snip-${name}`,
-        )
-      })
-  }
-
   // #endregion SNIPPETS -------------------------------------------------------------------
 
   const ctx = useMemo(() => {
@@ -415,11 +377,7 @@ export const AiDesignerProvider = ({ children }) => {
         removeSnippet,
         markedSnippet,
         setMarkedSnippet,
-        updateSnippetDescription,
-        updateSnippetBody,
-        updateSnippetName,
         saveSession,
-
         editorContainerRef,
 
         previewRef,

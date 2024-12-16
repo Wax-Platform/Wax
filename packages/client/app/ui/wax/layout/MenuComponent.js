@@ -100,7 +100,6 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
   // const Images = app.container.get('Images')
   const SpecialCharacters = app.container.get('SpecialCharacters')
   const Tables = app.container.get('Tables')
-  // const ExternalAPIContent = app.container.get('ExternalAPIContent')
   const FindAndReplaceTool = app.container.get('FindAndReplaceTool')
   const FullScreen = app.container.get('FullScreen')
 
@@ -158,9 +157,6 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
         <MenuToolGroup>
           {Tables._tools.map(tool => tool.renderTool(activeView))}
         </MenuToolGroup>
-        {/* <MenuToolGroup>
-          {ExternalAPIContent._tools.map(tool => tool.renderTool(activeView))}
-        </MenuToolGroup> */}
         {FindAndReplaceComponent}
         <JitsiMeetLink />
       </FlexRow>
