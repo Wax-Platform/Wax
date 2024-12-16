@@ -22,42 +22,13 @@ import {
   CustomTagService,
   BlockDropDownToolGroupService,
   YjsService,
-  ExternalAPIContentService,
 } from 'wax-prosemirror-services'
 
 import { TablesService, columnResizing } from 'wax-table-service'
 
-// import { EditoriaSchema } from 'wax-prosemirror-core'
-
 import CharactersList from './characterList'
 import AiStudioSchema from '../../component-ai-assistant/components/waxSchema'
-import addAidctxPlugin from '../pmPlugins/addAidCtxPlugin'
-
-const { SERVER_URL } = process.env
-
-async function ExternalAPIContentTransformation(prompt) {
-  try {
-    const response = await fetch(`${SERVER_URL}/api/askChatGpt`, {
-      method: 'POST',
-      body: new URLSearchParams({ prompt }),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    })
-
-    return await response.text()
-  } catch (e) {
-    console.error(e)
-    // eslint-disable-next-line no-alert
-    alert(
-      'That model is currently overloaded with other requests. You can retry your request.',
-    )
-  } finally {
-    /* empty */
-  }
-
-  return prompt
-}
+import AidCtxService from '../Services/AidCtxService'
 
 const config = (yjsProvider, ydoc, docIdentifier) => ({
   MenuService: [
@@ -92,7 +63,6 @@ const config = (yjsProvider, ydoc, docIdentifier) => ({
         // 'Images',
         'SpecialCharacters',
         'Tables',
-        'ExternalAPIContent',
         'FindAndReplaceTool',
         'FullScreen',
       ],
@@ -102,19 +72,13 @@ const config = (yjsProvider, ydoc, docIdentifier) => ({
       toolGroups: ['InfoToolGroup'],
     },
   ],
-  ExternalAPIContentService: {
-    ExternalAPIContentTransformation,
-  },
   SchemaService: AiStudioSchema,
-  // TitleService: { updateTitle: console.log },
   SpecialCharactersService: CharactersList,
   RulesService: [emDash, ellipsis],
   ShortCutsService: {},
   CommentsService: {
     showTitle: true,
-    getComments: comments => {
-      // console.log(comments)
-    },
+    getComments: comments => {},
     setComments: () => {
       return true
     },
@@ -141,7 +105,6 @@ const config = (yjsProvider, ydoc, docIdentifier) => ({
 
   PmPlugins: [columnResizing()],
   services: [
-    new ExternalAPIContentService(),
     new YjsService(),
     new BaseService(),
     new BlockDropDownToolGroupService(),
@@ -162,6 +125,7 @@ const config = (yjsProvider, ydoc, docIdentifier) => ({
     new BottomInfoService(),
     new TransformService(),
     new CustomTagService(),
+    new AidCtxService(),
   ],
 })
 

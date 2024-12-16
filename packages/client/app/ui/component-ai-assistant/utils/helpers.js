@@ -1,8 +1,4 @@
 import { merge } from 'lodash'
-import {
-  loadScript,
-  nodeSelection,
-} from '../../../AiDesigner/previvew/loadScript'
 // import LanguageDetect from 'languagedetect'
 
 // import DetectLanguage from 'detectlanguage'
@@ -11,9 +7,6 @@ import { onEntries, safeCall } from './utils'
 // const detectlanguage = new DetectLanguage('16d59c67b2a8538c31bbd7c129fe0f2d')
 
 // const lngDetector = new LanguageDetect()
-
-window.loadPreviewScript = loadScript
-window.nodeSelection = nodeSelection
 
 export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
     <!DOCTYPE html>
@@ -28,11 +21,36 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
     <body>
       ${htmlSrc}
       <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          const scrollPos = ${scrollPos};
-          window.parent.loadPreviewScript(scrollPos, window);
-        })
-        window.addEventListener('click', window.parent.nodeSelection(window))
+          window.addEventListener('click', (event) => {
+              const { target } = event;
+            if (!target.hasAttribute('data-aidctx')) event.preventDefault();
+              let aidctx = event.target.getAttribute('data-aidctx') || event.target.parentElement.getAttribute('data-aidctx');
+              if (event.target.contains(document.documentElement.querySelector('.pagedjs_page_content'))) {aidctx = 'aid-ctx-main'}
+              if (aidctx) {
+                const onAllSelected = cb => document.documentElement.querySelectorAll('[data-aidctx="' + aidctx + '"]').forEach(cb)
+                document.documentElement.querySelectorAll('.selected-aidctx').forEach(el =>el?.classList.remove('selected-aidctx'))
+                aidctx !== 'aid-ctx-main' && onAllSelected(el => el?.classList.add('selected-aidctx'))
+                window.parent.postMessage({ aidctx }, '*')
+              };
+          });
+        document.addEventListener("DOMContentLoaded", () => {
+          const scopeIsReady = document.getElementById("css-assistant-scope")
+
+          try {
+            scopeIsReady && PagedPolyfill.preview(scopeIsReady);
+          }
+          catch (e) { 
+            window.parent.console.log(e)
+          }
+
+          setTimeout(() => document.documentElement.scrollTo(0, ${scrollPos}), 200)
+        });
+
+          document.addEventListener("scroll", () => {
+            if(document.documentElement.scrollTop < 10) {
+              document.documentElement.scrollTo(0, 10)
+            }
+          })
       </script>
     </body>
     </html>
