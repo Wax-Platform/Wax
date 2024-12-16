@@ -9,7 +9,7 @@ const displayNameResolver = async user => {
 }
 
 const updateUserProfileResolver = async (_, { input }, ctx) => {
-  return updateUserProfile(ctx.userId, input)
+  return updateUserProfile(ctx.user, input)
 }
 
 const documentsResolver = async user => {

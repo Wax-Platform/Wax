@@ -1,9 +1,9 @@
-const { modelJsonSchemaTypes, BaseModel, logger } = require('@coko/server')
+const { modelTypes, BaseModel, logger } = require('@coko/server')
 const { Team, TeamMember, Doc } = require('@pubsweet/models')
 const config = require('config')
 
 const { booleanDefaultFalse, idNullable, stringNullable, arrayOfIds } =
-  modelJsonSchemaTypes
+  modelTypes
 
 const AUTHOR_TEAM = config.teams.nonGlobal.author
 

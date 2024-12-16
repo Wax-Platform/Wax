@@ -1,7 +1,7 @@
-const { modelJsonSchemaTypes } = require('@coko/server')
+const { modelTypes } = require('@coko/server')
 const UserModel = require('@coko/server/src/models/user/user.model')
 
-const { stringNullable } = modelJsonSchemaTypes
+const { stringNullable } = modelTypes
 
 class User extends UserModel {
   static get schema() {

@@ -7,7 +7,7 @@ const getOrCreateAidMiscResolver = async (_, { input }, ctx) => {
     const foundOrNew = await useTransaction(async trx => {
       return await AiDesignerMisc.findByUserIdOrCreate(
         {
-          userId: ctx.userId,
+          userId: ctx.user,
           docId,
         },
         trx,
@@ -30,7 +30,7 @@ const getAidMiscById = async (_, { id }) => {
   }
 }
 const getCssTemplate = async (_, input, ctx) => {
-  const userId = ctx.userId
+  const userId = ctx.user
   try {
     const css = await AiDesignerMisc.updateTemplates({ userId, ...input })
     return css
@@ -41,7 +41,7 @@ const getCssTemplate = async (_, input, ctx) => {
 }
 
 const updateSnippetsResolver = async (_, { snippets }, ctx) => {
-  const userId = ctx.userId
+  const userId = ctx.user
   try {
     const updatedSnippets = await AiDesignerMisc.updateSnippets(
       userId,
