@@ -237,16 +237,14 @@ const useAssistant = () => {
     const clampedHistory =
       takeRight(selectedCtx.conversation, settings.chat.historyMax) || []
 
+    const ContextIsNotDocument = selectedCtx?.aidctx !== 'aid-ctx-main'
     const systemPayload = {
       ctx: AiDesigner.selected,
       sheet: css,
       selectors: getNodes(htmlSrc, '*', 'localName'),
-      providedText:
-        selectedCtx?.aidctx !== 'aid-ctx-main' && selectedCtx.node.innerHTML,
+      providedText: ContextIsNotDocument && selectedCtx.node.innerHTML,
       markedSnippet,
-      snippets:
-        selectedCtx?.aidctx !== 'aid-ctx-main' &&
-        settings.snippetsManager.snippets,
+      snippets: ContextIsNotDocument && settings.snippetsManager.snippets,
       waxClass: '.ProseMirror[contenteditable]',
     }
 
