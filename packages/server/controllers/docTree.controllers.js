@@ -91,11 +91,11 @@ const DocTreeNested = async (folderId, userId) => {
 }
 
 const getDocTree = async (_, { folderId }, ctx) => {
-  return JSON.stringify(await DocTreeNested(folderId, ctx.userId))
+  return JSON.stringify(await DocTreeNested(folderId, ctx.user))
 }
 
 const getSharedDocTree = async (_, {}, ctx) => {
-  const docs = await Doc.getSharedDocs(ctx.userId)
+  const docs = await Doc.getSharedDocs(ctx.user)
 
   const children = await DocTreeManager.query().whereIn(
     'docId',
@@ -118,12 +118,12 @@ const getSharedDocTree = async (_, {}, ctx) => {
 
 const addResource = async (_, { id, isFolder }, ctx) => {
   if (isFolder) {
-    return DocTreeManager.createNewFolderResource({ id, userId: ctx.userId })
+    return DocTreeManager.createNewFolderResource({ id, userId: ctx.user })
   } else {
     return DocTreeManager.createNewDocumentResource({
       id,
       identifier: createIdentifier(),
-      userId: ctx.userId,
+      userId: ctx.user,
     })
   }
 }
@@ -133,7 +133,7 @@ const deleteResource = async (_, { id }, ctx) => {
 
   const isUserTheAuthorOfTheDoc = await Doc.isMyDoc(
     deleteResourceItem.docId,
-    ctx.userId,
+    ctx.user,
   )
 
   if (isUserTheAuthorOfTheDoc) {
@@ -161,7 +161,7 @@ const deleteResource = async (_, { id }, ctx) => {
     if (team) {
       await TeamMember.query().delete().where({
         teamId: team.id,
-        userId: ctx.userId,
+        userId: ctx.user,
       })
     }
   }
