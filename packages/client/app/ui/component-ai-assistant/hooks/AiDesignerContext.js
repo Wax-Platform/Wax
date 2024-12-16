@@ -247,14 +247,15 @@ export const AiDesignerProvider = ({ children }) => {
       (settings.preview.livePreview || manualUpdate) &&
       setPreviewSource(
         srcdoc(
-          parseContent(
-            editorContainerRef?.current?.innerHTML,
-            doc =>
-              !!selectedCtx?.node &&
+          parseContent(editorContainerRef?.current?.innerHTML, doc => {
+            !!selectedCtx?.node &&
               doc
                 .querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
-                ?.classList?.add('selected-aidctx'),
-          ),
+                ?.classList?.add('selected-aidctx')
+            doc.querySelectorAll('.ProseMirror-widget').forEach(el => {
+              el.remove()
+            })
+          }),
           css.replaceAll(
             '.ProseMirror[contenteditable]',
             '.pagedjs_page_content',

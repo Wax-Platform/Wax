@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useContext } from 'react'
 
 export const DocumentContext = createContext()
 
@@ -22,3 +22,5 @@ export const DocumentContextProvider = ({ children }) => {
     </DocumentContext.Provider>
   )
 }
+
+export const useDocumentContext = () => useContext(DocumentContext)

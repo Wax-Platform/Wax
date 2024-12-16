@@ -9,6 +9,7 @@ import { WaxContext, ApplicationContext } from 'wax-prosemirror-core'
 import styled from 'styled-components'
 import BlockDropDownComponent from './BlockDropDownComponent'
 import { FlexRow } from '../../_styleds/common'
+import JitsiMeetLink from '../../component-ai-assistant/components/JitsiMeetLink'
 
 const Menu = styled(FlexRow)`
   background: var(--color-trois-lightest);
@@ -161,6 +162,7 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
           {ExternalAPIContent._tools.map(tool => tool.renderTool(activeView))}
         </MenuToolGroup> */}
         {FindAndReplaceComponent}
+        <JitsiMeetLink />
       </FlexRow>
       <MenuToolGroup>
         {FullScreen._tools.map(tool => tool.renderTool(activeView))}

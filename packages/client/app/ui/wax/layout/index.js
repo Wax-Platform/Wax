@@ -1,26 +1,17 @@
-/* stylelint-disable no-descending-specificity */
-/* stylelint-disable declaration-no-important */
 /* stylelint-disable string-quotes */
-import React, {
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react'
+/* stylelint-disable declaration-no-important */
+/* stylelint-disable no-descending-specificity */
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled, { ThemeProvider } from 'styled-components'
 import { WaxContext, ComponentPlugin, WaxView } from 'wax-prosemirror-core'
-import { grid, th, override } from '@coko/client'
+import { grid, th } from '@coko/client'
 import { DeleteOutlined, EllipsisOutlined } from '@ant-design/icons'
-import SelectionBox from '../../component-ai-assistant/SelectionBox'
 import ChatHistory from '../../component-ai-assistant/ChatHistory'
 import YjsContext from '../../../yjsProvider'
 import theme from '../../../theme'
 import commonStyles from './cokoDocsWaxStyles'
 import MenuComponent from './MenuComponent'
-
 import DocTreeManager from '../../dashboard/DocTreeManager/DocTreeManager'
-
 import 'wax-table-service/dist/index.css'
 import 'wax-prosemirror-core/dist/index.css'
 import 'wax-prosemirror-services/dist/index.css'
@@ -218,6 +209,7 @@ const Layout = props => {
     designerOn,
     previewRef,
   } = useContext(AiDesignerContext)
+
   const { loading } = useAssistant()
   const { enableLogin } = props
   const ref = useRef(null)

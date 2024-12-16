@@ -336,7 +336,7 @@ const cssWriteRules = ({ selectors, waxClass }) => {
 `
 }
 
-const cssConsiderations = `Consider the following when writing css: 
+const cssRules = `Consider the following when writing css: 
   - Use hex for colors. 'user' can request to mix colors: for example if the color is #000000 and 'user' asks for a litle more of blue you have to mix the hex values acordingly
 
   - You cannot use individual properties, like ('background-image', 'background-color', 'border-color', ...etc); use shorthand properties instead.
@@ -439,7 +439,7 @@ const notes = [
 
 const notesSE = [
   `Your response must always be the expected valid JSON with the expected shape so the changes can be applied, you must not return the object descriptions, have a second thought on this.`,
-  cssConsiderations,
+  cssRules,
   `If 'user' requests to change the styles to make the article look "like" or "similar" to a given reference:
     - You must create a new snippet including necessary styles for the element and its childs
     - You must add as much details as possible to achieve the most similar appearence`,
@@ -518,7 +518,7 @@ export const AiDesignerSystem = ({
 
   isSE && !providedText && delete shape.content
 
-  const system = {
+  const systemPayload = {
     role,
     task,
     context,
@@ -529,7 +529,7 @@ export const AiDesignerSystem = ({
     },
   }
 
-  return system
+  return systemPayload
 }
 
 export const ragSystem = {
