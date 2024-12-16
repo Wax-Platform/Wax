@@ -1,10 +1,10 @@
 const {
   BaseModel,
-  modelJsonSchemaTypes,
+  modelTypes,
   logger,
   useTransaction,
 } = require('@coko/server')
-const { string } = modelJsonSchemaTypes
+const { string } = modelTypes
 const defaultSnippets = require('./helpers/defaultSnippets')
 const defaultTemplates = require('./helpers/defaultTemplates')
 
