@@ -120,11 +120,14 @@ const addResource = async (_, { id, isFolder }, ctx) => {
   if (isFolder) {
     return DocTreeManager.createNewFolderResource({ id, userId: ctx.user })
   } else {
-    return DocTreeManager.createNewDocumentResource({
+    const identifier = createIdentifier()
+    const newResource = await DocTreeManager.createNewDocumentResource({
       id,
-      identifier: createIdentifier(),
+      identifier,
       userId: ctx.user,
     })
+
+    return { ...newResource, identifier }
   }
 }
 
