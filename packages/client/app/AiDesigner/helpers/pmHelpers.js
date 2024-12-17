@@ -106,11 +106,17 @@ export const addClass = (method, classNames, selected) => {
   const domNode = findInDom(aidctx)
   const { tr, doc } = view.state
 
-  const [firstFound] = findInPmDoc(doc, aidctx) || []
-  const { node, pos } = firstFound ?? {}
+  const node = getAllDescendants(view.docView).find(el =>
+    el?.nodeDOM?.dataset?.aidctx.includes(aidctx),
+  )
+  const pos = node.posBefore
+
+  console.log({ node, pos })
+  console.log({ descendants: getAllDescendants(view.docView), doc, view })
 
   if (!Number(pos) || !domNode) return
   const resolvedPos = doc.resolve(pos)
+  console.log({ resolvedPos })
   const pmNode = resolvedPos.node()
   const safeNode = node || pmNode
 
@@ -119,8 +125,10 @@ export const addClass = (method, classNames, selected) => {
     : classNames?.split(' ') ?? []
 
   const domClasses = SET(domNode?.className?.split(' ') || [])
+  classes.forEach(className => {
+    domClasses[method](className)
+  })
 
-  classes.forEach(domClasses[method]) // add, remove or toggle
   const updatedClasses = [...domClasses].join(' ')
 
   tr.setNodeMarkup(pos, null, {
