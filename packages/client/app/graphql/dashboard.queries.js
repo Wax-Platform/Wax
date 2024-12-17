@@ -31,6 +31,7 @@ export const GET_TREE_MANAGER_AND_SHARED_DOCS = gql`
 export const ADD_RESOURCE = gql`
   mutation addResource($id: ID, $isFolder: Boolean!) {
     addResource(id: $id, isFolder: $isFolder) {
+      identifier
       id
       title
     }

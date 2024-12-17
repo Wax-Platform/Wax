@@ -7,7 +7,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Tree } from 'antd'
 import { cloneDeep } from 'lodash'
 import styled from 'styled-components'
-import { grid } from '@coko/client'
+import { grid, uuid } from '@coko/client'
 import {
   FolderOpenFilled,
   FolderFilled,
@@ -20,8 +20,8 @@ import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesigner
 import { DocumentContext } from '../hooks/DocumentContext'
 import { CleanButton, WindowHeading } from '../../_styleds/common'
 import { useDocTree } from '../hooks/useDocTree'
-import { Link } from 'react-router-dom'
 import TeamPopup from '../../common/TeamPopup'
+import { useHistory } from 'react-router-dom'
 
 const Menu = styled.div`
   background: #f2eff5;
@@ -196,6 +196,8 @@ const DocTreeManager = ({ enableLogin }) => {
     setSharedDocTree,
   } = useContext(DocumentContext)
 
+  const history = useHistory()
+
   const {
     getDocTreeData,
     addResource,
@@ -298,6 +300,16 @@ const DocTreeManager = ({ enableLogin }) => {
     currentIdentifier,
   )
 
+  const handleCreateNewDoc = () => {
+    const id = uuid()
+    addResource({ variables: { id, isFolder: false } }).then(
+      ({ data: { addResource } }) => {
+        console.log('addResource', addResource)
+        setCurrentDoc(addResource)
+        history.push(`/${addResource.identifier}`, { replace: true })
+      },
+    )
+  }
   return (
     <>
       {/* TODO: move menu outside this component, it should also have all other Options (AI chat,images,templates,snippets,etc) */}
@@ -318,9 +330,9 @@ const DocTreeManager = ({ enableLogin }) => {
           )}
         </StyledMainButton>
         <StyledMainButton title="New File">
-          <Link target="_blank" to="/">
+          <CleanButton onClick={handleCreateNewDoc}>
             <FileAddOutlined style={{ fontSize: '25px' }} />
-          </Link>
+          </CleanButton>
         </StyledMainButton>
         <StyledMainButton>
           <TeamPopup enableLogin={enableLogin} />
