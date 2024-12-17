@@ -31,8 +31,6 @@ const nodeDomMap = {
   figcaption: 'figcaption',
   footnote: 'sup',
   mention: 'span',
-  // comment: 'span',
-  // highlight: 'mark',
   emoji: 'span',
   task_item: 'li',
   task_list: 'ul',
@@ -57,7 +55,7 @@ const commonAttrs = {
   class: { default: null },
   group: { default: null },
   viewid: { default: null },
-  dataset: { default: { aidctx: uuid() } },
+  dataset: { default: { aidctx: null } },
 }
 
 const generateHeadingsConfig = level => ({
@@ -89,7 +87,7 @@ const nodesConfig = {
         class: node.attrs.class,
         'data-group': node.attrs.group,
         'data-viewid': node.attrs.viewid,
-        'data-aidctx': node.attrs.dataset.aidctx,
+        'data-aidctx': node.attrs.dataset.aidctx || uuid(),
       }
 
       return [`h${node.attrs.level}`, attrs, 0]
@@ -120,7 +118,7 @@ const nodesConfig = {
         class: node.attrs.class,
         'data-group': node.attrs.group,
         'data-viewid': node.attrs.viewid,
-        'data-aidctx': node.attrs.dataset.aidctx,
+        'data-aidctx': node.attrs.dataset.aidctx || uuid(),
       }
 
       return [`h1`, attrs, 0]
@@ -163,7 +161,7 @@ const nodesConfig = {
         alt: node.attrs.alt,
         'data-group': node.attrs.group,
         'data-viewid': node.attrs.viewid,
-        'data-aidctx': node.attrs.dataset.aidctx,
+        'data-aidctx': node.attrs.dataset.aidctx || uuid(),
         'data-imagekey': node.attrs.imagekey,
       }
 
@@ -203,7 +201,7 @@ const nodesConfig = {
         alt: node.attrs.alt,
         'data-group': node.attrs.group,
         'data-viewid': node.attrs.viewid,
-        'data-aidctx': node.attrs.dataset.aidctx,
+        'data-aidctx': node.attrs.dataset.aidctx || uuid(),
       }
 
       return ['table', attrs, 0]
@@ -255,7 +253,7 @@ const createNodeSchema = () => {
               class: node.attrs.class,
               'data-group': node.attrs.group,
               'data-viewid': node.attrs.viewid,
-              'data-aidctx': node.attrs.dataset.aidctx,
+              'data-aidctx': node.attrs.dataset.aidctx || uuid(),
             }
 
             return [tag, attrs, 0]
@@ -295,7 +293,7 @@ const AiStudioSchema = {
           class: node.attrs.class,
           'data-group': node.attrs.group,
           'data-viewid': node.attrs.viewid,
-          'data-aidctx': node.attrs.dataset.aidctx,
+          'data-aidctx': node.attrs.dataset.aidctx || uuid(),
         }
 
         return ['div', attrs, 0]
@@ -338,7 +336,7 @@ const AiStudioSchema = {
           class: node.attrs.class,
           'data-group': node.attrs.group,
           'data-viewid': node.attrs.viewid,
-          'data-aidctx': node.attrs.dataset.aidctx,
+          'data-aidctx': node.attrs.dataset.aidctx || uuid(),
         }
 
         return ['div', attrs, 0]
