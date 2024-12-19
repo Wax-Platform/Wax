@@ -14,14 +14,16 @@ import JitsiMeetLink from '../../component-ai-assistant/components/JitsiMeetLink
 const Menu = styled(FlexRow)`
   background: var(--color-trois-lightest);
   border-radius: 1.5rem;
+  box-shadow: 0 0 3px 0 #0001, inset 0 0 3px #0001;
   font-family: ${th('fontInterface')};
   font-size: 14px;
   height: fit-content;
+  margin-top: 5px;
   opacity: ${p => (p.openMenu ? '1' : '0')};
   overflow: ${p => (p.openMenu ? 'visible' : 'hidden')};
-  padding: 7px 8px;
+  padding: 5px 8px;
   transition: all 0.2s linear;
-  width: 100%;
+  width: 98%;
   z-index: 9999;
 
   > * {
@@ -36,13 +38,18 @@ const Menu = styled(FlexRow)`
 
 const MenuToolGroup = styled.div`
   align-items: center;
-  border-right: 1px solid;
+  border-right: 1px solid #0001;
   display: flex;
   height: 30px;
   padding: 0 4px;
 
   button {
+    color: var(--toolbar-icons-color);
     margin: 0 5px;
+
+    svg {
+      fill: var(--toolbar-icons-color);
+    }
   }
 
   .Dropdown-menu {
@@ -160,7 +167,7 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
         {FindAndReplaceComponent}
         <JitsiMeetLink />
       </FlexRow>
-      <MenuToolGroup>
+      <MenuToolGroup style={{ paddingLeft: '80px' }}>
         {FullScreen._tools.map(tool => tool.renderTool(activeView))}
       </MenuToolGroup>
       {/* {open && (

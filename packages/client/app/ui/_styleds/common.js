@@ -50,7 +50,8 @@ export const WindowHeading = styled.div`
 `
 
 export const StyledWindow = styled.div`
-  border-right: ${p => (p.$show ? '1px' : '0px')} solid #0004;
+  align-items: center;
+  border-right: ${p => (p.$show ? '1px' : '0px')} solid #0002;
   display: flex;
   flex-direction: column;
   /* height: var(--styledwindow-height); */

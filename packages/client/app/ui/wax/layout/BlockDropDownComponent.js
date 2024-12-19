@@ -30,12 +30,12 @@ const ButtonWrapper = styled.div`
 `
 
 const DropDownButton = styled.button`
-  background: #fff;
+  background: #fff0;
   border: none;
   color: #000;
   cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
   display: flex;
-  width: 160px;
+  width: 130px;
 
   span {
     position: relative;

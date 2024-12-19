@@ -107,7 +107,7 @@ export const addClass = (method, classNames, selected) => {
   const { tr, doc } = view.state
 
   const node = getAllDescendants(view.docView).find(el =>
-    el?.nodeDOM?.dataset?.aidctx.includes(aidctx),
+    el?.nodeDOM?.dataset?.aidctx?.includes(aidctx),
   )
   const pos = node.posBefore
 

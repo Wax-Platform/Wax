@@ -9,7 +9,8 @@ import useAssistant from '../hooks/useAiDesigner'
 
 const SpinnerWrapper = styled.div`
   align-items: center;
-  background: #fffa;
+  backdrop-filter: blur(5px);
+  background: #fff0;
   display: flex;
   height: 100%;
   justify-content: center;

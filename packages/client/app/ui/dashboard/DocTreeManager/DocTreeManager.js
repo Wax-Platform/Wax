@@ -12,6 +12,7 @@ import {
   FolderOpenFilled,
   FolderFilled,
   FileAddOutlined,
+  TeamOutlined,
 } from '@ant-design/icons'
 import RowRender from './RowRender'
 import ConfirmDelete from '../../modals/ConfirmDelete'
@@ -22,16 +23,19 @@ import { CleanButton, WindowHeading } from '../../_styleds/common'
 import { useDocTree } from '../hooks/useDocTree'
 import TeamPopup from '../../common/TeamPopup'
 import { useHistory } from 'react-router-dom'
+import ChatHistory from '../../component-ai-assistant/ChatHistory'
+import PromptBox from '../../component-ai-assistant/components/PromptBox'
+import aiIcon from '../../../../static/chat-icon.svg'
 
 const Menu = styled.div`
-  background: #f2eff5;
-  box-shadow: inset 0 0 5px #0002;
+  background: var(--color-trois-lightest-2);
   display: flex;
   align-items: center;
   flex-direction: column;
   height: 100%;
   width: 50px;
-  padding-top: 0;
+  padding-left: 10px;
+  padding-top: 12px;
   z-index: 101;
 
   > button {
@@ -40,8 +44,9 @@ const Menu = styled.div`
 `
 
 const FilesWrapper = styled.div`
-  background: white;
-  border-right: 1px solid #0004;
+  background: #fff0;
+  /* border-right: 1px solid;
+  border-color: ${p => (p.expand ? '#0002' : '#0000')}; */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -50,9 +55,8 @@ const FilesWrapper = styled.div`
   width: 25dvw;
   max-width: ${p => (p.expand ? '25dvw' : '0')};
   left: 50px;
-  position: absolute;
+  /* position: absolute; */
   transition: all 0.3s;
-  visibility: ${props => (props.defaultState ? 'visible' : 'hidden')};
   z-index: 999;
 
   .ant-tree {
@@ -141,14 +145,14 @@ const FilesWrapper = styled.div`
 `
 
 const StyledMainButton = styled(CleanButton)`
+  --shadow: ${p => (p.$expanded ? 'var(--color-trois-lightest)' : '#0000')};
   backdrop-filter: brightness(${p => (p.$expanded ? '103%' : '100%')});
-  border-bottom: 1px solid var(--color-trois-alpha) !important;
-  border-radius: 0;
+  box-shadow: 0 0 3px 0 var(--shadow), inset 0 0 3px var(--shadow);
+  border-radius: 50%;
   text-decoration: none;
   transition: backdrop-filter 0.5s;
   width: 100%;
-  height: 45px;
-  padding: 5px;
+  height: 40px;
 
   /* margin-bottom: ${grid(4)}; */
   &:hover {
@@ -169,25 +173,25 @@ const StyledMainButton = styled(CleanButton)`
 const SharedTree = styled(Tree)``
 
 const Heading = styled(WindowHeading)`
-  background-color: var(--color-trois-lightest);
+  background: #fff0;
+  color: var(--color-trois-alpha);
+  padding: 22px 10px 12px;
   width: 100%;
-  border-bottom: 1px solid var(--color-trois-alpha);
 
   span {
-    color: #333 !important;
+    border-radius: 1rem;
+    box-shadow: 0 0 3px 0 #0001, inset 0 0 3px #0001;
+    color: #a991b8 !important;
+    font-size: 12px;
+    background: #fffa;
+    padding: 8px 10px;
     text-transform: uppercase;
   }
 `
 
 const DocTreeManager = ({ enableLogin }) => {
-  let isFileManagerOpen = true
-  if (localStorage.getItem('isFileManagerOpen') !== null) {
-    isFileManagerOpen = localStorage.getItem('isFileManagerOpen')
-  } else {
-    localStorage.setItem('isFileManagerOpen', isFileManagerOpen)
-  }
-
-  const { docId } = useContext(AiDesignerContext)
+  const { docId, layout, updateLayout, designerOn } =
+    useContext(AiDesignerContext)
   const {
     setCurrentDoc,
     setDocTree,
@@ -206,10 +210,6 @@ const DocTreeManager = ({ enableLogin }) => {
     deleteResource,
   } = useDocTree()
   const [deleteResourceRow, setDeleteResourceRow] = useState(null)
-  const [expandFilesArea, setExpandFilesArea] = useState(
-    isFileManagerOpen === 'true' ? true : false,
-  )
-  const [defaultState, setDefaultState] = useState(expandFilesArea)
 
   const onDrop = async info => {
     const dropKey = info.node.key
@@ -315,15 +315,13 @@ const DocTreeManager = ({ enableLogin }) => {
       {/* TODO: move menu outside this component, it should also have all other Options (AI chat,images,templates,snippets,etc) */}
       <Menu>
         <StyledMainButton
-          $expanded={expandFilesArea}
+          $expanded={layout.files}
           onClick={() => {
-            setDefaultState(true)
-            localStorage.setItem('isFileManagerOpen', !expandFilesArea)
-            setExpandFilesArea(!expandFilesArea)
+            updateLayout({ files: !layout.files, chat: false, team: false })
           }}
           title="Show / Hide Filemanager"
         >
-          {!expandFilesArea ? (
+          {!layout.files ? (
             <FolderFilled style={{ fontSize: '32px' }} />
           ) : (
             <FolderOpenFilled style={{ fontSize: '32px' }} />
@@ -334,64 +332,112 @@ const DocTreeManager = ({ enableLogin }) => {
             <FileAddOutlined style={{ fontSize: '25px' }} />
           </CleanButton>
         </StyledMainButton>
-        <StyledMainButton>
-          <TeamPopup enableLogin={enableLogin} />
+        <StyledMainButton $expanded={layout.team} title="Team">
+          <TeamOutlined
+            onClick={() =>
+              updateLayout({
+                team: !layout.team,
+                chat: false,
+                files: false,
+              })
+            }
+          />
         </StyledMainButton>
+        {designerOn && (
+          <StyledMainButton
+            $expanded={layout.chat}
+            onClick={() =>
+              updateLayout({ chat: !layout.chat, files: false, team: false })
+            }
+          >
+            <img style={{ width: '25px' }} src={aiIcon} alt="AI" />
+          </StyledMainButton>
+        )}
       </Menu>
-      <FilesWrapper expand={expandFilesArea} defaultState={defaultState}>
-        <span style={{ minWidth: '23dvw' }}>
-          <Heading>
-            <span>Explorer</span>
-          </Heading>
-          <Tree
-            key="myDocs"
-            className="draggable-tree"
-            // defaultExpandedKeys={expandedKeys}
-            defaultExpandAll
-            draggable
-            blockNode
-            onDrop={onDrop}
-            allowDrop={node => {
-              if (
-                (node.dropPosition <= 0 && node.dropNode.isRoot) ||
-                (node.dropPosition === 0 && !node.dropNode.isFolder)
-              ) {
-                return false
-              }
+      <span
+        style={{
+          maxWidth: layout.files || layout.chat || layout.team ? '25dvw' : '0',
+          width: '25dvw',
+          height: '100%',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'all 0.3s',
+          overflow: 'hidden',
+          background: '#fff0',
 
-              return true
-            }}
-            treeData={docTree}
-            titleRender={rowProps => {
-              return (
-                <RowRender
-                  {...rowProps}
-                  confirmDelete={confirmDelete}
-                  addResource={addResource}
-                  renameResource={renameResource}
-                />
-              )
-            }}
-          />
+          zIndex: 999,
+        }}
+      >
+        <Heading>
+          <span>
+            {layout.files
+              ? 'Files'
+              : layout.chat
+              ? 'Chat'
+              : layout.team
+              ? 'Team'
+              : null}
+          </span>
+        </Heading>
+        <FilesWrapper expand={layout.files || layout.chat || layout.team}>
+          {layout.files ? (
+            <>
+              <Tree
+                key="myDocs"
+                className="draggable-tree"
+                // defaultExpandedKeys={expandedKeys}
+                // defaultExpandAll
+                draggable
+                blockNode
+                onDrop={onDrop}
+                allowDrop={node => {
+                  if (
+                    (node.dropPosition <= 0 && node.dropNode.isRoot) ||
+                    (node.dropPosition === 0 && !node.dropNode.isFolder)
+                  ) {
+                    return false
+                  }
 
-          <SharedTree
-            key="sharedDocTree"
-            blockNode
-            treeData={sharedDocTree}
-            titleRender={rowProps => {
-              return (
-                <RowRender
-                  isSharedFolder
-                  {...rowProps}
-                  // confirmDelete={confirmDelete}
-                  // addResource={addResourceFn}
-                  // renameResource={renameResourceFn}
-                />
-              )
-            }}
-          />
-        </span>
-      </FilesWrapper>
+                  return true
+                }}
+                treeData={docTree}
+                titleRender={rowProps => {
+                  return (
+                    <RowRender
+                      {...rowProps}
+                      confirmDelete={confirmDelete}
+                      addResource={addResource}
+                      renameResource={renameResource}
+                    />
+                  )
+                }}
+              />
+
+              <SharedTree
+                key="sharedDocTree"
+                blockNode
+                treeData={sharedDocTree}
+                titleRender={rowProps => {
+                  return (
+                    <RowRender
+                      isSharedFolder
+                      {...rowProps}
+                      // confirmDelete={confirmDelete}
+                      // addResource={addResourceFn}
+                      // renameResource={renameResourceFn}
+                    />
+                  )
+                }}
+              />
+            </>
+          ) : layout.chat ? (
+            <ChatHistory />
+          ) : layout.team ? (
+            <TeamPopup enableLogin={enableLogin} open={layout.team} />
+          ) : null}
+        </FilesWrapper>
+      </span>
       <ConfirmDelete
         deleteResourceFn={deleteResource}
         deleteResourceRow={
