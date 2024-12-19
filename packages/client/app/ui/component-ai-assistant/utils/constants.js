@@ -138,7 +138,7 @@ export const cssTemplate1 = /* css */ `
 /* To define how the book look on the screen: */
 @media screen, pagedjs-ignore {
     body {
-        background-color: #dedede;
+        background-color: #fbf8fd;
     }
 
       * {

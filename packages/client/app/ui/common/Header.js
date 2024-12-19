@@ -17,19 +17,22 @@ import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
 // #region styles
 const StyledHeader = styled.header`
   align-items: center;
-  background-color: ${th('colorBody')};
+  background: var(--color-trois-lightest-2);
   display: flex;
   flex-flow: row wrap;
   height: var(--header-height);
   justify-content: space-between;
   padding: 0 10px 0 0;
+  z-index: 999;
 `
 
 const Logo = styled.img`
+  border-right: 1px solid #0001;
   display: flex;
-  height: 100%;
+  height: 90%;
   margin: 0;
   object-fit: contain;
+  padding-inline: 10px;
 `
 
 const UserMenu = styled.div`
@@ -58,7 +61,7 @@ const UserMenu = styled.div`
 
   > :first-child {
     align-items: center;
-    border-right: 1px solid #0004;
+    border-left: 1px solid #0001;
     display: flex;
     gap: 10px;
     line-height: 1;
@@ -70,15 +73,16 @@ const DocumentInfoArea = styled(FlexCol)`
   gap: 2px;
   height: 100%;
   line-height: 1;
-  padding: 0 15px;
+  padding: 0 20px;
 
   > p {
     color: #222;
-    font-size: 18px;
+    font-size: 15px;
     margin: 0;
   }
 
   > small {
+    font-size: 10px;
     text-decoration: none;
   }
 `
@@ -115,8 +119,14 @@ const Header = props => {
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
     !designerOn
-      ? updateLayout({ preview: true, editor: false })
-      : updateLayout({ preview: false, editor: true })
+      ? updateLayout({
+          preview: true,
+          editor: false,
+          chat: true,
+          team: false,
+          files: false,
+        })
+      : updateLayout({ preview: false, editor: true, chat: false })
   }
   return (
     <StyledHeader role="banner" {...rest}>
@@ -124,7 +134,7 @@ const Header = props => {
         <Logo src={logoMobile} alt="Wax platform"></Logo>
         {docId && currentDoc?.title && (
           <DocumentInfoArea>
-            <small>Editing:</small>
+            <small>Document:</small>
             <p>{currentDoc?.title}</p>
           </DocumentInfoArea>
         )}

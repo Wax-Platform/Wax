@@ -287,21 +287,12 @@ const Assistant = styled(PromptsInput)`
 `
 const AbsoluteContainer = styled.div`
   align-items: center;
-  bottom: ${p => (p.$show ? '15px' : '-140px')};
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  position: absolute;
-  right: ${p => {
-    if (p.$showChat) return '30px'
-    return p.$bothEditors ? '8.2%' : '23.4%'
-  }};
-
+  position: fixed;
   transition: all 0.3s 0.2s;
-  width: ${p => {
-    if (p.$showChat) return 'calc(25% - 60px)'
-    if (p.$bothEditors) return '32%'
-    return '50%'
-  }};
+  width: calc(25dvw - 45px);
 `
 
 const PromptBoxWrapper = styled.div`
@@ -435,7 +426,7 @@ export const PromptBox = () => {
 
   return (
     <AbsoluteContainer
-      $bothEditors={layout.preview && layout.editor}
+      // $bothEditors={layout.preview && layout.editor}
       $showChat={layout.chat}
       $show={designerOn}
     >

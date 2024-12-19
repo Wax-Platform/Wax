@@ -13,6 +13,7 @@ import { AiDesignerContext } from './hooks/AiDesignerContext'
 import { copyTextContent, htmlTagNames } from './utils'
 import logoSmall from '../../../static/AI Design Studio-Icon.svg'
 import userSmall from '../../../static/user-icon.svg'
+import PromptBox from './components/PromptBox'
 
 const chatFadeIn = keyframes`
   0% {
@@ -30,8 +31,7 @@ const ChatHistoryContainer = styled.div`
   --profile-picture-size: 25px;
   --message-header-gap: 8px;
 
-  background: #fff5ff;
-  border-left: 1px solid #0004;
+  background-color: #fff0;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -45,6 +45,7 @@ const ChatHistoryContainer = styled.div`
   transition: width 0.5s;
   user-select: none;
   white-space: pre-line;
+  width: 25dvw;
 
   ::-webkit-scrollbar {
     height: 5px;
@@ -52,7 +53,6 @@ const ChatHistoryContainer = styled.div`
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #0002 !important;
     border-radius: 5px;
     width: 5px;
   }
@@ -330,6 +330,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
             }`}
         </span>
       )}
+      <PromptBox />
     </ChatHistoryContainer>
   )
 }

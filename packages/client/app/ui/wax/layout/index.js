@@ -25,8 +25,8 @@ import { StyledWindow, WindowHeading } from '../../_styleds/common'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
-  --menu-height: ${p => (p.$menuvisible ? '58px' : '0px')};
-  background: #ddd;
+  --menu-height: ${p => (p.$menuvisible ? '47px' : '0px')};
+  background: var(--color-trois-lightest-2);
   display: flex;
   flex-direction: column;
   font-family: '${th('fontInterface')}';
@@ -63,7 +63,6 @@ const InfoContainer = styled.div`
     display: flex;
     height: fit-content;
     margin: 0;
-    padding-bottom: 6px;
   }
 
   div > div > div {
@@ -81,17 +80,17 @@ const InfoContainer = styled.div`
 `
 
 const EditorContainer = styled.div`
-  padding-block: 45px;
+  max-width: 85%;
+  padding-block: 72px;
   position: relative;
   width: 1200px;
 
   .ProseMirror {
     box-shadow: 0 0 8px #ecedf1;
     height: fit-content;
-    max-width: 1000px;
+    max-width: 100%;
     min-height: 150dvh;
     padding: 10% !important;
-    transform: scale(${p => (p.$all ? '0.65' : p.$both ? '0.8' : '1')});
     transform-origin: top center;
     transition: transform 0.2s;
     width: 1200px;
@@ -106,14 +105,13 @@ const EditorContainer = styled.div`
 `
 
 const MenuWrapper = styled.div`
-  background-color: white;
-  border-bottom: ${p => (p.$show ? '1px' : '0px')} solid gainsboro;
+  background-color: #fff0;
   display: flex;
   flex-flow: row nowrap;
   font-size: 16px;
-  height: var(--menu-height);
+  height: fit-content;
+  justify-content: center;
   max-height: var(--menu-height);
-  padding: ${p => (p.$show ? '6px 15px 14px' : '0')};
   /* opacity: ${p => (p.$show ? '1' : '0')}; */
   pointer-events: ${p => (p.$show ? 'all' : 'none')};
   transition: all 0.3s linear;
@@ -141,13 +139,16 @@ const CommentsContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: fit-content;
-  margin-right: 15px;
-  position: absolute;
+  max-width: ${p => (p.$show ? '20%' : '0')};
+  opacity: ${p => (p.$show ? '1' : '0')};
+  overflow-x: hidden;
+  right: 0;
   top: 0;
+  transition: all 0.3s;
   width: fit-content;
 
   div[data-box] {
-    width: 30vw;
+    width: fit-content;
 
     button {
       font-size: 14px;
@@ -162,7 +163,6 @@ const CommentsContainer = styled.div`
 const WaxSurfaceScroll = styled.div`
   box-sizing: border-box;
   display: flex;
-  height: calc(100dvh - (var(--header-height) + var(--menu-height)));
   justify-content: center;
   margin: 0;
   overflow: scroll;
@@ -199,7 +199,6 @@ const Layout = props => {
   const {
     editorContainerRef,
     layout,
-    clearHistory,
     updatePreview,
     htmlSrc,
     updateLayout,
@@ -290,7 +289,6 @@ const Layout = props => {
         style={fullScreenStyles}
         $menuvisible={!!layout.editor}
       >
-        <PromptBox />
         <MenuWrapper $show={layout.editor}>
           {main && (
             <MenuComponent
@@ -318,7 +316,14 @@ const Layout = props => {
               >
                 <WaxView {...props} />
               </EditorContainer>
-              <CommentsContainer>
+              <CommentsContainer
+                $show={
+                  !layout.chat &&
+                  !layout.files &&
+                  !layout.team &&
+                  !(layout.preview && layout.editor)
+                }
+              >
                 <RightArea area="main" users={users} />
               </CommentsContainer>
             </WaxSurfaceScroll>
@@ -330,19 +335,6 @@ const Layout = props => {
           </StyledWindow>
 
           <PagedJsPreview $show={designerOn} loading={loading} />
-          <StyledWindow
-            $show={designerOn && layout.chat}
-            style={{ maxWidth: '25%', background: '#f5f5f5' }}
-          >
-            <WindowHeading>
-              <span>CHAT HISTORY</span>
-              <DeleteOutlined
-                onClick={clearHistory}
-                title="Clear history (not undoable)"
-              />
-            </WindowHeading>
-            <ChatHistory />
-          </StyledWindow>
         </WaxEditorWrapper>
       </Wrapper>
     </ThemeProvider>
