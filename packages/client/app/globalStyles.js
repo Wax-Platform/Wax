@@ -36,7 +36,7 @@ export default createGlobalStyle`
     --color-orange-alpha-2: #fe7b4d11;
     --color-green-alpha-2: #6fab6a11;
     --color-blue-alpha-2: #21799e11;
-    --scrollbar: #a34ba160;
+    --scrollbar: #a34ba11d;
 
     /* Coko colors */
 
@@ -52,6 +52,7 @@ export default createGlobalStyle`
     --color-trois-light: #d3afd2;
     --color-trois-lighter: #decfde;
     --color-trois-lightest: #f2eff5;
+    --color-trois-lightest-2: #fbf8fd;
     --color-trois-dark: #6d336c;
     --color-trois-alpha: #a34ba129;
  

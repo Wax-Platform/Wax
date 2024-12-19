@@ -107,6 +107,8 @@ export const AiDesignerProvider = ({ children }) => {
     chat: false,
     input: true,
     settings: false,
+    files: false,
+    teams: false,
   })
 
   const [tools, setTools] = useState({
