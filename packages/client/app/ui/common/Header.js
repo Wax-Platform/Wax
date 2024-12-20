@@ -29,10 +29,10 @@ const StyledHeader = styled.header`
 const Logo = styled.img`
   border-right: 1px solid #0001;
   display: flex;
-  height: 90%;
+  height: 100%;
   margin: 0;
   object-fit: contain;
-  padding-inline: 10px;
+  padding-inline: 5px 12px;
 `
 
 const UserMenu = styled.div`
@@ -125,6 +125,7 @@ const Header = props => {
           chat: true,
           team: false,
           files: false,
+          userMenu: true,
         })
       : updateLayout({ preview: false, editor: true, chat: false })
   }

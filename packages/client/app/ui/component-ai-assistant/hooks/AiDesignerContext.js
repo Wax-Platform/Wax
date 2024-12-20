@@ -109,6 +109,7 @@ export const AiDesignerProvider = ({ children }) => {
     settings: false,
     files: false,
     teams: false,
+    userMenu: false,
   })
 
   const [tools, setTools] = useState({
@@ -126,9 +127,7 @@ export const AiDesignerProvider = ({ children }) => {
   })
 
   const updateLayout = updateObjectState(setLayout)
-
   const mutateSettings = updateObjectStateFromKey(setSettings)
-
   const updateTools = updateObjectStateFromKey(setTools)
 
   const getCtxNode = (dom = document) =>

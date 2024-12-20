@@ -1,3 +1,4 @@
+/* stylelint-disable string-quotes */
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import styled from 'styled-components'

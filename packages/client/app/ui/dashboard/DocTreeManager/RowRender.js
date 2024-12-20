@@ -1,6 +1,6 @@
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-no-important */
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -11,15 +11,12 @@ import {
   CloseCircleFilled,
   FileOutlined,
   FolderFilled,
-  CheckCircleOutlined,
   CheckCircleFilled,
 } from '@ant-design/icons'
-import Button from '../../common/Button'
 import { debounce } from 'lodash'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { DocumentContext } from '../hooks/DocumentContext'
 import { CleanButton, FlexRow } from '../../_styleds/common'
-import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 
 const RowContainer = styled.div`
   border-bottom: 1px solid var(--color-trois-alpha);
@@ -93,8 +90,6 @@ const IconTitleContainer = styled.div`
 
   span {
     line-height: 1;
-    /* margin-bottom: 10px;
-    margin-right: 5px; */
 
     svg {
       fill: var(--svg-fill);
@@ -158,7 +153,7 @@ const RowRender = row => {
               autoFocus
               value={updatedName}
               onKeyDown={e => {
-                if (e.key === 'Enter' || e.keyCode === 13) {
+                if (e.key === 'Enter') {
                   renameResource({
                     variables: { id, title: updatedName },
                   })
@@ -198,7 +193,7 @@ const RowRender = row => {
               <FileOutlined style={{ fontSize: '12px' }} />
             )}
             <span>
-              {!isRoot && title.length > 18
+              {!isRoot && title.length > 30
                 ? `${title.substring(0, 18)}...`
                 : title}
             </span>

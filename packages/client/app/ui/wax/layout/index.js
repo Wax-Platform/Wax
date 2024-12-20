@@ -178,6 +178,8 @@ const WaxEditorWrapper = styled.div`
 
   justify-content: space-between;
   min-width: 100%;
+  padding-inline-start: 10px;
+  transition: all 0.3s;
 `
 
 const FileManagerWrapper = styled.div`
@@ -316,16 +318,11 @@ const Layout = props => {
               >
                 <WaxView {...props} />
               </EditorContainer>
-              <CommentsContainer
-                $show={
-                  !layout.chat &&
-                  !layout.files &&
-                  !layout.team &&
-                  !(layout.preview && layout.editor)
-                }
-              >
-                <RightArea area="main" users={users} />
-              </CommentsContainer>
+              {!layout.userMenu && !layout.preview && layout.editor && (
+                <CommentsContainer $show>
+                  <RightArea area="main" users={users} />
+                </CommentsContainer>
+              )}
             </WaxSurfaceScroll>
             <WaxBottomRightInfo>
               <InfoContainer id="info-container">
@@ -333,7 +330,6 @@ const Layout = props => {
               </InfoContainer>
             </WaxBottomRightInfo>
           </StyledWindow>
-
           <PagedJsPreview $show={designerOn} loading={loading} />
         </WaxEditorWrapper>
       </Wrapper>

@@ -14,7 +14,6 @@ import JitsiMeetLink from '../../component-ai-assistant/components/JitsiMeetLink
 const Menu = styled(FlexRow)`
   background: var(--color-trois-lightest);
   border-radius: 1.5rem;
-  box-shadow: 0 0 3px 0 #0001, inset 0 0 3px #0001;
   font-family: ${th('fontInterface')};
   font-size: 14px;
   height: fit-content;

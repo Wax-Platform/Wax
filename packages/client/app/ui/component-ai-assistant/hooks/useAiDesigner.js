@@ -108,7 +108,6 @@ const useAssistant = () => {
         onHistory.addRegistry('undo')
         history.current.source.redo = []
       }
-
       const actions = {
         css: val => {
           getCssTemplate({ variables: { docId, css: val } })
@@ -181,6 +180,7 @@ const useAssistant = () => {
         callOn(action, actions, [response[action]])
         actionsApplied?.push(action)
       })
+      console.log({ response, actionsApplied })
 
       updatePreview(true)
     },

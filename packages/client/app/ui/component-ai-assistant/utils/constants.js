@@ -139,6 +139,7 @@ export const cssTemplate1 = /* css */ `
 @media screen, pagedjs-ignore {
     body {
         background-color: #fbf8fd;
+        padding-top: 30px;
     }
 
       * {
@@ -263,7 +264,7 @@ export const cssTemplate1 = /* css */ `
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #777;
+    background: #a34ba11d;
     border-radius: 5px;
     width: 5px;
   }
@@ -423,7 +424,7 @@ this string can contain:
 - Ensure the text is a well formed and fancy markdown string, add emojis and diferent types of text: headings, strongs, etc.`
 
 const notes = [
-  `Your response must always be the expected valid JSON with the expected shape so the changes can be applied, you must not return the object descriptions, have a second thought on this.`,
+  `Your response must always be the expected valid JSON with the expected shape so the changes can be applied, you must not return the object descriptions, have a second thought on this, must be a stringified json, not markdown.`,
 
   `Ensure that each key is a string enclosed in double quotes and that each value is a valid CSS value, also enclosed in double quotes.`,
 
