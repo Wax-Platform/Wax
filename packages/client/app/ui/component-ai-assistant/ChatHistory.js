@@ -27,6 +27,20 @@ const chatFadeIn = keyframes`
   }
 `
 
+const Root = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  height: 100%;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 0 0 12px;
+  position: relative;
+  transition: all;
+  width: 100%;
+`
+
 const ChatHistoryContainer = styled.div`
   --profile-picture-size: 25px;
   --message-header-gap: 8px;
@@ -34,18 +48,16 @@ const ChatHistoryContainer = styled.div`
   background-color: #fff0;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-width: calc(25dvw);
+  /* height: 100%; */
   overflow: auto;
   padding: 25px;
-  padding-bottom: 25%;
   position: relative;
   scroll-behavior: smooth;
   scrollbar-color: #0002;
   transition: width 0.5s;
   user-select: none;
   white-space: pre-line;
-  width: 25dvw;
+  width: 100%;
 
   ::-webkit-scrollbar {
     height: 5px;
@@ -138,6 +150,7 @@ const MessageHeader = styled.div`
   display: flex;
   gap: var(--message-header-gap);
   justify-content: space-between;
+  padding: 8px 0;
   width: 100%;
 
   svg {
@@ -149,7 +162,8 @@ const MessageHeader = styled.div`
     gap: var(--message-header-gap);
 
     > strong {
-      color: #555;
+      color: #0009;
+      padding-left: 4px;
     }
   }
 
@@ -182,9 +196,8 @@ const MessageContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 3px
-    calc(var(--message-header-gap) + var(--profile-picture-size) - 2px);
-  padding: var(--message-header-gap) 15px;
+  margin: 0;
+  padding: 0 15px;
 
   p {
     margin: 0;
@@ -234,104 +247,108 @@ const ChatHistory = ({ nomessages, ...props }) => {
   }, [feedback, selectedCtx.conversation])
 
   return (
-    <ChatHistoryContainer ref={threadRef} {...props}>
-      <link href={prismcss} rel="stylesheet" />
-      {selectedCtx?.conversation?.length > 0 ? (
-        selectedCtx.conversation.map(({ role, content }, i) => {
-          const forgotten =
-            i < selectedCtx.conversation.length - settings.chat.historyMax - 1
+    <Root>
+      <ChatHistoryContainer ref={threadRef} {...props}>
+        <link href={prismcss} rel="stylesheet" />
+        {selectedCtx?.conversation?.length > 0 ? (
+          selectedCtx.conversation.map(({ role, content }, i) => {
+            const forgotten =
+              i < selectedCtx.conversation.length - settings.chat.historyMax - 1
 
-          const messageid = `${role}-${i}`
+            const messageid = `${role}-${i}`
 
-          const copyText = async () => {
-            if (!document?.getElementById(messageid)) return
-            copyTextContent(document?.getElementById(messageid))
-            const newCbTxt = await getClipboardText()
-            setClipboardText(newCbTxt)
-          }
+            const copyText = async () => {
+              if (!document?.getElementById(messageid)) return
+              copyTextContent(document?.getElementById(messageid))
+              const newCbTxt = await getClipboardText()
+              setClipboardText(newCbTxt)
+            }
 
-          return (
-            // eslint-disable-next-line react/no-array-index-key
-            <span key={role + content + i}>
-              <MessageContainer
-                forgotten={forgotten}
-                style={
-                  i !== 0
-                    ? { borderTop: '1px solid #0002', paddingTop: '18px' }
-                    : {}
-                }
-              >
-                <MessageHeader>
-                  {role === 'user' ? (
-                    <span>
-                      <img
-                        alt="user-profile"
-                        src={currentUser?.profilePicture ?? userSmall}
-                        style={{
-                          background:
-                            currentUser?.color ?? 'var(--color-trois)',
-                        }}
-                      />
-                      <strong>@{currentUser?.displayName}</strong>
-                    </span>
-                  ) : (
-                    <span>
-                      <img
-                        alt=""
-                        src={logoSmall}
-                        style={{ borderRadius: 0, marginTop: '-10px' }}
-                      />
-                      <strong>AI Design Studio</strong>
-                    </span>
-                  )}
-                  <span style={{ gap: 0, color: '#888', alignItems: 'center' }}>
-                    <span
-                      style={{
-                        width: 'fit-content',
-                        justifyContent: 'flex-end',
-                      }}
-                    >
-                      {document.getElementById(messageid)?.textContent ===
-                        clipboardText && <small>copied!!</small>}
-                      <CopyOutlined onClick={copyText} title="Copy message" />
-                    </span>
-                    {i === selectedCtx.conversation.length - 1 && (
-                      <DeleteOutlined
-                        onClick={deleteLastMessage}
-                        title="Remove from history (not undoable)"
-                      />
+            return (
+              // eslint-disable-next-line react/no-array-index-key
+              <span key={role + content + i}>
+                <MessageContainer
+                  forgotten={forgotten}
+                  style={
+                    i !== 0
+                      ? { borderTop: '1px solid #0002', paddingTop: '18px' }
+                      : {}
+                  }
+                >
+                  <MessageHeader>
+                    {role === 'user' ? (
+                      <span>
+                        <img
+                          alt="user-profile"
+                          src={currentUser?.profilePicture ?? userSmall}
+                          style={{
+                            background:
+                              currentUser?.color ?? 'var(--color-trois)',
+                          }}
+                        />
+                        <strong>@{currentUser?.displayName}</strong>
+                      </span>
+                    ) : (
+                      <span>
+                        <img
+                          alt=""
+                          src={logoSmall}
+                          style={{ borderRadius: 0, marginTop: '-10px' }}
+                        />
+                        <strong>AI Design Studio</strong>
+                      </span>
                     )}
-                    {forgotten && <small>- forgotten -</small>}
-                  </span>
-                </MessageHeader>
+                    <span
+                      style={{ gap: 0, color: '#888', alignItems: 'center' }}
+                    >
+                      <span
+                        style={{
+                          width: 'fit-content',
+                          justifyContent: 'flex-end',
+                        }}
+                      >
+                        {document.getElementById(messageid)?.textContent ===
+                          clipboardText && <small>copied!!</small>}
+                        <CopyOutlined onClick={copyText} title="Copy message" />
+                      </span>
+                      {i === selectedCtx.conversation.length - 1 && (
+                        <DeleteOutlined
+                          onClick={deleteLastMessage}
+                          title="Remove from history (not undoable)"
+                        />
+                      )}
+                      {forgotten && <small>- forgotten -</small>}
+                    </span>
+                  </MessageHeader>
 
-                <MessageContent id={messageid}>
-                  <ReactMarkdown>{content}</ReactMarkdown>
-                </MessageContent>
-              </MessageContainer>
-            </span>
-          )
-        })
-      ) : (
-        <span
-          style={{
-            color: '#777',
-            background: '#fff',
-            padding: '10px',
-            borderRadius: '5px',
-            textAlign: 'center',
-          }}
-        >
-          {nomessages ||
-            `Make your first prompt related to ${
-              selectedCtx?.tagName
-                ? `this ${htmlTagNames[selectedCtx?.tagName]}`
-                : 'the Document'
-            }`}
-        </span>
-      )}
+                  <MessageContent id={messageid}>
+                    <ReactMarkdown>{content}</ReactMarkdown>
+                  </MessageContent>
+                </MessageContainer>
+              </span>
+            )
+          })
+        ) : (
+          <span
+            style={{
+              color: '#777',
+              background: '#fff',
+              padding: '10px',
+              borderRadius: '5px',
+              textAlign: 'center',
+            }}
+          >
+            {nomessages ||
+              `Make your first prompt related to ${
+                selectedCtx?.tagName
+                  ? `this ${htmlTagNames[selectedCtx?.tagName]}`
+                  : 'the Document'
+              }`}
+          </span>
+        )}
+      </ChatHistoryContainer>
       <PromptBox />
-    </ChatHistoryContainer>
+    </Root>
   )
 }
 

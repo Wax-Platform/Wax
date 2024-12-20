@@ -19,7 +19,7 @@ const updateSettings = async (newSettings, options = {}) => {
     return useTransaction(
       async tr => {
         logger.info(`Updating settings`)
-        const currentSettings = await Settings.query().first()
+        const currentSettings = await Settings.query(trx).first()
 
         if (!currentSettings) {
           logger.info('Settings not found creating new')
