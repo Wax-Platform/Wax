@@ -287,12 +287,12 @@ const Assistant = styled(PromptsInput)`
 `
 const AbsoluteContainer = styled.div`
   align-items: center;
-  bottom: 0;
+  /* bottom: 0; */
   display: flex;
   flex-direction: column;
-  position: fixed;
+  /* position: fixed; */
   transition: all 0.3s 0.2s;
-  width: calc(25dvw - 45px);
+  width: 95%;
 `
 
 const PromptBoxWrapper = styled.div`

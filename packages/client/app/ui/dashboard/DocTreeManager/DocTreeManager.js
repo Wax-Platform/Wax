@@ -13,6 +13,8 @@ import {
   FolderFilled,
   FileAddOutlined,
   TeamOutlined,
+  FolderOutlined,
+  FolderOpenOutlined,
 } from '@ant-design/icons'
 import RowRender from './RowRender'
 import ConfirmDelete from '../../modals/ConfirmDelete'
@@ -24,7 +26,6 @@ import { useDocTree } from '../hooks/useDocTree'
 import TeamPopup from '../../common/TeamPopup'
 import { useHistory } from 'react-router-dom'
 import ChatHistory from '../../component-ai-assistant/ChatHistory'
-import PromptBox from '../../component-ai-assistant/components/PromptBox'
 import aiIcon from '../../../../static/chat-icon.svg'
 
 const Menu = styled.div`
@@ -33,6 +34,7 @@ const Menu = styled.div`
   align-items: center;
   flex-direction: column;
   height: 100%;
+  gap: 5px;
   width: 50px;
   padding-left: 10px;
   padding-top: 12px;
@@ -45,17 +47,18 @@ const Menu = styled.div`
 
 const FilesWrapper = styled.div`
   background: #fff0;
-  /* border-right: 1px solid;
-  border-color: ${p => (p.expand ? '#0002' : '#0000')}; */
   display: flex;
+  border-right: ${p =>
+    p.$showRightBorder
+      ? '1px solid var(--color-trois-alpha)'
+      : '1px solid #fff0'};
   flex-direction: column;
   height: 100%;
   overflow: auto;
-  padding: 0;
-  width: 25dvw;
-  max-width: ${p => (p.expand ? '25dvw' : '0')};
+  padding: 0 4px 0 0;
+  min-width: 25dvw;
+  /* max-width: ${p => (p.expand ? '26dvw' : '0')}; */
   left: 50px;
-  /* position: absolute; */
   transition: all 0.3s;
   z-index: 999;
 
@@ -145,21 +148,22 @@ const FilesWrapper = styled.div`
 `
 
 const StyledMainButton = styled(CleanButton)`
-  --shadow: ${p => (p.$expanded ? 'var(--color-trois-lightest)' : '#0000')};
-  backdrop-filter: brightness(${p => (p.$expanded ? '103%' : '100%')});
-  box-shadow: 0 0 3px 0 var(--shadow), inset 0 0 3px var(--shadow);
+  --shadow: ${p => (p.$expanded ? '#0001' : '#0000')};
+  aspect-ratio: 1 / 1;
+  box-shadow: inset 0 0 2px 0 var(--shadow);
+  background-color: ${p => (p.$expanded ? '#00000005' : '#00000000')};
   border-radius: 50%;
   text-decoration: none;
-  transition: backdrop-filter 0.5s;
+  transition: all 0.2s;
   width: 100%;
-  height: 40px;
+  height: fit-content;
 
-  /* margin-bottom: ${grid(4)}; */
   &:hover {
-    backdrop-filter: brightness(105%);
+    background-color: #00000005;
   }
   svg {
-    fill: #a34ba1;
+    fill: ${p =>
+      p.$expanded ? 'var(--color-trois-dark)' : 'var(--color-trois)'};
     height: 30px;
     padding: 3px 0;
     width: 30px;
@@ -174,18 +178,20 @@ const SharedTree = styled(Tree)``
 
 const Heading = styled(WindowHeading)`
   background: #fff0;
-  color: var(--color-trois-alpha);
-  padding: 22px 10px 12px;
+  border-right: ${p =>
+    p.$showRightBorder
+      ? '1px solid var(--color-trois-alpha)'
+      : '1px solid #fff0'};
+  padding: 17px 10px;
   width: 100%;
 
   span {
-    border-radius: 1rem;
-    box-shadow: 0 0 3px 0 #0001, inset 0 0 3px #0001;
-    color: #a991b8 !important;
-    font-size: 12px;
-    background: #fffa;
-    padding: 8px 10px;
-    text-transform: uppercase;
+    border-radius: 1.5rem;
+    color: #0007 !important;
+    font-size: 18px;
+    font-weight: 200;
+    background: #00000005;
+    padding: 8px 15px;
   }
 `
 
@@ -310,44 +316,69 @@ const DocTreeManager = ({ enableLogin }) => {
       },
     )
   }
+  const menuLabel = layout.files
+    ? 'Files'
+    : layout.chat
+    ? 'Chat'
+    : layout.team
+    ? 'Team'
+    : null
   return (
     <>
       {/* TODO: move menu outside this component, it should also have all other Options (AI chat,images,templates,snippets,etc) */}
       <Menu>
         <StyledMainButton
-          $expanded={layout.files}
+          $expanded={layout.userMenu && layout.files}
           onClick={() => {
-            updateLayout({ files: !layout.files, chat: false, team: false })
+            layout.files && layout.userMenu
+              ? updateLayout({ userMenu: false })
+              : updateLayout({
+                  files: true,
+                  chat: false,
+                  team: false,
+                  userMenu: true,
+                })
           }}
           title="Show / Hide Filemanager"
         >
           {!layout.files ? (
-            <FolderFilled style={{ fontSize: '32px' }} />
+            <FolderOutlined style={{ fontSize: '32px' }} />
           ) : (
-            <FolderOpenFilled style={{ fontSize: '32px' }} />
+            <FolderOpenOutlined style={{ fontSize: '32px' }} />
           )}
         </StyledMainButton>
-        <StyledMainButton title="New File">
-          <CleanButton onClick={handleCreateNewDoc}>
-            <FileAddOutlined style={{ fontSize: '25px' }} />
-          </CleanButton>
+        <StyledMainButton onClick={handleCreateNewDoc} title="New File">
+          <FileAddOutlined style={{ fontSize: '25px' }} />
         </StyledMainButton>
-        <StyledMainButton $expanded={layout.team} title="Team">
+        <StyledMainButton
+          $expanded={layout.userMenu && layout.team}
+          title="Team"
+        >
           <TeamOutlined
             onClick={() =>
-              updateLayout({
-                team: !layout.team,
-                chat: false,
-                files: false,
-              })
+              layout.team && layout.userMenu
+                ? updateLayout({ userMenu: false })
+                : updateLayout({
+                    team: true,
+                    chat: false,
+                    files: false,
+                    userMenu: true,
+                  })
             }
           />
         </StyledMainButton>
         {designerOn && (
           <StyledMainButton
-            $expanded={layout.chat}
+            $expanded={layout.userMenu && layout.chat}
             onClick={() =>
-              updateLayout({ chat: !layout.chat, files: false, team: false })
+              layout.chat && layout.userMenu
+                ? updateLayout({ userMenu: false })
+                : updateLayout({
+                    chat: true,
+                    files: false,
+                    team: false,
+                    userMenu: true,
+                  })
             }
           >
             <img style={{ width: '25px' }} src={aiIcon} alt="AI" />
@@ -356,7 +387,10 @@ const DocTreeManager = ({ enableLogin }) => {
       </Menu>
       <span
         style={{
-          maxWidth: layout.files || layout.chat || layout.team ? '25dvw' : '0',
+          maxWidth:
+            !layout.userMenu || (!layout.chat && !layout.files && !layout.team)
+              ? '0'
+              : '25dvw',
           width: '25dvw',
           height: '100%',
           position: 'relative',
@@ -365,22 +399,13 @@ const DocTreeManager = ({ enableLogin }) => {
           transition: 'all 0.3s',
           overflow: 'hidden',
           background: '#fff0',
-
           zIndex: 999,
         }}
       >
-        <Heading>
-          <span>
-            {layout.files
-              ? 'Files'
-              : layout.chat
-              ? 'Chat'
-              : layout.team
-              ? 'Team'
-              : null}
-          </span>
+        <Heading $showRightBorder={layout.chat}>
+          {menuLabel && <span>{menuLabel}</span>}
         </Heading>
-        <FilesWrapper expand={layout.files || layout.chat || layout.team}>
+        <FilesWrapper expand={layout.userMenu} $showRightBorder={layout.chat}>
           {layout.files ? (
             <>
               <Tree
