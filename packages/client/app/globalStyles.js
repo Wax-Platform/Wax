@@ -15,6 +15,7 @@ import '@fontsource/recursive/variable-full.css'
 
 export default createGlobalStyle`
   #root {
+    --button-shadow: -1px 1px 4px 0 #0001, inset 0 0 2px 0 #fff3;
     --color-yellow: #fbcd55;
     --color-yellow-dark: #a27400;
     --color-orange: #fe7b4d;
@@ -49,6 +50,7 @@ export default createGlobalStyle`
     --color-secondary: #e177a2ff;
     --color-secondary-fade: #e0387a0d;
     --color-trois: #a34ba1;
+    --color-trois-opaque: #936a93;
     --color-trois-light: #d3afd2;
     --color-trois-lighter: #decfde;
     --color-trois-lightest: #f2eff5;

@@ -110,6 +110,7 @@ export const AiDesignerProvider = ({ children }) => {
     files: false,
     teams: false,
     userMenu: false,
+    templateManager: false,
   })
 
   const [tools, setTools] = useState({

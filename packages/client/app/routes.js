@@ -1,6 +1,5 @@
 /* eslint-disable react/function-component-definition */
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
-import { useApolloClient } from '@apollo/client'
+import React, { useContext, useEffect, useState } from 'react'
 import {
   Route,
   Switch,
@@ -148,23 +147,13 @@ const SiteHeader = ({ enableLogin }) => {
 
   const history = useHistory()
 
-  const { currentUser, setCurrentUser } = useCurrentUser()
-  const client = useApolloClient()
+  const { currentUser } = useCurrentUser()
   const [currentPath, setCurrentPath] = useState(history.location.pathname)
 
   useEffect(() => {
     const unlisten = history.listen(val => setCurrentPath(val.pathname))
-
     return unlisten
   }, [])
-
-  const logout = () => {
-    setCurrentUser(null)
-    client.cache.reset()
-
-    localStorage.removeItem('token')
-    history.push('/login')
-  }
 
   return currentUser || enableLogin === false ? (
     <Header
@@ -173,7 +162,6 @@ const SiteHeader = ({ enableLogin }) => {
       enableLogin={!!enableLogin}
       links={headerLinks}
       loggedin={!!currentUser}
-      onLogout={logout}
     />
   ) : null
 }
@@ -198,6 +186,7 @@ const Authenticated = ({ children }) => {
     </RequireAuth>
   )
 }
+
 const PageWrapper = props => {
   const { setUserInteractions } = useContext(AiDesignerContext)
   useEffect(() => {

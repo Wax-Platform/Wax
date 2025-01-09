@@ -13,6 +13,7 @@ import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerCon
 import Toggle from '../component-ai-assistant/components/Toggle'
 import { DocumentContext } from '../dashboard/hooks/DocumentContext'
 import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
+import { findChildNodeByIdentifier } from '../dashboard/DocTreeManager/utils'
 
 // #region styles
 const StyledHeader = styled.header`
@@ -110,11 +111,16 @@ const Header = props => {
   } = props
   const { designerOn, setDesignerOn, updateLayout, docId } =
     useContext(AiDesignerContext)
-  const { currentDoc } = useContext(DocumentContext)
+  const { currentDoc, docTree, setCurrentDoc } = useContext(DocumentContext)
 
   useEffect(() => {
     currentDoc?.title && (document.title = `${currentDoc.title} - Wax`)
   }, [docId, currentDoc?.title])
+
+  useEffect(() => {
+    const currentDocument = findChildNodeByIdentifier(docTree, docId)
+    currentDocument && setCurrentDoc(currentDocument)
+  }, [docTree])
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)

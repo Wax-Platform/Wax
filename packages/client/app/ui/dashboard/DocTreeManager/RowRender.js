@@ -19,6 +19,7 @@ import { DocumentContext } from '../hooks/DocumentContext'
 import { CleanButton, FlexRow } from '../../_styleds/common'
 
 const RowContainer = styled.div`
+  background: ${p => (p.$selected ? 'var(--color-trois-lightest)' : '#fff0')};
   border-bottom: 1px solid var(--color-trois-alpha);
   color: ${p => (p.$active ? 'var(--color-purple)' : 'inherit')};
   display: flex;
@@ -108,8 +109,10 @@ const RowRender = row => {
     confirmDelete,
     isRoot,
     isSharedFolder,
+    isSelected,
+    setSelectedDocs,
   } = row
-  const { docId } = useContext(AiDesignerContext)
+  const { docId, userInteractions } = useContext(AiDesignerContext)
   const history = useHistory()
   const { setCurrentDoc } = useContext(DocumentContext)
   const [updatedName, setUpdateName] = useState(title)
@@ -117,6 +120,7 @@ const RowRender = row => {
   const [lock, setLock] = useState(false)
 
   const goToDocument = async e => {
+    setSelectedDocs([])
     if (!lock) {
       setLock(true)
 
@@ -134,14 +138,19 @@ const RowRender = row => {
   }
 
   useEffect(() => {
-    console.log(row)
-    docId === identifier && setCurrentDoc(row)
+    // console.log(row)
+    // docId === identifier && setCurrentDoc(row)
   }, [docId])
 
   return (
     <RowContainer
+      $selected={isSelected}
       $active={docId === identifier}
-      onClick={goToDocument}
+      onClick={e => {
+        !userInteractions.ctrl
+          ? goToDocument(e)
+          : setSelectedDocs(p => [...p, id])
+      }}
       $folder={isFolder}
       $sharedFolder={isSharedFolder}
     >
@@ -228,6 +237,7 @@ const RowRender = row => {
             <StyledFolderFileBtn
               onMouseDown={e => {
                 e.preventDefault()
+                console.log(row)
                 confirmDelete(row)
               }}
               title="Delete"

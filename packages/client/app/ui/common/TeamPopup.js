@@ -5,9 +5,11 @@ import React, { useState, useContext } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { BlockPicker } from 'react-color'
-import { th } from '@coko/client'
+import { th, useCurrentUser } from '@coko/client'
 import YjsContext from '../../yjsProvider'
 import Button from './Button'
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
+import { useApolloClient } from '@apollo/client'
 
 const StyledButton = styled(Button)`
   background: none;
@@ -105,71 +107,73 @@ const StyledBlockPicker = styled(BlockPicker)`
   top: calc(100% + 20px);
 `
 
-const TeamPopup = ({ onLogout, enableLogin, open }) => {
+const TeamPopup = () => {
+  const client = useApolloClient()
+
   const [openColorPicker, toggleColorPicker] = useState(false)
+  const history = useHistory()
+  const { setCurrentUser } = useCurrentUser()
+  const logout = () => {
+    setCurrentUser(null)
+    client.cache.reset()
+
+    localStorage.removeItem('token')
+    history.push('/login')
+  }
 
   const { sharedUsers, updateLocalUser, yjsCurrentUser } =
     useContext(YjsContext)
 
   return (
     <TeamWrapper>
-      {open && (
-        <Popup>
-          <MyUser>
-            {enableLogin && (
-              <StyledButton
-                data-testid="logout-btn"
-                onClick={() => {
-                  onLogout()
+      <Popup>
+        <MyUser>
+          <p>Name:</p>
+          <UsernameText
+            onChange={current => {
+              updateLocalUser({
+                displayName: current.target.value,
+                color: yjsCurrentUser.color,
+              })
+            }}
+            type="text"
+            value={yjsCurrentUser.displayName}
+          />
+          <ColoredCircle
+            color={yjsCurrentUser.color}
+            onClick={() => toggleColorPicker(!openColorPicker)}
+            size="20px"
+          />
+          {openColorPicker && (
+            <ColorBlock>
+              <StyledBlockPicker
+                color={yjsCurrentUser.color}
+                onChangeComplete={color => {
+                  updateLocalUser({
+                    displayName: yjsCurrentUser.displayName,
+                    color: color.hex,
+                  })
                 }}
-              >
-                Logout
-              </StyledButton>
-            )}
-            <p>Name:</p>
-            <UsernameText
-              onChange={current => {
-                updateLocalUser({
-                  displayName: current.target.value,
-                  color: yjsCurrentUser.color,
-                })
-              }}
-              type="text"
-              value={yjsCurrentUser.displayName}
-            />
-            <ColoredCircle
-              color={yjsCurrentUser.color}
-              onClick={() => toggleColorPicker(!openColorPicker)}
-              size="20px"
-            />
-            {openColorPicker && (
-              <ColorBlock>
-                <StyledBlockPicker
-                  color={yjsCurrentUser.color}
-                  onChangeComplete={color => {
-                    updateLocalUser({
-                      displayName: yjsCurrentUser.displayName,
-                      color: color.hex,
-                    })
-                  }}
-                />
-              </ColorBlock>
-            )}
-          </MyUser>
-          <OtherUsers>
-            <ul>
-              {sharedUsers
-                .filter(([id, { user }]) => user.id !== yjsCurrentUser.id)
-                .map(([id, { user }]) => (
-                  <li key={user.id}>
-                    <ColoredCircle color={user.color} size="35px" />{' '}
-                    <span>{user.displayName}</span>{' '}
-                  </li>
-                ))}
-            </ul>
-          </OtherUsers>
-        </Popup>
-      )}
+              />
+            </ColorBlock>
+          )}
+        </MyUser>
+        <StyledButton data-testid="logout-btn" onClick={logout}>
+          Logout
+        </StyledButton>
+        <OtherUsers>
+          <ul>
+            {sharedUsers
+              .filter(([id, { user }]) => user.id !== yjsCurrentUser.id)
+              .map(([id, { user }]) => (
+                <li key={user.id}>
+                  <ColoredCircle color={user.color} size="35px" />{' '}
+                  <span>{user.displayName}</span>{' '}
+                </li>
+              ))}
+          </ul>
+        </OtherUsers>
+      </Popup>
     </TeamWrapper>
   )
 }

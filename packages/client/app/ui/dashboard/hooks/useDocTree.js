@@ -6,20 +6,12 @@ import {
   DELETE_RESOURCE,
   REORDER_RESOURCE,
 } from '../../../graphql'
-import { useContext } from 'react'
-import { DocumentContext } from './DocumentContext'
+import { useDocumentContext } from './DocumentContext'
 import { cloneDeep } from 'lodash'
 
 export const useDocTree = () => {
-  const { setDocTree, setSharedDocTree } = useContext(DocumentContext)
-
-  const { refetch: getDocTreeData } = useQuery(
-    GET_TREE_MANAGER_AND_SHARED_DOCS,
-    {
-      skip: true,
-      onCompleted: console.log,
-    },
-  )
+  const { setDocTree, setSharedDocTree } = useDocumentContext()
+  const { refetch: getDocTreeData } = useQuery(GET_TREE_MANAGER_AND_SHARED_DOCS)
 
   const onCompleted = async () => {
     const { data } = await getDocTreeData()

@@ -314,7 +314,7 @@ const Layout = props => {
             >
               <EditorContainer
                 $both={!!layout.preview && !!layout.editor}
-                $all={!!layout.preview && !!layout.editor && !!layout.chat}
+                $all={!!layout.preview && !!layout.editor && !!layout.userMenu}
               >
                 <WaxView {...props} />
               </EditorContainer>

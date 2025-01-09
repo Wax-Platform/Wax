@@ -300,10 +300,7 @@ export const handleImgElementSelection = async ({
   return src
 }
 
-export const formatDate = dateString => {
-  const date = new Date(dateString).toLocaleString()
-  return date
-}
+export const formatDate = date => new Date(date).toLocaleString()
 
 export const ansi = color => {
   const colors = {
