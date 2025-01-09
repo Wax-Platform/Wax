@@ -5,7 +5,6 @@ import { useDocTree } from './hooks/useDocTree'
 
 const Dashboard = ({ showFilemanager, enableLogin }) => {
   const { getDocTreeData } = useDocTree()
-
   const docIdentifier = useLoadFirstDocument(getDocTreeData)
 
   localStorage.removeItem('nextDocument')

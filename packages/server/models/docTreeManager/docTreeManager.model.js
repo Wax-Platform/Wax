@@ -42,7 +42,7 @@ class DocTreeManager extends BaseModel {
       }
       return insertedResource
     } catch (e) {
-      logger.info('EEEEEEEEEEEEEEEEEEEEEEE')
+      logger.info(e)
     }
   }
 

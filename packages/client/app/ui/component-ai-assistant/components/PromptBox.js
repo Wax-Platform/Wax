@@ -25,11 +25,11 @@ const Dropdown = styled.div`
   border-radius: 5px;
   bottom: 0;
   height: fit-content;
+  left: calc(100% + ${p => (p.$open ? '20px' : '8px')});
   max-height: ${p => (p.$open ? '150px' : '0')};
   max-width: ${p => (p.$open ? '180px' : '0')};
   overflow: hidden;
   position: absolute;
-  right: calc(100% + ${p => (p.$open ? '20px' : '8px')});
   transition: all 0.3s;
   width: 180px;
   z-index: 999;
@@ -426,7 +426,7 @@ export const PromptBox = () => {
 
   return (
     <AbsoluteContainer
-      // $bothEditors={layout.preview && layout.editor}
+      $bothEditors={layout.preview && layout.editor}
       $showChat={layout.chat}
       $show={designerOn}
     >
