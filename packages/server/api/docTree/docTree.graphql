@@ -2,7 +2,7 @@ type DocTree {
   id: ID!
   key: ID!
   title: String!
-  children: [DocTree!]
+  children: [DocTree]
   doc: Doc
   parentId: ID
   isFolder: Boolean
@@ -14,14 +14,44 @@ type FolderView {
   name: String!
 }
 
+type NewResource {
+  id: ID!
+  identifier: String
+  title: String
+}
+
+type CurrentFolderAndPath {
+  path: PathMap
+  currentFolder: DocTree
+  newResource: NewResource
+}
+
+type PathMap {
+  pathNames: [String!]!
+  pathIds: [ID!]!
+}
+
 extend type Query {
   getDocTree(folderId: ID): String!
   getSharedDocTree: [DocTree]
+  getResource(id: ID!): DocTree
+  getParentFolderByIdentifier(identifier: String!): DocTree
+  openFolder(id: ID!, idType: String): CurrentFolderAndPath
+  openRootFolder: CurrentFolderAndPath
 }
 
 extend type Mutation {
-  addResource(id: ID, isFolder: Boolean!, identifier: String): DocTree!
-  deleteResource(id: ID!): DocTree!
-  renameResource(id: ID!, title: String!): DocTree!
-  updateTreePosition(id: ID!, newParentId: ID, newPosition: Int!): DocTree!
+  addResource(
+    id: ID
+    isFolder: Boolean!
+    identifier: String
+  ): CurrentFolderAndPath!
+  deleteResource(id: ID!): CurrentFolderAndPath!
+  renameResource(id: ID!, title: String!): CurrentFolderAndPath!
+  moveResource(id: ID!, newParentId: ID): CurrentFolderAndPath!
+  updateTreePosition(
+    id: ID!
+    newParentId: ID
+    newPosition: Int!
+  ): CurrentFolderAndPath!
 }

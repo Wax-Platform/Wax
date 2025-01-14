@@ -1,4 +1,5 @@
 const { Doc } = require('@pubsweet/models')
+const DocTreeManager = require('../../models/docTreeManager/docTreeManager.model')
 
 const {
   updateTreePosition,
@@ -7,6 +8,10 @@ const {
   addResource,
   getDocTree,
   getSharedDocTree,
+  openFolder,
+  getParentFolderByIdentifier,
+  getResource,
+  moveResource,
 } = require('../../controllers/docTree.controllers')
 
 module.exports = {
@@ -22,15 +27,26 @@ module.exports = {
       }
       return null
     },
+    children: async parent => {
+      const children = await DocTreeManager.getChildren(parent.id)
+      return children
+    },
   },
   Query: {
     getDocTree,
     getSharedDocTree,
+    openFolder,
+    openRootFolder: async (_, __, ctx) => {
+      return openFolder(null, 'root', ctx)
+    },
+    getParentFolderByIdentifier,
+    getResource,
   },
   Mutation: {
     addResource,
     deleteResource,
     renameResource,
     updateTreePosition,
+    moveResource,
   },
 }
