@@ -14,9 +14,10 @@ import { debounce } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
-import { FlexRow } from '../_styleds/common'
+import { FlexRow, StyledWindow } from '../_styleds/common'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 import Files from '../dashboard/DocTreeManager/FileBrowser'
+import PathRender from '../dashboard/DocTreeManager/PathRender'
 
 const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
@@ -54,7 +55,6 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
     useContext(AiDesignerContext)
   const { graphQL } = useDocumentContext()
   const { openFolder } = graphQL
-  const { docTree } = graphQL
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
 
   const { displayStyles } = settings.editor
@@ -95,14 +95,14 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       window.removeEventListener('message', handleMessage)
     }
   }, [])
-  useEffect(async () => {
+  useEffect(() => {
     if (docIdentifier) {
       yjsProvider?.disconnect()
       setShowSpinner(true)
 
-      await debounce(async () => {
+      debounce(() => {
         createYjsProvider(docIdentifier)
-        await getAidMisc({
+        getAidMisc({
           variables: {
             input: { docId: docIdentifier },
           },
@@ -113,7 +113,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
 
       openFolder({ variables: { id: docIdentifier, idType: 'identifier' } })
     }
-  }, [docIdentifier, docTree])
+  }, [docIdentifier])
 
   useEffect(() => {
     aidMisc &&
@@ -129,8 +129,22 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
     }
   }, [yjsProvider?.doc?.guid])
 
-  if (!yjsProvider || !ydoc || !WaxConfig) return <Files />
-
+  if (!yjsProvider || !ydoc || !WaxConfig || !docIdentifier) {
+    return (
+      <StyledWindow
+        style={{
+          width: '100%',
+          height: '100%',
+          opacity: 1,
+          background: 'var(--color-trois-lightest-2)',
+          paddingBlock: '1rem',
+        }}
+      >
+        <PathRender style={{ width: '80%' }} />
+        <Files style={{ width: '80%', maxWidth: '100%' }} />
+      </StyledWindow>
+    )
+  }
   return (
     <>
       {displayStyles && <style id="aid-css-template">{css}</style>}

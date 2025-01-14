@@ -144,13 +144,15 @@ class DocTreeManager extends BaseModel {
       pathIds: [],
     }
 
+    logger.info(`Opening folder ${id} for user ${userId}`)
+
     const currentResource = id && (await DocTreeManager[method](id))
     let folder = currentResource
 
     if (!currentResource?.isFolder) {
       folder = currentResource?.parentId
         ? await DocTreeManager.query().findById(currentResource.parentId)
-        : await DocTreeManager.findRootFolderOfUser(userId)
+        : await DocTreeManager.getParentOrRoot(null, userId)
     }
 
     let current = folder
@@ -162,6 +164,7 @@ class DocTreeManager extends BaseModel {
     }
 
     const folderChildren = await DocTreeManager.getChildren(folder.id)
+
     return {
       path: pathMap,
       currentFolder: { ...folder, children: folderChildren },
@@ -226,7 +229,7 @@ class DocTreeManager extends BaseModel {
 
   static async getParentOrRoot(id, userId) {
     return (
-      (await this.getResource(id)) ||
+      (id && (await this.getResource(id))) ||
       (await this.findRootFolderOfUser(userId)) ||
       (await this.createUserRootFolder(userId))
     )
@@ -292,6 +295,8 @@ class DocTreeManager extends BaseModel {
           'id',
           userDocNodes.map(docNode => docNode.objectId),
         )
+      } else {
+        allFiles = await DocTreeManager.query().where({ userId })
       }
     } else {
       allFiles = await DocTreeManager.query()
@@ -333,8 +338,6 @@ class DocTreeManager extends BaseModel {
     logger.info(`Resource ${id} deleted successfully`)
     return id
   }
-
-  static async rename({}) {}
 }
 
 module.exports = DocTreeManager

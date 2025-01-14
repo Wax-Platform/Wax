@@ -60,7 +60,6 @@ export const DocumentContextProvider = ({ children }) => {
 
   useEffect(() => {
     console.log('CURRENT FOLDER', { resourcesInFolder })
-
     if (!resourcesInFolder?.length || !currentDocId) return
     currentDoc?.doc?.identifier !== currentDocId &&
       setCurrentDoc(

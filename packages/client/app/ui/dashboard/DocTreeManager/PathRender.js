@@ -8,7 +8,6 @@ import {
 } from '@ant-design/icons'
 import { DocumentContext } from '../hooks/DocumentContext'
 import Each from '../../component-ai-assistant/utils/Each'
-import { NewFileButton } from '../../menu/menuOptions'
 import { takeRight } from 'lodash'
 
 const MAX_PATH_LEVEL = 4
@@ -64,7 +63,7 @@ const Actions = styled(FlexRow)`
   padding: 7px 10px;
 `
 
-const PathRender = () => {
+const PathRender = props => {
   const { currentPath, graphQL, createResource } = useContext(DocumentContext)
   const { openFolder } = graphQL ?? {}
   const { pathNames, pathIds } = currentPath ?? {}
@@ -98,7 +97,7 @@ const PathRender = () => {
   }
 
   return (
-    <PathRenderWrapper>
+    <PathRenderWrapper {...props}>
       <Container>
         <Each of={lastPaths} as={pathRender} if={pathLevel} />
       </Container>

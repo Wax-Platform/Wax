@@ -10,6 +10,7 @@ import {
 } from '../../../graphql'
 import { useHistory } from 'react-router-dom'
 import { useEffect } from 'react'
+import { useCurrentUser } from '@coko/client'
 
 export const useDocTree = ({
   currentDoc,
@@ -19,6 +20,7 @@ export const useDocTree = ({
   setCurrentFolder,
 }) => {
   const history = useHistory()
+  const { currentUser } = useCurrentUser()
   const onCompleted = data => {
     const [dataValues] = Object.values(data) || []
     if (!dataValues) return
@@ -38,7 +40,10 @@ export const useDocTree = ({
     setCurrentDoc(newResource)
   }
 
-  const { refetch: getDocTreeData } = useQuery(GET_TREE_MANAGER_AND_SHARED_DOCS)
+  const { refetch: getDocTreeData } = useQuery(
+    GET_TREE_MANAGER_AND_SHARED_DOCS,
+    { skip: true },
+  )
   const [openFolder] = useLazyQuery(OPEN_FOLDER, { onCompleted })
   const [openRootFolder] = useLazyQuery(OPEN_ROOT_FOLDER, { onCompleted })
   const [addResource] = useMutation(ADD_RESOURCE, { onCompleted })
@@ -47,8 +52,9 @@ export const useDocTree = ({
   const [moveResource] = useMutation(MOVE_RESOURCE, { onCompleted })
 
   useEffect(() => {
-    openRootFolder()
-  }, [])
+    currentUser?.id && openRootFolder()
+    console.log({ currentUser })
+  }, [currentUser])
 
   return {
     openFolder,

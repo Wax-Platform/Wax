@@ -87,7 +87,13 @@ const DocTreeNested = async (folderId, userId) => {
     const rootFolder = allFiles.find(
       f => f.id === folderId || f.title === 'Root' || !f.parentId,
     )
-    logger.info(JSON.stringify(allFiles, null, 2))
+    logger.info(
+      JSON.stringify(
+        allFiles.map(f => ({ parentId: f.parentId, name: f.title })),
+        null,
+        2,
+      ),
+    )
     if (!rootFolder) {
       throw new Error('Root folder not found')
     }
