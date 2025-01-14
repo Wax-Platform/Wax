@@ -111,16 +111,21 @@ const Header = props => {
   } = props
   const { designerOn, setDesignerOn, updateLayout, docId } =
     useContext(AiDesignerContext)
-  const { currentDoc, docTree, setCurrentDoc } = useContext(DocumentContext)
+  const { currentDoc, setCurrentDoc, currentFolder } =
+    useContext(DocumentContext)
 
   useEffect(() => {
-    currentDoc?.title && (document.title = `${currentDoc.title} - Wax`)
+    currentDoc?.title &&
+      currentDoc?.doc?.identifier &&
+      (document.title = `${currentDoc.title} - Wax`)
   }, [docId, currentDoc?.title])
 
   useEffect(() => {
-    const currentDocument = findChildNodeByIdentifier(docTree, docId)
+    const currentDocument = currentFolder?.resources?.find(
+      n => n.doc?.identifier === docId,
+    )
     currentDocument && setCurrentDoc(currentDocument)
-  }, [docTree])
+  }, [currentFolder?.id, docId])
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
@@ -131,6 +136,7 @@ const Header = props => {
           chat: true,
           team: false,
           files: false,
+          templateManager: false,
           userMenu: true,
         })
       : updateLayout({ preview: false, editor: true, chat: false })
@@ -139,27 +145,29 @@ const Header = props => {
     <StyledHeader role="banner" {...rest}>
       <FlexRow style={{ gap: '0', height: '100%' }}>
         <Logo src={logoMobile} alt="Wax platform"></Logo>
-        {docId && currentDoc?.title && (
+        {currentDoc?.title && (
           <DocumentInfoArea>
             <small>Document:</small>
             <p>{currentDoc?.title}</p>
           </DocumentInfoArea>
         )}
       </FlexRow>
-      <UserMenu $designerOn={designerOn}>
-        <FlexRow>
-          <EditDesignLabels $active={!designerOn} $activecolor="#222">
-            Edit
-          </EditDesignLabels>
-          <Toggle handleChange={toggleDesigner} checked={designerOn} />
-          <EditDesignLabels
-            $active={designerOn}
-            $activecolor="var(--color-trois)"
-          >
-            Design
-          </EditDesignLabels>
-        </FlexRow>
-      </UserMenu>
+      {docId && (
+        <UserMenu $designerOn={designerOn}>
+          <FlexRow>
+            <EditDesignLabels $active={!designerOn} $activecolor="#222">
+              Edit
+            </EditDesignLabels>
+            <Toggle handleChange={toggleDesigner} checked={designerOn} />
+            <EditDesignLabels
+              $active={designerOn}
+              $activecolor="var(--color-trois)"
+            >
+              Design
+            </EditDesignLabels>
+          </FlexRow>
+        </UserMenu>
+      )}
     </StyledHeader>
   )
 }

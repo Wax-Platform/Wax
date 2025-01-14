@@ -1,18 +1,13 @@
 /* stylelint-disable string-quotes */
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-no-important */
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Tree } from 'antd'
-import { cloneDeep } from 'lodash'
 import styled from 'styled-components'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { DocumentContext } from '../hooks/DocumentContext'
 import RowRender from './RowRender'
 import ConfirmDelete from '../../modals/ConfirmDelete'
-import { findParentNode, findChildNodeByIdentifier } from './utils'
-import Each from '../../component-ai-assistant/utils/Each'
-import { CleanButton } from '../../_styleds/common'
-import { ArrowLeftOutlined } from '@ant-design/icons'
 
 const FilesWrapper = styled.div`
   background: #fff0;
@@ -118,20 +113,11 @@ const FilesWrapper = styled.div`
 
 const SharedTree = styled(Tree)``
 
-const Files = () => {
-  const { docId, layout } = useContext(AiDesignerContext)
-  const {
-    setCurrentDoc,
-    setDocTree,
-    docTree,
-    sharedDocTree,
-    setSharedDocTree,
-    currentFolder,
-    graphQL,
-  } = useContext(DocumentContext)
+const Files = props => {
+  const { layout } = useContext(AiDesignerContext)
+  const { currentFolder, graphQL } = useContext(DocumentContext)
 
   const {
-    getDocTreeData,
     addResource,
     renameResource,
     reorderResource,
@@ -143,85 +129,21 @@ const Files = () => {
   const [selectedDocs, setSelectedDocs] = useState([])
 
   const onDrop = async info => {
-    const dropKey = info.node.key
-    const dragKey = info.dragNode.key
-    const dropPos = info.node.pos.split('-')
-    const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1])
-    console.log({ dropKey, dragKey, dropPos, dropPosition })
-    const loop = (data, key, callback) => {
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].key === key) {
-          return callback(data[i], i, data)
-        }
-        if (data[i].children) {
-          loop(data[i].children, key, callback)
-        }
-      }
-    }
-    const data = [...docTree]
-
-    let dragObj
-    loop(data, dragKey, (item, index, arr) => {
-      arr.splice(index, 1)
-      dragObj = item
-    })
-    if (!info.dropToGap) {
-      loop(data, dropKey, item => {
-        item.children = item.children || []
-        item.children.unshift(dragObj)
-      })
-    } else {
-      let ar = []
-      let i
-      loop(data, dropKey, (_item, index, arr) => {
-        ar = arr
-        i = index
-      })
-      if (dropPosition === -1) {
-        ar.splice(i, 0, dragObj)
-      } else {
-        ar.splice(i + 1, 0, dragObj)
-      }
-    }
-    setDocTree(data)
-
-    // const newParentNode = findParentNode(data, dragKey)
-    // if (!newParentNode) return
-    // const newPosition = newParentNode.children.findIndex(
-    //   child => child.key === dragKey,
-    // )
-    reorderResource({
-      variables: { id: dragKey, newParentId: dropKey },
-    })
+    const newParentId = info.node.key
+    const id = info.dragNode.key
+    reorderResource({ variables: { id, newParentId } })
   }
-
-  useEffect(async () => {
-    const { data } = await getDocTreeData()
-    const allData = JSON.parse(data.getDocTree)
-    console.log(allData)
-    if (allData.length < 1) return
-    const allDataRoot = allData[0] || allData
-    allDataRoot.isRoot = true
-
-    setDocTree([allData])
-
-    const sharedData = cloneDeep(data.getSharedDocTree)
-    sharedData[0].isRoot = true
-
-    setSharedDocTree([...sharedData])
-  }, [])
 
   const confirmDelete = row => {
     setDeleteResourceRow(row)
   }
 
-  useEffect(() => {
-    const currentDocument = findChildNodeByIdentifier(docTree, docId)
-    currentDocument && setCurrentDoc(currentDocument)
-  }, [docTree, currentFolder?.children?.length])
-
   return (
-    <FilesWrapper expand={layout.userMenu} $showRightBorder={layout.chat}>
+    <FilesWrapper
+      expand={layout.userMenu}
+      $showRightBorder={layout.chat}
+      {...props}
+    >
       <Tree
         key="myDocs"
         className="draggable-tree"
@@ -237,7 +159,7 @@ const Files = () => {
           }
           return true
         }}
-        treeData={currentFolder?.children || docTree}
+        treeData={currentFolder?.children || []}
         titleRender={rowProps => (
           <RowRender
             {...rowProps}
@@ -270,77 +192,3 @@ const Files = () => {
 }
 
 export default Files
-function onDrop(docTree, setDocTree, reorderResource) {
-  return async info => {
-    console.log({ info })
-    const dropKey = info.node.key
-    const dragKey = info.dragNode.key
-    const dropPos = info.node.pos.split('-')
-    const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1])
-
-    const loop = (data, key, callback) => {
-      data.forEach((item, index, arr) => {
-        if (item.key === key) {
-          callback(item, index, arr)
-        } else if (item.children) {
-          loop(item.children, key, callback)
-        }
-      })
-    }
-
-    const data = [...docTree]
-
-    const dragObj = (() => {
-      let result
-      loop(data, dragKey, (item, index, arr) => {
-        arr.splice(index, 1)
-        result = item
-      })
-      return result
-    })()
-
-    if (!info.dropToGap) {
-      loop(data, dropKey, item => {
-        item.children = item.children || []
-        item.children.unshift(dragObj)
-      })
-    } else {
-      const { ar, i } = (() => {
-        let result = {}
-        loop(data, dropKey, (_item, index, arr) => {
-          result = { ar: arr, i: index }
-        })
-        return result
-      })()
-      if (dropPosition === -1) {
-        ar.splice(i, 0, dragObj)
-      } else {
-        ar.splice(i + 1, 0, dragObj)
-      }
-    }
-
-    setDocTree(data)
-
-    const findParentNode = (nodes, key) => {
-      let parentNode = null
-      nodes.forEach(node => {
-        if (node.children && node.children.some(child => child.key === key)) {
-          parentNode = node
-        } else if (node.children) {
-          const found = findParentNode(node.children, key)
-          if (found) parentNode = found
-        }
-      })
-      return parentNode
-    }
-
-    const newParentNode = findParentNode(data, dragKey)
-    if (!newParentNode) return
-    const newPosition = newParentNode.children.findIndex(
-      child => child.key === dragKey,
-    )
-    await reorderResource({
-      variables: { id: dragKey, newParentId: newParentNode.key },
-    })
-  }
-}
