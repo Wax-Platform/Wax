@@ -16,6 +16,7 @@ import AiDesigner from '../../AiDesigner/AiDesigner'
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
 import { FlexRow } from '../_styleds/common'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
+import Files from '../dashboard/DocTreeManager/FileBrowser'
 
 const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
@@ -128,7 +129,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
     }
   }, [yjsProvider?.doc?.guid])
 
-  if (!yjsProvider || !ydoc || !WaxConfig || !docIdentifier) return null
+  if (!yjsProvider || !ydoc || !WaxConfig) return <Files />
 
   return (
     <>

@@ -9,6 +9,7 @@ import {
   MOVE_RESOURCE,
 } from '../../../graphql'
 import { useHistory } from 'react-router-dom'
+import { useEffect } from 'react'
 
 export const useDocTree = ({
   currentDoc,
@@ -44,6 +45,10 @@ export const useDocTree = ({
   const [renameResource] = useMutation(RENAME_RESOURCE, { onCompleted })
   const [deleteResource] = useMutation(DELETE_RESOURCE, { onCompleted })
   const [moveResource] = useMutation(MOVE_RESOURCE, { onCompleted })
+
+  useEffect(() => {
+    openRootFolder()
+  }, [])
 
   return {
     openFolder,
