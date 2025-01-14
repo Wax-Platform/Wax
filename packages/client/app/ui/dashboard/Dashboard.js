@@ -11,7 +11,7 @@ const Dashboard = ({ showFilemanager, enableLogin }) => {
 
   localStorage.removeItem('nextDocument')
 
-  if (!docIdentifier) return null
+  // if (!docIdentifier) return null
 
   return (
     <PmEditor

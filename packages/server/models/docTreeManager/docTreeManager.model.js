@@ -94,7 +94,9 @@ class DocTreeManager extends BaseModel {
     const existingResource = await this.getResource(id)
     const parent = await this.getResource(parentId || existingResource.parentId)
     const siblingNodes = await this.getChildren(parent.id)
-    const existingTitles = siblingNodes.map(child => child.title)
+    const existingTitles = siblingNodes
+      .filter(ch => ch.id !== id)
+      .map(child => child.title)
     let safeTitle = title
     let i = 1
     while (existingTitles.includes(safeTitle)) {
