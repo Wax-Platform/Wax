@@ -7,15 +7,13 @@ import aiIcon from '../../../../static/chat-icon.svg'
 import {
   ChatButton,
   FileManagerButton,
-  NewFileButton,
   TeamButton,
   TemplateManagerButton,
 } from '../../menu/menuOptions'
 import FileBrowser from './FileBrowser'
 import ChatHistory from '../../component-ai-assistant/ChatHistory'
 import TeamPopup from '../../common/TeamPopup'
-import { useDocTree } from '../hooks/useDocTree'
-import { TemplateManager } from '../../component-ai-assistant/components/CodeEditor'
+import PathRender from './PathRender'
 
 const Menu = styled.nav`
   align-items: center;
@@ -24,12 +22,11 @@ const Menu = styled.nav`
   flex-direction: column;
   gap: 2px;
   height: 100%;
-  padding-top: 12px;
+  padding-top: 15px;
   width: 50px;
   z-index: 101;
 
   > button {
-    /* box-shadow: var(--button-shadow); */
     font-size: 15px !important;
   }
 `
@@ -43,6 +40,7 @@ const Content = styled.section`
   flex-direction: column;
   height: 100%;
   max-width: ${({ layout }) => (!layout.userMenu ? '0' : '27dvw')};
+  opacity: ${({ layout }) => (!layout.userMenu ? '0.5' : '1')};
   overflow: hidden;
   position: relative;
   transition: all 0.3s;
@@ -52,48 +50,50 @@ const Content = styled.section`
 
 const Heading = styled(WindowHeading)`
   background: #fff0;
-  padding: 22px 5px 15px;
+  gap: 15px;
+  padding: 20px 5px 15px;
   width: 100%;
 
-  span {
-    background: #00000005;
+  p {
+    background: var(--color-trois-lightest);
     border-radius: 1.5rem;
     box-shadow: var(--button-shadow);
     color: var(--color-trois-opaque) !important;
     font-size: 16px;
     font-weight: 200;
     letter-spacing: 1px;
+    margin: 0;
     padding: 5px 12px;
   }
 `
 
 const MainMenu = ({ enableLogin }) => {
   const { layout } = useContext(AiDesignerContext)
-  const filesGraphQL = useDocTree()
-  const menuLabel = layout.files
-    ? 'Files'
-    : layout.chat
+  const { team, chat, templateManager, files } = layout
+  const menuLabel = chat
     ? 'Chat'
-    : layout.team
+    : team
     ? 'Team'
-    : layout.templateManager
-    ? 'Template Manager'
+    : templateManager
+    ? 'Template Editor'
     : null
 
   return (
     <Fragment>
       <Menu>
         <FileManagerButton />
-        <NewFileButton addResource={filesGraphQL?.addResource} />
         <TeamButton />
         <ChatButton aiIcon={aiIcon} />
         <TemplateManagerButton />
       </Menu>
       <Content layout={layout}>
-        <Heading>{menuLabel && <span>{menuLabel}</span>}</Heading>
-        {layout.files && <FileBrowser graphQL={filesGraphQL} />}
-        {(layout.chat || layout.templateManager) && <ChatHistory />}
-        {layout.team && <TeamPopup enableLogin={enableLogin} />}
+        <Heading>
+          {menuLabel && <p>{menuLabel}</p>}
+          {files && <PathRender />}
+        </Heading>
+        {files && <FileBrowser />}
+        {(chat || templateManager) && <ChatHistory />}
+        {team && <TeamPopup enableLogin={enableLogin} />}
       </Content>
     </Fragment>
   )

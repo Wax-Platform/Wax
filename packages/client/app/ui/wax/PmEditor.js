@@ -15,8 +15,7 @@ import AiDesigner from '../../AiDesigner/AiDesigner'
 
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
 import { FlexRow } from '../_styleds/common'
-// import { findChildNodeByIdentifier } from '../dashboard/DocTreeManager/utils'
-import { useDocTree } from '../dashboard/hooks/useDocTree'
+import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 
 const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
@@ -52,8 +51,10 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
 
   const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, setDocId } =
     useContext(AiDesignerContext)
+  const { graphQL } = useDocumentContext()
+  const { openFolder } = graphQL
+  const { docTree } = graphQL
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
-  const { docTree } = useDocTree()
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
@@ -107,10 +108,10 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
         })
         setDocId(docIdentifier)
         setShowSpinner(false)
-      }, 1000)()
+      }, 500)()
+
+      openFolder({ variables: { id: docIdentifier, idType: 'identifier' } })
     }
-    // docTree &&
-    //   console.log('NODE', findChildNodeByIdentifier(docTree, docIdentifier))
   }, [docIdentifier, docTree])
 
   useEffect(() => {
@@ -126,18 +127,6 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       setWaxConfig(configObj)
     }
   }, [yjsProvider?.doc?.guid])
-
-  let identifier = docIdentifier
-
-  if (!docIdentifier) {
-    identifier = Array.from(Array(20), () =>
-      Math.floor(Math.random() * 36).toString(36),
-    ).join('')
-
-    history.push(`/${identifier}`, { replace: true })
-    setDocId(identifier)
-    return true
-  }
 
   if (!yjsProvider || !ydoc || !WaxConfig || !docIdentifier) return null
 

@@ -5,6 +5,7 @@ import {
   FileAddOutlined,
   TeamOutlined,
   CodeOutlined,
+  FolderAddOutlined,
 } from '@ant-design/icons'
 import styled from 'styled-components'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
@@ -26,7 +27,7 @@ const Button = styled(CleanButton)`
   width: 80%;
 
   &:hover {
-    background-color: #00000005;
+    background-color: var(--color-trois-lightest);
   }
 
   svg {
@@ -56,33 +57,11 @@ export const FileManagerButton = () => {
       onClick={() => updateLayout(newLayout)}
       title="Show / Hide Filemanager"
     >
-      {!layout.files ? (
+      {!layout.files || !layout.userMenu ? (
         <FolderOutlined style={{ fontSize: '32px' }} />
       ) : (
         <FolderOpenOutlined style={{ fontSize: '32px' }} />
       )}
-    </Button>
-  )
-}
-
-export const NewFileButton = ({ addResource }) => {
-  const { setCurrentDoc } = useDocumentContext()
-  const { updateLayout } = useContext(AiDesignerContext)
-  const history = useHistory()
-  const createNewDoc = () => {
-    const id = uuid()
-    addResource({ variables: { id, isFolder: false } }).then(
-      ({ data: { addResource: resource } }) => {
-        console.log('addResource', resource)
-        setCurrentDoc(resource)
-        history.push(`/${resource.identifier}`, { replace: true })
-        updateLayout(toggleLayout('files'))
-      },
-    )
-  }
-  return (
-    <Button onClick={createNewDoc} title="New File">
-      <FileAddOutlined style={{ fontSize: '25px' }} />
     </Button>
   )
 }
@@ -132,7 +111,7 @@ export const TemplateManagerButton = () => {
         updateLayout(newLayout)
       }}
       $expanded={layout.userMenu && layout.templateManager}
-      title="Template Manager"
+      title="Template Editor"
     >
       <CodeOutlined style={{ fontSize: '25px' }} />
     </Button>

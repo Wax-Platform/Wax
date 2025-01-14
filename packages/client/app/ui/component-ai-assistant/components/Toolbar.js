@@ -406,7 +406,7 @@ const Toolbar = ({ drag, ...props }) => {
         <span></span>
       )}
 
-      <Each fallback={null} of={values(tools)} render={renderTool} />
+      <Each of={values(tools)} as={renderTool} />
     </DesignerTools>
   )
 }

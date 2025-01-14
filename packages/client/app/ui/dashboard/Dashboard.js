@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react'
 import PmEditor from '../wax/PmEditor'
 import useLoadFirstDocument from '../_helpers/useLoadFirstDocument'
-import { useDocTree } from './hooks/useDocTree'
+import { useDocumentContext } from './hooks/DocumentContext'
 
 const Dashboard = ({ showFilemanager, enableLogin }) => {
-  const { getDocTreeData } = useDocTree()
+  const {
+    graphQL: { getDocTreeData },
+  } = useDocumentContext()
   const docIdentifier = useLoadFirstDocument(getDocTreeData)
 
   localStorage.removeItem('nextDocument')

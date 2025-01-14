@@ -55,6 +55,7 @@ export default createGlobalStyle`
     --color-trois-lighter: #decfde;
     --color-trois-lightest: #f2eff5;
     --color-trois-lightest-2: #fbf8fd;
+    --color-trois-lightest-3: #bc0bc205;
     --color-trois-dark: #6d336c;
     --color-trois-alpha: #a34ba129;
  
