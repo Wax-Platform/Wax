@@ -1,3 +1,4 @@
+const { logger } = require('@coko/server')
 const { DocTreeManager, Doc, Team, TeamMember } = require('@pubsweet/models')
 const { v4: uuidv4 } = require('uuid')
 const createIdentifier = () => {
@@ -5,7 +6,15 @@ const createIdentifier = () => {
     Math.floor(Math.random() * 36).toString(36),
   ).join('')
 }
-
+const getResource = async (_, { id }) => {
+  return await DocTreeManager.getResource(id)
+}
+const getParentFolderByIdentifier = async (_, { identifier }) => {
+  return await DocTreeManager.getParentFolderByIdentifier(identifier)
+}
+const openFolder = async (_, { id, idType = 'id' }, ctx) => {
+  return await DocTreeManager.openFolder(id, idType, ctx.user)
+}
 const deleteResourceRecursively = async id => {
   const deleteResource = await DocTreeManager.query()
     .delete()
@@ -34,64 +43,75 @@ const deleteResourceRecursively = async id => {
 }
 
 const DocTreeNested = async (folderId, userId) => {
-  const AllFiles = (await DocTreeManager.getUserTreeResources(userId)) || []
-
-  const getAllDocs = await Doc.query().whereIn(
-    'id',
-    AllFiles.filter(f => f.docId).map(f => f.docId),
-  )
-
-  const getChildren = async children => {
-    for (let i = 0; i < children.length; i++) {
-      const child = children[i]
-      const childItem = AllFiles.find(f => f.id === child)
-
-      const doc = childItem.docId
-        ? getAllDocs.find(doc => doc.id === childItem.docId)
-        : null
-
-      children[i] = {
-        id: childItem.id,
-        key: childItem.id,
-        title: childItem.title,
-        isFolder: childItem.isFolder,
-        identifier: doc ? doc.identifier : null,
-        children:
-          childItem.children.length > 0
-            ? await getChildren(childItem.children)
-            : [],
-      }
+  try {
+    let allFiles = (await DocTreeManager.getUserTreeResources(userId)) || []
+    if (allFiles.length === 0) {
+      await DocTreeManager.createUserRootFolder(userId)
+      allFiles = await DocTreeManager.getUserTreeResources(userId)
     }
 
-    return children
-  }
+    const getAllDocs = await Doc.query().whereIn(
+      'id',
+      allFiles
+        .filter(f => !!f?.docId)
+        .map(f => f?.docId)
+        .filter(Boolean),
+    )
+    logger.info('getAllDocs', allFiles)
 
-  const rootNodes = folderId
-    ? [AllFiles.find(f => f.id === folderId)]
-    : AllFiles.filter(f => f.parentId === null)
+    const getChildren = children => {
+      return children
+        .map(childId => {
+          const childItem = allFiles.find(f => f.id === childId)
+          if (!childItem) return null
 
-  for (let i = 0; i < rootNodes.length; i++) {
-    const rootNode = rootNodes[i]
+          const doc = childItem?.docId
+            ? getAllDocs.find(doc => doc.id === childItem?.docId)
+            : null
 
-    const doc = rootNode.docId
-      ? getAllDocs.find(doc => doc.id === rootNode.docId)
-      : null
-
-    rootNodes[i] = {
-      id: rootNode.id,
-      key: rootNode.id,
-      title: rootNode.title,
-      isFolder: rootNode.isFolder,
-      identifier: doc ? doc.identifier : null,
-      children: await getChildren(rootNode.children),
+          return {
+            id: childItem.id,
+            key: childItem.id,
+            title: childItem.title,
+            isFolder: childItem.isFolder,
+            identifier: doc ? doc.identifier : null,
+            children:
+              childItem.children.length > 0
+                ? getChildren(childItem.children)
+                : [],
+          }
+        })
+        .filter(child => child !== null)
     }
-  }
 
-  return rootNodes ? rootNodes : null
+    const rootFolder = allFiles.find(
+      f => f.id === folderId || f.title === 'Root',
+    )
+    logger.info(JSON.stringify(allFiles, null, 2))
+    if (!rootFolder) {
+      throw new Error('Root folder not found')
+    }
+
+    return {
+      id: rootFolder.id,
+      key: rootFolder.id,
+      title: rootFolder.title,
+      isFolder: rootFolder.isFolder,
+      identifier: null,
+      children: getChildren(rootFolder.children),
+    }
+  } catch (error) {
+    logger.error('Error in DocTreeNested:', error)
+    throw new Error('Failed to retrieve document tree')
+  }
 }
 
 const getDocTree = async (_, { folderId }, ctx) => {
-  return JSON.stringify(await DocTreeNested(folderId, ctx.user))
+  try {
+    return JSON.stringify(await DocTreeNested(folderId, ctx.user))
+  } catch (error) {
+    logger.error(error)
+  }
 }
 
 const getSharedDocTree = async (_, {}, ctx) => {
@@ -118,7 +138,19 @@ const getSharedDocTree = async (_, {}, ctx) => {
 
 const addResource = async (_, { id, isFolder }, ctx) => {
   if (isFolder) {
-    return DocTreeManager.createNewFolderResource({ id, userId: ctx.user })
+    const newFolder = await DocTreeManager.createNewFolderResource({
+      id,
+      userId: ctx.user,
+    })
+    const folderAndPath = await openFolder(
+      null,
+      { id: newFolder.parentId },
+      ctx,
+    )
+    return {
+      ...folderAndPath,
+      newResource: { id: newFolder?.id },
+    }
   } else {
     const identifier = createIdentifier()
     const newResource = await DocTreeManager.createNewDocumentResource({
@@ -126,59 +158,51 @@ const addResource = async (_, { id, isFolder }, ctx) => {
       identifier,
       userId: ctx.user,
     })
-
-    return { ...newResource, identifier }
+    const folderAndPath = await openFolder(
+      null,
+      { id: newResource.parentId },
+      ctx,
+    )
+    return {
+      ...folderAndPath,
+      newResource: { identifier, id: newResource?.id },
+    }
   }
 }
 
 const deleteResource = async (_, { id }, ctx) => {
-  const deleteResourceItem = await DocTreeManager.query().findOne({ id })
-
-  const isUserTheAuthorOfTheDoc = await Doc.isMyDoc(
-    deleteResourceItem.docId,
-    ctx.user,
-  )
-
-  if (isUserTheAuthorOfTheDoc) {
-    deleteResourceRecursively(id)
-
-    if (deleteResourceItem.docId) {
-      const teams = await Team.query()
-        .delete()
-        .where({ objectId: id })
-        .returning('*')
-      await TeamMember.query()
-        .delete()
-        .whereIn(
-          'teamId',
-          teams.map(team => team.id),
-        )
-    }
-  } else {
-    const team = await Team.query().findOne({
-      objectId: deleteResourceItem.docId,
-      objectType: 'doc',
-      role: 'viewer',
-    })
-
-    if (team) {
-      await TeamMember.query().delete().where({
-        teamId: team.id,
-        userId: ctx.user,
-      })
-    }
-  }
-
-  return deleteResourceItem
+  const resource = await DocTreeManager.getResource(id)
+  const parentId = resource.parentId
+  await DocTreeManager.deleteFolderAndChildren(id)
+  return openFolder(null, { id: parentId, idType: 'id' }, ctx)
 }
 
 const renameResource = async (_, { id, title }, ctx) => {
+  const getSafeName = await DocTreeManager.getSafeName({ id, title })
+
   const updatedItem = await DocTreeManager.query()
-    .patch({ title })
+    .patch({ title: getSafeName })
     .findOne({ id })
     .returning('*')
 
-  return updatedItem
+  const folderAndPath = await openFolder(
+    null,
+    { id: updatedItem.parentId },
+    ctx,
+  )
+
+  return {
+    ...folderAndPath,
+    newResource: { title, id },
+  }
+}
+
+const moveResource = async (_, { id, newParentId }, ctx) => {
+  return DocTreeManager.moveResource({
+    id,
+    newParentId,
+    userId: ctx.user,
+  })
 }
 
 const updateTreePosition = async (_, { id, newParentId, newPosition }, ctx) => {
@@ -201,12 +225,15 @@ const updateTreePosition = async (_, { id, newParentId, newPosition }, ctx) => {
 
   parentNode.children.splice(newPosition, 0, id)
 
-  await DocTreeManager.query().patch({ parentId: newParentId }).findOne({ id })
+  const target = await DocTreeManager.query()
+    .patch({ parentId: newParentId })
+    .findOne({ id })
 
-  return DocTreeManager.query()
+  await DocTreeManager.query()
     .patch({ children: parentNode.children })
     .findOne({ id: newParentId })
     .returning('*')
+  return openFolder(null, { id: target.parentId, idType: 'id' }, ctx)
 }
 
 module.exports = {
@@ -216,4 +243,8 @@ module.exports = {
   addResource,
   getDocTree,
   getSharedDocTree,
+  openFolder,
+  getParentFolderByIdentifier,
+  getResource,
+  moveResource,
 }
