@@ -114,11 +114,13 @@ export const addClass = (method, classNames, selected) => {
   console.log({ node, pos })
   console.log({ descendants: getAllDescendants(view.docView), doc, view })
 
-  if (!Number(pos) || !domNode) return
-  const resolvedPos = doc.resolve(pos)
-  console.log({ resolvedPos })
-  const pmNode = resolvedPos.node()
-  const safeNode = node || pmNode
+  // if (!Number(pos) || !domNode) return
+  // const resolvedPos =
+  // console.log({ resolvedPos })
+  const pmNode = doc.resolve(pos).node()
+  const safeNode = node.node || pmNode
+
+  console.log({ safeNode })
 
   const classes = isArray(classNames)
     ? classNames
