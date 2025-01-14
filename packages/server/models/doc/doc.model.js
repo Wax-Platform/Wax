@@ -1,13 +1,15 @@
-const { modelTypes, BaseModel } = require('@coko/server')
+const { modelTypes, BaseModel, logger } = require('@coko/server')
 const { Team, TeamMember } = require('@pubsweet/models')
 const Y = require('yjs')
-
 const config = require('config')
+
+const Template = require('../template/template.model')
+const defaultTemplate = require('../../config/templates/defaultTemplate')
 
 const AUTHOR_TEAM = config.teams.nonGlobal.author
 const VIEWER_TEAM = config.teams.nonGlobal.viewer
 
-const { stringNotEmpty, arrayOfObjectsNullable } = modelTypes
+const { stringNotEmpty, arrayOfObjectsNullable, idNullable } = modelTypes
 
 class Doc extends BaseModel {
   constructor(properties) {
@@ -19,6 +21,19 @@ class Doc extends BaseModel {
     return 'docs'
   }
 
+  static get relationMappings() {
+    return {
+      template: {
+        relation: BaseModel.BelongsToOneRelation,
+        modelClass: Template,
+        join: {
+          from: 'docs.templateId',
+          to: 'templates.id',
+        },
+      },
+    }
+  }
+
   static get schema() {
     return {
       type: 'object',
@@ -28,6 +43,7 @@ class Doc extends BaseModel {
         docs_y_doc_state: {
           type: 'binary',
         },
+        templateId: idNullable,
       },
     }
   }
@@ -75,23 +91,46 @@ class Doc extends BaseModel {
     return false
   }
 
-  static async createDoc({ delta, state, identifier, userId }) {
-    const WSSharedDoc = require('../../services/yjs/wsSharedDoc')
+  static async createDefaultTemplateIfNotExists(trx) {
+    const existingTemplate = await Template.query(trx).findOne({
+      objectType: 'system',
+      displayName: defaultTemplate.displayName,
+    })
 
+    if (!existingTemplate) {
+      const newTemplate = await Template.query(trx)
+        .insert({
+          displayName: defaultTemplate.displayName,
+          root: defaultTemplate.root,
+          pagedJsCss: defaultTemplate.pagedJsCss,
+          objectType: 'system',
+        })
+        .returning('*')
+      logger.info(JSON.stringify(newTemplate, null, 2))
+      return newTemplate.id
+    }
+    logger.info(JSON.stringify(existingTemplate, null, 2))
+    return existingTemplate.id
+  }
+
+  static async createDoc({ userId, identifier, ...payload }, options) {
+    const { trx } = options || {}
+    const WSSharedDoc = require('../../services/yjs/wsSharedDoc')
     const doc = new WSSharedDoc(identifier, userId)
     doc.gc = true
-    if (!state) {
-      state = Y.encodeStateAsUpdate(doc)
-    }
-    if (!delta) {
-      delta = doc.getText('prosemirror').toDelta()
-    }
 
-    const createdDoc = await Doc.query()
+    const {
+      delta = doc.getText('prosemirror').toDelta(),
+      state = Y.encodeStateAsUpdate(doc),
+      templateId = await this.createDefaultTemplateIfNotExists(trx),
+    } = payload
+    console.log('templateId', templateId)
+    const createdDoc = await Doc.query(trx)
       .insert({
         docs_prosemirror_delta: delta,
         docs_y_doc_state: state,
         identifier,
+        templateId,
       })
       .returning('*')
 
@@ -145,7 +184,15 @@ class Doc extends BaseModel {
       })
     }
 
-    return teamMember ? true : false
+    return teamMember
+  }
+
+  static async deleteDoc(id) {
+    const doc = await Doc.query().findById(id)
+    if (doc) {
+      await Template.query().delete().where('id', doc.templateId)
+      await Doc.query().deleteById(id)
+    }
   }
 }
 
