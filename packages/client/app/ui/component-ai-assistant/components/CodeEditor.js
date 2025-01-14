@@ -17,7 +17,7 @@ const CssEditor = styled(ReactCodeMirror)`
 
   .cm-activeLineGutter,
   .cm-activeLine {
-    background: var(--color-trois-lightest);
+    background: var(--color-trois-lightest-3);
   }
 
   .cm-gutters {

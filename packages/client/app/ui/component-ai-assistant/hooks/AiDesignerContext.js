@@ -107,9 +107,9 @@ export const AiDesignerProvider = ({ children }) => {
     chat: false,
     input: true,
     settings: false,
-    files: false,
+    files: true,
     teams: false,
-    userMenu: false,
+    userMenu: true,
     templateManager: false,
   })
 

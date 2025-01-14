@@ -16,10 +16,12 @@ export const FlexCol = styled.div`
 export const CleanButton = styled.button.attrs({ type: 'button' })`
   background: #fff0;
   border: none;
-  cursor: pointer;
+  cursor: ${p => (p.$disabled ? 'not-allowed' : 'pointer')};
   margin: 0;
+  opacity: ${p => (p.$disabled ? '0.5' : '1')};
   outline: none;
   padding: 0;
+  pointer-events: ${p => (p.$disabled ? 'none' : 'auto')};
 `
 export const FlexCleanButton = styled(CleanButton)`
   display: flex;

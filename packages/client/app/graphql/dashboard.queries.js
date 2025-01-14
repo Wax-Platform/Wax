@@ -28,12 +28,124 @@ export const GET_TREE_MANAGER_AND_SHARED_DOCS = gql`
   }
 `
 
+export const GET_RESOURCE = gql`
+  query GetResource($id: ID!) {
+    getResource(id: $id) {
+      id
+      title
+      parentId
+      identifier
+      children
+      isFolder
+    }
+  }
+`
+
+export const GET_PARENT_FOLDER_BY_IDENTIFIER_QUERY = gql`
+  query GetParentFolderByIdentifier($identifier: String!) {
+    getParentFolderByIdentifier(identifier: $identifier) {
+      id
+      title
+      parentId
+      children {
+        id
+        title
+        parentId
+        children
+        isFolder
+      }
+      isFolder
+    }
+  }
+`
+
+export const OPEN_FOLDER = gql`
+  query OpenFolder($id: ID!, $idType: String) {
+    openFolder(id: $id, idType: $idType) {
+      path {
+        pathNames
+        pathIds
+      }
+      currentFolder {
+        id
+        title
+        key
+        parentId
+        children {
+          id
+          title
+          key
+          parentId
+          doc {
+            id
+            identifier
+          }
+          isFolder
+        }
+        isFolder
+      }
+    }
+  }
+`
+
+export const OPEN_ROOT_FOLDER = gql`
+  query OpenRootFolder {
+    openRootFolder {
+      path {
+        pathNames
+        pathIds
+      }
+      currentFolder {
+        id
+        title
+        key
+        parentId
+        children {
+          id
+          title
+          key
+          parentId
+          doc {
+            id
+            identifier
+          }
+          isFolder
+        }
+        isFolder
+      }
+    }
+  }
+`
+
 export const ADD_RESOURCE = gql`
   mutation addResource($id: ID, $isFolder: Boolean!) {
     addResource(id: $id, isFolder: $isFolder) {
-      identifier
-      id
-      title
+      path {
+        pathNames
+        pathIds
+      }
+      currentFolder {
+        id
+        title
+        key
+        parentId
+        children {
+          id
+          title
+          key
+          parentId
+          doc {
+            id
+            identifier
+          }
+          isFolder
+        }
+        isFolder
+      }
+      newResource {
+        id
+        identifier
+      }
     }
   }
 `
@@ -41,8 +153,32 @@ export const ADD_RESOURCE = gql`
 export const RENAME_RESOURCE = gql`
   mutation renameResource($id: ID!, $title: String!) {
     renameResource(id: $id, title: $title) {
-      id
-      title
+      path {
+        pathNames
+        pathIds
+      }
+      currentFolder {
+        id
+        title
+        key
+        parentId
+        children {
+          id
+          title
+          key
+          parentId
+          doc {
+            id
+            identifier
+          }
+          isFolder
+        }
+        isFolder
+      }
+      newResource {
+        id
+        title
+      }
     }
   }
 `
@@ -50,8 +186,28 @@ export const RENAME_RESOURCE = gql`
 export const DELETE_RESOURCE = gql`
   mutation deleteResource($id: ID!) {
     deleteResource(id: $id) {
-      id
-      title
+      path {
+        pathNames
+        pathIds
+      }
+      currentFolder {
+        id
+        title
+        key
+        parentId
+        children {
+          id
+          title
+          key
+          parentId
+          doc {
+            id
+            identifier
+          }
+          isFolder
+        }
+        isFolder
+      }
     }
   }
 `
@@ -63,8 +219,56 @@ export const REORDER_RESOURCE = gql`
       newParentId: $newParentId
       newPosition: $newPosition
     ) {
-      id
-      title
+      path {
+        pathNames
+        pathIds
+      }
+      currentFolder {
+        id
+        title
+        key
+        parentId
+        children {
+          id
+          title
+          key
+          parentId
+          doc {
+            id
+            identifier
+          }
+          isFolder
+        }
+        isFolder
+      }
+    }
+  }
+`
+export const MOVE_RESOURCE = gql`
+  mutation moveResource($id: ID!, $newParentId: ID!) {
+    moveResource(id: $id, newParentId: $newParentId) {
+      path {
+        pathNames
+        pathIds
+      }
+      currentFolder {
+        id
+        title
+        key
+        parentId
+        children {
+          id
+          title
+          key
+          parentId
+          doc {
+            id
+            identifier
+          }
+          isFolder
+        }
+        isFolder
+      }
     }
   }
 `
