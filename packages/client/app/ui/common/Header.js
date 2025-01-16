@@ -1,26 +1,20 @@
-/* eslint-disable import/no-duplicates */
-
 /* stylelint-disable string-quotes, declaration-no-important */
-
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { th } from '@coko/client'
-
 import logoMobile from '../../../static/waxdesignerwhite.svg'
-import TeamPopup from './TeamPopup'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import Toggle from '../component-ai-assistant/components/Toggle'
 import { DocumentContext } from '../dashboard/hooks/DocumentContext'
 import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
-import { findChildNodeByIdentifier } from '../dashboard/DocTreeManager/utils'
+import PathRender from '../dashboard/DocTreeManager/PathRender'
+import { objIf } from '../../shared/generalUtils'
 
 // #region styles
 const StyledHeader = styled.header`
   align-items: center;
   background: var(--color-trois-lightest-2);
   display: flex;
-  flex-flow: row wrap;
   height: var(--header-height);
   justify-content: space-between;
   padding: 0 10px 0 0;
@@ -28,7 +22,6 @@ const StyledHeader = styled.header`
 `
 
 const Logo = styled.img`
-  border-right: 1px solid #0001;
   display: flex;
   height: 100%;
   margin: 0;
@@ -67,10 +60,10 @@ const UserMenu = styled.div`
     gap: 10px;
     line-height: 1;
     padding: 0.7rem 20px;
-    /* width: 100px; */
   }
 `
 const DocumentInfoArea = styled(FlexCol)`
+  border-left: 1px solid #0001;
   gap: 2px;
   height: 100%;
   line-height: 1;
@@ -111,21 +104,23 @@ const Header = props => {
   } = props
   const { designerOn, setDesignerOn, updateLayout, docId } =
     useContext(AiDesignerContext)
-  const { currentDoc, setCurrentDoc, currentFolder } =
+  const { currentDoc, resourcesInFolder, setCurrentDoc, graphQL } =
     useContext(DocumentContext)
+  const { openFolder } = graphQL
 
   useEffect(() => {
     currentDoc?.title &&
-      currentDoc?.doc?.identifier &&
+      !currentDoc?.isFolder &&
       (document.title = `${currentDoc.title} - Wax`)
+    docId && openFolder({ variables: { id: docId, idType: 'identifier' } })
   }, [docId, currentDoc?.title])
 
   useEffect(() => {
-    const currentDocument = currentFolder?.resources?.find(
-      n => n.doc?.identifier === docId,
-    )
-    currentDocument && setCurrentDoc(currentDocument)
-  }, [currentFolder?.id, docId])
+    const doc = resourcesInFolder?.find(c => c.doc?.identifier === docId)
+    console.log({ docId, doc })
+
+    doc && setCurrentDoc(doc)
+  }, [resourcesInFolder])
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
@@ -142,7 +137,11 @@ const Header = props => {
       : updateLayout({ preview: false, editor: true, chat: false })
   }
   return (
-    <StyledHeader role="banner" {...rest}>
+    <StyledHeader
+      role="banner"
+      style={objIf(!currentDoc?.title, { justifyContent: 'flex-start' })}
+      {...rest}
+    >
       <FlexRow style={{ gap: '0', height: '100%' }}>
         <Logo src={logoMobile} alt="Wax platform"></Logo>
         {currentDoc?.title && (
@@ -152,7 +151,7 @@ const Header = props => {
           </DocumentInfoArea>
         )}
       </FlexRow>
-      {docId && (
+      {currentDoc?.title ? (
         <UserMenu $designerOn={designerOn}>
           <FlexRow>
             <EditDesignLabels $active={!designerOn} $activecolor="#222">
@@ -167,6 +166,8 @@ const Header = props => {
             </EditDesignLabels>
           </FlexRow>
         </UserMenu>
+      ) : (
+        <PathRender style={{ width: '90%' }} />
       )}
     </StyledHeader>
   )

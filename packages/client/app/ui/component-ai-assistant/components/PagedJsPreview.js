@@ -50,9 +50,9 @@ export const PagedJsPreview = props => {
 
   useEffect(() => {
     const handleMessage = e => {
-      const aidctx = e.data.aidctx
-      if (!aidctx) return
-      AiDesigner.select(aidctx)
+      const id = e.data.id
+      if (!id) return
+      AiDesigner.select(id)
     }
 
     window.addEventListener('message', handleMessage)

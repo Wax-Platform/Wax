@@ -1,69 +1,82 @@
-import { useQuery, useMutation, useLazyQuery } from '@apollo/client'
+import {
+  useQuery,
+  useMutation,
+  useLazyQuery,
+  useApolloClient,
+} from '@apollo/client'
 import {
   GET_TREE_MANAGER_AND_SHARED_DOCS,
   ADD_RESOURCE,
   RENAME_RESOURCE,
   DELETE_RESOURCE,
   OPEN_FOLDER,
-  OPEN_ROOT_FOLDER,
   MOVE_RESOURCE,
 } from '../../../graphql'
-import { useHistory } from 'react-router-dom'
-import { useEffect } from 'react'
+
+import { useEffect, useState } from 'react'
 import { useCurrentUser } from '@coko/client'
 
-export const useDocTree = ({
-  currentDoc,
-  setRename,
-  setCurrentDoc,
-  setCurrentPath,
-  setCurrentFolder,
-}) => {
-  const history = useHistory()
+export const useDocTree = () => {
+  const client = useApolloClient()
   const { currentUser } = useCurrentUser()
-  const onCompleted = data => {
-    const [dataValues] = Object.values(data) || []
-    if (!dataValues) return
-
-    const { currentFolder: folder, path, newResource } = dataValues || {}
-    const { identifier, id, title } = newResource ?? {}
-    id &&
-      !title &&
-      setRename({ id, title: `new ${identifier ? 'document' : 'folder'}` })
-
-    setCurrentFolder(folder)
-    setCurrentPath(path)
-
-    title && setCurrentDoc({ ...currentDoc, title })
-    if (!identifier) return
-    history.push(`/${identifier}`, { replace: true })
-    setCurrentDoc(newResource)
-  }
+  const [path, setCurrentPath] = useState('')
+  const [folder, setCurrentFolder] = useState({})
+  const [pendingResources, setPendingResources] = useState([])
 
   const { refetch: getDocTreeData } = useQuery(
     GET_TREE_MANAGER_AND_SHARED_DOCS,
     { skip: true },
   )
-  const [openFolder] = useLazyQuery(OPEN_FOLDER, { onCompleted })
-  const [openRootFolder] = useLazyQuery(OPEN_ROOT_FOLDER, { onCompleted })
-  const [addResource] = useMutation(ADD_RESOURCE, { onCompleted })
-  const [renameResource] = useMutation(RENAME_RESOURCE, { onCompleted })
-  const [deleteResource] = useMutation(DELETE_RESOURCE, { onCompleted })
-  const [moveResource] = useMutation(MOVE_RESOURCE, { onCompleted })
+  const [openFolder, { data: openFolderData }] = useLazyQuery(OPEN_FOLDER)
+  const { currentFolder, path: currentPath } = openFolderData?.openFolder || {}
+  const currentFolderNeedsRefetch = pendingResources.includes(currentFolder?.id)
+
+  const refetchQueries = [
+    {
+      query: OPEN_FOLDER,
+      variables: { id: currentFolder?.id },
+    },
+  ]
+
+  const [addResource] = useMutation(ADD_RESOURCE, { refetchQueries })
+  const [renameResource] = useMutation(RENAME_RESOURCE, { refetchQueries })
+  const [deleteResource] = useMutation(DELETE_RESOURCE, { refetchQueries })
+  const [moveResource] = useMutation(MOVE_RESOURCE, { refetchQueries })
 
   useEffect(() => {
-    currentUser?.id && openRootFolder()
-    console.log({ currentUser })
+    if (currentUser?.id) {
+      openFolder()
+    }
   }, [currentUser])
 
+  useEffect(() => {
+    if (currentFolder) {
+      if (currentFolderNeedsRefetch) {
+        client.query({
+          query: OPEN_FOLDER,
+          variables: { id: currentFolder.id },
+          fetchPolicy: 'no-cache',
+        })
+        setPendingResources(
+          pendingResources.filter(id => id !== currentFolder.id),
+        )
+      } else {
+        setCurrentFolder(currentFolder)
+        setCurrentPath(currentPath)
+      }
+    }
+  }, [currentFolder])
+
   return {
+    currentFolder,
+    currentPath: path,
     openFolder,
-    openRootFolder,
     getDocTreeData,
     addResource,
     renameResource,
     deleteResource,
     reorderResource: moveResource,
     moveResource,
+    setPendingResources,
   }
 }

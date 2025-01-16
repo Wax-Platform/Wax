@@ -14,9 +14,9 @@ export const insertImageAfterNode = imgAttrs => {
   const { state, dispatch } = view
   const { tr, doc, schema } = state
 
-  const { aidctx } = AiDesigner.selected
+  const { id } = AiDesigner.selected
 
-  const { pos } = findInPmDoc(doc, aidctx) || {}
+  const { pos } = findInPmDoc(doc, id) || {}
 
   const $pos = state.doc.resolve(pos)
   const imageNode = schema.nodes.image.create({
@@ -89,25 +89,24 @@ export const getAllDescendants = node => {
 export const findInPmDoc = (doc, ref) => {
   const found = []
   doc.descendants((node, pos) => {
-    if (node?.attrs?.dataset?.aidctx === ref) {
+    if (node?.attrs?.dataset?.id === ref) {
       found.push({ node, pos })
     }
   })
   return found
 }
-export const findInDom = aidctx =>
-  document.querySelector(`[data-aidctx="${aidctx}"]`)
+export const findInDom = id => document.querySelector(`[data-id="${id}"]`)
 
 export const addClass = (method, classNames, selected) => {
   if (!AiDesigner?.states?.view) return
 
   const { view } = AiDesigner.states
-  const { aidctx } = selected || {}
-  const domNode = findInDom(aidctx)
+  const { id } = selected || {}
+  const domNode = findInDom(id)
   const { tr, doc } = view.state
 
   const node = getAllDescendants(view.docView).find(el =>
-    el?.nodeDOM?.dataset?.aidctx?.includes(aidctx),
+    el?.nodeDOM?.dataset?.id?.includes(id),
   )
   const pos = node.posBefore
 
@@ -135,7 +134,7 @@ export const addClass = (method, classNames, selected) => {
 
   tr.setNodeMarkup(pos, null, {
     ...safeNode.attrs,
-    dataset: { aidctx },
+    dataset: { id },
     class: updatedClasses,
   })
 

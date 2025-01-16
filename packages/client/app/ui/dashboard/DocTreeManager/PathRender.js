@@ -20,6 +20,7 @@ const PathRenderWrapper = styled.div`
   font-size: 14px;
   gap: 6px;
   justify-content: space-between;
+  padding-inline: 4px;
   width: 100%;
 
   button {
@@ -52,7 +53,7 @@ const Container = styled.div`
   gap: 2px;
   justify-content: flex-start;
   overflow-x: auto;
-  padding: 6px 8px;
+  padding: 6px 15px;
   width: 100%;
 `
 
@@ -66,22 +67,20 @@ const Actions = styled(FlexRow)`
 const PathRender = props => {
   const { currentPath, graphQL, createResource } = useContext(DocumentContext)
   const { openFolder } = graphQL ?? {}
-  const { pathNames, pathIds } = currentPath ?? {}
-  const { length: pathLevel } = pathNames ?? []
+  const { length: pathLevel } = currentPath ?? []
 
-  const lastPaths = takeRight(pathNames, MAX_PATH_LEVEL)
-  const lastPathIds = takeRight(pathIds, MAX_PATH_LEVEL)
+  const lastPaths = takeRight(currentPath, MAX_PATH_LEVEL)
   const isClamped = pathLevel > MAX_PATH_LEVEL
   const { length: currentLevel } = lastPaths ?? []
 
-  const pathRender = (folderName, i) => {
+  const pathRender = ({ title, id }, i) => {
     const displayPathSeparator = i !== currentLevel - 1 || currentLevel === 1
-    const pathName = i === 0 ? (isClamped ? '...' : '.') : folderName
+    const pathName = i === 0 ? (isClamped ? '...' : '.') : title
     return (
       <PathButton
         $active={i === currentLevel - 1}
         onClick={() => {
-          const variables = { id: lastPathIds[i] }
+          const variables = { id }
           openFolder({ variables })
         }}
       >
@@ -92,8 +91,8 @@ const PathRender = props => {
   }
 
   const goBack = () => {
-    const previousPathId = lastPathIds[currentLevel - 2]
-    openFolder({ variables: { id: previousPathId } })
+    const { id } = lastPaths[currentLevel - 2] ?? {}
+    openFolder({ variables: { id } })
   }
 
   return (

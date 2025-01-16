@@ -16,18 +16,11 @@ export const DocumentContextProvider = ({ children }) => {
   const [currentDocId, setCurrentDocId] = useState(null)
   const [docTree, setDocTree] = useState([])
   const [sharedDocTree, setSharedDocTree] = useState([])
-  const [currentPath, setCurrentPath] = useState('')
-  const [currentFolder, setCurrentFolder] = useState({})
   const [selectedDocs, setSelectedDocs] = useState([])
   const [rename, setRename] = useState({ id: null, title: '' })
 
-  const graphQL = useDocTree({
-    currentDoc,
-    setRename,
-    setCurrentPath,
-    setCurrentFolder,
-    setCurrentDoc,
-  })
+  const { currentFolder, currentPath, setPendingResources, ...graphQL } =
+    useDocTree()
 
   const { id: parentId, children: resourcesInFolder } = currentFolder || {}
 
@@ -71,15 +64,13 @@ export const DocumentContextProvider = ({ children }) => {
     <DocumentContext.Provider
       value={{
         currentDoc,
+        currentPath,
+        currentFolder,
         setCurrentDoc,
         docTree,
         setDocTree,
         sharedDocTree,
         setSharedDocTree,
-        currentPath,
-        setCurrentPath,
-        currentFolder,
-        setCurrentFolder,
         handleResourceClick,
         createResource,
         graphQL,
@@ -89,6 +80,8 @@ export const DocumentContextProvider = ({ children }) => {
         setRename,
         currentDocId,
         setCurrentDocId,
+        resourcesInFolder,
+        setPendingResources,
       }}
     >
       {children}

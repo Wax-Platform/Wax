@@ -216,7 +216,7 @@ export const SnipsDropDown = () => {
         ),
       ),
     ]
-  }, [showSnippets, markedSnippet, selectedCtx.aidctx])
+  }, [showSnippets, markedSnippet, selectedCtx.id])
 
   // useEffect(() => {
   //   selectedCtx?.tagName && setSearch(htmlTagNames[selectedCtx.tagName])

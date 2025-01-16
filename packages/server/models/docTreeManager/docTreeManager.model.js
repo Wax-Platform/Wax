@@ -2,6 +2,14 @@ const { modelTypes, BaseModel, logger } = require('@coko/server')
 const { Team, TeamMember, Doc } = require('@pubsweet/models')
 const config = require('config')
 
+const enumString = (...vals) => ({
+  type: 'string',
+  enum: vals,
+})
+
+// TODO: replace isFolder with objectType
+// objectType: enum('doc', 'folder', 'template')
+
 const { booleanDefaultFalse, idNullable, stringNullable, arrayOfIds } =
   modelTypes
 
@@ -139,10 +147,7 @@ class DocTreeManager extends BaseModel {
   static async openFolder(id, idType, userId) {
     const method =
       idType === 'identifier' ? 'getParentFolderByIdentifier' : 'getResource'
-    const pathMap = {
-      pathNames: [],
-      pathIds: [],
-    }
+    const path = []
 
     logger.info(`Opening folder ${id} for user ${userId}`)
 
@@ -158,15 +163,15 @@ class DocTreeManager extends BaseModel {
     let current = folder
 
     while (current) {
-      pathMap.pathNames.unshift(current.title)
-      pathMap.pathIds.unshift(current.id)
+      const { title, id } = current ?? {}
+      path.unshift({ title, id })
       current = await DocTreeManager.query().findById(current.parentId)
     }
 
     const folderChildren = await DocTreeManager.getChildren(folder.id)
 
     return {
-      path: pathMap,
+      path: path,
       currentFolder: { ...folder, children: folderChildren },
     }
   }
@@ -205,12 +210,21 @@ class DocTreeManager extends BaseModel {
     return false
   }
 
-  static async createNewFolderResource({ id = null, title, userId }) {
+  static async createNewFolderResource({
+    id = null,
+    title = 'untitled',
+    userId,
+  }) {
     const parent = await DocTreeManager.getParentOrRoot(id, userId)
 
     if (parent) {
+      const safeTitle = await DocTreeManager.getSafeName({
+        title,
+        id,
+        parentId: parent.id,
+      })
       const insertedResource = await DocTreeManager.createResource({
-        title: title || 'New Folder',
+        title: safeTitle,
         isFolder: true,
         parentId: parent.id,
         userId,
@@ -237,7 +251,7 @@ class DocTreeManager extends BaseModel {
 
   static async createNewDocumentResource({
     id = null,
-    title,
+    title = 'untitled',
     identifier,
     delta,
     state,
@@ -254,9 +268,14 @@ class DocTreeManager extends BaseModel {
           parent = await DocTreeManager.createUserRootFolder(userId)
         }
       }
-      logger.info(`\x1b[32m ${JSON.stringify(parent)}`)
+
+      const safeTitle = await DocTreeManager.getSafeName({
+        title,
+        id,
+        parentId: parent.id,
+      })
       const insertedResource = await DocTreeManager.createResource({
-        title: title || 'New document',
+        title: safeTitle,
         isFolder: false,
         parentId: parent.id,
         userId,
@@ -311,30 +330,20 @@ class DocTreeManager extends BaseModel {
       throw new Error('Folder not found')
     }
 
-    const collectIds = async (nodeId, ids = { folders: [], docs: [] }) => {
+    const collectIds = async (nodeId, ids = []) => {
       const node = await DocTreeManager.query().findById(nodeId)
+      ids.push(nodeId)
       if (node?.isFolder) {
-        ids.folders.push(nodeId)
         await Promise.all(
           node.children.map(childId => collectIds(childId, ids)),
         )
-      } else {
-        ids.docs.push(nodeId)
       }
       return ids
     }
 
     const ids = await collectIds(id)
 
-    if (ids.docs.length > 0) {
-      await DocTreeManager.query().delete().whereIn('id', ids.docs)
-    }
-
-    if (ids.folders.length > 0) {
-      await DocTreeManager.query().delete().whereIn('id', ids.folders)
-    }
-
-    await DocTreeManager.query().deleteById(id)
+    await DocTreeManager.query().delete().whereIn('id', ids)
     logger.info(`Resource ${id} deleted successfully`)
     return id
   }
