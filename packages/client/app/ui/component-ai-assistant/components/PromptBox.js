@@ -25,11 +25,11 @@ const Dropdown = styled.div`
   border-radius: 5px;
   bottom: 0;
   height: fit-content;
+  left: calc(100% + ${p => (p.$open ? '20px' : '8px')});
   max-height: ${p => (p.$open ? '150px' : '0')};
   max-width: ${p => (p.$open ? '180px' : '0')};
   overflow: hidden;
   position: absolute;
-  right: calc(100% + ${p => (p.$open ? '20px' : '8px')});
   transition: all 0.3s;
   width: 180px;
   z-index: 999;
@@ -287,21 +287,12 @@ const Assistant = styled(PromptsInput)`
 `
 const AbsoluteContainer = styled.div`
   align-items: center;
-  bottom: ${p => (p.$show ? '15px' : '-140px')};
+  /* bottom: 0; */
   display: flex;
   flex-direction: column;
-  position: absolute;
-  right: ${p => {
-    if (p.$showChat) return '30px'
-    return p.$bothEditors ? '8.2%' : '23.4%'
-  }};
-
+  /* position: fixed; */
   transition: all 0.3s 0.2s;
-  width: ${p => {
-    if (p.$showChat) return 'calc(25% - 60px)'
-    if (p.$bothEditors) return '32%'
-    return '50%'
-  }};
+  width: 95%;
 `
 
 const PromptBoxWrapper = styled.div`

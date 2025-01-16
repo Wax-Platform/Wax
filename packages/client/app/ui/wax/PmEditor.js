@@ -14,9 +14,10 @@ import { debounce } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
-import { FlexRow } from '../_styleds/common'
-// import { findChildNodeByIdentifier } from '../dashboard/DocTreeManager/utils'
-import { useDocTree } from '../dashboard/hooks/useDocTree'
+import { FlexRow, StyledWindow } from '../_styleds/common'
+import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
+import Files from '../dashboard/DocTreeManager/FileBrowser'
+import PathRender from '../dashboard/DocTreeManager/PathRender'
 
 const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
@@ -49,11 +50,19 @@ const renderImage = file => {
 
 const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
-
-  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, setDocId } =
-    useContext(AiDesignerContext)
+  const { graphQL } = useDocumentContext()
+  const { openFolder } = graphQL
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
-  const { docTree } = useDocTree()
+
+  const {
+    setHtmlSrc,
+    htmlSrc,
+    setEditorContent,
+    css,
+    settings,
+    setDocId,
+    designerOn,
+  } = useContext(AiDesignerContext)
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
@@ -93,25 +102,25 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       window.removeEventListener('message', handleMessage)
     }
   }, [])
-  useEffect(async () => {
+  useEffect(() => {
     if (docIdentifier) {
       yjsProvider?.disconnect()
       setShowSpinner(true)
 
-      await debounce(async () => {
+      debounce(() => {
         createYjsProvider(docIdentifier)
-        await getAidMisc({
+        getAidMisc({
           variables: {
             input: { docId: docIdentifier },
           },
         })
         setDocId(docIdentifier)
         setShowSpinner(false)
-      }, 1000)()
+      }, 500)()
+
+      openFolder({ variables: { id: docIdentifier, idType: 'identifier' } })
     }
-    // docTree &&
-    //   console.log('NODE', findChildNodeByIdentifier(docTree, docIdentifier))
-  }, [docIdentifier, docTree])
+  }, [docIdentifier])
 
   useEffect(() => {
     aidMisc &&
@@ -127,20 +136,21 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
     }
   }, [yjsProvider?.doc?.guid])
 
-  let identifier = docIdentifier
-
-  if (!docIdentifier) {
-    identifier = Array.from(Array(20), () =>
-      Math.floor(Math.random() * 36).toString(36),
-    ).join('')
-
-    history.push(`/${identifier}`, { replace: true })
-    setDocId(identifier)
-    return true
+  if (!yjsProvider || !ydoc || !WaxConfig || !docIdentifier) {
+    return (
+      <StyledWindow
+        style={{
+          width: '100%',
+          height: '100%',
+          opacity: 1,
+          background: 'var(--color-trois-lightest-2)',
+          paddingBlock: '1rem',
+        }}
+      >
+        <Files style={{ width: '80%', maxWidth: '100%' }} />
+      </StyledWindow>
+    )
   }
-
-  if (!yjsProvider || !ydoc || !WaxConfig || !docIdentifier) return null
-
   return (
     <>
       {displayStyles && <style id="aid-css-template">{css}</style>}
@@ -158,7 +168,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
         fileUpload={file => renderImage(file)}
         layout={layout}
         onChange={value => {
-          debounce(setEditorContent, 250)(value)
+          designerOn && debounce(setEditorContent, 250)(value)
         }}
         // readonly={!contentEditable}
         placeholder="Type Something ..."

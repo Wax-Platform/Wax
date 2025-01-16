@@ -1,6 +1,6 @@
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-no-important */
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -11,17 +11,18 @@ import {
   CloseCircleFilled,
   FileOutlined,
   FolderFilled,
-  CheckCircleOutlined,
   CheckCircleFilled,
 } from '@ant-design/icons'
-import Button from '../../common/Button'
 import { debounce } from 'lodash'
 import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { DocumentContext } from '../hooks/DocumentContext'
 import { CleanButton, FlexRow } from '../../_styleds/common'
-import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
+import ContextMenu from '../../common/ContextMenu'
+import { useBool } from '../../../hooks/dataTypeHooks'
+import { arrIf, objIf } from '../../../shared/generalUtils'
 
 const RowContainer = styled.div`
+  background: ${p => (p.$selected ? 'var(--color-trois-lightest-3)' : '#fff0')};
   border-bottom: 1px solid var(--color-trois-alpha);
   color: ${p => (p.$active ? 'var(--color-purple)' : 'inherit')};
   display: flex;
@@ -29,6 +30,7 @@ const RowContainer = styled.div`
   font-size: 14px;
   font-weight: ${p => (p.$active ? '600' : 'normal')};
   padding: 2px 0;
+  position: relative;
   width: 100%;
 
   #tools-container {
@@ -93,8 +95,6 @@ const IconTitleContainer = styled.div`
 
   span {
     line-height: 1;
-    /* margin-bottom: 10px;
-    margin-right: 5px; */
 
     svg {
       fill: var(--svg-fill);
@@ -102,77 +102,133 @@ const IconTitleContainer = styled.div`
   }
 `
 
+const StyledContextMenu = styled(ContextMenu)`
+  color: var(--color-trois-opaque);
+  position: absolute;
+  top: 50%;
+
+  li > button {
+    gap: 8px;
+
+    svg {
+      fill: var(--color-trois-opaque);
+    }
+  }
+`
+
+const DeleteResourceLabel = (
+  <>
+    <DeleteFilled style={{ fontSize: '16px' }} />
+    <span>Delete</span>
+  </>
+)
+
+const RenameResourceLabel = (
+  <>
+    <EditFilled style={{ fontSize: '16px' }} />
+    <span>Rename</span>
+  </>
+)
+
 const RowRender = row => {
   const {
     id,
     title,
     renameResource,
-    addResource,
     isFolder,
-    identifier,
+    doc = {},
     confirmDelete,
     isRoot,
     isSharedFolder,
+    isSelected,
+    selectedDocs,
+    setSelectedDocs,
   } = row
-  const { docId } = useContext(AiDesignerContext)
-  const history = useHistory()
-  const { setCurrentDoc } = useContext(DocumentContext)
-  const [updatedName, setUpdateName] = useState(title)
-  const [rename, setRename] = useState(false)
-  const [lock, setLock] = useState(false)
-
-  const goToDocument = async e => {
-    if (!lock) {
-      setLock(true)
-
-      debounce(() => {
-        setLock(false)
-      }, 1500)()
-
-      if (e.target.type === 'text') {
-        e.preventDefault()
-        return false
-      }
-      !isFolder && history.push(`/${identifier}`, { replace: true })
-      !isFolder && setCurrentDoc(row)
-    }
-  }
+  const { docId, userInteractions } = useContext(AiDesignerContext)
+  const { handleResourceClick, rename, setRename } = useContext(DocumentContext)
+  const contextMenu = useBool({ start: false })
 
   useEffect(() => {
-    console.log(row)
-    docId === identifier && setCurrentDoc(row)
-  }, [docId])
+    const hideContextMenuOnClickOutside = e => {
+      !e.target.dataset.contextmenu && contextMenu.off()
+    }
+    window.addEventListener('click', hideContextMenuOnClickOutside)
+    return () => {
+      window.removeEventListener('click', hideContextMenuOnClickOutside)
+    }
+  }, [])
+
+  const allow = {
+    delete: !isRoot && row.id !== docId,
+    rename: true,
+  }
+
+  const contextMenuItems = [
+    ...arrIf(allow.delete, {
+      label: DeleteResourceLabel,
+      action: () => {
+        confirmDelete(row)
+        contextMenu.off()
+      },
+    }),
+    ...arrIf(allow.rename, {
+      label: RenameResourceLabel,
+      action: () => {
+        setRename({ id, title })
+        contextMenu.off()
+      },
+    }),
+  ]
 
   return (
     <RowContainer
-      $active={docId === identifier}
-      onClick={goToDocument}
+      $selected={isSelected}
+      $active={docId === doc?.identifier}
+      onClick={e => {
+        if (!userInteractions.ctrl) setSelectedDocs([])
+        else {
+          const newSelectedDocs = isSelected
+            ? selectedDocs.filter(d => d !== id)
+            : [...selectedDocs, id]
+          setSelectedDocs(newSelectedDocs)
+        }
+      }}
+      onDoubleClick={e => {
+        e.preventDefault()
+        !userInteractions.ctrl && handleResourceClick({ ...row, doc })
+      }}
+      onContextMenu={e => {
+        e.preventDefault()
+        contextMenu.on()
+      }}
+      onMouseLeave={contextMenu.off}
       $folder={isFolder}
       $sharedFolder={isSharedFolder}
     >
       <TitleToolsContainer>
-        {rename ? (
+        {rename.id === id ? (
           <FlexRow>
             <StyledInput
               type="text"
               autoFocus
-              value={updatedName}
+              onMouseDown={e => (e.target.style.position = 'absolute')}
+              value={rename.title}
               onKeyDown={e => {
-                if (e.key === 'Enter' || e.keyCode === 13) {
+                if (e.key === 'Enter') {
                   renameResource({
-                    variables: { id, title: updatedName },
+                    variables: { ...rename },
                   })
-                  setRename(false)
+                  setRename({ id: null, title: '' })
                 }
               }}
-              onChange={e => setUpdateName(e.target.value)}
+              onChange={e => setRename({ ...rename, title: e.target.value })}
             />
             <FlexRow style={{ gap: '5px' }}>
               <CleanButton
                 onClick={e => {
                   e.preventDefault()
-                  renameResource({ variables: { id, title: updatedName } })
-                  setRename(false)
+                  renameResource({ variables: { ...rename } })
+                  setRename({ id: null, title: '' })
                 }}
               >
                 <CheckCircleFilled
@@ -182,7 +238,8 @@ const RowRender = row => {
               <CleanButton
                 onMouseDown={e => {
                   e.preventDefault()
-                  setRename(false)
+                  renameResource({ variables: { id, title } })
+                  setRename({ id: null, title: '' })
                 }}
                 title="Close"
               >
@@ -198,61 +255,13 @@ const RowRender = row => {
               <FileOutlined style={{ fontSize: '12px' }} />
             )}
             <span>
-              {!isRoot && title.length > 18
+              {!isRoot && title.length > 30
                 ? `${title.substring(0, 18)}...`
                 : title}
             </span>
           </IconTitleContainer>
         )}
-
-        <ToolsContainer id="tools-container">
-          {isFolder && addResource && (
-            <>
-              <StyledFolderFileBtn
-                onClick={() =>
-                  addResource({ variables: { id, isFolder: true } })
-                }
-                title="Add Folder"
-              >
-                <FolderAddFilled
-                  style={{ fontSize: '16px', marginBottom: '-3px' }}
-                />
-              </StyledFolderFileBtn>
-              <StyledFolderFileBtn
-                onClick={() =>
-                  addResource({ variables: { id, isFolder: false } })
-                }
-                title="Add File"
-              >
-                <FileAddFilled style={{ fontSize: '16px' }} />
-              </StyledFolderFileBtn>
-            </>
-          )}
-
-          {confirmDelete && !isRoot && row.id !== docId && (
-            <StyledFolderFileBtn
-              onMouseDown={e => {
-                e.preventDefault()
-                confirmDelete(row)
-              }}
-              title="Delete"
-            >
-              <DeleteFilled style={{ fontSize: '16px' }} />
-            </StyledFolderFileBtn>
-          )}
-
-          {!rename && renameResource && (
-            <StyledFolderFileBtn
-              onMouseDown={e => {
-                e.preventDefault()
-                setRename(true)
-              }}
-              title="Rename"
-            >
-              <EditFilled style={{ fontSize: '16px' }} />
-            </StyledFolderFileBtn>
-          )}
-        </ToolsContainer>
+        <StyledContextMenu show={contextMenu.state} items={contextMenuItems} />
       </TitleToolsContainer>
     </RowContainer>
   )

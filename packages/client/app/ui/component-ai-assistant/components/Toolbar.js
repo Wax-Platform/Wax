@@ -240,9 +240,7 @@ const Toolbar = ({ drag, ...props }) => {
     e.preventDefault()
     const iframeElement = previewRef?.current?.contentDocument?.documentElement
     if (!iframeElement) return
-    let node = iframeElement.querySelector(
-      `[data-aidctx="${selectedCtx.aidctx}"]`,
-    )
+    let node = iframeElement.querySelector(`[data-id="${selectedCtx.id}"]`)
     let offsetTop = node.offsetTop
     let offsetLeft = node.offsetLeft
 
@@ -406,7 +404,7 @@ const Toolbar = ({ drag, ...props }) => {
         <span></span>
       )}
 
-      <Each fallback={null} of={values(tools)} render={renderTool} />
+      <Each of={values(tools)} as={renderTool} />
     </DesignerTools>
   )
 }

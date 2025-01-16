@@ -102,13 +102,12 @@ const useAssistant = () => {
       // eslint-disable-next-line camelcase
       const { message, finish_reason } = JSON.parse(aiService)
       const response = safeParse(message.content, 'default')
-      const isSingleNode = selectedCtx.aidctx !== 'aid-ctx-main'
+      const isSingleNode = selectedCtx.id !== 'aid-ctx-main'
 
       if (isSingleNode || response?.css) {
         onHistory.addRegistry('undo')
         history.current.source.redo = []
       }
-
       const actions = {
         css: val => {
           getCssTemplate({ variables: { docId, css: val } })
@@ -125,7 +124,7 @@ const useAssistant = () => {
           setEditorContent(
             parseContent(editorContent, dom => {
               const selectedElement = dom.querySelector(
-                `[data-aidctx="${selectedCtx.aidctx}"]`,
+                `[data-id="${selectedCtx.id}"]`,
               )
 
               selectedElement && (selectedElement.innerHTML = val)
@@ -135,9 +134,7 @@ const useAssistant = () => {
         insertHtml: val => {
           setEditorContent(
             parseContent(editorContent, doc => {
-              const node = doc.querySelector(
-                `[data-aidctx="${selectedCtx.aidctx}"]`,
-              )
+              const node = doc.querySelector(`[data-id="${selectedCtx.id}"]`)
 
               addElement(node, {
                 ...val,
@@ -181,6 +178,7 @@ const useAssistant = () => {
         callOn(action, actions, [response[action]])
         actionsApplied?.push(action)
       })
+      console.log({ response, actionsApplied })
 
       updatePreview(true)
     },
@@ -237,16 +235,14 @@ const useAssistant = () => {
     const clampedHistory =
       takeRight(selectedCtx.conversation, settings.chat.historyMax) || []
 
+    const ContextIsNotDocument = selectedCtx?.id !== 'aid-ctx-main'
     const systemPayload = {
       ctx: AiDesigner.selected,
       sheet: css,
       selectors: getNodes(htmlSrc, '*', 'localName'),
-      providedText:
-        selectedCtx?.aidctx !== 'aid-ctx-main' && selectedCtx.node.innerHTML,
+      providedText: ContextIsNotDocument && selectedCtx.node.innerHTML,
       markedSnippet,
-      snippets:
-        selectedCtx?.aidctx !== 'aid-ctx-main' &&
-        settings.snippetsManager.snippets,
+      snippets: ContextIsNotDocument && settings.snippetsManager.snippets,
       waxClass: '.ProseMirror[contenteditable]',
     }
 

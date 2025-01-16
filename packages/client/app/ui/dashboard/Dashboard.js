@@ -1,16 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import PmEditor from '../wax/PmEditor'
-import useLoadFirstDocument from '../_helpers/useLoadFirstDocument'
-import { useDocTree } from './hooks/useDocTree'
+import { useParams } from 'react-router-dom'
 
 const Dashboard = ({ showFilemanager, enableLogin }) => {
-  const { getDocTreeData } = useDocTree()
-
-  const docIdentifier = useLoadFirstDocument(getDocTreeData)
-
+  const { docIdentifier } = useParams()
   localStorage.removeItem('nextDocument')
-
-  if (!docIdentifier) return null
 
   return (
     <PmEditor
@@ -20,9 +14,5 @@ const Dashboard = ({ showFilemanager, enableLogin }) => {
     />
   )
 }
-
-Dashboard.propTypes = {}
-
-Dashboard.defaultProps = {}
 
 export default Dashboard

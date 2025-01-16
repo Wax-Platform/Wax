@@ -107,6 +107,10 @@ export const AiDesignerProvider = ({ children }) => {
     chat: false,
     input: true,
     settings: false,
+    files: true,
+    teams: false,
+    userMenu: true,
+    templateManager: false,
   })
 
   const [tools, setTools] = useState({
@@ -124,20 +128,18 @@ export const AiDesignerProvider = ({ children }) => {
   })
 
   const updateLayout = updateObjectState(setLayout)
-
   const mutateSettings = updateObjectStateFromKey(setSettings)
-
   const updateTools = updateObjectStateFromKey(setTools)
 
   const getCtxNode = (dom = document) =>
-    dom.querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
+    dom.querySelector(`[data-id="${selectedCtx.id}"]`)
 
   const onSelect = ctx => {
-    ctx.aidctx && setSelectedCtx(ctx)
+    ctx.id && setSelectedCtx(ctx)
 
     markedSnippet && setMarkedSnippet('')
     showSnippets && setShowSnippets(false)
-    if (ctx.aidctx === 'aid-ctx-main') return
+    if (ctx.id === 'aid-ctx-main') return
 
     // TODO: this should be moved to a separate function
     // const node = ctx.node
@@ -173,7 +175,7 @@ export const AiDesignerProvider = ({ children }) => {
 
   const updateSelectionBoxPosition = (yOffset = 10, xOffset = 10) => {
     if (!settings.editor.enableSelection && !selectionBoxRef?.current) return
-    if (selectedCtx.aidctx === 'aid-ctx-main' || !designerOn) {
+    if (selectedCtx.id === 'aid-ctx-main' || !designerOn) {
       selectionBoxRef.current.style.opacity = 0
       return
     }
@@ -248,12 +250,18 @@ export const AiDesignerProvider = ({ children }) => {
       setPreviewSource(
         srcdoc(
           parseContent(
-            editorContainerRef?.current?.innerHTML,
-            doc =>
+            editorContainerRef?.current?.querySelector(
+              '.ProseMirror[contenteditable]',
+            ).innerHTML,
+            doc => {
               !!selectedCtx?.node &&
-              doc
-                .querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
-                ?.classList?.add('selected-aidctx'),
+                doc
+                  .querySelector(`[data-id="${selectedCtx.id}"]`)
+                  ?.classList?.add('selected-id')
+              doc.querySelectorAll('.ProseMirror-widget').forEach(el => {
+                el.remove()
+              })
+            },
           ),
           css.replaceAll(
             '.ProseMirror[contenteditable]',
@@ -329,44 +337,6 @@ export const AiDesignerProvider = ({ children }) => {
     updateSnippets({ variables: { snippets: updatedSnippets } })
   }
 
-  const updateSnippetDescription = (snippetName, description) => {
-    const { snippets } = settings.snippetsManager
-    snippets[snippetName].description = description
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-  }
-
-  const updateSnippetBody = (snippetName, body) => {
-    const { snippets } = settings.snippetsManager
-    const index = snippets.findIndex(s => s.className === snippetName)
-    snippets[index].classBody = body
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-  }
-
-  const updateSnippetName = (snippetName, name) => {
-    const { snippets } = settings.snippetsManager
-
-    const foundSnippet =
-      snippets[snippets.findIndex(s => s.className === snippetName)]
-
-    snippets[snippets.findIndex(s => s.className === snippetName)].className =
-      name
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-    document
-      .querySelectorAll(`.aid-snip-${foundSnippet.className}`)
-      .forEach(el => {
-        el.classList.replace(
-          `aid-snip-${foundSnippet.className}`,
-          `aid-snip-${name}`,
-        )
-      })
-  }
-
   // #endregion SNIPPETS -------------------------------------------------------------------
 
   const ctx = useMemo(() => {
@@ -414,11 +384,7 @@ export const AiDesignerProvider = ({ children }) => {
         removeSnippet,
         markedSnippet,
         setMarkedSnippet,
-        updateSnippetDescription,
-        updateSnippetBody,
-        updateSnippetName,
         saveSession,
-
         editorContainerRef,
 
         previewRef,

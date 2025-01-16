@@ -1,3 +1,4 @@
+/* stylelint-disable string-quotes */
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { AiDesignerContext } from '../hooks/AiDesignerContext'
 import styled from 'styled-components'
@@ -9,7 +10,8 @@ import useAssistant from '../hooks/useAiDesigner'
 
 const SpinnerWrapper = styled.div`
   align-items: center;
-  background: #fffa;
+  backdrop-filter: blur(5px);
+  background: #fff0;
   display: flex;
   height: 100%;
   justify-content: center;
@@ -48,9 +50,9 @@ export const PagedJsPreview = props => {
 
   useEffect(() => {
     const handleMessage = e => {
-      const aidctx = e.data.aidctx
-      if (!aidctx) return
-      AiDesigner.select(aidctx)
+      const id = e.data.id
+      if (!id) return
+      AiDesigner.select(id)
     }
 
     window.addEventListener('message', handleMessage)

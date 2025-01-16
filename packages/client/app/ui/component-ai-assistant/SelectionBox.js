@@ -116,7 +116,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
 
   return (
     <AbsoluteContainer
-      data-rel-aidctx={selectedCtx?.aidctx}
+      data-rel-id={selectedCtx?.id}
       ref={selectionBoxRef}
       selectionColor={settings.editor.selectionColor}
       {...rest}
@@ -349,7 +349,7 @@ export const SnippetsDropdown = () => {
 
   useEffect(() => {
     setShowSnippets(false)
-  }, [selectedCtx.aidctx])
+  }, [selectedCtx.id])
 
   const isAdded = name => getCtxNode()?.classList?.contains(`aid-snip-${name}`)
   const isMarked = name => name === markedSnippet
@@ -387,7 +387,7 @@ export const SnippetsDropdown = () => {
   }, [
     showSnippets,
     markedSnippet,
-    selectedCtx.aidctx,
+    selectedCtx.id,
     settings.snippetsManager.snippets,
   ])
 

@@ -2,6 +2,14 @@ const { modelTypes, BaseModel, logger } = require('@coko/server')
 const { Team, TeamMember, Doc } = require('@pubsweet/models')
 const config = require('config')
 
+const enumString = (...vals) => ({
+  type: 'string',
+  enum: vals,
+})
+
+// TODO: replace isFolder with objectType
+// objectType: enum('doc', 'folder', 'template')
+
 const { booleanDefaultFalse, idNullable, stringNullable, arrayOfIds } =
   modelTypes
 
@@ -42,7 +50,129 @@ class DocTreeManager extends BaseModel {
       }
       return insertedResource
     } catch (e) {
-      logger.info('EEEEEEEEEEEEEEEEEEEEEEE')
+      logger.info(e)
+    }
+  }
+
+  static async getResource(id) {
+    return DocTreeManager.query().findById(id)
+  }
+
+  static async getParentFolderByIdentifier(identifier) {
+    const doc = await Doc.query().findOne({ identifier })
+    const parentFolder = await DocTreeManager.query().findOne({
+      docId: doc.id,
+    })
+    return parentFolder
+  }
+
+  static async moveResource({ id, newParentId, userId }) {
+    const resource = await this.getResource(id)
+    if (!resource) {
+      throw new Error('Resource not found')
+    }
+    const parent = await this.getResource(resource.parentId)
+    const newParent = await this.getResource(newParentId)
+
+    if (!newParent.isFolder) {
+      logger.info('New parent is not a folder')
+      return this.openFolder(parent.id, 'id', userId)
+    }
+
+    parent.children = parent.children.filter(child => child.id !== id)
+    newParent.children.push(id)
+    // rename if childs will have the same name
+    const safeName = await this.getSafeName({
+      title: resource.title,
+      id,
+      parentId: newParentId,
+    })
+    await this.query().patch({ title: safeName }).findById(id)
+
+    await this.query().patch({ parentId: newParentId }).findById(id)
+    logger.info(`Resource ${id} moved to ${newParentId}`)
+    await this.query().patch({ children: parent.children }).findById(parent.id)
+    await this.query()
+      .patch({ children: newParent.children })
+      .findById(newParent.id)
+    return this.openFolder(parent.id, 'id', userId)
+  }
+
+  static async getSafeName({ title, id, parentId }) {
+    const existingResource = await this.getResource(id)
+    const parent = await this.getResource(parentId || existingResource.parentId)
+    const siblingNodes = await this.getChildren(parent.id)
+    const existingTitles = siblingNodes
+      .filter(ch => ch.id !== id)
+      .map(child => child.title)
+    let safeTitle = title
+    let i = 1
+    while (existingTitles.includes(safeTitle)) {
+      safeTitle = `${title} (${i})`
+      i++
+    }
+    return safeTitle
+  }
+
+  static async getChildren(parentId) {
+    const children = await this.query()
+      .where({ parentId })
+      .orderBy([
+        { column: 'isFolder', order: 'desc' },
+        { column: 'created', order: 'desc' },
+      ])
+
+    const getChildDocs = async children => {
+      return Promise.all(
+        children.map(async child => {
+          if (!child.docId) return child
+          const doc = await Doc.query().findOne({ id: child.docId })
+          return {
+            ...child,
+            doc: doc ? { id: doc.id, identifier: doc.identifier } : null,
+          }
+        }),
+      )
+    }
+    return getChildDocs(children)
+  }
+
+  static async checkNameAvailability({ parentId, title }) {
+    const existingResource = await DocTreeManager.query()
+      .findOne({ parentId })
+      .where({ title })
+    return !existingResource
+  }
+
+  static async openFolder(id, idType, userId) {
+    const method =
+      idType === 'identifier' ? 'getParentFolderByIdentifier' : 'getResource'
+    const path = []
+
+    logger.info(`Opening folder ${id} for user ${userId}`)
+
+    const currentResource = id && (await DocTreeManager[method](id))
+    let folder = currentResource
+
+    if (!currentResource?.isFolder) {
+      folder = currentResource?.parentId
+        ? await DocTreeManager.query().findById(currentResource.parentId)
+        : await DocTreeManager.getParentOrRoot(null, userId)
+    }
+
+    let current = folder
+
+    while (current) {
+      const { title, id } = current ?? {}
+      path.unshift({ title, id })
+      current = await DocTreeManager.query().findById(current.parentId)
+    }
+
+    const folderChildren = await DocTreeManager.getChildren(folder.id)
+
+    return {
+      path: path,
+      currentFolder: { ...folder, children: folderChildren },
     }
   }
 
@@ -80,22 +210,21 @@ class DocTreeManager extends BaseModel {
     return false
   }
 
-  static async createNewFolderResource({ id = null, title, userId }) {
-    let parent = await DocTreeManager.query().findOne({ id })
-
-    // Find or create the root folder for that specific user
-    if (!parent) {
-      parent = await DocTreeManager.findRootFolderOfUser(userId)
-      if (!parent && userId) {
-        // if this is the first time that this user creates a document
-        // create a root Node
-        parent = await DocTreeManager.createUserRootFolder(userId)
-      }
-    }
+  static async createNewFolderResource({
+    id = null,
+    title = 'untitled',
+    userId,
+  }) {
+    const parent = await DocTreeManager.getParentOrRoot(id, userId)
 
     if (parent) {
+      const safeTitle = await DocTreeManager.getSafeName({
+        title,
+        id,
+        parentId: parent.id,
+      })
       const insertedResource = await DocTreeManager.createResource({
-        title: title || 'New Folder',
+        title: safeTitle,
         isFolder: true,
         parentId: parent.id,
         userId,
@@ -112,9 +241,17 @@ class DocTreeManager extends BaseModel {
     return null
   }
 
+  static async getParentOrRoot(id, userId) {
+    return (
+      (id && (await this.getResource(id))) ||
+      (await this.findRootFolderOfUser(userId)) ||
+      (await this.createUserRootFolder(userId))
+    )
+  }
+
   static async createNewDocumentResource({
     id = null,
-    title,
+    title = 'untitled',
     identifier,
     delta,
     state,
@@ -131,9 +268,14 @@ class DocTreeManager extends BaseModel {
           parent = await DocTreeManager.createUserRootFolder(userId)
         }
       }
-      logger.info(`\x1b[32m ${JSON.stringify(parent)}`)
+
+      const safeTitle = await DocTreeManager.getSafeName({
+        title,
+        id,
+        parentId: parent.id,
+      })
       const insertedResource = await DocTreeManager.createResource({
-        title: title || 'New document',
+        title: safeTitle,
         isFolder: false,
         parentId: parent.id,
         userId,
@@ -172,12 +314,38 @@ class DocTreeManager extends BaseModel {
           'id',
           userDocNodes.map(docNode => docNode.objectId),
         )
+      } else {
+        allFiles = await DocTreeManager.query().where({ userId })
       }
     } else {
       allFiles = await DocTreeManager.query()
     }
 
     return allFiles
+  }
+
+  static async deleteFolderAndChildren(id) {
+    const resource = await DocTreeManager.query().findById(id)
+    if (!resource) {
+      throw new Error('Folder not found')
+    }
+
+    const collectIds = async (nodeId, ids = []) => {
+      const node = await DocTreeManager.query().findById(nodeId)
+      ids.push(nodeId)
+      if (node?.isFolder) {
+        await Promise.all(
+          node.children.map(childId => collectIds(childId, ids)),
+        )
+      }
+      return ids
+    }
+
+    const ids = await collectIds(id)
+
+    await DocTreeManager.query().delete().whereIn('id', ids)
+    logger.info(`Resource ${id} deleted successfully`)
+    return id
   }
 }
 

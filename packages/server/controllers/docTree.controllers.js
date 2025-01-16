@@ -1,4 +1,5 @@
-const { DocTreeManager, Doc, Team, TeamMember } = require('@pubsweet/models')
+const { logger } = require('@coko/server')
+const { DocTreeManager, Doc } = require('@pubsweet/models')
 const { v4: uuidv4 } = require('uuid')
 const createIdentifier = () => {
   return Array.from(Array(20), () =>
@@ -6,92 +7,94 @@ const createIdentifier = () => {
   ).join('')
 }
 
-const deleteResourceRecursively = async id => {
-  const deleteResource = await DocTreeManager.query()
-    .delete()
-    .findOne({ id })
-    .returning('*')
+const getResource = async (_, { id }) => {
+  return DocTreeManager.getResource(id)
+}
 
-  const parent = await DocTreeManager.query().findOne({
-    id: deleteResource.parentId,
-  })
+const getParentFolderByIdentifier = async (_, { identifier }) => {
+  return DocTreeManager.getParentFolderByIdentifier(identifier)
+}
 
-  const updatedChildren = (parent?.children || []).filter(child => child !== id)
-
-  await DocTreeManager.query()
-    .patch({ children: updatedChildren })
-    .findOne({ id: deleteResource.parentId })
-
-  if (deleteResource.isFolder) {
-    if (deleteResource.children.length > 0) {
-      for (let i = 0; i < deleteResource.children.length; i++) {
-        await deleteResourceRecursively(deleteResource.children[i])
-      }
-    }
-  } else {
-    await Doc.query().findOne({ id: deleteResource.docId }).delete()
-  }
+const openFolder = async (_, { id, idType = 'id' }, ctx) => {
+  return DocTreeManager.openFolder(id, idType, ctx.user)
 }
 
 const DocTreeNested = async (folderId, userId) => {
-  const AllFiles = (await DocTreeManager.getUserTreeResources(userId)) || []
-
-  const getAllDocs = await Doc.query().whereIn(
-    'id',
-    AllFiles.filter(f => f.docId).map(f => f.docId),
-  )
-
-  const getChildren = async children => {
-    for (let i = 0; i < children.length; i++) {
-      const child = children[i]
-      const childItem = AllFiles.find(f => f.id === child)
-
-      const doc = childItem.docId
-        ? getAllDocs.find(doc => doc.id === childItem.docId)
-        : null
-
-      children[i] = {
-        id: childItem.id,
-        key: childItem.id,
-        title: childItem.title,
-        isFolder: childItem.isFolder,
-        identifier: doc ? doc.identifier : null,
-        children:
-          childItem.children.length > 0
-            ? await getChildren(childItem.children)
-            : [],
-      }
+  try {
+    let allFiles = (await DocTreeManager.getUserTreeResources(userId)) || []
+    if (allFiles.length === 0) {
+      await DocTreeManager.createUserRootFolder(userId)
+      allFiles = await DocTreeManager.getUserTreeResources(userId)
     }
 
-    return children
-  }
+    const getAllDocs = await Doc.query().whereIn(
+      'id',
+      allFiles
+        .filter(f => !!f?.docId)
+        .map(f => f?.docId)
+        .filter(Boolean),
+    )
+    logger.info('getAllDocs', allFiles)
 
-  const rootNodes = folderId
-    ? [AllFiles.find(f => f.id === folderId)]
-    : AllFiles.filter(f => f.parentId === null)
+    const getChildren = children => {
+      return children
+        .map(childId => {
+          const childItem = allFiles.find(f => f.id === childId)
+          if (!childItem) return null
 
-  for (let i = 0; i < rootNodes.length; i++) {
-    const rootNode = rootNodes[i]
+          const doc = childItem?.docId
+            ? getAllDocs.find(doc => doc.id === childItem?.docId)
+            : null
 
-    const doc = rootNode.docId
-      ? getAllDocs.find(doc => doc.id === rootNode.docId)
-      : null
-
-    rootNodes[i] = {
-      id: rootNode.id,
-      key: rootNode.id,
-      title: rootNode.title,
-      isFolder: rootNode.isFolder,
-      identifier: doc ? doc.identifier : null,
-      children: await getChildren(rootNode.children),
+          return {
+            id: childItem.id,
+            key: childItem.id,
+            title: childItem.title,
+            isFolder: childItem.isFolder,
+            identifier: doc ? doc.identifier : null,
+            children:
+              childItem.children.length > 0
+                ? getChildren(childItem.children)
+                : [],
+          }
+        })
+        .filter(child => child !== null)
     }
-  }
 
-  return rootNodes ? rootNodes : null
+    const rootFolder = allFiles.find(
+      f => f.id === folderId || f.title === 'Root' || !f.parentId,
+    )
+    logger.info(
+      JSON.stringify(
+        allFiles.map(f => ({ parentId: f.parentId, name: f.title })),
+        null,
+        2,
+      ),
+    )
+    if (!rootFolder) {
+      throw new Error('Root folder not found')
+    }
+
+    return {
+      id: rootFolder.id,
+      key: rootFolder.id,
+      title: rootFolder.title,
+      isFolder: rootFolder.isFolder,
+      identifier: null,
+      children: getChildren(rootFolder.children),
+    }
+  } catch (error) {
+    logger.error('Error in DocTreeNested:', error)
+    throw new Error('Failed to retrieve document tree')
+  }
 }
 
 const getDocTree = async (_, { folderId }, ctx) => {
-  return JSON.stringify(await DocTreeNested(folderId, ctx.user))
+  try {
+    return JSON.stringify(await DocTreeNested(folderId, ctx.user))
+  } catch (error) {
+    logger.error(error)
+  }
 }
 
 const getSharedDocTree = async (_, {}, ctx) => {
@@ -118,76 +121,66 @@ const getSharedDocTree = async (_, {}, ctx) => {
 
 const addResource = async (_, { id, isFolder }, ctx) => {
   if (isFolder) {
-    return DocTreeManager.createNewFolderResource({ id, userId: ctx.user })
-  } else {
-    return DocTreeManager.createNewDocumentResource({
+    const newFolder = await DocTreeManager.createNewFolderResource({
       id,
-      identifier: createIdentifier(),
       userId: ctx.user,
     })
+    return {
+      id: newFolder.id,
+      title: newFolder.title,
+      parentId: newFolder.parentId,
+    }
+  } else {
+    const identifier = createIdentifier()
+    const newResource = await DocTreeManager.createNewDocumentResource({
+      id,
+      identifier,
+      userId: ctx.user,
+    })
+    return {
+      id: newResource.id,
+      identifier,
+      title: newResource.title,
+      parentId: newResource.parentId,
+    }
   }
 }
 
 const deleteResource = async (_, { id }, ctx) => {
-  const deleteResourceItem = await DocTreeManager.query().findOne({ id })
-
-  const isUserTheAuthorOfTheDoc = await Doc.isMyDoc(
-    deleteResourceItem.docId,
-    ctx.user,
-  )
-
-  if (isUserTheAuthorOfTheDoc) {
-    deleteResourceRecursively(id)
-
-    if (deleteResourceItem.docId) {
-      const teams = await Team.query()
-        .delete()
-        .where({ objectId: id })
-        .returning('*')
-      await TeamMember.query()
-        .delete()
-        .whereIn(
-          'teamId',
-          teams.map(team => team.id),
-        )
-    }
-  } else {
-    const team = await Team.query().findOne({
-      objectId: deleteResourceItem.docId,
-      objectType: 'doc',
-      role: 'viewer',
-    })
-
-    if (team) {
-      await TeamMember.query().delete().where({
-        teamId: team.id,
-        userId: ctx.user,
-      })
-    }
-  }
-
-  return deleteResourceItem
+  const resource = await DocTreeManager.getResource(id)
+  const parentId = resource.parentId
+  await DocTreeManager.deleteFolderAndChildren(id)
+  return { folderId: parentId }
 }
 
 const renameResource = async (_, { id, title }, ctx) => {
+  const getSafeName = await DocTreeManager.getSafeName({ id, title })
+
   const updatedItem = await DocTreeManager.query()
-    .patch({ title })
+    .patch({ title: getSafeName })
     .findOne({ id })
     .returning('*')
 
-  return updatedItem
+  return { folderId: updatedItem.parentId }
+}
+
+const moveResource = async (_, { id, newParentId }, ctx) => {
+  await DocTreeManager.moveResource({
+    id,
+    newParentId,
+    userId: ctx.user,
+  })
+  return { folderId: newParentId }
 }
 
 const updateTreePosition = async (_, { id, newParentId, newPosition }, ctx) => {
   const allNodes = await DocTreeManager.query()
 
-  // eslint-disable-next-line no-plusplus
   for (let i = 0; i < allNodes.length; i++) {
     if (allNodes[i].children.includes(id)) {
       const { id: nodeId, children } = allNodes[i]
       const updatedChildren = children.filter(child => child !== id)
 
-      // eslint-disable-next-line no-await-in-loop
       await DocTreeManager.query()
         .patch({ children: updatedChildren })
         .findOne({ id: nodeId })
@@ -198,12 +191,15 @@ const updateTreePosition = async (_, { id, newParentId, newPosition }, ctx) => {
 
   parentNode.children.splice(newPosition, 0, id)
 
-  await DocTreeManager.query().patch({ parentId: newParentId }).findOne({ id })
+  const target = await DocTreeManager.query()
+    .patch({ parentId: newParentId })
+    .findOne({ id })
 
-  return DocTreeManager.query()
+  await DocTreeManager.query()
     .patch({ children: parentNode.children })
     .findOne({ id: newParentId })
     .returning('*')
+  return { folderId: target.parentId }
 }
 
 module.exports = {
@@ -213,4 +209,8 @@ module.exports = {
   addResource,
   getDocTree,
   getSharedDocTree,
+  openFolder,
+  getParentFolderByIdentifier,
+  getResource,
+  moveResource,
 }

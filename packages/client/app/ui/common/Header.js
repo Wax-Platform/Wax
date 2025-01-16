@@ -1,28 +1,24 @@
-/* eslint-disable import/no-duplicates */
-
 /* stylelint-disable string-quotes, declaration-no-important */
-
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { th } from '@coko/client'
-
 import logoMobile from '../../../static/waxdesignerwhite.svg'
-import TeamPopup from './TeamPopup'
 import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import Toggle from '../component-ai-assistant/components/Toggle'
 import { DocumentContext } from '../dashboard/hooks/DocumentContext'
 import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
+import PathRender from '../dashboard/DocTreeManager/PathRender'
+import { objIf } from '../../shared/generalUtils'
 
 // #region styles
 const StyledHeader = styled.header`
   align-items: center;
-  background-color: ${th('colorBody')};
+  background: var(--color-trois-lightest-2);
   display: flex;
-  flex-flow: row wrap;
   height: var(--header-height);
   justify-content: space-between;
   padding: 0 10px 0 0;
+  z-index: 999;
 `
 
 const Logo = styled.img`
@@ -30,6 +26,7 @@ const Logo = styled.img`
   height: 100%;
   margin: 0;
   object-fit: contain;
+  padding-inline: 5px 12px;
 `
 
 const UserMenu = styled.div`
@@ -58,27 +55,28 @@ const UserMenu = styled.div`
 
   > :first-child {
     align-items: center;
-    border-right: 1px solid #0004;
+    border-left: 1px solid #0001;
     display: flex;
     gap: 10px;
     line-height: 1;
     padding: 0.7rem 20px;
-    /* width: 100px; */
   }
 `
 const DocumentInfoArea = styled(FlexCol)`
+  border-left: 1px solid #0001;
   gap: 2px;
   height: 100%;
   line-height: 1;
-  padding: 0 15px;
+  padding: 0 20px;
 
   > p {
     color: #222;
-    font-size: 18px;
+    font-size: 15px;
     margin: 0;
   }
 
   > small {
+    font-size: 10px;
     text-decoration: none;
   }
 `
@@ -106,43 +104,71 @@ const Header = props => {
   } = props
   const { designerOn, setDesignerOn, updateLayout, docId } =
     useContext(AiDesignerContext)
-  const { currentDoc } = useContext(DocumentContext)
+  const { currentDoc, resourcesInFolder, setCurrentDoc, graphQL } =
+    useContext(DocumentContext)
+  const { openFolder } = graphQL
 
   useEffect(() => {
-    currentDoc?.title && (document.title = `${currentDoc.title} - Wax`)
+    currentDoc?.title &&
+      !currentDoc?.isFolder &&
+      (document.title = `${currentDoc.title} - Wax`)
+    docId && openFolder({ variables: { id: docId, idType: 'identifier' } })
   }, [docId, currentDoc?.title])
+
+  useEffect(() => {
+    const doc = resourcesInFolder?.find(c => c.doc?.identifier === docId)
+    console.log({ docId, doc })
+
+    doc && setCurrentDoc(doc)
+  }, [resourcesInFolder])
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
     !designerOn
-      ? updateLayout({ preview: true, editor: false })
-      : updateLayout({ preview: false, editor: true })
+      ? updateLayout({
+          preview: true,
+          editor: false,
+          chat: true,
+          team: false,
+          files: false,
+          templateManager: false,
+          userMenu: true,
+        })
+      : updateLayout({ preview: false, editor: true, chat: false })
   }
   return (
-    <StyledHeader role="banner" {...rest}>
+    <StyledHeader
+      role="banner"
+      style={objIf(!currentDoc?.title, { justifyContent: 'flex-start' })}
+      {...rest}
+    >
       <FlexRow style={{ gap: '0', height: '100%' }}>
         <Logo src={logoMobile} alt="Wax platform"></Logo>
-        {docId && currentDoc?.title && (
+        {currentDoc?.title && (
           <DocumentInfoArea>
-            <small>Editing:</small>
+            <small>Document:</small>
             <p>{currentDoc?.title}</p>
           </DocumentInfoArea>
         )}
       </FlexRow>
-      <UserMenu $designerOn={designerOn}>
-        <FlexRow>
-          <EditDesignLabels $active={!designerOn} $activecolor="#222">
-            Edit
-          </EditDesignLabels>
-          <Toggle handleChange={toggleDesigner} checked={designerOn} />
-          <EditDesignLabels
-            $active={designerOn}
-            $activecolor="var(--color-trois)"
-          >
-            Design
-          </EditDesignLabels>
-        </FlexRow>
-      </UserMenu>
+      {currentDoc?.title ? (
+        <UserMenu $designerOn={designerOn}>
+          <FlexRow>
+            <EditDesignLabels $active={!designerOn} $activecolor="#222">
+              Edit
+            </EditDesignLabels>
+            <Toggle handleChange={toggleDesigner} checked={designerOn} />
+            <EditDesignLabels
+              $active={designerOn}
+              $activecolor="var(--color-trois)"
+            >
+              Design
+            </EditDesignLabels>
+          </FlexRow>
+        </UserMenu>
+      ) : (
+        <PathRender style={{ width: '90%' }} />
+      )}
     </StyledHeader>
   )
 }

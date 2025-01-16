@@ -1,48 +1,82 @@
-import { useQuery, useMutation } from '@apollo/client'
+import {
+  useQuery,
+  useMutation,
+  useLazyQuery,
+  useApolloClient,
+} from '@apollo/client'
 import {
   GET_TREE_MANAGER_AND_SHARED_DOCS,
   ADD_RESOURCE,
   RENAME_RESOURCE,
   DELETE_RESOURCE,
-  REORDER_RESOURCE,
+  OPEN_FOLDER,
+  MOVE_RESOURCE,
 } from '../../../graphql'
-import { useContext } from 'react'
-import { DocumentContext } from './DocumentContext'
-import { cloneDeep } from 'lodash'
+
+import { useEffect, useState } from 'react'
+import { useCurrentUser } from '@coko/client'
 
 export const useDocTree = () => {
-  const { setDocTree, setSharedDocTree } = useContext(DocumentContext)
+  const client = useApolloClient()
+  const { currentUser } = useCurrentUser()
+  const [path, setCurrentPath] = useState('')
+  const [folder, setCurrentFolder] = useState({})
+  const [pendingResources, setPendingResources] = useState([])
 
   const { refetch: getDocTreeData } = useQuery(
     GET_TREE_MANAGER_AND_SHARED_DOCS,
-    {
-      skip: true,
-      onCompleted: console.log,
-    },
+    { skip: true },
   )
+  const [openFolder, { data: openFolderData }] = useLazyQuery(OPEN_FOLDER)
+  const { currentFolder, path: currentPath } = openFolderData?.openFolder || {}
+  const currentFolderNeedsRefetch = pendingResources.includes(currentFolder?.id)
 
-  const onCompleted = async () => {
-    const { data } = await getDocTreeData()
-    const allData = JSON.parse(data.getDocTree)
-    allData[0].isRoot = true
-    setDocTree([...allData])
+  const refetchQueries = [
+    {
+      query: OPEN_FOLDER,
+      variables: { id: currentFolder?.id },
+    },
+  ]
 
-    const sharedData = cloneDeep(data.getSharedDocTree)
-    sharedData[0].isRoot = true
+  const [addResource] = useMutation(ADD_RESOURCE, { refetchQueries })
+  const [renameResource] = useMutation(RENAME_RESOURCE, { refetchQueries })
+  const [deleteResource] = useMutation(DELETE_RESOURCE, { refetchQueries })
+  const [moveResource] = useMutation(MOVE_RESOURCE, { refetchQueries })
 
-    setSharedDocTree([...sharedData])
-  }
+  useEffect(() => {
+    if (currentUser?.id) {
+      openFolder()
+    }
+  }, [currentUser])
 
-  const [addResource] = useMutation(ADD_RESOURCE, { onCompleted })
-  const [renameResource] = useMutation(RENAME_RESOURCE, { onCompleted })
-  const [deleteResource] = useMutation(DELETE_RESOURCE, { onCompleted })
-  const [reorderResource] = useMutation(REORDER_RESOURCE, { onCompleted })
+  useEffect(() => {
+    if (currentFolder) {
+      if (currentFolderNeedsRefetch) {
+        client.query({
+          query: OPEN_FOLDER,
+          variables: { id: currentFolder.id },
+          fetchPolicy: 'no-cache',
+        })
+        setPendingResources(
+          pendingResources.filter(id => id !== currentFolder.id),
+        )
+      } else {
+        setCurrentFolder(currentFolder)
+        setCurrentPath(currentPath)
+      }
+    }
+  }, [currentFolder])
 
   return {
+    currentFolder: folder,
+    currentPath: path,
+    openFolder,
     getDocTreeData,
     addResource,
     renameResource,
     deleteResource,
-    reorderResource,
+    reorderResource: moveResource,
+    moveResource,
+    setPendingResources,
   }
 }
