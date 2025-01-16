@@ -50,12 +50,19 @@ const renderImage = file => {
 
 const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
-
-  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, setDocId } =
-    useContext(AiDesignerContext)
   const { graphQL } = useDocumentContext()
   const { openFolder } = graphQL
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
+
+  const {
+    setHtmlSrc,
+    htmlSrc,
+    setEditorContent,
+    css,
+    settings,
+    setDocId,
+    designerOn,
+  } = useContext(AiDesignerContext)
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
@@ -140,7 +147,6 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
           paddingBlock: '1rem',
         }}
       >
-        <PathRender style={{ width: '80%' }} />
         <Files style={{ width: '80%', maxWidth: '100%' }} />
       </StyledWindow>
     )
@@ -162,7 +168,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
         fileUpload={file => renderImage(file)}
         layout={layout}
         onChange={value => {
-          debounce(setEditorContent, 250)(value)
+          designerOn && debounce(setEditorContent, 250)(value)
         }}
         // readonly={!contentEditable}
         placeholder="Type Something ..."

@@ -56,9 +56,37 @@ class Snippet extends BaseModel {
       .page(offset, limit)
   }
 
-  static async create(authorId, snippet, options) {
+  static async create(id, snippet, options) {
     const { trx } = options || {}
-    return Snippet.query(trx).insert({ authorId, ...snippet })
+    const { category } = snippet
+    const categoryMap = {
+      template: { ...snippet, templateId: id },
+      user: { ...snippet, authorId: id },
+      system: { ...snippet },
+    }
+    const newSnippet = categoryMap[category] || snippet
+    return Snippet.query(trx).insert({ id, ...newSnippet })
+  }
+
+  static async combine(ids, newFields, options) {
+    const { trx, deleteOld } = options || {}
+    const snipsToCombine = await Snippet.query(trx).findByIds(ids)
+    const classBody = snipsToCombine.reduce((acc, snip) => {
+      const { classBody: cls } = snip
+      acc += cls
+      return acc
+    }, '')
+
+    const newSnippet = {
+      className: 'combined-snippet',
+      elementType: 'div',
+      description: 'Combined Snippet',
+      classBody,
+      ...newFields,
+    }
+
+    deleteOld && Snippet.query(trx).deleteByIds(ids)
+    return Snippet.query(trx).insert(newSnippet)
   }
 
   static async update(id, snippet, options) {

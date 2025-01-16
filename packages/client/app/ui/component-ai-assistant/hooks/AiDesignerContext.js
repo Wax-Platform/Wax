@@ -132,14 +132,14 @@ export const AiDesignerProvider = ({ children }) => {
   const updateTools = updateObjectStateFromKey(setTools)
 
   const getCtxNode = (dom = document) =>
-    dom.querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
+    dom.querySelector(`[data-id="${selectedCtx.id}"]`)
 
   const onSelect = ctx => {
-    ctx.aidctx && setSelectedCtx(ctx)
+    ctx.id && setSelectedCtx(ctx)
 
     markedSnippet && setMarkedSnippet('')
     showSnippets && setShowSnippets(false)
-    if (ctx.aidctx === 'aid-ctx-main') return
+    if (ctx.id === 'aid-ctx-main') return
 
     // TODO: this should be moved to a separate function
     // const node = ctx.node
@@ -175,7 +175,7 @@ export const AiDesignerProvider = ({ children }) => {
 
   const updateSelectionBoxPosition = (yOffset = 10, xOffset = 10) => {
     if (!settings.editor.enableSelection && !selectionBoxRef?.current) return
-    if (selectedCtx.aidctx === 'aid-ctx-main' || !designerOn) {
+    if (selectedCtx.id === 'aid-ctx-main' || !designerOn) {
       selectionBoxRef.current.style.opacity = 0
       return
     }
@@ -256,8 +256,8 @@ export const AiDesignerProvider = ({ children }) => {
             doc => {
               !!selectedCtx?.node &&
                 doc
-                  .querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
-                  ?.classList?.add('selected-aidctx')
+                  .querySelector(`[data-id="${selectedCtx.id}"]`)
+                  ?.classList?.add('selected-id')
               doc.querySelectorAll('.ProseMirror-widget').forEach(el => {
                 el.remove()
               })

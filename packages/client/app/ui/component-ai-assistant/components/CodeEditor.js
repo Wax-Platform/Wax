@@ -47,15 +47,18 @@ const TemplateEditor = styled(CssEditor)`
 `
 
 export const TemplateManager = () => {
-  const { css, setCss, updatePreview } = useContext(AiDesignerContext)
+  const { css, setCss, updatePreview, markedSnippet, setMarkedSnippet } =
+    useContext(AiDesignerContext)
   return (
     <TemplateEditor
       extensions={[cssLang()]}
       onChange={content => {
-        setCss(content)
+        markedSnippet
+          ? setMarkedSnippet(prev => ({ ...prev, classBody: content }))
+          : setCss(content)
         updatePreview(true)
       }}
-      value={css}
+      value={markedSnippet?.classBody || css}
     />
   )
 }

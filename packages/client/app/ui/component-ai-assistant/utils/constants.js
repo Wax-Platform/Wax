@@ -148,7 +148,7 @@ export const cssTemplate1 = /* css */ `
         outline-offset: 12px;
       }   
       
-      .selected-aidctx {
+      .selected-id {
         outline: 1px dashed #a34ba1;
         outline-offset: 8px;
       }
@@ -489,7 +489,7 @@ export const AiDesignerSystem = ({
   snippets,
   waxClass,
 }) => {
-  const isSE = ctx?.aidctx !== 'aid-ctx-main'
+  const isSE = ctx?.id !== 'aid-ctx-main'
 
   const context = generatedContext(
     isSE,

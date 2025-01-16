@@ -27,16 +27,16 @@ const defaultConfig = {
 }
 
 class AidCtx {
-  constructor({ aidctx, conversation }) {
-    this.aidctx = aidctx
+  constructor({ id, conversation }) {
+    this.id = id
     this.conversation = conversation || []
   }
   get node() {
-    return document.querySelector(`[data-aidctx="${this.aidctx}"]`)
+    return document.querySelector(`[data-id="${this.id}"]`)
   }
 
   get tagName() {
-    const node = document.querySelector(`[data-aidctx="${this.aidctx}"]`)
+    const node = document.querySelector(`[data-id="${this.id}"]`)
     return node?.localName || node?.tagName?.toLowerCase()
   }
 
@@ -54,7 +54,7 @@ export default class AiDesigner extends StateManager {
   constructor() {
     super()
     this.mainContext = {
-      aidctx: 'main',
+      id: 'main',
       conversation: [],
     }
     this.context = []
@@ -84,16 +84,16 @@ export default class AiDesigner extends StateManager {
   }
 
   static get allInDom() {
-    return [...document.querySelectorAll('[data-aidctx]')]
-      .map(n => n.dataset.aidctx)
+    return [...document.querySelectorAll('[data-id]')]
+      .map(n => n.dataset.id)
       .filter(Boolean)
   }
 
-  static select(aidctx, options = {}) {
-    if (!this.config.editor.enableSelection || !aidctx) return
-    !this.getBy({ aidctx }) && AiDesigner.addToContext({ aidctx })
+  static select(id, options = {}) {
+    if (!this.config.editor.enableSelection || !id) return
+    !this.getBy({ id }) && AiDesigner.addToContext({ id })
     const { getOnly } = options
-    const foundInCtx = this.getBy({ aidctx })
+    const foundInCtx = this.getBy({ id })
     !getOnly && (this.selected = foundInCtx)
     this.emit('select', foundInCtx, this.context)
   }
@@ -118,10 +118,10 @@ export default class AiDesigner extends StateManager {
 
     view.state.doc.descendants(node => {
       if (node && !node.isText) {
-        const aidctx = this.idGen(node?.attrs?.dataset?.aidctx)
+        const id = this.idGen(node?.attrs?.dataset?.id)
 
-        if (aidctx) {
-          !this.getBy({ aidctx }) && this.addToContext({ aidctx })
+        if (id) {
+          !this.getBy({ id }) && this.addToContext({ id })
         }
       }
     })
@@ -131,13 +131,13 @@ export default class AiDesigner extends StateManager {
   static idGen(currentAid) {
     const aidsInCtx = [...this.allInDom, ...([currentAid] || [])]
     const isDuplicated = aidsInCtx.filter(n => n === currentAid).length > 1
-    const aidctx = currentAid && !isDuplicated ? currentAid : uuid()
-    return [aidctx, aidctx === currentAid]
+    const id = currentAid && !isDuplicated ? currentAid : uuid()
+    return [id, id === currentAid]
   }
 
-  static addToContext({ aidctx }) {
-    if (this.getBy({ aidctx })) return
-    const newContext = new AidCtx({ aidctx })
+  static addToContext({ id }) {
+    if (this.getBy({ id })) return
+    const newContext = new AidCtx({ id })
     this.context = [...(this.context || []), newContext]
     this.emit('addtocontext', this.context, newContext)
   }

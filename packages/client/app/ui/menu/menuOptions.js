@@ -100,20 +100,22 @@ export const ChatButton = ({ aiIcon }) => {
 }
 
 export const TemplateManagerButton = () => {
-  const { layout, updateLayout } = useContext(AiDesignerContext)
+  const { layout, updateLayout, designerOn } = useContext(AiDesignerContext)
   const action = layout.templateManager && layout.userMenu && 'userMenu'
   const newLayout = toggleLayout('templateManager', action)
 
   return (
-    <Button
-      onClick={() => {
-        console.log(newLayout)
-        updateLayout(newLayout)
-      }}
-      $expanded={layout.userMenu && layout.templateManager}
-      title="Template Editor"
-    >
-      <CodeOutlined style={{ fontSize: '25px' }} />
-    </Button>
+    designerOn && (
+      <Button
+        onClick={() => {
+          console.log(newLayout)
+          updateLayout(newLayout)
+        }}
+        $expanded={layout.userMenu && layout.templateManager}
+        title="Template Editor"
+      >
+        <CodeOutlined style={{ fontSize: '25px' }} />
+      </Button>
+    )
   )
 }

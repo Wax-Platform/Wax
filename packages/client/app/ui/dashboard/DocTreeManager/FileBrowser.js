@@ -115,7 +115,8 @@ const SharedTree = styled(Tree)``
 
 const Files = props => {
   const { layout } = useContext(AiDesignerContext)
-  const { currentFolder, graphQL } = useContext(DocumentContext)
+  const { currentFolder, graphQL, setPendingResources } =
+    useContext(DocumentContext)
 
   const {
     addResource,
@@ -131,6 +132,7 @@ const Files = props => {
   const onDrop = async info => {
     const newParentId = info.node.key
     const id = info.dragNode.key
+    setPendingResources(prev => [...prev, newParentId])
     reorderResource({ variables: { id, newParentId } })
   }
 

@@ -1,6 +1,6 @@
 export const allInDom = () =>
-  [...document.querySelectorAll('[data-aidctx]')]
-    .map(n => n?.dataset?.aidctx)
+  [...document.querySelectorAll('[data-id]')]
+    .map(n => n?.dataset?.id)
     .filter(Boolean)
 
 export const updateObjectFromKey = (obj, setting, value) => {

@@ -432,9 +432,7 @@ const SnippetItem = ({
       snippetName &&
       setEditorContent(
         parseContent(editorContent, dom => {
-          const node = dom.querySelector(
-            `[data-aidctx="${selectedCtx.aidctx}"]`,
-          )
+          const node = dom.querySelector(`[data-id="${selectedCtx.id}"]`)
 
           node.classList.toggle(`aid-snip-${snippetName}`)
         }),
@@ -580,7 +578,7 @@ const ImagesTabContent = ({ imagesData, getImageUrl, updatePreview }) => {
     onHistory.addRegistry('undo')
     setEditorContent(
       parseContent(editorContent, dom => {
-        const node = dom.querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
+        const node = dom.querySelector(`[data-id="${selectedCtx.id}"]`)
         node.setAttribute('src', src)
         node.setAttribute(
           'data-imgkey',

@@ -23,14 +23,14 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
       <script>
           window.addEventListener('click', (event) => {
               const { target } = event;
-            if (!target.hasAttribute('data-aidctx')) event.preventDefault();
-              let aidctx = event.target.getAttribute('data-aidctx') || event.target.parentElement.getAttribute('data-aidctx');
-              if (event.target.contains(document.documentElement.querySelector('.pagedjs_page_content'))) {aidctx = 'aid-ctx-main'}
-              if (aidctx) {
-                const onAllSelected = cb => document.documentElement.querySelectorAll('[data-aidctx="' + aidctx + '"]').forEach(cb)
-                document.documentElement.querySelectorAll('.selected-aidctx').forEach(el =>el?.classList.remove('selected-aidctx'))
-                aidctx !== 'aid-ctx-main' && onAllSelected(el => el?.classList.add('selected-aidctx'))
-                window.parent.postMessage({ aidctx }, '*')
+            if (!target.hasAttribute('data-id')) event.preventDefault();
+              let id = event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id');
+              if (event.target.contains(document.documentElement.querySelector('.pagedjs_page_content'))) {id = 'aid-ctx-main'}
+              if (id) {
+                const onAllSelected = cb => document.documentElement.querySelectorAll('[data-id="' + id + '"]').forEach(cb)
+                document.documentElement.querySelectorAll('.selected-id').forEach(el =>el?.classList.remove('selected-id'))
+                id !== 'aid-ctx-main' && onAllSelected(el => el?.classList.add('selected-id'))
+                window.parent.postMessage({ id }, '*')
               };
           });
         document.addEventListener("DOMContentLoaded", () => {
