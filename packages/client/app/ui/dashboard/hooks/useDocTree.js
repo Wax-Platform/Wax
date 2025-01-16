@@ -68,7 +68,7 @@ export const useDocTree = () => {
   }, [currentFolder])
 
   return {
-    currentFolder,
+    currentFolder: folder,
     currentPath: path,
     openFolder,
     getDocTreeData,
