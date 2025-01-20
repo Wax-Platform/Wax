@@ -1,67 +1,8 @@
 import { gql } from '@apollo/client'
 
-export const GET_TREE_MANAGER_AND_SHARED_DOCS = gql`
-  query getDocTree($folderId: ID) {
-    getDocTree(folderId: $folderId)
-    getSharedDocTree {
-      id
-      key
-      title
-      identifier
-      isFolder
-      doc {
-        id
-        identifier
-      }
-      children {
-        id
-        key
-        title
-        identifier
-        isFolder
-        doc {
-          id
-          identifier
-        }
-      }
-    }
-  }
-`
-
-export const GET_RESOURCE = gql`
-  query GetResource($id: ID!) {
-    getResource(id: $id) {
-      id
-      title
-      parentId
-      identifier
-      children
-      isFolder
-    }
-  }
-`
-
-export const GET_PARENT_FOLDER_BY_IDENTIFIER_QUERY = gql`
-  query GetParentFolderByIdentifier($identifier: String!) {
-    getParentFolderByIdentifier(identifier: $identifier) {
-      id
-      title
-      parentId
-      children {
-        id
-        title
-        parentId
-        children
-        isFolder
-      }
-      isFolder
-    }
-  }
-`
-
 export const OPEN_FOLDER = gql`
-  query OpenFolder($id: ID, $idType: String) {
-    openFolder(id: $id, idType: $idType) {
+  query OpenFolder($id: ID, $resourceType: String) {
+    openFolder(id: $id, resourceType: $resourceType) {
       path {
         title
         id
@@ -80,46 +21,18 @@ export const OPEN_FOLDER = gql`
             id
             identifier
           }
-          isFolder
+          resourceType
         }
-        isFolder
+        resourceType
       }
-    }
-  }
-`
-
-export const OPEN_ROOT_FOLDER = gql`
-  query OpenRootFolder {
-    openRootFolder {
-      path {
-        title
-        id
-      }
-      currentFolder {
-        id
-        title
-        key
-        parentId
-        children {
-          id
-          title
-          key
-          parentId
-          doc {
-            id
-            identifier
-          }
-          isFolder
-        }
-        isFolder
-      }
+      requestAccessTo
     }
   }
 `
 
 export const ADD_RESOURCE = gql`
-  mutation addResource($id: ID, $isFolder: Boolean!) {
-    addResource(id: $id, isFolder: $isFolder) {
+  mutation addResource($id: ID, $resourceType: String!) {
+    addResource(id: $id, resourceType: $resourceType) {
       id
       identifier
       title
@@ -144,22 +57,16 @@ export const DELETE_RESOURCE = gql`
   }
 `
 
-export const REORDER_RESOURCE = gql`
-  mutation updateTreePosition($id: ID!, $newParentId: ID, $newPosition: Int!) {
-    updateTreePosition(
-      id: $id
-      newParentId: $newParentId
-      newPosition: $newPosition
-    ) {
-      folderId
-    }
-  }
-`
-
 export const MOVE_RESOURCE = gql`
   mutation moveResource($id: ID!, $newParentId: ID!) {
     moveResource(id: $id, newParentId: $newParentId) {
       folderId
     }
+  }
+`
+
+export const GET_DOC_PATH = gql`
+  query GetDocPath($id: ID!) {
+    getDocPath(id: $id)
   }
 `

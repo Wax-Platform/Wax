@@ -1,7 +1,7 @@
 const merge = require('lodash/merge')
 const user = require('./user')
 const doc = require('./doc')
-const docTree = require('./docTree')
+const resourceTree = require('./resourceTree')
 const aiService = require('./aiService')
 const settings = require('./settings')
 const document = require('./document')
@@ -11,7 +11,7 @@ module.exports = {
   typeDefs: [
     user.typeDefs,
     doc.typeDefs,
-    docTree.typeDefs,
+    resourceTree.typeDefs,
     aiService.typeDefs,
     // settings.typeDefs,
     document.typeDefs,
@@ -21,7 +21,7 @@ module.exports = {
     {},
     user.resolvers,
     doc.resolvers,
-    docTree.resolvers,
+    resourceTree.resolvers,
     aiService.resolvers,
     // settings.resolvers,
     document.resolvers,

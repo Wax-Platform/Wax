@@ -9,7 +9,10 @@ import { debounce } from 'lodash'
 import ReactMarkdown from 'react-markdown'
 import Prism from 'prismjs'
 import prismcss from '../../../static/prism.css'
-import { AiDesignerContext } from './hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from './hooks/AiDesignerContext'
 import { copyTextContent, htmlTagNames } from './utils'
 import logoSmall from '../../../static/AI Design Studio-Icon.svg'
 import userSmall from '../../../static/user-icon.svg'
@@ -239,7 +242,7 @@ const NoMessages = styled.span`
 
 const ChatHistory = ({ nomessages, ...props }) => {
   const { selectedCtx, feedback, deleteLastMessage, settings, layout } =
-    useContext(AiDesignerContext)
+    useAiDesignerContext()
   const { currentUser } = useCurrentUser()
   const [clipboardText, setClipboardText] = useState('')
 

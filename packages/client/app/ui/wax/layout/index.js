@@ -11,12 +11,15 @@ import YjsContext from '../../../yjsProvider'
 import theme from '../../../theme'
 import commonStyles from './cokoDocsWaxStyles'
 import MenuComponent from './MenuComponent'
-import DocTreeManager from '../../dashboard/DocTreeManager/DocTreeManager'
+import MainMenu from '../../dashboard/MainMenu/MainMenu'
 import 'wax-table-service/dist/index.css'
 import 'wax-prosemirror-core/dist/index.css'
 import 'wax-prosemirror-services/dist/index.css'
 import PromptBox from '../../component-ai-assistant/components/PromptBox'
-import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsPreview'
@@ -209,7 +212,7 @@ const Layout = props => {
     settings,
     designerOn,
     previewRef,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const { loading } = useAssistant()
   const { enableLogin } = props
@@ -304,7 +307,7 @@ const Layout = props => {
 
         <WaxEditorWrapper>
           <FileManagerWrapper>
-            <DocTreeManager enableLogin={enableLogin} />
+            <MainMenu enableLogin={enableLogin} />
           </FileManagerWrapper>
           <StyledWindow $show={layout.editor}>
             <WaxSurfaceScroll

@@ -1,6 +1,9 @@
 /* stylelint-disable string-quotes */
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
-import { AiDesignerContext } from '../hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../hooks/AiDesignerContext'
 import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { ToolsCursor } from './ToolsCursor'
@@ -42,7 +45,7 @@ const PreviewIframe = styled.iframe`
 `
 
 export const PagedJsPreview = props => {
-  const { previewRef, previewSource } = useContext(AiDesignerContext)
+  const { previewRef, previewSource } = useAiDesignerContext()
   const { loading } = useAssistant()
   const [fakeSrc, setFakeSrc] = useState(null)
   const [mainSrc, setMainSrc] = useState(null)

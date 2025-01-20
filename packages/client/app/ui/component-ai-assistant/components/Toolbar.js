@@ -11,7 +11,10 @@ import React, {
 import { FilePdfOutlined, LayoutOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
 import { debounce, values } from 'lodash'
-import { AiDesignerContext } from '../hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../hooks/AiDesignerContext'
 import AidLogoSmall from '../../../../static/AI Design Studio-Icon.svg'
 import handCursor from '../../../../static/cursor-hand3.svg'
 import dropperIcon from '../../../../static/dropper-icon.svg'
@@ -167,7 +170,7 @@ const Toolbar = ({ drag, ...props }) => {
       editor: { contentEditable, enableSelection, displayStyles },
     },
     designerOn,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const toolbarRef = useRef(null)
   const [horizontal, setHorizontal] = useState(false)

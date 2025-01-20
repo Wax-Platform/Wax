@@ -110,8 +110,8 @@ export const addClass = (method, classNames, selected) => {
   )
   const pos = node.posBefore
 
-  console.log({ node, pos })
-  console.log({ descendants: getAllDescendants(view.docView), doc, view })
+  // console.log({ node, pos })
+  // console.log({ descendants: getAllDescendants(view.docView), doc, view })
 
   // if (!Number(pos) || !domNode) return
   // const resolvedPos =

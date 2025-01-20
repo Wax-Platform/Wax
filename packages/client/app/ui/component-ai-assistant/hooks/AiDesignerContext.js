@@ -1,5 +1,11 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
-import React, { createContext, useMemo, useRef, useState } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { isString, merge, takeRight } from 'lodash'
 import {
   setInlineStyle,
@@ -92,7 +98,6 @@ export const AiDesignerProvider = ({ children }) => {
   const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
-  const [docId, setDocId] = useState('')
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -151,7 +156,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [updateSnippets] = useMutation(UPDATE_SNIPPETS)
 
   AiDesigner.on('select', onSelect)
-  AiDesigner.on('addtocontext', console.log)
+  // AiDesigner.on('addtocontext', console.log)
   AiDesigner.on('snippets', updatePreview)
   // #endregion HOOKS ----------------------------------------------------------------
 
@@ -405,8 +410,6 @@ export const AiDesignerProvider = ({ children }) => {
         setDesignerOn,
         userInteractions,
         setUserInteractions,
-        docId,
-        setDocId,
       }}
     >
       {children}
@@ -439,3 +442,5 @@ function updateObjectState(stateDispatcher) {
     })
   }
 }
+
+export const useAiDesignerContext = () => useContext(AiDesignerContext)

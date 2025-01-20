@@ -7,7 +7,10 @@ import config from './config/config'
 import layout from './layout'
 import YjsContext from '../../yjsProvider'
 import { Result, Spin } from '../common'
-import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../component-ai-assistant/hooks/AiDesignerContext'
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
 import { snippetsToCssText } from '../component-ai-assistant/utils'
 import { debounce } from 'lodash'
@@ -16,8 +19,7 @@ import AiDesigner from '../../AiDesigner/AiDesigner'
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
 import { FlexRow, StyledWindow } from '../_styleds/common'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
-import Files from '../dashboard/DocTreeManager/FileBrowser'
-import PathRender from '../dashboard/DocTreeManager/PathRender'
+import Files from '../dashboard/MainMenu/FileBrowser'
 
 const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
@@ -50,19 +52,11 @@ const renderImage = file => {
 
 const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
-  const { graphQL } = useDocumentContext()
-  const { openFolder } = graphQL
+  const { setDocId } = useDocumentContext()
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
 
-  const {
-    setHtmlSrc,
-    htmlSrc,
-    setEditorContent,
-    css,
-    settings,
-    setDocId,
-    designerOn,
-  } = useContext(AiDesignerContext)
+  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, designerOn } =
+    useAiDesignerContext()
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
@@ -81,7 +75,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
 
   useEffect(() => {
     if (htmlSrc) {
-      AiDesigner.addToContext({ aidctx: 'aid-ctx-main' })
+      AiDesigner.addToContext({ id: 'aid-ctx-main' })
       AiDesigner.select('aid-ctx-main')
     }
   }, [htmlSrc])
@@ -92,8 +86,8 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
 
   useEffect(() => {
     const handleMessage = e => {
-      const aidctx = e.data.aidctx
-      AiDesigner.select(aidctx)
+      const id = e.data.id
+      AiDesigner.select(id)
     }
 
     window.addEventListener('message', handleMessage)
@@ -104,21 +98,19 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
   }, [])
   useEffect(() => {
     if (docIdentifier) {
+      setDocId(docIdentifier)
       yjsProvider?.disconnect()
       setShowSpinner(true)
 
       debounce(() => {
         createYjsProvider(docIdentifier)
-        getAidMisc({
-          variables: {
-            input: { docId: docIdentifier },
-          },
-        })
-        setDocId(docIdentifier)
         setShowSpinner(false)
       }, 500)()
-
-      openFolder({ variables: { id: docIdentifier, idType: 'identifier' } })
+      getAidMisc({
+        variables: {
+          input: { docId: docIdentifier },
+        },
+      })
     }
   }, [docIdentifier])
 

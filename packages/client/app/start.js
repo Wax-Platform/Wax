@@ -5,7 +5,7 @@ import theme from './theme'
 
 const cache = new InMemoryCache({
   typePolicies: {
-    DocTree: {
+    Resource: {
       fields: {
         children: {
           merge(existing = [], incoming) {

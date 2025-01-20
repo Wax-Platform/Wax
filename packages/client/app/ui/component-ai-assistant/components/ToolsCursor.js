@@ -1,5 +1,8 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
-import { AiDesignerContext } from '../hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../hooks/AiDesignerContext'
 import { mapEntries, mapValues } from '../utils'
 import brushIcon from '../../../../static/brush-icon.svg'
 import dropperIcon from '../../../../static/dropper-icon.svg'
@@ -33,7 +36,7 @@ export const ToolsCursor = ({ container = window }) => {
     },
     previewRef,
     updatePreview,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const [position, setPosition] = useState({
     top: 145,

@@ -6,5 +6,9 @@ eslint.settings = {
   //   version: '27',
   // },
 }
+eslint.rules = {
+  ...eslint.rules,
+  'no-unused-vars': 'error', // Enable no-unused-vars rule
+}
 
 module.exports = eslint

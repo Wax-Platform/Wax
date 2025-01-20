@@ -8,7 +8,7 @@ import { rotate360 } from '@coko/client'
 import PropTypes from 'prop-types'
 import { CloseOutlined, ArrowRightOutlined } from '@ant-design/icons'
 import { autoResize, callOn } from './utils'
-import { AiDesignerContext } from './hooks/AiDesignerContext'
+import { useAiDesignerContext } from './hooks/AiDesignerContext'
 
 const StyledForm = styled.form`
   --color: #00495c;
@@ -86,7 +86,7 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
     setUserPrompt,
     setUserImages,
     promptRef,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const [showImg, setShowImg] = useState(false)
 

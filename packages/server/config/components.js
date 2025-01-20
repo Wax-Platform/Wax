@@ -11,7 +11,7 @@ module.exports = [
   //   './models/team',
   './models/user',
   './models/doc',
-  './models/docTreeManager',
+  './models/resourceTree',
   './models/settings',
   './models/embeddings',
   './models/document',

@@ -8,7 +8,10 @@ import {
   FolderAddOutlined,
 } from '@ant-design/icons'
 import styled from 'styled-components'
-import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../component-ai-assistant/hooks/AiDesignerContext'
 import { CleanButton } from '../_styleds/common'
 import { uuid } from '@coko/client'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
@@ -47,7 +50,7 @@ const toggleLayout = (...keys) => ({
 })
 
 export const FileManagerButton = () => {
-  const { layout, updateLayout } = useContext(AiDesignerContext)
+  const { layout, updateLayout } = useAiDesignerContext()
   const action = layout.files && layout.userMenu && 'userMenu'
   const newLayout = toggleLayout('files', action)
 
@@ -67,7 +70,7 @@ export const FileManagerButton = () => {
 }
 
 export const TeamButton = () => {
-  const { layout, updateLayout } = useContext(AiDesignerContext)
+  const { layout, updateLayout } = useAiDesignerContext()
   const action = layout.team && layout.userMenu && 'userMenu'
   const newLayout = toggleLayout('team', action)
 
@@ -83,7 +86,7 @@ export const TeamButton = () => {
 }
 
 export const ChatButton = ({ aiIcon }) => {
-  const { layout, updateLayout, designerOn } = useContext(AiDesignerContext)
+  const { layout, updateLayout, designerOn } = useAiDesignerContext()
   const action = layout.chat && layout.userMenu && 'userMenu'
   const newLayout = toggleLayout('chat', action)
 
@@ -100,7 +103,7 @@ export const ChatButton = ({ aiIcon }) => {
 }
 
 export const TemplateManagerButton = () => {
-  const { layout, updateLayout, designerOn } = useContext(AiDesignerContext)
+  const { layout, updateLayout, designerOn } = useAiDesignerContext()
   const action = layout.templateManager && layout.userMenu && 'userMenu'
   const newLayout = toggleLayout('templateManager', action)
 
@@ -108,7 +111,7 @@ export const TemplateManagerButton = () => {
     designerOn && (
       <Button
         onClick={() => {
-          console.log(newLayout)
+          // console.log(newLayout)
           updateLayout(newLayout)
         }}
         $expanded={layout.userMenu && layout.templateManager}
