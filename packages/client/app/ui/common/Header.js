@@ -3,11 +3,14 @@ import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import logoMobile from '../../../static/waxdesignerwhite.svg'
-import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../component-ai-assistant/hooks/AiDesignerContext'
 import Toggle from '../component-ai-assistant/components/Toggle'
 import { DocumentContext } from '../dashboard/hooks/DocumentContext'
 import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
-import PathRender from '../dashboard/DocTreeManager/PathRender'
+import PathRender from '../dashboard/MainMenu/PathRender'
 import { objIf } from '../../shared/generalUtils'
 
 // #region styles
@@ -102,25 +105,15 @@ const Header = props => {
     enableLogin,
     ...rest
   } = props
-  const { designerOn, setDesignerOn, updateLayout, docId } =
-    useContext(AiDesignerContext)
-  const { currentDoc, resourcesInFolder, setCurrentDoc, graphQL } =
-    useContext(DocumentContext)
+  const { designerOn, setDesignerOn, updateLayout } = useAiDesignerContext()
+  const { currentDoc, graphQL, docId } = useContext(DocumentContext)
   const { openFolder } = graphQL
 
   useEffect(() => {
-    currentDoc?.title &&
-      !currentDoc?.isFolder &&
+    currentDoc?.resourceType === 'doc' &&
       (document.title = `${currentDoc.title} - Wax`)
-    docId && openFolder({ variables: { id: docId, idType: 'identifier' } })
+    docId && openFolder({ variables: { id: docId, resourceType: 'doc' } })
   }, [docId, currentDoc?.title])
-
-  useEffect(() => {
-    const doc = resourcesInFolder?.find(c => c.doc?.identifier === docId)
-    console.log({ docId, doc })
-
-    doc && setCurrentDoc(doc)
-  }, [resourcesInFolder])
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
@@ -134,7 +127,14 @@ const Header = props => {
           templateManager: false,
           userMenu: true,
         })
-      : updateLayout({ preview: false, editor: true, chat: false })
+      : updateLayout({
+          preview: false,
+          editor: true,
+          chat: false,
+          userMenu: true,
+          files: true,
+          templateManager: false,
+        })
   }
   return (
     <StyledHeader

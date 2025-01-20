@@ -26,7 +26,10 @@ import {
   parseContent,
 } from '../utils'
 import Each from '../utils/Each'
-import { AiDesignerContext } from '../hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../hooks/AiDesignerContext'
 import Toggle from './Toggle'
 import { Files } from '../../rag-test-component/Files'
 
@@ -409,7 +412,7 @@ const SnippetItem = ({
     editorContent,
     setEditorContent,
     getCtxNode,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const [showCss, setShowCss] = useState(
     settings.snippetsManager.showCssByDefault,
@@ -554,7 +557,7 @@ const ImagesTabContent = ({ imagesData, getImageUrl, updatePreview }) => {
     onHistory,
     editorContent,
     setEditorContent,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const ctxIsHtmlSrc = selectedCtx?.node === htmlSrc
   const [images, setImages] = useState([...imagesData])
@@ -688,7 +691,7 @@ export const Manage = ({
     setMarkedSnippet,
     setCss,
     css,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const [width, setWidth] = useState('50%')
   const [filter, setFilter] = useState('all')

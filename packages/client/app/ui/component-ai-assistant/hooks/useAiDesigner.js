@@ -2,7 +2,7 @@
 import { useContext, useEffect } from 'react'
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
 import { debounce, takeRight } from 'lodash'
-import { AiDesignerContext } from './AiDesignerContext'
+import { AiDesignerContext, useAiDesignerContext } from './AiDesignerContext'
 import { GET_SETTINGS, UPDATE_SETTINGS } from '../queries/settings'
 import {
   CALL_AI_SERVICE,
@@ -33,6 +33,7 @@ import {
   GET_AID_MISC_BY_ID,
   GET_CSS,
 } from '../../../graphql/aiDesignerMisc'
+import { useDocumentContext } from '../../dashboard/hooks/DocumentContext'
 
 const voidElements = [
   'area',
@@ -73,15 +74,12 @@ const useAssistant = () => {
     css,
     useRag,
     model,
-    docId,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
+  const { docId } = useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
 
   const client = useApolloClient()
-  // useEffect(() => {
-  //   console.log('selected:', selectedCtx)
-  // }, [selectedCtx])
 
   const [getSettings] = useLazyQuery(GET_SETTINGS)
 
@@ -178,7 +176,7 @@ const useAssistant = () => {
         callOn(action, actions, [response[action]])
         actionsApplied?.push(action)
       })
-      console.log({ response, actionsApplied })
+      // console.log({ response, actionsApplied })
 
       updatePreview(true)
     },
@@ -209,7 +207,7 @@ const useAssistant = () => {
         temp.snippetsManager.snippets = snippets
         return temp
       })
-      console.log(templates)
+      // console.log(templates)
     },
   })
   const [getAidMiscById] = useLazyQuery(GET_AID_MISC_BY_ID)

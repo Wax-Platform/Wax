@@ -1,64 +1,89 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  useCallback,
-} from 'react'
-import { useDocTree } from './useDocTree'
-import { useHistory, useParams } from 'react-router-dom'
+import React, { createContext, useState, useContext, useEffect } from 'react'
+import { useResourceTree } from './useResourceTree'
+import { useHistory } from 'react-router-dom'
+import { useObject } from '../../../hooks/dataTypeHooks'
 
 export const DocumentContext = createContext()
 
+const COPY_CUT_ITEM = {
+  items: [],
+  parent: null,
+  newParent: null,
+}
+
+const RENAME_ITEM = {
+  id: null,
+  title: '',
+}
+
 export const DocumentContextProvider = ({ children }) => {
   const history = useHistory()
+  const [docId, setDocId] = useState(null)
   const [currentDoc, setCurrentDoc] = useState(null)
-  const [currentDocId, setCurrentDocId] = useState(null)
-  const [docTree, setDocTree] = useState([])
-  const [sharedDocTree, setSharedDocTree] = useState([])
   const [selectedDocs, setSelectedDocs] = useState([])
-  const [rename, setRename] = useState({ id: null, title: '' })
+  const rename = useObject({ start: RENAME_ITEM })
+  const toCopy = useObject({ start: COPY_CUT_ITEM })
+  const toCut = useObject({ start: COPY_CUT_ITEM })
+  const contextualMenu = useObject()
 
-  const { currentFolder, currentPath, setPendingResources, ...graphQL } =
-    useDocTree()
+  const {
+    currentFolder,
+    currentPath,
+    docPath,
+    loadingResource,
+    setLoadingResource,
+    ...graphQL
+  } = useResourceTree()
 
   const { id: parentId, children: resourcesInFolder } = currentFolder || {}
 
-  const handleResourceClick = resource => {
+  const openResource = resource => {
     if (!resource) return
-    console.log({ resource })
+    setLoadingResource(true)
+    const { id, doc = {}, resourceType } = resource
+    const variables = { id, resourceType }
 
-    const { id, doc = {}, isFolder } = resource
-    const { identifier } = doc ?? {}
-    const variables = { id, idType: 'id' }
-
-    if (!isFolder) {
+    if (resourceType === 'doc') {
+      const { identifier } = doc ?? {}
       history.push(`/${identifier}`, { replace: true })
       setCurrentDoc(resource)
       variables.id = identifier
-      variables.idType = 'identifier'
+      graphQL.getCurrentDocPath({ variables })
+      return
     }
 
-    graphQL.openFolder({ variables })
+    setSelectedDocs([])
+
+    graphQL.openFolder({ variables, fetchPolicy: 'cache-and-network' })
   }
 
-  const createResource =
-    (isFolder = false) =>
-    e => {
+  const createResource = resourceType => {
+    return e => {
       if (!parentId) return
       graphQL.addResource({
-        variables: { id: parentId, isFolder },
+        variables: { id: parentId, resourceType },
       })
     }
+  }
+
+  const renameResource = () => {
+    graphQL.renameResource({
+      variables: rename.state,
+    })
+    rename.reset()
+  }
 
   useEffect(() => {
-    console.log('CURRENT FOLDER', { resourcesInFolder })
-    if (!resourcesInFolder?.length || !currentDocId) return
-    currentDoc?.doc?.identifier !== currentDocId &&
-      setCurrentDoc(
-        resourcesInFolder?.find(({ doc }) => doc?.identifier === currentDocId),
-      )
-  }, [resourcesInFolder, currentDocId])
+    const doc = resourcesInFolder?.find(c => c.doc?.identifier === docId)
+    doc && setCurrentDoc(doc)
+  }, [resourcesInFolder])
+
+  useEffect(() => {
+    currentDoc?.doc?.identifier &&
+      graphQL.getCurrentDocPath({
+        variables: { id: currentDoc.doc.id },
+      })
+  }, [docId])
 
   return (
     <DocumentContext.Provider
@@ -67,21 +92,20 @@ export const DocumentContextProvider = ({ children }) => {
         currentPath,
         currentFolder,
         setCurrentDoc,
-        docTree,
-        setDocTree,
-        sharedDocTree,
-        setSharedDocTree,
-        handleResourceClick,
+        openResource,
         createResource,
         graphQL,
         selectedDocs,
         setSelectedDocs,
         rename,
-        setRename,
-        currentDocId,
-        setCurrentDocId,
         resourcesInFolder,
-        setPendingResources,
+        renameResource,
+        docId,
+        setDocId,
+        toCopy,
+        toCut,
+        docPath,
+        contextualMenu,
       }}
     >
       {children}

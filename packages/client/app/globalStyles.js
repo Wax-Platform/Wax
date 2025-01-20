@@ -50,7 +50,8 @@ export default createGlobalStyle`
     --color-secondary: #e177a2ff;
     --color-secondary-fade: #e0387a0d;
     --color-trois: #a34ba1;
-    --color-trois-opaque: #936a93;
+    --color-trois-opaque: #aa79aa;
+    /* --color-trois-opaque: #936a93; */
     --color-trois-light: #d3afd2;
     --color-trois-lighter: #decfde;
     --color-trois-lightest: #f2eff5;

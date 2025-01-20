@@ -3,22 +3,18 @@ import { Service } from 'wax-prosemirror-core'
 const { assign } = Object
 
 function getAttrs(hook, next) {
-  const aidctx = hook.dom.getAttribute('data-aidctx') || uuid()
+  const id = hook.dom.getAttribute('data-id') || uuid()
   const cls = hook.dom.getAttribute('class') || null
-  assign(hook, { dataset: { aidctx }, class: cls })
-  console.log('getAttrs updated hook:', hook)
+  assign(hook, { dataset: { id }, class: cls })
+  // console.log('getAttrs updated hook:', hook)
   next()
 }
 
 const toDOM = tag => (hook, next) => {
   const { node, value } = hook
   const [, attrs] = value
-  const aidctx = node.attrs.dataset?.aidctx || uuid()
-  hook.value = [
-    tag,
-    { ...attrs, 'data-aidctx': aidctx, class: node.attrs.class },
-    0,
-  ]
+  const id = node.attrs.dataset?.id || uuid()
+  hook.value = [tag, { ...attrs, 'data-id': id, class: node.attrs.class }, 0]
   next()
 }
 
@@ -36,7 +32,7 @@ class AidCtxService extends Service {
           defining: true,
           attrs: {
             class: { default: null },
-            dataset: { aidctx: { default: null } },
+            dataset: { id: { default: null } },
           },
           parseDOM: [
             {
@@ -57,7 +53,7 @@ class AidCtxService extends Service {
           defining: true,
           attrs: {
             class: { default: null },
-            dataset: { aidctx: { default: null } },
+            dataset: { id: { default: null } },
           },
           parseDOM: [
             {
@@ -78,7 +74,7 @@ class AidCtxService extends Service {
           defining: true,
           attrs: {
             class: { default: null },
-            dataset: { aidctx: { default: null } },
+            dataset: { id: { default: null } },
           },
           parseDOM: [
             {

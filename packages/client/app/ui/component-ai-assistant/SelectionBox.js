@@ -19,7 +19,10 @@ import {
   SearchOutlined,
 } from '@ant-design/icons'
 import { capitalize, debounce } from 'lodash'
-import { AiDesignerContext } from './hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from './hooks/AiDesignerContext'
 import { htmlTagNames } from './utils'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 
@@ -84,7 +87,7 @@ const SelectionBox = ({ yOffset = 10, xOffset = 10, ...rest }) => {
     updateSelectionBoxPosition,
     settings,
     editorContainerRef,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const { advancedTools } = settings.gui
 
@@ -333,7 +336,7 @@ export const SnippetsDropdown = () => {
     userInteractions,
     removeSnippet,
     designerOn,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   if (!settings.editor.enableSelection) return null
 

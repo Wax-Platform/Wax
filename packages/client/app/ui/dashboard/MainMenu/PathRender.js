@@ -6,9 +6,13 @@ import {
   FolderAddOutlined,
   PlusCircleOutlined,
 } from '@ant-design/icons'
-import { DocumentContext } from '../hooks/DocumentContext'
+import { useDocumentContext } from '../hooks/DocumentContext'
 import Each from '../../component-ai-assistant/utils/Each'
 import { takeRight } from 'lodash'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../../component-ai-assistant/hooks/AiDesignerContext'
 
 const MAX_PATH_LEVEL = 4
 
@@ -21,6 +25,7 @@ const PathRenderWrapper = styled.div`
   gap: 6px;
   justify-content: space-between;
   padding-inline: 4px;
+  user-select: none;
   width: 100%;
 
   button {
@@ -52,7 +57,7 @@ const Container = styled.div`
   display: flex;
   gap: 2px;
   justify-content: flex-start;
-  overflow-x: auto;
+  overflow-x: ${p => (p.$hiding ? 'hidden' : 'auto')};
   padding: 6px 15px;
   width: 100%;
 `
@@ -65,12 +70,13 @@ const Actions = styled(FlexRow)`
 `
 
 const PathRender = props => {
-  const { currentPath, graphQL, createResource } = useContext(DocumentContext)
+  const { layout } = useAiDesignerContext()
+  const { currentPath, graphQL, createResource } = useDocumentContext()
   const { openFolder } = graphQL ?? {}
   const { length: pathLevel } = currentPath ?? []
+  const isClamped = pathLevel > MAX_PATH_LEVEL
 
   const lastPaths = takeRight(currentPath, MAX_PATH_LEVEL)
-  const isClamped = pathLevel > MAX_PATH_LEVEL
   const { length: currentLevel } = lastPaths ?? []
 
   const pathRender = ({ title, id }, i) => {
@@ -97,14 +103,14 @@ const PathRender = props => {
 
   return (
     <PathRenderWrapper {...props}>
-      <Container>
+      <Container $hiding={!layout.userMenu}>
         <Each of={lastPaths} as={pathRender} if={pathLevel} />
       </Container>
       <Actions>
-        <CleanButton onClick={createResource()}>
+        <CleanButton onClick={createResource('doc')}>
           <PlusCircleOutlined style={{ fontSize: '15px' }} />
         </CleanButton>
-        <CleanButton onClick={createResource(true)}>
+        <CleanButton onClick={createResource('dir')}>
           <FolderAddOutlined style={{ fontSize: '18px' }} />
         </CleanButton>
         <CleanButton $disabled={pathLevel === 1} onClick={goBack}>

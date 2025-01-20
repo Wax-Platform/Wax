@@ -106,10 +106,10 @@ class Doc extends BaseModel {
           objectType: 'system',
         })
         .returning('*')
-      logger.info(JSON.stringify(newTemplate, null, 2))
+      // logger.info(JSON.stringify(newTemplate, null, 2))
       return newTemplate.id
     }
-    logger.info(JSON.stringify(existingTemplate, null, 2))
+    // logger.info(JSON.stringify(existingTemplate, null, 2))
     return existingTemplate.id
   }
 
@@ -124,7 +124,6 @@ class Doc extends BaseModel {
       state = Y.encodeStateAsUpdate(doc),
       templateId = await this.createDefaultTemplateIfNotExists(trx),
     } = payload
-    console.log('templateId', templateId)
     const createdDoc = await Doc.query(trx)
       .insert({
         docs_prosemirror_delta: delta,

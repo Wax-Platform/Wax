@@ -1,7 +1,10 @@
 /* stylelint-disable declaration-no-important */
-import React, { Fragment, useContext } from 'react'
+import React, { Fragment, useContext, useEffect } from 'react'
 import styled from 'styled-components'
-import { AiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { WindowHeading } from '../../_styleds/common'
 import aiIcon from '../../../../static/chat-icon.svg'
 import {
@@ -14,6 +17,7 @@ import FileBrowser from './FileBrowser'
 import ChatHistory from '../../component-ai-assistant/ChatHistory'
 import TeamPopup from '../../common/TeamPopup'
 import PathRender from './PathRender'
+import { useDocumentContext } from '../hooks/DocumentContext'
 
 const Menu = styled.nav`
   align-items: center;
@@ -67,9 +71,22 @@ const Heading = styled(WindowHeading)`
   }
 `
 
+const FooterInfoFixed = styled.div`
+  background: #fff0;
+  color: var(--color-trois-opaque);
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+  padding: 10px;
+  width: 100%;
+  z-index: 999;
+`
+
 const MainMenu = ({ enableLogin }) => {
-  const { layout } = useContext(AiDesignerContext)
+  const { layout } = useAiDesignerContext()
+  const { resourcesInFolder = [] } = useDocumentContext()
   const { team, chat, templateManager, files } = layout
+
   const menuLabel = chat
     ? 'Chat'
     : team
@@ -94,6 +111,10 @@ const MainMenu = ({ enableLogin }) => {
         {files && <FileBrowser />}
         {(chat || templateManager) && <ChatHistory />}
         {team && <TeamPopup enableLogin={enableLogin} />}
+        <FooterInfoFixed>
+          <span>Right click on resources to see options</span>
+          <span>{resourcesInFolder?.length} resources</span>
+        </FooterInfoFixed>
       </Content>
     </Fragment>
   )

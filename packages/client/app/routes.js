@@ -19,7 +19,7 @@ import {
 } from '@coko/client'
 
 import GlobalStyles from './globalStyles'
-import { Header, VisuallyHiddenElement, Spin } from './ui/common'
+import { Header, VisuallyHiddenElement, Spin, ContextMenu } from './ui/common'
 
 import { YjsProvider } from './yjsProvider'
 
@@ -37,9 +37,22 @@ import { CURRENT_USER } from './graphql'
 import {
   AiDesignerContext,
   AiDesignerProvider,
+  useAiDesignerContext,
 } from './ui/component-ai-assistant/hooks/AiDesignerContext'
 import { DocumentContextProvider } from './ui/dashboard/hooks/DocumentContext'
+const StyledContextMenu = styled(ContextMenu)`
+  --svg-fill: var(--color-trois-opaque);
+  margin: 0;
 
+  li > button {
+    gap: 8px;
+    padding-block: 2px;
+
+    svg {
+      fill: var(--color-trois-opaque);
+    }
+  }
+`
 const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -121,7 +134,7 @@ const StyledPage = styled(Page)`
 
   > div {
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     overflow: hidden;
   }
 
@@ -138,7 +151,6 @@ const StyledSpin = styled(Spin)`
 
 const Loader = () => <StyledSpin spinning />
 
-// eslint-disable-next-line react/prop-types
 const SiteHeader = ({ enableLogin }) => {
   const headerLinks = {
     homepage: '/',
@@ -188,7 +200,7 @@ const Authenticated = ({ children }) => {
 }
 
 const PageWrapper = props => {
-  const { setUserInteractions } = useContext(AiDesignerContext)
+  const { setUserInteractions } = useAiDesignerContext()
   useEffect(() => {
     const keydownHandler = e => {
       setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
@@ -211,10 +223,10 @@ const PageWrapper = props => {
 }
 
 const routes = enableLogin => (
-  <AiDesignerProvider>
-    <Layout id="layout-root">
-      <GlobalStyles />
-      <DocumentContextProvider>
+  <DocumentContextProvider>
+    <AiDesignerProvider>
+      <Layout id="layout-root">
+        <GlobalStyles />
         <YjsProvider enableLogin={enableLogin}>
           <SiteHeader enableLogin={enableLogin} />
           <PageWrapper fadeInPages={false} padPages={false}>
@@ -256,11 +268,12 @@ const routes = enableLogin => (
               />
               <Route component={() => <Redirect to="/login" />} path="*" />
             </Switch>
+            <StyledContextMenu />
           </PageWrapper>
         </YjsProvider>
-      </DocumentContextProvider>
-    </Layout>
-  </AiDesignerProvider>
+      </Layout>
+    </AiDesignerProvider>
+  </DocumentContextProvider>
 )
 
 export default enableLogin => {

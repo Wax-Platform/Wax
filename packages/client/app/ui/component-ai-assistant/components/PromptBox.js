@@ -3,7 +3,10 @@
 /* stylelint-disable indentation */
 /* stylelint-disable string-quotes */
 import React, { useContext, useState } from 'react'
-import { AiDesignerContext } from '../hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../hooks/AiDesignerContext'
 import useAssistant from '../hooks/useAiDesigner'
 import styled from 'styled-components'
 import PromptsInput from '../PromptsInput'
@@ -101,7 +104,7 @@ const Dropdown = styled.div`
 `
 
 const ModelsDropdown = () => {
-  const { model, setModel } = useContext(AiDesignerContext)
+  const { model, setModel } = useAiDesignerContext()
   const [openDropdown, setOpenDropdown] = useState(false)
   const handleOpen = () => setOpenDropdown(!openDropdown)
 
@@ -414,7 +417,7 @@ export const PromptBox = () => {
     updatePreview,
     selectedCtx,
     designerOn,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const {
     loading,

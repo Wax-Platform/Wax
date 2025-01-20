@@ -94,7 +94,7 @@ const SettingsMenu = ({ livePreview, ...rest }) => {
     layout,
     updateLayout,
     mutateSettings,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const [historyMax, setHistoryMax] = useState(settings.chat.historyMax)
 

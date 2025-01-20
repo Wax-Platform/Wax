@@ -24,7 +24,7 @@ const LoginPage = () => {
         input: { ...formData, email: formData.email.toLowerCase() },
       },
     }
-
+    console.log('mutationData', mutationData)
     emailLoginMutation(mutationData).catch(e => console.error(e))
   }
 

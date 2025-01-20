@@ -1,11 +1,11 @@
-type DocTree {
+type Resource {
   id: ID!
   key: ID!
   title: String!
-  children: [DocTree]
+  children: [Resource]
   doc: Doc
   parentId: ID
-  isFolder: Boolean
+  resourceType: String
   identifier: String
 }
 
@@ -18,7 +18,8 @@ type NewResource {
 
 type CurrentFolderAndPath {
   path: [PathMap]
-  currentFolder: DocTree
+  currentFolder: Resource
+  requestAccessTo: String
 }
 
 type PathMap {
@@ -31,22 +32,13 @@ type FolderIdResponse {
 }
 
 extend type Query {
-  getDocTree(folderId: ID): String!
-  getSharedDocTree: [DocTree]
-  getResource(id: ID!): DocTree
-  getParentFolderByIdentifier(identifier: String!): DocTree
-  openFolder(id: ID, idType: String): CurrentFolderAndPath
-  openRootFolder: CurrentFolderAndPath
+  openFolder(id: ID, resourceType: String): CurrentFolderAndPath
+  getDocPath(id: ID!): [ID]
 }
 
 extend type Mutation {
-  addResource(id: ID, isFolder: Boolean!, identifier: String): NewResource!
+  addResource(id: ID, resourceType: String!, identifier: String): NewResource!
   deleteResource(id: ID!): FolderIdResponse!
   renameResource(id: ID!, title: String!): FolderIdResponse!
   moveResource(id: ID!, newParentId: ID): FolderIdResponse!
-  updateTreePosition(
-    id: ID!
-    newParentId: ID
-    newPosition: Int!
-  ): FolderIdResponse!
 }

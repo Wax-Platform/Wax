@@ -1,8 +1,8 @@
 /* stylelint-disable declaration-no-important */
-import React, { useContext } from 'react'
+import React from 'react'
 import ReactCodeMirror from '@uiw/react-codemirror'
 import { css as cssLang } from '@codemirror/lang-css'
-import { AiDesignerContext } from '../hooks/AiDesignerContext'
+import { useAiDesignerContext } from '../hooks/AiDesignerContext'
 import styled from 'styled-components'
 
 const CssEditor = styled(ReactCodeMirror)`
@@ -48,7 +48,7 @@ const TemplateEditor = styled(CssEditor)`
 
 export const TemplateManager = () => {
   const { css, setCss, updatePreview, markedSnippet, setMarkedSnippet } =
-    useContext(AiDesignerContext)
+    useAiDesignerContext()
   return (
     <TemplateEditor
       extensions={[cssLang()]}

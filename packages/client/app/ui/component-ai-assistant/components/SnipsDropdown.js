@@ -3,7 +3,10 @@
 import { capitalize, debounce, isString } from 'lodash'
 import React, { useContext, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { AiDesignerContext } from '../hooks/AiDesignerContext'
+import {
+  AiDesignerContext,
+  useAiDesignerContext,
+} from '../hooks/AiDesignerContext'
 import { EditOutlined, SearchOutlined } from '@ant-design/icons'
 import { htmlTagNames } from '../utils'
 import { SET } from '../utils/SetExtension'
@@ -162,7 +165,7 @@ export const SnipsDropDown = () => {
     tools,
     updateTools,
     updateSelectionBoxPosition,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
 
   const searchSnippetRef = useRef(null)
   const [search, setSearch] = useState('')
