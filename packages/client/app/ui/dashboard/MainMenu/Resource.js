@@ -60,7 +60,6 @@ const ListContainer = styled.div`
   padding: 2px 18px;
   position: relative;
   transform: ${props => (props.isDragging ? 'scale(0.98)' : 'scale(1)')};
-  transition: all 0.2s ease;
   transition: all 0.2s;
   user-select: none;
   width: 100%;
@@ -92,9 +91,12 @@ const GridContainer = styled.div`
   font-weight: ${p => (p.$active ? '600' : 'normal')};
   height: var(--w-h);
   justify-content: center;
+  margin: ${props => (props.isDragging ? '2px 10px' : '0')};
   opacity: ${p => (p.$ghost ? '0.5' : '1')};
+  /* opacity: ${props => (props.isDragging ? 0.7 : 1)}; */
   padding: 0;
   position: relative;
+  transform: ${props => (props.isDragging ? 'scale(0.98)' : 'scale(1)')};
   transition: all 0.2s;
   user-select: none;
   width: var(--w-h);

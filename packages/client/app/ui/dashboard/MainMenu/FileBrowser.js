@@ -91,11 +91,11 @@ const Files = props => {
     draggedItemRef.current = index
     setDragging(true)
 
-    // Create a transparent image and set it as the drag image
-    const img = new Image()
-    img.src =
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/axp9WkAAAAASUVORK5CYII='
-    e.dataTransfer.setDragImage(img, 0, 0)
+    // // Create a transparent image and set it as the drag image
+    // const img = new Image()
+    // img.src =
+    //   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/axp9WkAAAAASUVORK5CYII='
+    // e.dataTransfer.setDragImage(img, 0, 0)
   }
 
   const onDragEnter = index => {
@@ -223,7 +223,7 @@ function generateContextMenuItems(createResource, setView, reorderMode) {
       label: (
         <Fragment>
           <SwapOutlined />
-          <span>{!reorderMode.state ? 'Order' : 'Move'} resources</span>
+          <span>{!reorderMode.state ? 'Sort' : 'Move'} resources</span>
         </Fragment>
       ),
       action: reorderMode.toggle,
