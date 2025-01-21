@@ -23,6 +23,7 @@ export const DocumentContextProvider = ({ children }) => {
   const [docId, setDocId] = useState(null)
   const [currentDoc, setCurrentDoc] = useState(null)
   const [selectedDocs, setSelectedDocs] = useState([])
+  const [resources, setResources] = useState([])
   const rename = useObject({ start: RENAME_ITEM })
   const clipboard = useObject({ start: CLIPBOARD_ITEM })
   const contextualMenu = useObject()
@@ -67,6 +68,7 @@ export const DocumentContextProvider = ({ children }) => {
     console.log({ docId, resourcesInFolder })
     const doc = resourcesInFolder?.find(c => c.doc?.identifier === docId)
     doc && setCurrentDoc(doc)
+    setResources(resourcesInFolder)
   }, [resourcesInFolder])
 
   return (
@@ -89,6 +91,8 @@ export const DocumentContextProvider = ({ children }) => {
         clipboard,
         docPath,
         contextualMenu,
+        resources,
+        setResources,
       }}
     >
       {children}

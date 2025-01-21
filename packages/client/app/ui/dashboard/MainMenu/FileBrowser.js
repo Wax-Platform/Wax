@@ -1,7 +1,7 @@
 /* stylelint-disable string-quotes */
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-no-important */
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
@@ -12,8 +12,11 @@ import {
   AppstoreFilled,
   FileAddFilled,
   FolderAddFilled,
+  SwapOutlined,
   UnorderedListOutlined,
 } from '@ant-design/icons'
+import { useBool } from '../../../hooks/dataTypeHooks'
+import { objIf } from '../../../shared/generalUtils'
 
 const FilesWrapper = styled.div`
   --container-size: 26.5dvw;
@@ -69,14 +72,48 @@ const Files = props => {
     resourcesInFolder = [],
     contextualMenu,
     createResource,
+    resources = [],
+    setResources,
   } = useDocumentContext()
+  const draggedItemRef = useRef(null)
+  const dragOverItemRef = useRef(null)
   const { moveResource, deleteResource } = graphQL ?? {}
   const [resourceToDelete, setResourceToDelete] = useState(null)
-  const [gridSize, setGridSize] = useState(8)
+  const reorderMode = useBool({ start: false })
+  const [dragging, setDragging] = useState(false)
+
   const [view, setView] = useState('grid')
   const hasResources = resourcesInFolder.length > 0
 
   const View = view === 'grid' ? GridView : Fragment
+
+  const onDragStart = (e, index) => {
+    draggedItemRef.current = index
+    setDragging(true)
+
+    // Create a transparent image and set it as the drag image
+    const img = new Image()
+    img.src =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/axp9WkAAAAASUVORK5CYII='
+    e.dataTransfer.setDragImage(img, 0, 0)
+  }
+
+  const onDragEnter = index => {
+    dragOverItemRef.current = index
+    const newItems = [...resources]
+    const draggedItem = newItems[draggedItemRef.current]
+    newItems.splice(draggedItemRef.current, 1)
+    newItems.splice(dragOverItemRef.current, 0, draggedItem)
+    draggedItemRef.current = dragOverItemRef.current
+    dragOverItemRef.current = null
+    setResources(newItems)
+  }
+
+  const onDragEnd = () => {
+    setDragging(false)
+    draggedItemRef.current = null
+    dragOverItemRef.current = null
+  }
 
   const onResourceDrop = async (draggedData, targetData) => {
     const newParentId = targetData.id
@@ -86,14 +123,20 @@ const Files = props => {
     moveResource(variables)
   }
 
-  const resourceRender = resource => (
+  const resourceRender = (resource, i) => (
     <Resource
       view={view}
-      gridSize={gridSize}
+      reorderMode={reorderMode}
       onResourceDrop={onResourceDrop}
       resource={resource}
       confirmDelete={setResourceToDelete}
-      isFolder={resource?.resourceType !== 'doc'}
+      isDragging={dragging && draggedItemRef.current === i}
+      index={i}
+      {...objIf(reorderMode.state, {
+        onDragStart: e => onDragStart(e, i),
+        onDragEnter: () => onDragEnter(i),
+        onDragEnd,
+      })}
     />
   )
 
@@ -107,7 +150,7 @@ const Files = props => {
           show: true,
           x: e.clientX,
           y: e.clientY,
-          items: generateContextMenuItems(createResource, setView),
+          items: generateContextMenuItems(createResource, setView, reorderMode),
         })
       }}
       $showRightBorder={layout.chat}
@@ -116,7 +159,7 @@ const Files = props => {
     >
       <View>
         <Each
-          of={resourcesInFolder}
+          of={resources}
           as={resourceRender}
           if={hasResources}
           or={
@@ -137,7 +180,7 @@ const Files = props => {
 
 export default Files
 
-function generateContextMenuItems(createResource, setView) {
+function generateContextMenuItems(createResource, setView, reorderMode) {
   return [
     {
       label: (
@@ -176,78 +219,14 @@ function generateContextMenuItems(createResource, setView) {
       ),
       action: () => setView('list'),
     },
+    {
+      label: (
+        <Fragment>
+          <SwapOutlined />
+          <span>{!reorderMode.state ? 'Order' : 'Move'} resources</span>
+        </Fragment>
+      ),
+      action: reorderMode.toggle,
+    },
   ]
 }
-// import React, { useState, useRef } from 'react'
-// import styled from 'styled-components'
-
-// const List = styled.ul`
-//   list-style-type: none;
-//   margin: 0;
-//   padding: 0;
-// `
-
-// const ListItem = styled.li`
-//   background-color: #f0f0f0;
-//   border: 1px solid #ccc;
-//   cursor: move;
-//   margin: ${props => (props.isDragging ? '2px 10px' : '0')};
-//   opacity: ${props => (props.isDragging ? 0.7 : 1)};
-//   padding: 8px;
-//   transform: ${props => (props.isDragging ? 'scale(0.98)' : 'scale(1)')};
-//   transition: all 0.2s ease;
-// `
-
-// const DraggableList = () => {
-//   const [items, setItems] = useState(['Item 1', 'Item 2', 'Item 3', 'Item 4'])
-//   const [dragging, setDragging] = useState(false)
-//   const draggedItemRef = useRef(null)
-//   const dragOverItemRef = useRef(null)
-
-//   const handleDragStart = (e, index) => {
-//     draggedItemRef.current = index
-//     setDragging(true)
-
-//     // Create a transparent image and set it as the drag image
-//     const img = new Image()
-//     img.src =
-//       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/axp9WkAAAAASUVORK5CYII='
-//     e.dataTransfer.setDragImage(img, 0, 0)
-//   }
-
-//   const handleDragEnter = index => {
-//     dragOverItemRef.current = index
-//     const newItems = [...items]
-//     const draggedItem = newItems[draggedItemRef.current]
-//     newItems.splice(draggedItemRef.current, 1)
-//     newItems.splice(dragOverItemRef.current, 0, draggedItem)
-//     draggedItemRef.current = dragOverItemRef.current
-//     dragOverItemRef.current = null
-//     setItems(newItems)
-//   }
-
-//   const handleDragEnd = () => {
-//     setDragging(false)
-//     draggedItemRef.current = null
-//     dragOverItemRef.current = null
-//   }
-
-//   return (
-//     <List>
-//       {items.map((item, index) => (
-//         <ListItem
-//           key={index}
-//           draggable
-//           onDragStart={e => handleDragStart(e, index)}
-//           onDragEnter={() => handleDragEnter(index)}
-//           onDragEnd={handleDragEnd}
-//           isDragging={dragging && draggedItemRef.current === index}
-//         >
-//           {item}
-//         </ListItem>
-//       ))}
-//     </List>
-//   )
-// }
-
-// export default DraggableList

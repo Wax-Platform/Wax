@@ -53,10 +53,14 @@ const ListContainer = styled.div`
   font-size: 14px;
   font-weight: ${p => (p.$active ? '600' : 'normal')};
   height: 35px;
+  margin: ${props => (props.isDragging ? '2px 10px' : '0')};
   min-height: 35px;
-  opacity: ${p => (p.$ghost ? '0.5' : '1')};
+  /* opacity: ${p => (p.$ghost ? '0.5' : '1')}; */
+  opacity: ${props => (props.isDragging ? 0.7 : 1)};
   padding: 2px 18px;
   position: relative;
+  transform: ${props => (props.isDragging ? 'scale(0.98)' : 'scale(1)')};
+  transition: all 0.2s ease;
   transition: all 0.2s;
   user-select: none;
   width: 100%;
@@ -241,8 +245,15 @@ const typeFlags = type => ({
 })
 
 const Resource = props => {
-  const { resource, confirmDelete, onResourceDrop, view, gridSize } = props
-  const { id, title, resourceType, doc = {} } = resource
+  const {
+    view,
+    reorderMode,
+    resource,
+    confirmDelete,
+    onResourceDrop,
+    ...rest
+  } = props
+  const { id, title, resourceType, doc = {} } = resource || {}
   const { userInteractions } = useAiDesignerContext()
 
   const {
@@ -431,6 +442,7 @@ const Resource = props => {
   return (
     <Container
       $selected={isSelected}
+      $reorder={reorderMode}
       // $ghost={clipboard.state.cut.items.includes(id)}
       $active={isActive || currentDocIsDescendant}
       $folder={isFolder}
@@ -441,9 +453,10 @@ const Resource = props => {
       onContextMenu={handleContextMenuOpen}
       draggable={allowDnD}
       onDragStart={handleDragStart}
-      onDrop={isFolder ? handleDrop : null}
+      onDrop={isFolder && !reorderMode.state ? handleDrop : null}
       onDragOver={isFolder ? handleDragOver : null}
       title={title}
+      {...rest}
     >
       <IconTitleContainer data-contextmenu>
         <ResourceIcon data-contextmenu />
