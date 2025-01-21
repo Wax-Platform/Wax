@@ -1,11 +1,8 @@
 /* stylelint-disable declaration-no-important */
-import React, { Fragment, useContext, useEffect } from 'react'
+import React, { Fragment } from 'react'
 import styled from 'styled-components'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from '../../component-ai-assistant/hooks/AiDesignerContext'
-import { WindowHeading } from '../../_styleds/common'
+import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
+import { FlexCol, WindowHeading } from '../../_styleds/common'
 import aiIcon from '../../../../static/chat-icon.svg'
 import {
   ChatButton,
@@ -55,7 +52,7 @@ const Content = styled.section`
 const Heading = styled(WindowHeading)`
   background: #fff0;
   gap: 15px;
-  padding: 20px 5px 15px;
+  padding: 20px 5px 0;
   width: 100%;
 
   p {
@@ -71,15 +68,22 @@ const Heading = styled(WindowHeading)`
   }
 `
 
-const FooterInfoFixed = styled.div`
+const FilesInfoFixed = styled.div`
   background: #fff0;
-  color: var(--color-trois-opaque);
+  border-bottom: 3px solid var(--color-trois-lightest);
+  color: var(--color-trois-opaque-2);
   display: flex;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 100;
   justify-content: space-between;
-  padding: 10px;
+  padding: 8px 15px;
+  user-select: none;
   width: 100%;
   z-index: 999;
+
+  svg {
+    fill: var(--color-trois-opaque);
+  }
 `
 
 const MainMenu = ({ enableLogin }) => {
@@ -106,15 +110,19 @@ const MainMenu = ({ enableLogin }) => {
       <Content layout={layout}>
         <Heading>
           {menuLabel && <p>{menuLabel}</p>}
-          {files && <PathRender />}
+          {files && (
+            <FlexCol style={{ width: '100%' }}>
+              <PathRender />
+              <FilesInfoFixed>
+                <span>{resourcesInFolder?.length} resource(s)</span>
+                <span>(Right click to open context menu)</span>
+              </FilesInfoFixed>
+            </FlexCol>
+          )}
         </Heading>
         {files && <FileBrowser />}
         {(chat || templateManager) && <ChatHistory />}
         {team && <TeamPopup enableLogin={enableLogin} />}
-        <FooterInfoFixed>
-          <span>Right click on resources to see options</span>
-          <span>{resourcesInFolder?.length} resources</span>
-        </FooterInfoFixed>
       </Content>
     </Fragment>
   )

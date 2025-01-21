@@ -15,7 +15,6 @@ export const useResourceTree = () => {
   const { currentUser } = useCurrentUser()
   const [path, setCurrentPath] = useState('')
   const [folder, setCurrentFolder] = useState({})
-  const [loadingResource, setLoadingResource] = useState(false)
 
   const { data: openFolderData } = useQuery(OPEN_FOLDER, {
     variables: { id: null },
@@ -59,7 +58,6 @@ export const useResourceTree = () => {
     if (!loading && currentFolder?.id) {
       setCurrentFolder(currentFolder)
       setCurrentPath(currentPath)
-      setLoadingResource(false)
     }
   }, [JSON.stringify(currentFolder?.children), loading])
 
@@ -71,11 +69,8 @@ export const useResourceTree = () => {
     addResource,
     renameResource,
     deleteResource,
-    reorderResource: moveResource,
     moveResource,
     getCurrentDocPath,
     docPath,
-    loadingResource,
-    setLoadingResource,
   }
 }

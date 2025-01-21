@@ -39,6 +39,12 @@ const SpinnerWrapper = styled(FlexRow)`
   }
 `
 
+const FileBrowser = styled(Files)`
+  --container-size: 30dvw;
+  max-width: 100%;
+  width: 80%;
+`
+
 const renderImage = file => {
   const reader = new FileReader()
 
@@ -132,6 +138,9 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
     return (
       <StyledWindow
         style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          display: 'flex',
           width: '100%',
           height: '100%',
           opacity: 1,
@@ -139,7 +148,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
           paddingBlock: '1rem',
         }}
       >
-        <Files style={{ width: '80%', maxWidth: '100%' }} />
+        <FileBrowser />
       </StyledWindow>
     )
   }

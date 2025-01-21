@@ -107,13 +107,21 @@ const Header = props => {
   } = props
   const { designerOn, setDesignerOn, updateLayout } = useAiDesignerContext()
   const { currentDoc, graphQL, docId } = useContext(DocumentContext)
-  const { openFolder } = graphQL
+  const { openFolder, getCurrentDocPath } = graphQL
 
   useEffect(() => {
-    currentDoc?.resourceType === 'doc' &&
-      (document.title = `${currentDoc.title} - Wax`)
-    docId && openFolder({ variables: { id: docId, resourceType: 'doc' } })
-  }, [docId, currentDoc?.title])
+    if (docId) {
+      openFolder({ variables: { id: docId, resourceType: 'doc' } })
+    }
+  }, [docId])
+
+  useEffect(() => {
+    if (currentDoc?.doc?.id) {
+      console.log({ currentDoc })
+      getCurrentDocPath({ variables: { id: currentDoc.doc.id } })
+      document.title = `${currentDoc.title} - Wax`
+    }
+  }, [currentDoc])
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)

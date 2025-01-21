@@ -19,11 +19,11 @@ const showAnimation = keyframes`
     transform: scaleY(1);
   }
 `
-
 const ITEM_HEIGHT = 24
 
 const Menu = styled.ul`
   --item-height: ${ITEM_HEIGHT}px;
+  --svg-fill: var(--color-trois-opaque-2);
   animation: ${p => p.shouldAnimate && showAnimation} 0.3s;
   background-color: var(--color-trois-lightest);
   border: 1px solid var(--color-trois-alpha);
@@ -47,6 +47,11 @@ const Menu = styled.ul`
 
   li {
     height: var(--item-height);
+
+    button > span {
+      line-height: 1;
+      text-rendering: optimizeLegibility;
+    }
   }
 
   hr {
@@ -58,7 +63,6 @@ const Menu = styled.ul`
     }
   }
 `
-
 const MenuItem = styled.li`
   display: flex;
 
@@ -81,11 +85,26 @@ const MenuButton = styled(CleanButton)`
   }
 
   svg {
-    fill: var(--svg-fill);
+    fill: var(--svg-fill) !important;
   }
 `
+const removeDuplicatedSeparators = items => {
+  return (item, index) => {
+    const isDash = item.label === '-'
+    const previousIsDash = items[index - 1]?.label === '-'
+    return isDash && previousIsDash ? null : item
+  }
+}
 
-const MenuItemRender = item => {
+const calculateXandY = (x, y, menuHeight) => {
+  const top =
+    y + menuHeight > window.innerHeight ? window.innerHeight - menuHeight : y
+  const left =
+    x + menuHeight > window.innerWidth ? window.innerWidth - menuHeight : x
+  return { top, left }
+}
+
+const optionRender = item => {
   const { contextualMenu } = useDocumentContext()
   const { action, label, disabled, ...props } = item
   const handleAction = e => {
@@ -106,55 +125,38 @@ const MenuItemRender = item => {
 
 const ContextMenu = ({ className }) => {
   const { contextualMenu } = useDocumentContext()
-  const { items = [], x = 0, y = 0, show } = contextualMenu.state || {}
+  const { show, items = [], x = 0, y = 0 } = contextualMenu.state || {}
   const visible = useBool({ start: show })
   const transitioning = useBool({ start: false })
-  const { length: hasItems } = items || []
+  const { length: itemsCount } = items || []
 
   const handleHide = debounce(transitioning.off, 300)
 
   useEffect(() => {
-    if (show) {
-      transitioning.on()
-      visible.on()
-      handleHide()
-    } else {
-      transitioning.on()
-      visible.off()
-      handleHide()
-    }
+    transitioning.on()
+    show ? visible.on() : visible.off()
+    handleHide()
   }, [show])
 
   const shouldNotDisplay = !transitioning.state && !visible.state && !show
+  if (shouldNotDisplay) return null
+
   const shouldAnimate = visible.state && transitioning.state
-  const itemsWithoutDashDuplicated = items.filter((item, index) => {
-    const isDash = item.label === '-'
-    const previousIsDash = items[index - 1]?.label === '-'
+  const menuHeight = itemsCount * ITEM_HEIGHT + 8
+  const options = items.filter(removeDuplicatedSeparators(items))
+  const { top, left } = calculateXandY(x, y, menuHeight)
 
-    return isDash && previousIsDash ? null : item
-  })
-
-  const menuHeight = hasItems * ITEM_HEIGHT + 8
-
-  return shouldNotDisplay ? null : (
+  return (
     <Menu
-      x={
-        x + menuHeight > window.innerWidth
-          ? window.innerWidth - menuHeight
-          : x - 10
-      }
-      y={
-        y + menuHeight > window.innerHeight
-          ? window.innerHeight - menuHeight
-          : y - 10
-      }
+      x={left}
+      y={top}
       shouldAnimate={shouldAnimate}
       data-contextmenu
       className={className}
       visible={visible.state}
       onMouseLeave={() => contextualMenu.update({ show: false })}
     >
-      <Each of={itemsWithoutDashDuplicated} as={MenuItemRender} if={hasItems} />
+      <Each of={options} as={optionRender} if={itemsCount} />
     </Menu>
   )
 }

@@ -5,8 +5,10 @@ exports.up = async knex => {
     await knex.schema.createTable('resource_tree', table => {
       table.uuid('id').primary()
       table.uuid('userId').nullable().references('id').inTable('users')
-      table.enu('resourceType', ['doc', 'dir', 'root', 'system']).notNullable()
-      table.enu('extension', ['doc', 'img', 'css', 'snip']).nullable()
+      table.enu('resourceType', ['doc', 'dir', 'root', 'sys']).notNullable()
+      table
+        .enu('extension', ['doc', 'img', 'css', 'snip', 'book', 'template'])
+        .nullable()
       table.string('title').nullable()
       table
         .uuid('parentId')

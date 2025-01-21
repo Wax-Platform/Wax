@@ -11,6 +11,11 @@ import {
   FolderOpenFilled,
   CopyFilled,
   StarFilled,
+  BookFilled,
+  FolderViewOutlined,
+  FileImageFilled,
+  FileTextFilled,
+  PictureFilled,
 } from '@ant-design/icons'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
@@ -42,16 +47,18 @@ const ListContainer = styled.div`
   background: ${p => (p.$selected ? 'var(--color-trois-lightest)' : '#fff0')};
   border: none;
   border-bottom: 1px solid;
-  border-color: var(--color-trois-alpha);
-  border-inline: 1px solid
-    ${p => (p.$selected ? 'var(--color-trois-alpha)' : '#0000')};
+  border-color: var(--color-trois-lightest);
   color: ${p => (p.$active ? 'var(--svg-fill)' : 'inherit')};
   display: flex;
   font-size: 14px;
   font-weight: ${p => (p.$active ? '600' : 'normal')};
-  height: fit-content;
+  height: 35px;
+  min-height: 35px;
+  opacity: ${p => (p.$ghost ? '0.5' : '1')};
   padding: 2px 18px;
   position: relative;
+  transition: all 0.2s;
+  user-select: none;
   width: 100%;
 
   &:hover {
@@ -61,12 +68,14 @@ const ListContainer = styled.div`
 `
 
 const GridContainer = styled.div`
-  --icon-size: 28px;
+  --grid-size: ${p => p.$gridSize || 6};
+  --w-h: calc((var(--container-size, 26.5dvw) / var(--grid-size)));
+  --icon-size: calc(var(--w-h) * 0.4);
+  --icon-min-width: calc(var(--w-h) - 10px);
   --icon-title-direction: column;
   --icon-title-min-height: 30px;
   --label-white-space: nowrap;
   --label-height: 24px;
-  --w-h: calc((25dvw / 6));
   align-items: center;
   /* animation: ${resourceShow} 0.3s; */
   background: ${p => (p.$selected ? 'var(--color-trois-lightest)' : '#fff0')};
@@ -79,8 +88,11 @@ const GridContainer = styled.div`
   font-weight: ${p => (p.$active ? '600' : 'normal')};
   height: var(--w-h);
   justify-content: center;
+  opacity: ${p => (p.$ghost ? '0.5' : '1')};
   padding: 0;
   position: relative;
+  transition: all 0.2s;
+  user-select: none;
   width: var(--w-h);
 
   &:hover {
@@ -109,23 +121,27 @@ const IconTitleContainer = styled.div`
   gap: 8px;
   min-height: var(--icon-title-min-height);
 
+  .anticon {
+    height: 100%;
+  }
+
   span {
     line-height: 1;
 
     svg {
       fill: var(--svg-fill);
+      font-size: var(--icon-size);
     }
   }
 `
 
 const FolderIcon = styled(FolderFilled)`
   font-size: var(--icon-size);
-  height: 100%;
+  min-width: 20px;
 `
 
 const FileIcon = styled(FileOutlined)`
   font-size: var(--icon-size);
-  height: 100%;
 `
 
 const TitleLabel = styled.span`
@@ -149,12 +165,13 @@ const labelRender = (icon, text) => (
   </Fragment>
 )
 
-const CONTEXT_MENU_ITEMS = [
+const MENU_OPTIONS = [
   'open',
   'rename',
   '-',
   'copy',
   'cut',
+  // 'paste',
   'delete',
   '-',
   'add to favorites',
@@ -163,16 +180,45 @@ const CONTEXT_MENU_ITEMS = [
   // '-',
 ]
 
-const ITEMS_TOOLTIPS = {
-  open: 'Open resource',
-  rename: 'Rename resource',
-  copy: 'Copy resource',
-  cut: 'Cut resource',
-  delete: 'Delete resource',
-  'add to favorites': 'Add to favorites',
-  share: 'Share resource',
-  info: 'Resource info',
+const ICONSTMAP = {
+  Documents: FolderViewOutlined,
+  Favorites: StarFilled,
+  Books: BookFilled,
+  Images: PictureFilled,
+  Shared: ShareAltOutlined,
+  Trash: DeleteFilled,
+  Templates: FileTextFilled,
+  default: FolderFilled,
 }
+
+const PasteIcon = () => (
+  <svg
+    width="16px"
+    height="16px"
+    viewBox="0 0 36 36"
+    version="1.1"
+    preserveAspectRatio="xMidYMid meet"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <title>clipboard-solid</title>
+    <path
+      d="M29.29,5H22.17a4.45,4.45,0,0,0-4.11-3A4.46,4.46,0,0,0,14,5H7A1.75,1.75,0,0,0,5,6.69V32.31A1.7,1.7,0,0,0,6.71,34H29.29A1.7,1.7,0,0,0,31,32.31V6.69A1.7,1.7,0,0,0,29.29,5Zm-18,3a1,1,0,0,1,1-1h3.44V6.31a2.31,2.31,0,1,1,4.63,0V7h3.44a1,1,0,0,1,1,1v2H11.31ZM25,28H11V26H25Zm0-4H11V22H25Zm0-4H11V18H25Zm0-4H11V14H25Z"
+      class="clr-i-solid clr-i-solid-path-1"
+    ></path>
+    <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+  </svg>
+)
+
+// const ITEMS_TOOLTIPS = {
+//   open: 'Open resource',
+//   rename: 'Rename resource',
+//   copy: 'Copy resource',
+//   cut: 'Cut resource',
+//   delete: 'Delete resource',
+//   'add to favorites': 'Add to favorites',
+//   share: 'Share resource',
+//   info: 'Resource info',
+// }
 
 const LABELS = {
   delete: labelRender(<DeleteFilled />, 'delete'),
@@ -180,6 +226,7 @@ const LABELS = {
   open: labelRender(<FolderOpenFilled />, 'open'),
   copy: labelRender(<CopyFilled />, 'copy'),
   cut: labelRender(<ScissorOutlined />, 'cut'),
+  paste: labelRender(<PasteIcon />, 'paste'),
   info: labelRender(<InfoCircleOutlined />, 'info'),
   share: labelRender(<ShareAltOutlined />, 'share'),
   'add to favorites': labelRender(<StarFilled />, 'add to favorites'),
@@ -189,12 +236,12 @@ const LABELS = {
 const typeFlags = type => ({
   isRoot: type === 'root',
   isFolder: type === 'dir',
-  isSystem: type === 'system',
+  isSystem: type === 'sys',
   isDoc: type === 'doc',
 })
 
 const Resource = props => {
-  const { resource, confirmDelete, onResourceDrop, view } = props
+  const { resource, confirmDelete, onResourceDrop, view, gridSize } = props
   const { id, title, resourceType, doc = {} } = resource
   const { userInteractions } = useAiDesignerContext()
 
@@ -207,12 +254,14 @@ const Resource = props => {
     renameResource,
     docPath,
     contextualMenu,
+    // clipboard,
   } = useDocumentContext()
 
   const { isRoot, isFolder, isSystem } = typeFlags(resourceType)
   const isSelected = selectedDocs.includes(id)
   const isActive = docId === doc?.identifier
   const currentDocIsDescendant = docPath?.includes(id)
+  const allowDnD = !isSystem && !isActive && !currentDocIsDescendant
 
   useEffect(() => {
     const hideContextMenu = ({ target }) => {
@@ -237,19 +286,31 @@ const Resource = props => {
     },
     [contextualMenu.state?.show, userInteractions.ctrl, openResource, resource],
   )
+  // const handleCutCopy = useCallback(
+  //   action => {
+  //     clipboard.update({
+  //       [action]: { items: [id], parent: resource.parentId },
+  //     })
+  //   },
+  //   [clipboard.state, id],
+  // )
 
   const handleContextMenuOpen = useCallback(
     e => {
       e.preventDefault()
       e.stopPropagation()
-      setSelectedDocs([id])
+      selectedDocs?.length <= 1 && setSelectedDocs([id])
 
       const optionValidations = {
         default: true,
         open: !isActive,
         rename: !isRoot && !isSystem,
         copy: !isRoot && !isSystem,
-        cut: !isRoot && !isSystem && !isActive,
+        // paste:
+        //   isFolder &&
+        //   clipboard.state.cut.items.length &&
+        //   clipboard.state.copy.items.length,
+        cut: !isRoot && !isSystem && !isActive && !currentDocIsDescendant,
         delete: !isRoot && !isActive && !currentDocIsDescendant && !isSystem,
         'add to favorites': !isRoot && !isSystem,
         share: !isRoot && !isSystem,
@@ -259,21 +320,23 @@ const Resource = props => {
         open: () => openResource(resource),
         delete: () => confirmDelete(resource),
         rename: () => rename.update({ id, title }),
+        // copy: () => handleCutCopy('copy'),
+        // cut: () => handleCutCopy('cut'),
+        // paste: clipboard.reset,
       }
 
       const buildOption = optionName => {
         const option = {
           label: LABELS[optionName] || optionName,
           action: actions[optionName] || (() => {}),
-          title: ITEMS_TOOLTIPS[optionName],
+          // title: ITEMS_TOOLTIPS[optionName],
         }
 
         const includeOption = switchOn(optionName, optionValidations)
         return includeOption && option
       }
 
-      const contextMenuItems =
-        CONTEXT_MENU_ITEMS.map(buildOption).filter(Boolean)
+      const contextMenuItems = MENU_OPTIONS.map(buildOption).filter(Boolean)
 
       contextualMenu.update({
         items: contextMenuItems,
@@ -289,6 +352,7 @@ const Resource = props => {
       isRoot,
       isSystem,
       isActive,
+      // clipboard.state,
       openResource,
       confirmDelete,
       contextualMenu,
@@ -346,13 +410,17 @@ const Resource = props => {
     e.preventDefault()
   }, [])
 
-  const ResourceIcon = isSystem ? StarFilled : isFolder ? FolderIcon : FileIcon
+  const ResourceIcon = isSystem
+    ? switchOn(title, ICONSTMAP)
+    : isFolder
+    ? FolderIcon
+    : FileIcon
 
   const iconColor = switchOn(resourceType, {
     doc: 'var(--color-trois-opaque)',
     dir: 'var(--color-trois-opaque)',
     root: 'var(--color-trois-opaque)',
-    system: '#095',
+    sys: 'var(--color-trois-opaque-2)',
   })
 
   const Container = switchOn(view, {
@@ -362,19 +430,20 @@ const Resource = props => {
 
   return (
     <Container
-      $gridSize={view}
       $selected={isSelected}
-      $active={isActive}
+      // $ghost={clipboard.state.cut.items.includes(id)}
+      $active={isActive || currentDocIsDescendant}
+      $folder={isFolder}
       data-contextmenu
+      style={{ '--svg-fill': iconColor }}
       onClick={handleSelection}
       onDoubleClick={handleOpen}
       onContextMenu={handleContextMenuOpen}
-      $folder={isFolder}
-      style={{ '--svg-fill': iconColor }}
-      draggable={!isSystem && !isActive}
+      draggable={allowDnD}
       onDragStart={handleDragStart}
       onDrop={isFolder ? handleDrop : null}
       onDragOver={isFolder ? handleDragOver : null}
+      title={title}
     >
       <IconTitleContainer data-contextmenu>
         <ResourceIcon data-contextmenu />

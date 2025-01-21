@@ -9,10 +9,7 @@ import {
 import { useDocumentContext } from '../hooks/DocumentContext'
 import Each from '../../component-ai-assistant/utils/Each'
 import { takeRight } from 'lodash'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from '../../component-ai-assistant/hooks/AiDesignerContext'
+import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 
 const MAX_PATH_LEVEL = 4
 
@@ -29,10 +26,10 @@ const PathRenderWrapper = styled.div`
   width: 100%;
 
   button {
-    color: var(--color-trois-opaque);
+    color: var(--color-trois-opaque-2);
 
     &:hover {
-      background-color: var(--color-trois-lightest);
+      background-color: #0001;
     }
 
     svg {
@@ -45,10 +42,6 @@ const PathButton = styled(CleanButton)`
   font-weight: ${p => (p.$active ? '600' : 'normal')};
   padding: 2px 0;
   transition: all 0.2s;
-
-  &:hover {
-    background: #0003;
-  }
 `
 const Container = styled.div`
   align-items: center;

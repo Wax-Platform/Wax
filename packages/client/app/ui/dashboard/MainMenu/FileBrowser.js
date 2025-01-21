@@ -9,13 +9,15 @@ import Resource from './Resource'
 import ConfirmDelete from '../../modals/ConfirmDelete'
 import Each from '../../component-ai-assistant/utils/Each'
 import {
-  AppstoreAddOutlined,
-  FileAddOutlined,
-  FolderAddOutlined,
+  AppstoreFilled,
+  FileAddFilled,
+  FolderAddFilled,
   UnorderedListOutlined,
 } from '@ant-design/icons'
 
 const FilesWrapper = styled.div`
+  --container-size: 26.5dvw;
+
   align-items: center;
   background: #fff0;
   border-right: ${p =>
@@ -26,11 +28,12 @@ const FilesWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   left: 50px;
-  min-width: 25dvw;
+  min-width: 26.5dvw;
   overflow-x: clip;
   overflow-y: auto;
-  padding: 0;
+  padding: 0 0 50px;
   transition: all 0.3s;
+  width: calc(var(--container-size) + 6px);
   z-index: 999;
 `
 
@@ -40,19 +43,8 @@ const GridView = styled.div`
   flex-wrap: wrap;
   gap: 0;
   height: fit-content;
-  padding: 10px 0;
+  padding: 10px 0 50px;
   transition: all 0.3s;
-  width: 25dvw;
-  z-index: 999;
-`
-const Loader = styled.div`
-  align-items: center;
-  background: #fff0;
-  display: flex;
-  filter: blur(5px);
-  height: 100%;
-  justify-content: center;
-  position: absolute;
   width: 100%;
   z-index: 999;
 `
@@ -64,7 +56,9 @@ const NoResources = styled.div`
   display: flex;
   font-size: 14px;
   justify-content: center;
+  padding-top: 20px;
   text-align: center;
+  user-select: none;
   width: 100%;
 `
 
@@ -73,12 +67,12 @@ const Files = props => {
   const {
     graphQL,
     resourcesInFolder = [],
-    loadingResource,
     contextualMenu,
     createResource,
   } = useDocumentContext()
-  const { reorderResource, deleteResource } = graphQL ?? {}
+  const { moveResource, deleteResource } = graphQL ?? {}
   const [resourceToDelete, setResourceToDelete] = useState(null)
+  const [gridSize, setGridSize] = useState(8)
   const [view, setView] = useState('grid')
   const hasResources = resourcesInFolder.length > 0
 
@@ -89,16 +83,13 @@ const Files = props => {
     const id = draggedData.id
     if (id === newParentId) return
     const variables = { variables: { id, newParentId } }
-    reorderResource(variables)
+    moveResource(variables)
   }
-
-  useEffect(() => {
-    loadingResource && console.log('loadingResource', loadingResource)
-  }, [loadingResource])
 
   const resourceRender = resource => (
     <Resource
       view={view}
+      gridSize={gridSize}
       onResourceDrop={onResourceDrop}
       resource={resource}
       confirmDelete={setResourceToDelete}
@@ -124,11 +115,6 @@ const Files = props => {
       {...props}
     >
       <View>
-        {loadingResource && (
-          <Loader>
-            <p>Loading resource...</p>
-          </Loader>
-        )}
         <Each
           of={resourcesInFolder}
           as={resourceRender}
@@ -156,7 +142,7 @@ function generateContextMenuItems(createResource, setView) {
     {
       label: (
         <Fragment>
-          <FolderAddOutlined />
+          <FolderAddFilled />
           <span>New Folder</span>
         </Fragment>
       ),
@@ -165,7 +151,7 @@ function generateContextMenuItems(createResource, setView) {
     {
       label: (
         <Fragment>
-          <FileAddOutlined />
+          <FileAddFilled />
           <span>New File</span>
         </Fragment>
       ),
@@ -175,7 +161,7 @@ function generateContextMenuItems(createResource, setView) {
     {
       label: (
         <Fragment>
-          <AppstoreAddOutlined />
+          <AppstoreFilled />
           <span>Grid View</span>
         </Fragment>
       ),
@@ -192,3 +178,76 @@ function generateContextMenuItems(createResource, setView) {
     },
   ]
 }
+// import React, { useState, useRef } from 'react'
+// import styled from 'styled-components'
+
+// const List = styled.ul`
+//   list-style-type: none;
+//   margin: 0;
+//   padding: 0;
+// `
+
+// const ListItem = styled.li`
+//   background-color: #f0f0f0;
+//   border: 1px solid #ccc;
+//   cursor: move;
+//   margin: ${props => (props.isDragging ? '2px 10px' : '0')};
+//   opacity: ${props => (props.isDragging ? 0.7 : 1)};
+//   padding: 8px;
+//   transform: ${props => (props.isDragging ? 'scale(0.98)' : 'scale(1)')};
+//   transition: all 0.2s ease;
+// `
+
+// const DraggableList = () => {
+//   const [items, setItems] = useState(['Item 1', 'Item 2', 'Item 3', 'Item 4'])
+//   const [dragging, setDragging] = useState(false)
+//   const draggedItemRef = useRef(null)
+//   const dragOverItemRef = useRef(null)
+
+//   const handleDragStart = (e, index) => {
+//     draggedItemRef.current = index
+//     setDragging(true)
+
+//     // Create a transparent image and set it as the drag image
+//     const img = new Image()
+//     img.src =
+//       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/axp9WkAAAAASUVORK5CYII='
+//     e.dataTransfer.setDragImage(img, 0, 0)
+//   }
+
+//   const handleDragEnter = index => {
+//     dragOverItemRef.current = index
+//     const newItems = [...items]
+//     const draggedItem = newItems[draggedItemRef.current]
+//     newItems.splice(draggedItemRef.current, 1)
+//     newItems.splice(dragOverItemRef.current, 0, draggedItem)
+//     draggedItemRef.current = dragOverItemRef.current
+//     dragOverItemRef.current = null
+//     setItems(newItems)
+//   }
+
+//   const handleDragEnd = () => {
+//     setDragging(false)
+//     draggedItemRef.current = null
+//     dragOverItemRef.current = null
+//   }
+
+//   return (
+//     <List>
+//       {items.map((item, index) => (
+//         <ListItem
+//           key={index}
+//           draggable
+//           onDragStart={e => handleDragStart(e, index)}
+//           onDragEnter={() => handleDragEnter(index)}
+//           onDragEnd={handleDragEnd}
+//           isDragging={dragging && draggedItemRef.current === index}
+//         >
+//           {item}
+//         </ListItem>
+//       ))}
+//     </List>
+//   )
+// }
+
+// export default DraggableList

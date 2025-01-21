@@ -9,17 +9,17 @@ const { idNullable, stringNullable, arrayOfIds, string } = modelTypes
 const config = require('config')
 
 const AUTHOR_TEAM = config.teams.nonGlobal.author
-const RESOURCE_TYPES = ['doc', 'dir', 'root', 'system']
+const RESOURCE_TYPES = ['doc', 'dir', 'root', 'sys']
 const TEAM_OBJECT_TYPE = 'resource'
-const EXTENSIONS = ['doc', 'img', 'snip', 'css']
-const TYPES_TO_EXCLUDE_FROM_TEAM = ['system', 'root']
+const EXTENSIONS = ['doc', 'img', 'snip', 'css', 'template', 'book']
+const TYPES_TO_EXCLUDE_FROM_TEAM = ['sys', 'root']
 const SYSTEM_FOLDERS = [
   'Templates',
   'Images',
-  'Thrash',
   'Shared',
   'Favorites',
   'Documents',
+  'Books',
 ]
 
 const createIdentifier = () => {
@@ -30,7 +30,7 @@ const createIdentifier = () => {
 
 const resourceTypeRankingSQL = `
     CASE 
-      WHEN resource_type = 'system' THEN 1
+      WHEN resource_type = 'sys' THEN 1
       WHEN resource_type = 'dir' THEN 2
       WHEN resource_type = 'doc' THEN 3
       ELSE 4
@@ -75,6 +75,11 @@ class ResourceTree extends BaseModel {
         children: arrayOfIds,
       },
     }
+  }
+
+  static getSystemFoldersIds(userId, options = {}) {
+    const { trx } = options
+    return this.query(trx).where({ userId, resourceType: 'sys' }).select('id')
   }
 
   static async createResource(
@@ -144,7 +149,7 @@ class ResourceTree extends BaseModel {
     const source = await this.getResource(resource.parentId, { trx })
     const destination = await this.getResource(newParentId, { trx })
 
-    if (!['dir', 'system'].includes(destination.resourceType)) {
+    if (!['dir', 'sys'].includes(destination.resourceType)) {
       // logger.info('New parent is not a folder')
       return this.openFolder(source.id, 'id', userId)
     }
@@ -222,35 +227,53 @@ class ResourceTree extends BaseModel {
     return !existingResource
   }
 
-  static async openFolder(id, resourceType, userId) {
-    // logger.info(`Opening ${resourceType} from ${id} for user ${userId}`)
-
+  static async openFolder(id, resourceType, userId, fallbackFolderTitle = '') {
     return useTransaction(async trx => {
-      // Acquire a row-level lock on the user's root folder
       let rootFolder = await ResourceTree.findRootFolderOfUser(userId, {
         trx,
         forUpdate: true,
       })
 
-      // If no root folder is found, create one
+      let fallbackFolder = rootFolder
       if (!rootFolder) {
         rootFolder = await ResourceTree.createUserRootFolder(userId, { trx })
         // logger.info(`Created root folder ${rootFolder.id} for user ${userId}`)
+
+        if (fallbackFolderTitle) {
+          fallbackFolder = await ResourceTree.findSystemFolder(
+            fallbackFolderTitle,
+            userId,
+            {
+              trx,
+            },
+          )
+        }
+
+        fallbackFolder = fallbackFolder || rootFolder
+
         return {
-          path: [{ title: rootFolder.title, id: rootFolder.id }],
-          currentFolder: { ...rootFolder, children: [] },
+          path: [{ title: fallbackFolder.title, id: fallbackFolder.id }],
+          currentFolder: { ...fallbackFolder, children: [] },
           requestAccessTo: null,
         }
-      }
+      } else {
+        if (fallbackFolderTitle) {
+          fallbackFolder = await ResourceTree.findSystemFolder(
+            fallbackFolderTitle,
+            userId,
+            {
+              trx,
+            },
+          )
 
-      // logger.info(`Found root folder ${rootFolder.id} for user ${userId}`)
+          fallbackFolder = fallbackFolder || rootFolder
+        }
+      }
 
       const isDoc = resourceType === 'doc'
       const method = isDoc ? 'getParentFolderByIdentifier' : 'getResource'
 
       let currentResource = id && (await ResourceTree[method](id, { trx }))
-
-      // logger.info(`Current resource: ${currentResource?.id}`)
       let requestAccessTo = null
 
       const notOwner = currentResource && currentResource?.userId !== userId
@@ -264,40 +287,41 @@ class ResourceTree extends BaseModel {
           .first()
 
         if (team?.id) {
-          // logger.info(`Checking if user ${userId} is a member of team ${team.id}`, )
           const isMember = await TeamMember.query(trx)
             .where({ teamId: team.id, userId })
             .first()
 
           if (!isMember) {
-            // logger.info(`Requesting access to ${currentResource?.id}`)
             requestAccessTo = currentResource?.userId
             currentResource = null
           }
         }
       }
 
-      // If no resource found or access denied, use the root folder
+      // If no resource found or access denied, use the fallback folder
       if (!currentResource) {
-        currentResource = rootFolder
+        if (fallbackFolderTitle) {
+          currentResource = await ResourceTree.findSystemFolder(
+            fallbackFolderTitle,
+            userId,
+            { trx },
+          )
+        }
+        if (!currentResource) {
+          currentResource = fallbackFolder
+        }
       }
-
-      // logger.info(`Current resource: ${currentResource?.id}`)
 
       let folder = currentResource
 
-      if (!['dir', 'system'].includes(currentResource?.resourceType)) {
+      if (!['dir', 'sys'].includes(currentResource?.resourceType)) {
         folder = currentResource?.parentId
           ? await ResourceTree.query(trx).findById(currentResource?.parentId)
-          : rootFolder
+          : fallbackFolder
       }
 
-      // logger.info(`Folder: ${folder?.id} is a ${folder?.resourceType}`)
-
       const path = await ResourceTree.buildPath(folder.id, { trx })
-      const folderChildren = await ResourceTree.getChildren(folder.id, {
-        trx,
-      })
+      const folderChildren = await ResourceTree.getChildren(folder.id, { trx })
 
       return {
         path,
@@ -338,7 +362,7 @@ class ResourceTree extends BaseModel {
         await ResourceTree.createResource(
           {
             title,
-            resourceType: 'system',
+            resourceType: 'sys',
             parentId: rootFolder.id,
             userId,
           },
@@ -395,14 +419,21 @@ class ResourceTree extends BaseModel {
 
   static async findSystemFolder(title, userId, options = {}) {
     const { trx } = options
+
     if (!userId) {
       throw new Error('User not found')
     }
-    const systemFolder = await ResourceTree.query(trx).where({
-      resourceType: 'system',
-      title,
-      userId,
-    })
+
+    const systemFolder = await ResourceTree.findOne(
+      {
+        resourceType: 'sys',
+        title,
+        userId,
+      },
+      { trx },
+    )
+
+    logger.info(JSON.stringify(systemFolder, null, 2))
 
     return systemFolder
   }

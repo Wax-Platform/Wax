@@ -35,13 +35,12 @@ import {
 
 import { CURRENT_USER } from './graphql'
 import {
-  AiDesignerContext,
   AiDesignerProvider,
   useAiDesignerContext,
 } from './ui/component-ai-assistant/hooks/AiDesignerContext'
 import { DocumentContextProvider } from './ui/dashboard/hooks/DocumentContext'
 const StyledContextMenu = styled(ContextMenu)`
-  --svg-fill: var(--color-trois-opaque);
+  --svg-fill: var(--color-trois-opaque-2);
   margin: 0;
 
   li > button {

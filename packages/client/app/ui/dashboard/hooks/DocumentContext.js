@@ -8,7 +8,7 @@ export const DocumentContext = createContext()
 const COPY_CUT_ITEM = {
   items: [],
   parent: null,
-  newParent: null,
+  // new parent will be set when pasting
 }
 
 const RENAME_ITEM = {
@@ -16,30 +16,22 @@ const RENAME_ITEM = {
   title: '',
 }
 
+const CLIPBOARD_ITEM = { cut: COPY_CUT_ITEM, copy: COPY_CUT_ITEM }
+
 export const DocumentContextProvider = ({ children }) => {
   const history = useHistory()
   const [docId, setDocId] = useState(null)
   const [currentDoc, setCurrentDoc] = useState(null)
   const [selectedDocs, setSelectedDocs] = useState([])
   const rename = useObject({ start: RENAME_ITEM })
-  const toCopy = useObject({ start: COPY_CUT_ITEM })
-  const toCut = useObject({ start: COPY_CUT_ITEM })
+  const clipboard = useObject({ start: CLIPBOARD_ITEM })
   const contextualMenu = useObject()
 
-  const {
-    currentFolder,
-    currentPath,
-    docPath,
-    loadingResource,
-    setLoadingResource,
-    ...graphQL
-  } = useResourceTree()
-
+  const { currentFolder, currentPath, docPath, ...graphQL } = useResourceTree()
   const { id: parentId, children: resourcesInFolder } = currentFolder || {}
 
   const openResource = resource => {
     if (!resource) return
-    setLoadingResource(true)
     const { id, doc = {}, resourceType } = resource
     const variables = { id, resourceType }
 
@@ -47,8 +39,6 @@ export const DocumentContextProvider = ({ children }) => {
       const { identifier } = doc ?? {}
       history.push(`/${identifier}`, { replace: true })
       setCurrentDoc(resource)
-      variables.id = identifier
-      graphQL.getCurrentDocPath({ variables })
       return
     }
 
@@ -57,11 +47,11 @@ export const DocumentContextProvider = ({ children }) => {
     graphQL.openFolder({ variables, fetchPolicy: 'cache-and-network' })
   }
 
-  const createResource = resourceType => {
+  const createResource = (resourceType, additionalProperties = {}) => {
     return e => {
       if (!parentId) return
       graphQL.addResource({
-        variables: { id: parentId, resourceType },
+        variables: { id: parentId, resourceType, ...additionalProperties },
       })
     }
   }
@@ -74,16 +64,10 @@ export const DocumentContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
+    console.log({ docId, resourcesInFolder })
     const doc = resourcesInFolder?.find(c => c.doc?.identifier === docId)
     doc && setCurrentDoc(doc)
   }, [resourcesInFolder])
-
-  useEffect(() => {
-    currentDoc?.doc?.identifier &&
-      graphQL.getCurrentDocPath({
-        variables: { id: currentDoc.doc.id },
-      })
-  }, [docId])
 
   return (
     <DocumentContext.Provider
@@ -102,8 +86,7 @@ export const DocumentContextProvider = ({ children }) => {
         renameResource,
         docId,
         setDocId,
-        toCopy,
-        toCut,
+        clipboard,
         docPath,
         contextualMenu,
       }}
