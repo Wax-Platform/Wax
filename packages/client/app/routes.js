@@ -7,8 +7,6 @@ import {
   useLocation,
   useHistory,
 } from 'react-router-dom'
-import brushIcon from '../static/brush-icon.svg'
-import dropperIcon from '../static/dropper-icon.svg'
 import styled from 'styled-components'
 
 import {
@@ -162,6 +160,9 @@ const SiteHeader = ({ enableLogin }) => {
   const [currentPath, setCurrentPath] = useState(history.location.pathname)
 
   useEffect(() => {
+    if (!currentUser && history.location.pathname === '/') {
+      history.push('/login')
+    }
     const unlisten = history.listen(val => setCurrentPath(val.pathname))
     return unlisten
   }, [])
@@ -200,6 +201,7 @@ const Authenticated = ({ children }) => {
 
 const PageWrapper = props => {
   const { setUserInteractions } = useAiDesignerContext()
+
   useEffect(() => {
     const keydownHandler = e => {
       setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
@@ -265,7 +267,7 @@ const routes = enableLogin => (
                   )
                 }
               />
-              <Route component={() => <Redirect to="/login" />} path="*" />
+              <Route render={() => <Redirect to="/login" />} path="*" />
             </Switch>
             <StyledContextMenu />
           </PageWrapper>
