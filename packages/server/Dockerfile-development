@@ -3,6 +3,7 @@ FROM cokoapps/base:18-latest
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk-headless && \
     apt-get install -y ca-certificates-java && \
+    apt-get install -y git && \
     apt-get clean && \
     update-ca-certificates -f;
 
