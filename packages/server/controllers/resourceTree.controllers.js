@@ -16,6 +16,7 @@ const addResource = async (_, { id, resourceType }, ctx) => {
       id,
       userId: ctx.user,
     })
+
     return {
       id: newFolder.id,
       title: newFolder.title,
@@ -64,10 +65,53 @@ const moveResource = async (_, { id, newParentId }, ctx) => {
   return { folderId: id }
 }
 
+const shareResource = async (_, { resourceId, userId }, ctx) => {
+  const resource = await ResourceTree.shareResource(
+    resourceId,
+    userId,
+    ctx.user,
+  )
+  return resource
+}
+
+const unshareResource = async (_, { resourceId, userId }, ctx) => {
+  const resource = await ResourceTree.unshareResource(
+    resourceId,
+    userId,
+    ctx.user,
+  )
+  return resource
+}
+
+const addToFavorites = async (_, { resourceId }, ctx) => {
+  const resource = await ResourceTree.addToFavorites(resourceId, ctx.user)
+  return resource
+}
+
+const pasteResources = async (_, { parentId, resourceIds, copy }, ctx) => {
+  const resources = await ResourceTree.pasteResources(
+    parentId,
+    resourceIds,
+    copy,
+    ctx.user,
+  )
+  return resources
+}
+
+const reorderChildren = async (_, { parentId, newChildrenIds }, ctx) => {
+  await ResourceTree.reorderChildren(parentId, newChildrenIds)
+  return true
+}
+
 module.exports = {
   renameResource,
   deleteResource,
   addResource,
   openFolder,
   moveResource,
+  shareResource,
+  unshareResource,
+  addToFavorites,
+  pasteResources,
+  reorderChildren,
 }

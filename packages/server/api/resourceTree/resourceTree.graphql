@@ -41,4 +41,13 @@ extend type Mutation {
   deleteResource(id: ID!): FolderIdResponse!
   renameResource(id: ID!, title: String!): FolderIdResponse!
   moveResource(id: ID!, newParentId: ID): FolderIdResponse!
+  shareResource(resourceId: ID!, userId: ID!): Resource!
+  unshareResource(resourceId: ID!, userId: ID!): Resource!
+  addToFavorites(resourceId: ID!): Resource
+  pasteResources(
+    parentId: ID!
+    resourceIds: [ID!]!
+    copy: Boolean!
+  ): [Resource]!
+  reorderChildren(parentId: ID!, newChildrenIds: [ID!]!): Boolean!
 }

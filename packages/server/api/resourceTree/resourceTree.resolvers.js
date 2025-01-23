@@ -7,12 +7,18 @@ const {
   addResource,
   openFolder,
   moveResource,
+  shareResource,
+  unshareResource,
+  addToFavorites,
+  pasteResources,
+  reorderChildren,
 } = require('../../controllers/resourceTree.controllers')
+const { logger } = require('@coko/server')
 
 module.exports = {
   Resource: {
-    doc: async resourceTree => {
-      return Doc.query().findOne({ id: resourceTree.docId })
+    doc: async ({ docId }) => {
+      return Doc.query().findOne({ id: docId })
     },
     key: resourceTree => resourceTree.id,
     identifier: async resourceTree => {
@@ -24,9 +30,20 @@ module.exports = {
       }
       return null
     },
-    children: async parent => {
-      const children = await ResourceTree.getChildren(parent.id)
-      return children
+    children: async resource => {
+      if (resource.resourceType === 'doc') return []
+      const { children, userId, resourceType } = resource
+
+      if (resourceType === 'root') {
+        const sysFolderIds = await ResourceTree.query()
+          .where({ userId: userId, resourceType: 'sys' })
+          .select('id')
+        const mappedIds = sysFolderIds.map(({ id }) => id)
+        return ResourceTree.getChildren([...children, ...mappedIds])
+      }
+
+      const childResources = await ResourceTree.getChildren(children)
+      return childResources
     },
   },
   Query: {
@@ -41,5 +58,10 @@ module.exports = {
     deleteResource,
     renameResource,
     moveResource,
+    shareResource,
+    unshareResource,
+    addToFavorites,
+    pasteResources,
+    reorderChildren,
   },
 }
