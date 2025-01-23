@@ -36,6 +36,11 @@ const resourceTypeRankingSQL = `
       ELSE 4
     END
   `
+const orderByIndex = childIds => `
+    CASE id
+    ${childIds.map((id, index) => `WHEN '${id}' THEN ${index}`).join(' ')}
+    END
+  `
 class ResourceTree extends BaseModel {
   static get tableName() {
     return 'resource_tree'
@@ -117,7 +122,7 @@ class ResourceTree extends BaseModel {
 
       return insertedResource
     } catch (e) {
-      throw new Error(e)
+      logger.error(e)
     }
   }
 
@@ -154,8 +159,9 @@ class ResourceTree extends BaseModel {
       return this.openFolder(source.id, 'id', userId)
     }
 
-    source.children = source.children.filter(child => child.id !== id)
-    destination.children.push(id)
+    source.children = source.children.filter(child => child !== id)
+    destination.children.unshift(id)
+
     const safeName = await this.getSafeName(
       {
         title: resource.title,
@@ -184,7 +190,7 @@ class ResourceTree extends BaseModel {
       parentId || existingResource.parentId,
       { trx },
     )
-    const siblingNodes = await this.getChildren(parent.id, { trx })
+    const siblingNodes = await this.getChildren(parent.children, { trx })
     const existingTitles = siblingNodes
       .filter(ch => ch.id !== id)
       .map(child => child.title)
@@ -197,26 +203,17 @@ class ResourceTree extends BaseModel {
     return safeTitle
   }
 
-  static async getChildren(parentId, options = {}) {
+  static async getChildren(childIds, options = {}) {
     const { trx } = options
+    if (childIds.length === 0) return []
+    // TODO pass order to query
     const children = await this.query(trx)
-      .where({ parentId })
-      .orderByRaw(resourceTypeRankingSQL)
-      .orderBy('created', 'desc')
+      .whereIn('id', childIds)
+      .orderByRaw(orderByIndex(childIds))
+    // .orderByRaw(resourceTypeRankingSQL)
+    // .orderBy('created', 'desc')
 
-    const getChildDocs = async children => {
-      return Promise.all(
-        children.map(async child => {
-          if (!child.docId) return child
-          const doc = await Doc.query(trx).findOne({ id: child.docId })
-          return {
-            ...child,
-            doc: doc ? { id: doc.id, identifier: doc.identifier } : null,
-          }
-        }),
-      )
-    }
-    return getChildDocs(children)
+    return children
   }
 
   static async checkNameAvailability({ parentId, title }, options = {}) {
@@ -321,11 +318,10 @@ class ResourceTree extends BaseModel {
       }
 
       const path = await ResourceTree.buildPath(folder.id, { trx })
-      const folderChildren = await ResourceTree.getChildren(folder.id, { trx })
 
       return {
         path,
-        currentFolder: { ...folder, children: folderChildren },
+        currentFolder: { ...folder },
         requestAccessTo,
       }
     })
@@ -346,11 +342,12 @@ class ResourceTree extends BaseModel {
   }
 
   static async createSystemFolders(titles, rootFolder, userId, options = {}) {
+    let root = rootFolder
     if (!Array.isArray(titles)) {
       throw new Error('Titles should be an array')
     }
     if (!rootFolder) {
-      throw new Error('Root folder not found')
+      root = await ResourceTree.createUserRootFolder(userId, options)
     }
     if (!userId) {
       throw new Error('User not found')
@@ -363,7 +360,7 @@ class ResourceTree extends BaseModel {
           {
             title,
             resourceType: 'sys',
-            parentId: rootFolder.id,
+            parentId: root.id,
             userId,
           },
           { trx },
@@ -376,6 +373,11 @@ class ResourceTree extends BaseModel {
   static async createUserRootFolder(userId, options = {}) {
     const { trx } = options
     // logger.info(`Creating root folder for user ${userId}`)
+
+    if (!(await User.query(trx).findById(userId))) {
+      return null
+    }
+
     const rootFolder = await ResourceTree.createResource(
       {
         title: 'Root',
@@ -660,7 +662,10 @@ class ResourceTree extends BaseModel {
   static async addToFavorites(resourceId, userId, options = {}) {
     const { trx } = options
     try {
-      const resource = await ResourceTree.query(trx).findById(resourceId)
+      const resource = await ResourceTree.query(trx).findOne({
+        id: resourceId,
+        userId,
+      })
       if (!resource) {
         throw new Error('Resource not found')
       }
@@ -675,14 +680,14 @@ class ResourceTree extends BaseModel {
         throw new Error('Favorites folder not found')
       }
 
-      favoritesFolder[0].children.unshift(resourceId)
+      favoritesFolder.children.unshift(resourceId)
       await ResourceTree.query(trx)
         .patch({ children: favoritesFolder.children })
         .findById(favoritesFolder.id)
 
       return resource
     } catch (e) {
-      // logger.info(e)
+      logger.info(e)
     }
   }
 
@@ -740,6 +745,19 @@ class ResourceTree extends BaseModel {
       .findById(parent.id)
 
     return newResource
+  }
+
+  static async reorderChildren(parentId, newChildrenIds, options = {}) {
+    const { trx } = options
+
+    const parentResource = await this.query(trx).findById(parentId)
+    if (!parentResource) {
+      throw new Error('Parent resource not found')
+    }
+    logger.info(`old children: ${parentResource.children}`)
+    await this.query(trx).patch({ children: newChildrenIds }).findById(parentId)
+
+    return true
   }
 }
 
