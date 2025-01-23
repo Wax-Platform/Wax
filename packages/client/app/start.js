@@ -20,7 +20,7 @@ const cache = new InMemoryCache({
 const makeApolloConfig = originalConfig => {
   return {
     ...originalConfig,
-    cache, // Use the custom cache
+    cache,
   }
 }
 

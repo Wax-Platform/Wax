@@ -15,8 +15,9 @@ import {
   SwapOutlined,
   UnorderedListOutlined,
 } from '@ant-design/icons'
-import { useBool } from '../../../hooks/dataTypeHooks'
-import { objIf } from '../../../shared/generalUtils'
+import { useBool, useString } from '../../../hooks/dataTypeHooks'
+import { objIf, switchOn } from '../../../shared/generalUtils'
+import { labelRender } from './utils/resourcesUtils'
 
 const FilesWrapper = styled.div`
   --container-size: 26.5dvw;
@@ -73,29 +74,28 @@ const Files = props => {
     contextualMenu,
     createResource,
     resources = [],
+    currentFolder,
     setResources,
   } = useDocumentContext()
   const draggedItemRef = useRef(null)
   const dragOverItemRef = useRef(null)
-  const { moveResource, deleteResource } = graphQL ?? {}
+  const { moveResource, reorderChildren, deleteResource } = graphQL ?? {}
   const [resourceToDelete, setResourceToDelete] = useState(null)
   const reorderMode = useBool({ start: false })
   const [dragging, setDragging] = useState(false)
 
-  const [view, setView] = useState('grid')
+  const fileExplorerView = useString({ start: 'grid' })
   const hasResources = resourcesInFolder.length > 0
 
-  const View = view === 'grid' ? GridView : Fragment
+  const FileDisplayView = fileExplorerView.is('grid') ? GridView : Fragment
 
   const onDragStart = (e, index) => {
     draggedItemRef.current = index
     setDragging(true)
-
-    // // Create a transparent image and set it as the drag image
-    // const img = new Image()
-    // img.src =
-    //   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/axp9WkAAAAASUVORK5CYII='
-    // e.dataTransfer.setDragImage(img, 0, 0)
+    const img = new Image()
+    img.src =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/axp9WkAAAAASUVORK5CYII='
+    e.dataTransfer.setDragImage(img, 0, 0)
   }
 
   const onDragEnter = index => {
@@ -113,6 +113,12 @@ const Files = props => {
     setDragging(false)
     draggedItemRef.current = null
     dragOverItemRef.current = null
+    reorderChildren({
+      variables: {
+        parentId: currentFolder.id,
+        newChildrenIds: resources.map(r => r.id),
+      },
+    })
   }
 
   const onResourceDrop = async (draggedData, targetData) => {
@@ -125,7 +131,7 @@ const Files = props => {
 
   const resourceRender = (resource, i) => (
     <Resource
-      view={view}
+      view={fileExplorerView.state}
       reorderMode={reorderMode}
       onResourceDrop={onResourceDrop}
       resource={resource}
@@ -150,14 +156,18 @@ const Files = props => {
           show: true,
           x: e.clientX,
           y: e.clientY,
-          items: generateContextMenuItems(createResource, setView, reorderMode),
+          items: generateContextMenuItems(
+            createResource,
+            fileExplorerView,
+            reorderMode,
+          ),
         })
       }}
       $showRightBorder={layout.chat}
       onScroll={() => contextualMenu.update({ show: false })}
       {...props}
     >
-      <View>
+      <FileDisplayView>
         <Each
           of={resources}
           as={resourceRender}
@@ -168,7 +178,7 @@ const Files = props => {
             </NoResources>
           }
         />
-      </View>
+      </FileDisplayView>
       <ConfirmDelete
         deleteResourceFn={deleteResource}
         deleteResourceRow={resourceToDelete}
@@ -180,53 +190,54 @@ const Files = props => {
 
 export default Files
 
-function generateContextMenuItems(createResource, setView, reorderMode) {
-  return [
-    {
-      label: (
-        <Fragment>
-          <FolderAddFilled />
-          <span>New Folder</span>
-        </Fragment>
-      ),
-      action: createResource('dir'),
-    },
-    {
-      label: (
-        <Fragment>
-          <FileAddFilled />
-          <span>New File</span>
-        </Fragment>
-      ),
-      action: createResource('doc'),
-    },
-    { label: '-' },
-    {
-      label: (
-        <Fragment>
-          <AppstoreFilled />
-          <span>Grid View</span>
-        </Fragment>
-      ),
-      action: () => setView('grid'),
-    },
-    {
-      label: (
-        <Fragment>
-          <UnorderedListOutlined />
-          <span>List View</span>
-        </Fragment>
-      ),
-      action: () => setView('list'),
-    },
-    {
-      label: (
-        <Fragment>
-          <SwapOutlined />
-          <span>{!reorderMode.state ? 'Sort' : 'Move'} resources</span>
-        </Fragment>
-      ),
-      action: reorderMode.toggle,
-    },
-  ]
+const CONTEXT_MENU_OPTIONS = [
+  'newFolder',
+  'newFile',
+  '-',
+  'gridView',
+  'listView',
+  'sort',
+  'move',
+]
+
+const CONTEXT_MENU_RENDER = {
+  newFolder: labelRender(<FolderAddFilled />, 'New Folder'),
+  newFile: labelRender(<FileAddFilled />, 'New File'),
+  '-': '-',
+  gridView: labelRender(<AppstoreFilled />, 'Grid View'),
+  listView: labelRender(<UnorderedListOutlined />, 'List View'),
+  sort: labelRender(<SwapOutlined />, 'Sort resources'),
+  move: labelRender(<SwapOutlined />, 'Move resources'),
+}
+
+function generateContextMenuItems(createResource, folderView, reorderMode) {
+  const optionValidations = {
+    sort: !reorderMode.state,
+    move: !!reorderMode.state,
+    gridView: folderView.is('list'),
+    listView: folderView.is('grid'),
+    default: true,
+  }
+
+  const actions = {
+    newFolder: createResource('dir'),
+    newFile: createResource('doc'),
+    gridView: () => folderView.set('grid'),
+    listView: () => folderView.set('list'),
+    sort: reorderMode.toggle,
+    move: reorderMode.toggle,
+    default: () => {},
+  }
+
+  const buildOption = optionName => {
+    const option = {
+      label: CONTEXT_MENU_RENDER[optionName],
+      action: actions[optionName],
+    }
+
+    const includeOption = switchOn(optionName, optionValidations)
+    return includeOption && option
+  }
+
+  return CONTEXT_MENU_OPTIONS.map(buildOption).filter(Boolean)
 }

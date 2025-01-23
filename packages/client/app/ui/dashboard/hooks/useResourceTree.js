@@ -6,6 +6,11 @@ import {
   OPEN_FOLDER,
   MOVE_RESOURCE,
   GET_DOC_PATH,
+  SHARE_RESOURCE,
+  UNSHARE_RESOURCE,
+  ADD_TO_FAVORITES,
+  PASTE_RESOURCES,
+  REORDER_CHILDREN,
 } from '../../../graphql'
 
 import { useEffect, useState, useMemo } from 'react'
@@ -53,9 +58,15 @@ export const useResourceTree = () => {
   const [renameResource] = useMutation(RENAME_RESOURCE, { refetchQueries })
   const [deleteResource] = useMutation(DELETE_RESOURCE, { refetchQueries })
   const [moveResource] = useMutation(MOVE_RESOURCE, { refetchQueries })
+  const [shareResource] = useMutation(SHARE_RESOURCE, { refetchQueries })
+  const [unshareResource] = useMutation(UNSHARE_RESOURCE, { refetchQueries })
+  const [addToFavorites] = useMutation(ADD_TO_FAVORITES, { refetchQueries })
+  const [pasteResources] = useMutation(PASTE_RESOURCES, { refetchQueries })
+  const [reorderChildren] = useMutation(REORDER_CHILDREN, { refetchQueries })
 
   useEffect(() => {
     if (!loading && currentFolder?.id) {
+      console.log('setting folder', currentFolder)
       setCurrentFolder(currentFolder)
       setCurrentPath(currentPath)
     }
@@ -70,6 +81,11 @@ export const useResourceTree = () => {
     renameResource,
     deleteResource,
     moveResource,
+    shareResource,
+    unshareResource,
+    addToFavorites,
+    pasteResources,
+    reorderChildren,
     getCurrentDocPath,
     docPath,
   }

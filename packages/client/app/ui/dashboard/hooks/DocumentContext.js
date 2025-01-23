@@ -66,10 +66,16 @@ export const DocumentContextProvider = ({ children }) => {
 
   useEffect(() => {
     console.log({ docId, resourcesInFolder })
-    const doc = resourcesInFolder?.find(c => c.doc?.identifier === docId)
+    const doc = resourcesInFolder?.find(c => c?.doc?.identifier === docId)
     doc && setCurrentDoc(doc)
     setResources(resourcesInFolder)
   }, [resourcesInFolder])
+
+  const addToFavs = id => {
+    graphQL.addToFavorites({
+      variables: { resourceId: id },
+    })
+  }
 
   return (
     <DocumentContext.Provider
@@ -93,6 +99,7 @@ export const DocumentContextProvider = ({ children }) => {
         contextualMenu,
         resources,
         setResources,
+        addToFavs,
       }}
     >
       {children}

@@ -105,7 +105,8 @@ const Header = props => {
     enableLogin,
     ...rest
   } = props
-  const { designerOn, setDesignerOn, updateLayout } = useAiDesignerContext()
+  const { designerOn, setDesignerOn, updateLayout, layout } =
+    useAiDesignerContext()
   const { currentDoc, graphQL, docId } = useContext(DocumentContext)
   const { openFolder, getCurrentDocPath } = graphQL
 
@@ -129,11 +130,13 @@ const Header = props => {
       ? updateLayout({
           preview: true,
           editor: false,
-          chat: true,
-          team: false,
-          files: false,
-          templateManager: false,
-          userMenu: true,
+          ...objIf(!layout.userMenu, {
+            chat: true,
+            team: false,
+            files: false,
+            templateManager: false,
+            userMenu: true,
+          }),
         })
       : updateLayout({
           preview: false,

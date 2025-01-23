@@ -70,3 +70,57 @@ export const GET_DOC_PATH = gql`
     getDocPath(id: $id)
   }
 `
+
+export const SHARE_RESOURCE = gql`
+  mutation shareResource($resourceId: ID!, $userId: ID!) {
+    shareResource(resourceId: $resourceId, userId: $userId) {
+      id
+      title
+      key
+      parentId
+      resourceType
+    }
+  }
+`
+
+export const UNSHARE_RESOURCE = gql`
+  mutation unshareResource($resourceId: ID!, $userId: ID!) {
+    unshareResource(resourceId: $resourceId, userId: $userId) {
+      id
+      title
+      key
+      parentId
+      resourceType
+    }
+  }
+`
+
+export const ADD_TO_FAVORITES = gql`
+  mutation addToFavorites($resourceId: ID!) {
+    addToFavorites(resourceId: $resourceId) {
+      id
+    }
+  }
+`
+
+export const PASTE_RESOURCES = gql`
+  mutation pasteResources(
+    $parentId: ID!
+    $resourceIds: [ID!]!
+    $copy: Boolean!
+  ) {
+    pasteResources(
+      parentId: $parentId
+      resourceIds: $resourceIds
+      copy: $copy
+    ) {
+      id
+    }
+  }
+`
+
+export const REORDER_CHILDREN = gql`
+  mutation reorderChildren($parentId: ID!, $newChildrenIds: [ID!]!) {
+    reorderChildren(parentId: $parentId, newChildrenIds: $newChildrenIds)
+  }
+`

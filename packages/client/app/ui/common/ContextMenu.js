@@ -92,7 +92,8 @@ const removeDuplicatedSeparators = items => {
   return (item, index) => {
     const isDash = item.label === '-'
     const previousIsDash = items[index - 1]?.label === '-'
-    return isDash && previousIsDash ? null : item
+    const isFirstAndDash = index === 0 && isDash
+    return (isDash && previousIsDash) || isFirstAndDash ? null : item
   }
 }
 
@@ -104,9 +105,9 @@ const calculateXandY = (x, y, menuHeight) => {
   return { top, left }
 }
 
-const optionRender = item => {
+const optionRender = option => {
   const { contextualMenu } = useDocumentContext()
-  const { action, label, disabled, ...props } = item
+  const { action, label, disabled, ...props } = option
   const handleAction = e => {
     safeCall(action)(e)
     contextualMenu.update({ show: false })

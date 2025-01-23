@@ -21,19 +21,13 @@ import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesig
 import { useDocumentContext } from '../hooks/DocumentContext'
 import { FlexRow } from '../../_styleds/common'
 import { capitalize } from 'lodash'
-import { callOn, safeParse, switchOn } from '../../../shared/generalUtils'
-
-const resourceShow = keyframes`
-  from {
-    opacity: 0;
-    transform: scale(0);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-`
+import {
+  callOn,
+  objIf,
+  safeParse,
+  switchOn,
+} from '../../../shared/generalUtils'
+import { labelRender, typeFlags } from './utils/resourcesUtils'
 
 const ListContainer = styled.div`
   --icon-size: 16px;
@@ -43,30 +37,30 @@ const ListContainer = styled.div`
   --label-white-space: nowrap;
   --label-height: fit-content;
   align-items: center;
-  /* animation: ${resourceShow} 0.3s; */
-  background: ${p => (p.$selected ? 'var(--color-trois-lightest)' : '#fff0')};
+  background: ${p =>
+    p.$selected || p.isDragging ? 'var(--color-trois-lightest)' : '#fff0'};
   border: none;
   border-bottom: 1px solid;
   border-color: var(--color-trois-lightest);
   color: ${p => (p.$active ? 'var(--svg-fill)' : 'inherit')};
   display: flex;
+  filter: ${p => (p.isDragging ? 'brightness(0.97)' : 'unset')};
   font-size: 14px;
   font-weight: ${p => (p.$active ? '600' : 'normal')};
   height: 35px;
-  margin: ${props => (props.isDragging ? '2px 10px' : '0')};
   min-height: 35px;
   /* opacity: ${p => (p.$ghost ? '0.5' : '1')}; */
-  opacity: ${props => (props.isDragging ? 0.7 : 1)};
   padding: 2px 18px;
   position: relative;
-  transform: ${props => (props.isDragging ? 'scale(0.98)' : 'scale(1)')};
-  transition: all 0.2s;
+  transform: ${props => (props.isDragging ? 'scale(1.01)' : 'scale(1)')};
+  transition: filter 0.2s, transform 0.2s;
   user-select: none;
   width: 100%;
 
   &:hover {
     background-color: #00000005;
     color: var(--svg-fill);
+    cursor: ${p => (p.$reorder ? 'grabbing' : 'pointer')};
   }
 `
 
@@ -81,29 +75,29 @@ const GridContainer = styled.div`
   --label-height: 24px;
   align-items: center;
   /* animation: ${resourceShow} 0.3s; */
-  background: ${p => (p.$selected ? 'var(--color-trois-lightest)' : '#fff0')};
+  background: ${p =>
+    p.$selected || p.isDragging ? 'var(--color-trois-lightest)' : '#fff0'};
   border-radius: 8px;
   color: ${p => (p.$active ? 'var(--svg-fill)' : 'inherit')};
   cursor: pointer;
   display: flex;
+  filter: ${p => (p.isDragging ? 'brightness(0.97)' : 'brightness(1)')};
   flex-direction: column;
   font-size: 14px;
   font-weight: ${p => (p.$active ? '600' : 'normal')};
   height: var(--w-h);
   justify-content: center;
-  margin: ${props => (props.isDragging ? '2px 10px' : '0')};
-  opacity: ${p => (p.$ghost ? '0.5' : '1')};
-  /* opacity: ${props => (props.isDragging ? 0.7 : 1)}; */
   padding: 0;
   position: relative;
-  transform: ${props => (props.isDragging ? 'scale(0.98)' : 'scale(1)')};
-  transition: all 0.2s;
+  transform: ${props => (props.isDragging ? 'scale(1.02)' : 'scale(1)')};
+  transition: filter 0.2s, transform 0.2s;
   user-select: none;
   width: var(--w-h);
 
   &:hover {
     background-color: #00000005;
     color: var(--svg-fill);
+    cursor: ${p => (p.$reorder ? 'grabbing' : 'pointer')};
   }
 `
 
@@ -164,39 +158,6 @@ const TitleLabel = styled.span`
   white-space: var(--label-white-space);
 `
 
-const labelRender = (icon, text) => (
-  <Fragment>
-    {icon}
-    <span>{capitalize(text)}</span>
-  </Fragment>
-)
-
-const MENU_OPTIONS = [
-  'open',
-  'rename',
-  '-',
-  'copy',
-  'cut',
-  // 'paste',
-  'delete',
-  '-',
-  'add to favorites',
-  'share',
-  'info',
-  // '-',
-]
-
-const ICONSTMAP = {
-  Documents: FolderViewOutlined,
-  Favorites: StarFilled,
-  Books: BookFilled,
-  Images: PictureFilled,
-  Shared: ShareAltOutlined,
-  Trash: DeleteFilled,
-  Templates: FileTextFilled,
-  default: FolderFilled,
-}
-
 const PasteIcon = () => (
   <svg
     width="16px"
@@ -215,16 +176,31 @@ const PasteIcon = () => (
   </svg>
 )
 
-// const ITEMS_TOOLTIPS = {
-//   open: 'Open resource',
-//   rename: 'Rename resource',
-//   copy: 'Copy resource',
-//   cut: 'Cut resource',
-//   delete: 'Delete resource',
-//   'add to favorites': 'Add to favorites',
-//   share: 'Share resource',
-//   info: 'Resource info',
-// }
+const MENU_OPTIONS = [
+  'open',
+  'rename',
+  '-',
+  'copy',
+  'cut',
+  // 'paste',
+  'delete',
+  '-',
+  'add to favorites',
+  'share',
+  'info',
+  // '-',
+]
+
+const SYSTEM_FOLDER_ICONS_MAP = {
+  Documents: FolderViewOutlined,
+  Favorites: StarFilled,
+  Books: BookFilled,
+  Images: PictureFilled,
+  Shared: ShareAltOutlined,
+  Trash: DeleteFilled,
+  Templates: FileTextFilled,
+  default: FolderFilled,
+}
 
 const LABELS = {
   delete: labelRender(<DeleteFilled />, 'delete'),
@@ -239,12 +215,17 @@ const LABELS = {
   '-': '-',
 }
 
-const typeFlags = type => ({
-  isRoot: type === 'root',
-  isFolder: type === 'dir',
-  isSystem: type === 'sys',
-  isDoc: type === 'doc',
-})
+const ICON_COLORS = {
+  doc: 'var(--color-trois-opaque)',
+  dir: 'var(--color-trois-opaque)',
+  root: 'var(--color-trois-opaque)',
+  sys: 'var(--color-trois-opaque-2)',
+}
+
+const VIEW_BASED_CONTAINERS = {
+  list: ListContainer,
+  default: GridContainer,
+}
 
 const Resource = props => {
   const {
@@ -267,6 +248,7 @@ const Resource = props => {
     renameResource,
     docPath,
     contextualMenu,
+    addToFavs,
     // clipboard,
   } = useDocumentContext()
 
@@ -274,7 +256,8 @@ const Resource = props => {
   const isSelected = selectedDocs.includes(id)
   const isActive = docId === doc?.identifier
   const currentDocIsDescendant = docPath?.includes(id)
-  const allowDnD = !isSystem && !isActive && !currentDocIsDescendant
+  const allowDnD =
+    (!isSystem && !isActive && !currentDocIsDescendant) || reorderMode.state
 
   useEffect(() => {
     const hideContextMenu = ({ target }) => {
@@ -319,10 +302,6 @@ const Resource = props => {
         open: !isActive,
         rename: !isRoot && !isSystem,
         copy: !isRoot && !isSystem,
-        // paste:
-        //   isFolder &&
-        //   clipboard.state.cut.items.length &&
-        //   clipboard.state.copy.items.length,
         cut: !isRoot && !isSystem && !isActive && !currentDocIsDescendant,
         delete: !isRoot && !isActive && !currentDocIsDescendant && !isSystem,
         'add to favorites': !isRoot && !isSystem,
@@ -333,16 +312,13 @@ const Resource = props => {
         open: () => openResource(resource),
         delete: () => confirmDelete(resource),
         rename: () => rename.update({ id, title }),
-        // copy: () => handleCutCopy('copy'),
-        // cut: () => handleCutCopy('cut'),
-        // paste: clipboard.reset,
+        'add to favorites': () => addToFavs(id),
       }
 
       const buildOption = optionName => {
         const option = {
           label: LABELS[optionName] || optionName,
           action: actions[optionName] || (() => {}),
-          // title: ITEMS_TOOLTIPS[optionName],
         }
 
         const includeOption = switchOn(optionName, optionValidations)
@@ -423,29 +399,18 @@ const Resource = props => {
     e.preventDefault()
   }, [])
 
-  const ResourceIcon = isSystem
-    ? switchOn(title, ICONSTMAP)
-    : isFolder
-    ? FolderIcon
-    : FileIcon
-
-  const iconColor = switchOn(resourceType, {
-    doc: 'var(--color-trois-opaque)',
-    dir: 'var(--color-trois-opaque)',
-    root: 'var(--color-trois-opaque)',
-    sys: 'var(--color-trois-opaque-2)',
+  const ResourceIcon = switchOn(title, {
+    ...objIf(isSystem, SYSTEM_FOLDER_ICONS_MAP),
+    default: isFolder ? FolderIcon : FileIcon,
   })
 
-  const Container = switchOn(view, {
-    list: ListContainer,
-    default: GridContainer,
-  })
+  const iconColor = switchOn(resourceType, ICON_COLORS)
+  const Container = switchOn(view, VIEW_BASED_CONTAINERS)
 
   return (
     <Container
       $selected={isSelected}
-      $reorder={reorderMode}
-      // $ghost={clipboard.state.cut.items.includes(id)}
+      $reorder={reorderMode.state}
       $active={isActive || currentDocIsDescendant}
       $folder={isFolder}
       data-contextmenu
