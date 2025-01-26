@@ -1,0 +1,35 @@
+type Template {
+  id: ID!
+  userId: ID
+  docId: ID
+  fileId: ID
+  displayName: String!
+  category: String!
+  meta: String
+  status: String!
+  rawCss: String
+  isForked: Boolean
+}
+
+input CreateTemplateInput {
+  userId: ID
+  docId: ID
+  fileId: ID
+  displayName: String!
+  category: String!
+  meta: String
+  status: String!
+  rawCss: String
+}
+
+extend type Query {
+  getSystemTemplates: [Template]
+  getUserTemplates: [Template]
+  getDocumentTemplates: [Template]
+}
+
+extend type Mutation {
+  createTemplate(input: CreateTemplateInput!): ID
+  updateTemplateCss(id: ID, rawCss: String): ID
+  deleteTemplate(input: ID): ID
+}

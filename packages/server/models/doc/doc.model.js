@@ -4,7 +4,6 @@ const Y = require('yjs')
 const config = require('config')
 
 const Template = require('../template/template.model')
-const defaultTemplate = require('../../config/templates/defaultTemplate')
 
 const AUTHOR_TEAM = config.teams.nonGlobal.author
 const VIEWER_TEAM = config.teams.nonGlobal.viewer
@@ -91,28 +90,6 @@ class Doc extends BaseModel {
     return false
   }
 
-  static async createDefaultTemplateIfNotExists(trx) {
-    const existingTemplate = await Template.query(trx).findOne({
-      objectType: 'system',
-      displayName: defaultTemplate.displayName,
-    })
-
-    if (!existingTemplate) {
-      const newTemplate = await Template.query(trx)
-        .insert({
-          displayName: defaultTemplate.displayName,
-          root: defaultTemplate.root,
-          pagedJsCss: defaultTemplate.pagedJsCss,
-          objectType: 'system',
-        })
-        .returning('*')
-      // logger.info(JSON.stringify(newTemplate, null, 2))
-      return newTemplate.id
-    }
-    // logger.info(JSON.stringify(existingTemplate, null, 2))
-    return existingTemplate.id
-  }
-
   static async createDoc({ userId, identifier, ...payload }, options) {
     const { trx } = options || {}
     const WSSharedDoc = require('../../services/yjs/wsSharedDoc')
@@ -122,8 +99,23 @@ class Doc extends BaseModel {
     const {
       delta = doc.getText('prosemirror').toDelta(),
       state = Y.encodeStateAsUpdate(doc),
-      templateId = await this.createDefaultTemplateIfNotExists(trx),
+      templateId: passedTemplate = null,
     } = payload
+    logger.info('Creating template for user:', userId)
+    let templateId = passedTemplate
+    if (!passedTemplate) {
+      const { id, ...clonedTemplateData } = await Template.query().findOne({
+        category: 'system',
+      })
+      const newTemplate = await Template.query(trx).insert({
+        ...clonedTemplateData,
+        userId,
+        category: 'document',
+      })
+
+      templateId = newTemplate?.id
+    }
+
     const createdDoc = await Doc.query(trx)
       .insert({
         docs_prosemirror_delta: delta,
@@ -132,6 +124,11 @@ class Doc extends BaseModel {
         templateId,
       })
       .returning('*')
+
+    // patch the docId to the template
+    await Template.query(trx)
+      .patch({ docId: createdDoc.id })
+      .where('id', templateId)
 
     if (userId) {
       const authorTeam = await Team.insert({

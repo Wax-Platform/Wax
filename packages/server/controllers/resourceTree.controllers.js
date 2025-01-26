@@ -29,6 +29,7 @@ const addResource = async (_, { id, resourceType }, ctx) => {
       identifier,
       userId: ctx.user,
     })
+
     return {
       id: newResource.id,
       identifier,

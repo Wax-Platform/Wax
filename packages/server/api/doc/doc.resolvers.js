@@ -1,4 +1,6 @@
 const { Doc: PubSubDoc, Team, TeamMember, User } = require('@pubsweet/models')
+const Template = require('../../models/template/template.model')
+const ResourceTree = require('../../models/resourceTree/resourceTree.model')
 
 const getDocResolver = async (_, { identifier }) =>
   PubSubDoc.query().findOne({ identifier })
@@ -21,6 +23,20 @@ module.exports = {
       }
 
       return null
+    },
+    template: async doc => {
+      const docTemplate = await Template.query().findById(doc.templateId)
+      return docTemplate
+    },
+    title: async doc => {
+      const titleFromResource = await ResourceTree.query().findOne({
+        docId: doc.id,
+      })
+      return titleFromResource.title || ''
+    },
+    resourceId: async doc => {
+      const resource = await ResourceTree.query().findOne({ docId: doc.id })
+      return resource.id
     },
   },
 }

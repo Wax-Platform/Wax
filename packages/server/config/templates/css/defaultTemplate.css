@@ -3,26 +3,6 @@
     font-family: var(--font-family);
     margin: 20mm;
     size: A4;
-
-    @bottom-center {
-        content: string(title);
-        font-size: 11pt;
-        color: #707070;
-    }
-}
-
-@page :left {
-    @bottom-left-corner {
-        content: counter(page);
-        text-align: center;
-    }
-}
-
-@page :right {
-    @bottom-right-corner {
-        content: counter(page);
-        text-align: center;
-    }
 }
 
 @page :first {
@@ -37,4 +17,127 @@
 @page :right {
     margin-left: 2cm;
     margin-right: 2cm;
+}
+
+@page {
+    @bottom-center {
+        content: counter(page);
+        font-size: var(--page-counter-font-size);
+        text-align: center;
+        color: var(--page-counter-color);
+    }
+}
+/* CSS for Paged.js interface – v0.4 */
+
+/* To define how the book look on the screen: */
+@media screen, pagedjs-ignore {
+    body {
+        background-color: #fbf8fd;
+        padding-top: 30px;
+    }
+
+    * {
+        transition: outline 0.5s, outline-offset 0.5s;
+        outline: 2px dashed #0000;
+        outline-offset: 12px;
+    }   
+      
+    .selected-id {
+        outline: 1px dashed #a34ba1;
+        outline-offset: 8px;
+    }
+
+    .pagedjs_pages {
+        display: flex;
+        width: calc(var(--pagedjs-width) * 2);
+        flex: 0;
+        flex-wrap: wrap;
+        margin: 0 auto;
+
+    }
+
+    .pagedjs_page {
+        box-shadow: 0 0 8px #0004;
+        margin: 0;
+        flex-shrink: 0;
+        flex-grow: 0;
+        margin-top: 10mm;
+    }
+
+    .pagedjs_first_page {
+        margin-left: var(--pagedjs-width);
+    }
+
+    .pagedjs_page:last-of-type {
+        margin-bottom: 10mm;
+    }
+
+    .pagedjs_pagebox{
+        box-shadow: 0 0 0 1px transparent;
+    }
+
+    .pagedjs_left_page{
+        z-index: 20;
+        width: calc(var(--pagedjs-bleed-left) + var(--pagedjs-pagebox-width))!important;
+    }
+
+    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-crop {
+        border-color: transparent;
+    }
+    
+    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-middle{
+        width: 0;
+    } 
+
+    .pagedjs_right_page{
+        z-index: 10;
+        position: relative;
+        left: calc(var(--pagedjs-bleed-left)*-1);
+    }
+
+    .pagedjs_pages {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .pagedjs_first_page {
+        margin-left: 0;
+    }
+
+    .pagedjs_page {
+        margin: 0 auto;
+        margin-top: 10mm;
+    } 
+
+    .pagedjs_left_page{
+        width: calc(var(--pagedjs-bleed-left) + var(--pagedjs-pagebox-width) + var(--pagedjs-bleed-left))!important;
+    }
+
+    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-crop{
+        border-color: var(--pagedjs-crop-color);
+    }
+
+    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-middle{
+        width: var(--pagedjs-cross-size)!important;
+    } 
+
+    .pagedjs_right_page{
+        left: 0; 
+    } 
+
+}
+::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #a34ba11d;
+    border-radius: 5px;
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #fff0;
+    padding: 5px;
 }

@@ -2,8 +2,11 @@ type Doc {
   id: ID!
   identifier: String!
   owner: User
+  template: Template
+  title: String
+  resourceId: ID
 }
 
 extend type Query {
-  getDocument(identifier: ID!): Doc
+  getDocument(identifier: String): Doc
 }
