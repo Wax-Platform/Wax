@@ -2,12 +2,12 @@
 import React, { Fragment } from 'react'
 import styled from 'styled-components'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
-import { FlexCol, WindowHeading } from '../../_styleds/common'
-import aiIcon from '../../../../static/chat-icon.svg'
+import { FlexCol, FlexRow, WindowHeading } from '../../_styleds/common'
 import {
   ChatButton,
   FileManagerButton,
   TeamButton,
+  CodeEditorButton,
   TemplateManagerButton,
 } from '../../menu/menuOptions'
 import FileBrowser from './FileBrowser'
@@ -15,7 +15,12 @@ import ChatHistory from '../../component-ai-assistant/ChatHistory'
 import TeamPopup from '../../common/TeamPopup'
 import PathRender from './PathRender'
 import { useDocumentContext } from '../hooks/DocumentContext'
-import { TemplateManagerHeader } from '../../component-ai-assistant/components/CodeEditor'
+import {
+  CodeEditor,
+  TemplateManager,
+  TemplateManagerHeader,
+} from '../../component-ai-assistant/components/CodeEditor'
+import PromptBox from '../../component-ai-assistant/components/PromptBox'
 
 const Menu = styled.nav`
   align-items: center;
@@ -50,7 +55,7 @@ const Content = styled.section`
   z-index: 999;
 `
 
-const Heading = styled(WindowHeading)`
+const Header = styled(WindowHeading)`
   background: #fff0;
   gap: 15px;
   padding: 20px 5px 0;
@@ -86,50 +91,68 @@ const FilesInfoFixed = styled.div`
     fill: var(--color-trois-opaque);
   }
 `
+const ContentScrollWrapper = styled.div`
+  height: 100%;
+  overflow: auto;
+  width: 100%;
+`
+const Footer = styled(FlexRow)`
+  background: #fff0;
+  gap: 0;
+  height: fit-content;
+  justify-content: center;
+`
 
 const MainMenu = ({ enableLogin }) => {
   const { layout } = useAiDesignerContext()
-  const { resourcesInFolder = [], currentFolder } = useDocumentContext()
-  const { team, chat, templateManager, files } = layout
+  const { resourcesInFolder = [] } = useDocumentContext()
+  const { team, chat, codeEditor, files, templateManager } = layout
 
   const menuLabel = chat
     ? 'Chat'
     : team
     ? 'Team'
-    : templateManager
+    : codeEditor
     ? 'Code Editor'
     : null
 
-  const isTemplatesFolder =
-    currentFolder.resourceType === 'sys' && currentFolder.title === 'Templates'
   return (
     <Fragment>
       <Menu>
         <FileManagerButton />
         <TeamButton />
-        <ChatButton aiIcon={aiIcon} />
+        <ChatButton />
+        <CodeEditorButton />
         <TemplateManagerButton />
       </Menu>
       <Content layout={layout}>
-        <Heading>
+        <Header>
           {menuLabel && <p>{menuLabel}</p>}
           {files && (
             <FlexCol style={{ width: '100%' }}>
               <PathRender />
-              {!isTemplatesFolder ? (
-                <FilesInfoFixed>
-                  <span>{resourcesInFolder?.length} resource(s)</span>
-                  <span>(Right click to open context menu)</span>
-                </FilesInfoFixed>
-              ) : (
-                <TemplateManagerHeader />
-              )}
+              <FilesInfoFixed>
+                <span>{resourcesInFolder?.length} resource(s)</span>
+                <span>(Right click to open context menu)</span>
+              </FilesInfoFixed>
             </FlexCol>
           )}
-        </Heading>
-        {files && <FileBrowser />}
-        {(chat || templateManager) && <ChatHistory />}
-        {team && <TeamPopup enableLogin={enableLogin} />}
+          {templateManager && <TemplateManagerHeader />}
+        </Header>
+        <ContentScrollWrapper>
+          {files && <FileBrowser />}
+          {team && <TeamPopup enableLogin={enableLogin} />}
+          {chat && <ChatHistory />}
+          {templateManager && <TemplateManager />}
+          {codeEditor && <CodeEditor />}
+        </ContentScrollWrapper>
+        <Footer
+          style={{
+            marginBottom: chat || codeEditor ? '15px' : '0',
+          }}
+        >
+          {(chat || codeEditor) && <PromptBox />}
+        </Footer>
       </Content>
     </Fragment>
   )

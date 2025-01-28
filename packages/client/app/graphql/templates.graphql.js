@@ -41,3 +41,8 @@ export const RENAME_TEMPLATE = gql`
     renameTemplate(id: $id, displayName: $displayName)
   }
 `
+export const FETCH_AND_CREATE_TEMPLATE_FROM_URL = gql`
+  mutation FetchAndCreateTemplateFromUrl($url: String!) {
+    fetchAndCreateTemplateFromUrl(url: $url)
+  }
+`

@@ -59,7 +59,13 @@ const insertFileRecord = async (trx, name, key, mimetype, extension, size) => {
   })
 }
 
-const uploadCssFile = async (trx, cssFolder, fileName, s3BaseKey) => {
+const uploadCssFile = async (
+  trx,
+  cssFolder,
+  fileName,
+  s3BaseKey,
+  templateOptions,
+) => {
   const cssFilePath = path.join(cssFolder, fileName)
   if (fs.existsSync(cssFilePath)) {
     const cssFileContents = fs.readFileSync(cssFilePath, 'utf-8')
@@ -82,6 +88,7 @@ const uploadCssFile = async (trx, cssFolder, fileName, s3BaseKey) => {
       displayName: fileName,
       status: 'public',
       category: 'system',
+      ...templateOptions,
     })
 
     // logger.info('Inserted template:', { template })
@@ -124,6 +131,7 @@ const uploadFontFile = async (trx, fontFolder, fileName, s3BaseKey) => {
 const fetchAndStoreTemplate = async (
   url = 'https://gitlab.coko.foundation/coko-org/products/ketty/ketty-templates/vanilla',
   options = {},
+  templateOptions = {},
   templateBasePath = path.join(__dirname, '..', 'templates'),
   s3BaseKey = 'templates',
 ) => {
@@ -174,6 +182,7 @@ const fetchAndStoreTemplate = async (
           cssFolder,
           fileName,
           `${s3BaseKey}/${tempTemplateFolderName}/css`,
+          templateOptions,
         )
         fileIds.push(fileId)
       }

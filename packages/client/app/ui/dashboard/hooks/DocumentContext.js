@@ -9,6 +9,7 @@ import AiDesigner from '../../../AiDesigner/AiDesigner'
 import {
   CREATE_TEMPLATE,
   DELETE_TEMPLATE,
+  FETCH_AND_CREATE_TEMPLATE_FROM_URL,
   GET_USER_TEMPLATES,
   UPDATE_TEMPLATE_CSS,
 } from '../../../graphql/templates.graphql'
@@ -26,9 +27,17 @@ const useTemplates = () => {
   ] = useLazyQuery(GET_USER_TEMPLATES, {
     fetchPolicy: 'cache-and-network',
   })
-  const [updateTemplateCss] = useMutation(UPDATE_TEMPLATE_CSS)
-  const [deleteTemplate] = useMutation(DELETE_TEMPLATE)
-  const [createTemplate] = useMutation(CREATE_TEMPLATE)
+
+  const refetchQueries = [{ query: GET_USER_TEMPLATES }]
+
+  const [updateTemplateCss] = useMutation(UPDATE_TEMPLATE_CSS, {
+    refetchQueries,
+  })
+  const [deleteTemplate] = useMutation(DELETE_TEMPLATE, { refetchQueries })
+  const [createTemplate] = useMutation(CREATE_TEMPLATE, { refetchQueries })
+  const [fetchAndCreateTemplateFromUrl] = useMutation(
+    FETCH_AND_CREATE_TEMPLATE_FROM_URL,
+  )
 
   useEffect(() => {
     getUserTemplates()
@@ -41,6 +50,7 @@ const useTemplates = () => {
     updateTemplateCss,
     deleteTemplate,
     createTemplate,
+    fetchAndCreateTemplateFromUrl,
 
     masterTemplateId,
     setMasterTemplateId,

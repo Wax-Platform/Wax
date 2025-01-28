@@ -2,20 +2,15 @@ import React, { useContext } from 'react'
 import {
   FolderOutlined,
   FolderOpenOutlined,
-  FileAddOutlined,
   TeamOutlined,
   CodeOutlined,
-  FolderAddOutlined,
+  ScissorOutlined,
 } from '@ant-design/icons'
 import styled from 'styled-components'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from '../component-ai-assistant/hooks/AiDesignerContext'
+import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import { CleanButton } from '../_styleds/common'
-import { uuid } from '@coko/client'
-import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
-import { useHistory } from 'react-router-dom'
+import brushIcon from '../../../static/brush-icon.svg'
+import chatIcon from '../../../static/chat-icon2.svg'
 
 const Button = styled(CleanButton)`
   --shadow: ${p => (p.$expanded ? '#0001' : '#0000')};
@@ -40,12 +35,19 @@ const Button = styled(CleanButton)`
     padding: 0;
     width: 20px;
   }
+
+  img {
+    height: 80%;
+    padding: 0;
+    width: 20px;
+  }
 `
 const toggleLayout = (...keys) => ({
   team: keys.includes('team'),
   chat: keys.includes('chat'),
   files: keys.includes('files'),
   templateManager: keys.includes('templateManager'),
+  codeEditor: keys.includes('codeEditor'),
   userMenu: !keys.includes('userMenu'),
 })
 
@@ -85,7 +87,7 @@ export const TeamButton = () => {
   )
 }
 
-export const ChatButton = ({ aiIcon }) => {
+export const ChatButton = () => {
   const { layout, updateLayout, designerOn } = useAiDesignerContext()
   const action = layout.chat && layout.userMenu && 'userMenu'
   const newLayout = toggleLayout('chat', action)
@@ -96,7 +98,27 @@ export const ChatButton = ({ aiIcon }) => {
         $expanded={layout.userMenu && layout.chat}
         onClick={() => updateLayout(newLayout)}
       >
-        <img style={{ width: '18px' }} src={aiIcon} alt="AI" />
+        <img src={chatIcon} alt="Chat" />
+      </Button>
+    )
+  )
+}
+
+export const CodeEditorButton = () => {
+  const { layout, updateLayout, designerOn } = useAiDesignerContext()
+  const action = layout.codeEditor && layout.userMenu && 'userMenu'
+  const newLayout = toggleLayout('codeEditor', action)
+
+  return (
+    designerOn && (
+      <Button
+        onClick={() => {
+          updateLayout(newLayout)
+        }}
+        $expanded={layout.userMenu && layout.codeEditor}
+        title="Template Editor"
+      >
+        <CodeOutlined style={{ fontSize: '25px' }} />
       </Button>
     )
   )
@@ -110,14 +132,29 @@ export const TemplateManagerButton = () => {
   return (
     designerOn && (
       <Button
-        onClick={() => {
-          // console.log(newLayout)
-          updateLayout(newLayout)
-        }}
+        onClick={() => updateLayout(newLayout)}
         $expanded={layout.userMenu && layout.templateManager}
-        title="Template Editor"
+        title="Template Manager"
       >
-        <CodeOutlined style={{ fontSize: '25px' }} />
+        <img src={brushIcon} alt="Templates" />
+      </Button>
+    )
+  )
+}
+
+export const SnippetsButton = () => {
+  const { layout, updateLayout, designerOn } = useAiDesignerContext()
+  const action = layout.snippets && layout.userMenu && 'userMenu'
+  const newLayout = toggleLayout('snippets', action)
+
+  return (
+    designerOn && (
+      <Button
+        onClick={() => updateLayout(newLayout)}
+        $expanded={layout.userMenu && layout.snippets}
+        title="Snippets"
+      >
+        <ScissorOutlined />
       </Button>
     )
   )

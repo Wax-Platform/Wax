@@ -1,6 +1,7 @@
-const { logger, fileStorage } = require('@coko/server')
+const { logger, fileStorage, useTransaction } = require('@coko/server')
 const Template = require('../../models/template/template.model')
 const { capitalize } = require('lodash')
+const { fetchAndStoreTemplate } = require('../../services/files.service')
 
 const seedUserTemplates = async userId => {
   const systemTemplates = await Template.query().where('category', 'system')
@@ -50,8 +51,22 @@ const resolvers = {
         const fontPromises = Object.entries(fontsReplacement).map(
           async ([fontName, storedObjectKey]) => {
             const fontUrl = await fileStorage.getURL(storedObjectKey)
-            const fontRegex = new RegExp(`url\\(['"]?${fontName}['"]?\\)`, 'g')
-            css = css.replace(fontRegex, `url('${fontUrl}')`)
+            const normalizedFontName = fontName.replace(
+              /^\.\.\/fonts\/|^\/fonts\//,
+              '',
+            )
+            const fontRegex1 = new RegExp(`url\\(['"]?${fontName}['"]?\\)`, 'g')
+            const fontRegex2 = new RegExp(
+              `url\\(['"]?/fonts/${normalizedFontName}['"]?\\)`,
+              'g',
+            )
+            const fontRegex3 = new RegExp(
+              `url\\(['"]?../fonts/${normalizedFontName}['"]?\\)`,
+              'g',
+            )
+            css = css.replace(fontRegex1, `url('${fontUrl}')`)
+            css = css.replace(fontRegex2, `url('${fontUrl}')`)
+            css = css.replace(fontRegex3, `url('${fontUrl}')`)
           },
         )
         await Promise.all(fontPromises)
@@ -112,6 +127,25 @@ const resolvers = {
         displayName,
       })
       return updatedTemplate.id
+    },
+    fetchAndCreateTemplateFromUrl: async (_, { url }, ctx) => {
+      const { user: userId } = ctx
+      try {
+        await useTransaction(
+          async trx => {
+            await fetchAndStoreTemplate(url, trx, {
+              userId,
+              category: 'user',
+              status: 'private',
+            })
+          },
+          { passedTrxOnly: true },
+        )
+        return true
+      } catch (error) {
+        logger.error('Error fetching and storing template:', error)
+        return false
+      }
     },
   },
 }

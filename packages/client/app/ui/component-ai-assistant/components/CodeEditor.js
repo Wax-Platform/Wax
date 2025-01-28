@@ -68,9 +68,9 @@ const TemplateItem = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: calc(25.5dvw / 2);
+  min-height: calc(25.5dvw / 5);
   padding: 10px;
-  width: calc((25.5dvw) / 2);
+  width: calc((25.5dvw) / 4.3);
 
   p {
     color: var(--color-trois-opaque);
@@ -128,7 +128,7 @@ const Header = styled(FlexRow)`
 `
 
 export const TemplateManagerHeader = () => {
-  const { createTemplate } = useDocumentContext()
+  const { createTemplate, fetchAndCreateTemplateFromUrl } = useDocumentContext()
   const { modalState } = useModalContext()
   const [fetchTemplateInput, setFetchTemplateInput] = useState('')
 
@@ -147,7 +147,16 @@ export const TemplateManagerHeader = () => {
         value={fetchTemplateInput}
         onChange={handleInputChange}
       />
-      <button>Fetch</button>
+      <button
+        onClick={e => {
+          e.preventDefault()
+          fetchAndCreateTemplateFromUrl({
+            variables: { url: fetchTemplateInput },
+          })
+        }}
+      >
+        Fetch
+      </button>
       <button
         onClick={() =>
           modalState.update({

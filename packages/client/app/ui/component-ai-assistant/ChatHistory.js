@@ -1,7 +1,7 @@
 /* stylelint-disable string-quotes */
 /* stylelint-disable declaration-no-important */
 /* stylelint-disable no-descending-specificity */
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { fadeIn, useCurrentUser } from '@coko/client'
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons'
@@ -9,15 +9,11 @@ import { debounce } from 'lodash'
 import ReactMarkdown from 'react-markdown'
 import Prism from 'prismjs'
 import prismcss from '../../../static/prism.css'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from './hooks/AiDesignerContext'
+import { useAiDesignerContext } from './hooks/AiDesignerContext'
 import { copyTextContent, htmlTagNames } from './utils'
 import logoSmall from '../../../static/AI Design Studio-Icon.svg'
 import userSmall from '../../../static/user-icon.svg'
 import PromptBox from './components/PromptBox'
-import { CodeEditor, TemplateManager } from './components/CodeEditor'
 import Each from './utils/Each'
 
 const chatFadeIn = keyframes`
@@ -37,7 +33,7 @@ const Root = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1em;
-  height: 100%;
+  height: fit-content;
   justify-content: space-between;
   overflow: hidden;
   padding: 0 0 12px;
@@ -360,9 +356,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
             }
           />
         )}
-        {layout.templateManager && <CodeEditor />}
       </ChatHistoryContainer>
-      <PromptBox />
     </Root>
   )
 }

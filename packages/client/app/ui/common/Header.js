@@ -135,6 +135,7 @@ const Header = props => {
             team: false,
             files: false,
             templateManager: false,
+            codeEditor: false,
             userMenu: true,
           }),
         })
@@ -145,6 +146,7 @@ const Header = props => {
           userMenu: true,
           files: true,
           templateManager: false,
+          codeEditor: false,
         })
   }
   return (

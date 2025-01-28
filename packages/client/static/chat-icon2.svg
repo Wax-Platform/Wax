@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-	 viewBox="0 0 512.08 512.08" xml:space="preserve">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	viewBox="0 0 512.08 512.08" xml:space="preserve">
 <g>
-	<rect x="327.512" y="187.296" style="fill:#414752;" width="47.648" height="49.136"/>
-	<rect x="232.216" y="187.296" style="fill:#414752;" width="47.648" height="49.136"/>
-	<rect x="136.92" y="187.296" style="fill:#414752;" width="47.648" height="49.136"/>
-	<path style="fill:#414752;" d="M256.04,433.568c11.12,0,22.576-0.912,34.112-2.688l103.552,81.2V386.016
+	<rect x="327.512" y="187.296" style="fill:#a34ba1;" width="47.648" height="49.136"/>
+	<rect x="232.216" y="187.296" style="fill:#a34ba1;" width="47.648" height="49.136"/>
+	<rect x="136.92" y="187.296" style="fill:#a34ba1;" width="47.648" height="49.136"/>
+	<path style="fill:#a34ba1;" d="M256.04,433.568c11.12,0,22.576-0.912,34.112-2.688l103.552,81.2V386.016
 		c52.976-41.44,83.168-102.656,83.168-169.216C476.872,97.248,377.816,0,256.04,0S35.208,97.248,35.208,216.8
 		C35.208,336.336,134.28,433.568,256.04,433.568z M256.04,32c104.128,0,188.832,82.912,188.832,184.8
 		c0,58.912-27.904,112.976-76.576,148.304l-6.592,4.8v76.432l-63.056-49.456l-7.104,1.312c-12.048,2.24-23.984,3.376-35.488,3.376

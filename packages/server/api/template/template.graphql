@@ -33,4 +33,5 @@ extend type Mutation {
   updateTemplateCss(id: ID, rawCss: String, displayName: String): ID
   renameTemplate(id: ID, displayName: String): ID
   deleteTemplate(id: ID): ID
+  fetchAndCreateTemplateFromUrl(url: String): Boolean!
 }

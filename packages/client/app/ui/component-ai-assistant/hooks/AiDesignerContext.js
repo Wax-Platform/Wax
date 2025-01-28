@@ -125,6 +125,7 @@ export const AiDesignerProvider = ({ children }) => {
     files: true,
     teams: false,
     userMenu: true,
+    codeEditor: false,
     templateManager: false,
   })
 
