@@ -253,7 +253,11 @@ export const TemplateManager = () => {
           })
         }}
       >
-        <img src={template?.imageUrl} alt={template.displayName} />
+        <img
+          src={template?.imageUrl}
+          alt={template.displayName}
+          style={{ width: '100%' }}
+        />
         <span style={{ display: 'flex', alignItems: 'center' }}>
           <p>
             {isCurrentTemplate ? 'Document template' : template.displayName}
