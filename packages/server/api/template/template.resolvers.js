@@ -41,6 +41,24 @@ const resolvers = {
         : ''
       return imageUrl
     },
+    rawCss: async template => {
+      const { meta, rawCss } = template
+      const { fontsReplacement } = meta || {}
+      let css = rawCss
+
+      if (fontsReplacement) {
+        const fontPromises = Object.entries(fontsReplacement).map(
+          async ([fontName, storedObjectKey]) => {
+            const fontUrl = await fileStorage.getURL(storedObjectKey)
+            const fontRegex = new RegExp(`url\\(['"]?${fontName}['"]?\\)`, 'g')
+            css = css.replace(fontRegex, `url('${fontUrl}')`)
+          },
+        )
+        await Promise.all(fontPromises)
+      }
+
+      return css
+    },
   },
   Query: {
     getSystemTemplates: async () => {

@@ -19,6 +19,7 @@ const seedDeaultTemplates = async () => {
     connectToFileStorage()
     await fetchAndStoreAllTemplates()
     logger.info('\x1b[34m Templates Seeding Completed')
+    return
   }
   logger.info('Skipping templates seeding, templates already exists!')
 }

@@ -3,7 +3,7 @@ const { fileStorage, logger, useTransaction } = require('@coko/server')
 const fs = require('fs-extra')
 const path = require('path')
 const Template = require('../models/template/template.model')
-const { category } = require('../config/templates/defaultTemplate')
+const { callOn } = require('../utilities/utils')
 
 const TEMPLATES_URLS = [
   'https://gitlab.coko.foundation/coko-org/products/ketty/ketty-templates/vanilla',
@@ -95,30 +95,20 @@ const uploadFontFile = async (trx, fontFolder, fileName, s3BaseKey) => {
     const fontFileContents = fs.readFileSync(fontFilePath)
 
     const extension = path.extname(fileName).substring(1)
-    let mimetype
-    switch (extension) {
-      case 'ttf':
-        mimetype = 'font/ttf'
-        break
-      case 'otf':
-        mimetype = 'font/otf'
-        break
-      case 'woff':
-        mimetype = 'font/woff'
-        break
-      case 'woff2':
-        mimetype = 'font/woff2'
-        break
-      default:
-        mimetype = 'application/octet-stream'
-    }
+    const mimetype = callOn(extension, {
+      ttf: () => 'font/ttf',
+      otf: () => 'font/otf',
+      woff: () => 'font/woff',
+      woff2: () => 'font/woff2',
+      default: () => 'application/octet-stream',
+    })
 
     // Upload the font file to S3
     const s3Key = `${s3BaseKey}/${fileName}`
     const storedObjectKey = await uploadFileToS3(fontFileContents, s3Key)
 
     // Store the font file reference using the File model
-    await insertFileRecord(
+    const fontFile = await insertFileRecord(
       trx,
       fileName,
       storedObjectKey,
@@ -126,63 +116,8 @@ const uploadFontFile = async (trx, fontFolder, fileName, s3BaseKey) => {
       extension,
       Buffer.byteLength(fontFileContents),
     )
-  }
-}
-const uploadImageFile = async (trx, imageFolder, fileName, s3BaseKey) => {
-  const imageFilePath = path.join(imageFolder, fileName)
-  if (fs.existsSync(imageFilePath)) {
-    const imageFileContents = fs.readFileSync(imageFilePath)
-    const extension = path.extname(fileName).substring(1)
 
-    // Upload the image file to S3
-    const s3Key = `${s3BaseKey}/${fileName}`
-    const storedObjectKey = await uploadFileToS3(imageFileContents, s3Key)
-
-    // Store the image file reference using the File model
-    await insertFileRecord(
-      trx,
-      fileName,
-      storedObjectKey,
-      'image/png',
-      extension,
-      Buffer.byteLength(imageFileContents),
-    )
-
-    return storedObjectKey
-  }
-}
-
-const getCssFileContentsFromURL = async url => {
-  try {
-    const response = await get(url, { responseType: 'arraybuffer' })
-    const base64 = Buffer.from(response.data, 'binary').toString('base64')
-
-    const buffer = Buffer.from(base64, 'base64')
-
-    const passThroughStream = new stream.PassThrough()
-
-    passThroughStream.end(buffer)
-    return { stream: passThroughStream, base64 }
-  } catch (error) {
-    logger.error('Error fetching CSS file:', error)
-    return ''
-  }
-}
-
-const getFontFileContentsFromURL = async url => {
-  try {
-    const response = await get(url, { responseType: 'arraybuffer' })
-    const base64 = Buffer.from(response.data, 'binary').toString('base64')
-
-    const buffer = Buffer.from(base64, 'base64')
-
-    const passThroughStream = new stream.PassThrough()
-
-    passThroughStream.end(buffer)
-    return { stream: passThroughStream, base64 }
-  } catch (error) {
-    logger.error('Error fetching font file:', error)
-    return ''
+    return { storedObjectKey, id: fontFile.id }
   }
 }
 
@@ -204,6 +139,8 @@ const fetchAndStoreTemplate = async (
 
     const fileIds = []
     let imageKey = null
+    let fontsReplacement = {}
+    let fontIds = []
     const sourceRoot = templateFolderPath
     const distFolder = path.join(sourceRoot, 'dist')
     const cssOnRoot = path.join(sourceRoot, 'css')
@@ -240,17 +177,22 @@ const fetchAndStoreTemplate = async (
         )
         fileIds.push(fileId)
       }
-      // const fontsFolder = path.join(distFolder, 'fonts')
-      // const fontFiles = readDirectoryContents(fontsFolder)
+      const fontsFolder = path.join(distFolder, 'fonts')
 
-      // for (const fileName of fontFiles) {
-      //   await uploadFontFile(
-      //     trx,
-      //     fontsFolder,
-      //     fileName,
-      //     `${s3BaseKey}/${tempTemplateFolderName}/fonts`,
-      //   )
-      // }
+      if (fs.existsSync(fontsFolder)) {
+        const fontFiles = readDirectoryContents(fontsFolder)
+        for (const fileName of fontFiles) {
+          const fontFile = await uploadFontFile(
+            trx,
+            fontsFolder,
+            fileName,
+            `${s3BaseKey}/${tempTemplateFolderName}/fonts`,
+          )
+          // use the relative path to the font file as the key to replace in the CSS
+          fontsReplacement[`../fonts/${fileName}`] = fontFile.storedObjectKey
+          fontIds.push(fontFile.id)
+        }
+      }
     }
     const manifestFile = path.join(sourceRoot, 'template.json')
 
@@ -261,7 +203,14 @@ const fetchAndStoreTemplate = async (
       // logger.info('File IDs:', fileIds)
       await Template.query(trx)
         .whereIn('fileId', fileIds)
-        .patch({ meta: { ...manifest, ...(imageKey ? { imageKey } : {}) } })
+        .patch({
+          meta: {
+            ...manifest,
+            fontIds,
+            fontsReplacement,
+            ...(imageKey ? { imageKey } : {}),
+          },
+        })
     }
 
     await fs.remove(templateFolderPath)
