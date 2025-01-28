@@ -23,7 +23,7 @@ const RequestPasswordResetPage = props => {
     <RequestPasswordReset
       hasError={!!error}
       hasSuccess={!!data}
-      loading={loading}
+      loading={!!loading}
       onSubmit={requestPasswordReset}
       userEmail={emailUsed}
     />

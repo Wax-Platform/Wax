@@ -117,9 +117,9 @@ const Header = props => {
   }, [docId])
 
   useEffect(() => {
-    if (currentDoc?.doc?.id) {
+    if (currentDoc?.id) {
       console.log({ currentDoc })
-      getCurrentDocPath({ variables: { id: currentDoc.doc.id } })
+      getCurrentDocPath({ variables: { id: currentDoc.id } })
       document.title = `${currentDoc.title} - Wax`
     }
   }, [currentDoc])

@@ -312,7 +312,7 @@ const Layout = props => {
           <StyledWindow $show={layout.editor}>
             <WaxSurfaceScroll
               id="wax-surface-scroll"
-              $loading={loading}
+              $loading={!!loading}
               ref={editorContainerRef}
             >
               <EditorContainer

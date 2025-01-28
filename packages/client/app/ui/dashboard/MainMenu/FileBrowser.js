@@ -17,7 +17,8 @@ import {
 } from '@ant-design/icons'
 import { useBool, useString } from '../../../hooks/dataTypeHooks'
 import { objIf, switchOn } from '../../../shared/generalUtils'
-import { labelRender } from './utils/resourcesUtils'
+import { labelRender, typeFlags } from './utils/resourcesUtils'
+import { TemplateManager } from '../../component-ai-assistant/components/CodeEditor'
 
 const FilesWrapper = styled.div`
   --container-size: 26.5dvw;
@@ -146,11 +147,14 @@ const Files = props => {
     />
   )
 
+  const isTemplatesFolder =
+    currentFolder.title === 'Templates' && currentFolder.resourceType === 'sys'
   return (
     <FilesWrapper
       expand={layout.userMenu}
       onClick={() => contextualMenu.update({ show: false })}
       onContextMenu={e => {
+        if (isTemplatesFolder) return
         e.preventDefault()
         contextualMenu.update({
           show: true,
@@ -160,6 +164,7 @@ const Files = props => {
             createResource,
             fileExplorerView,
             reorderMode,
+            currentFolder.resourceType,
           ),
         })
       }}
@@ -168,16 +173,20 @@ const Files = props => {
       {...props}
     >
       <FileDisplayView>
-        <Each
-          of={resources}
-          as={resourceRender}
-          if={hasResources}
-          or={
-            <NoResources>
-              <span>-- Folder is empty --</span>
-            </NoResources>
-          }
-        />
+        {!isTemplatesFolder ? (
+          <Each
+            of={resources}
+            as={resourceRender}
+            if={hasResources}
+            or={
+              <NoResources>
+                <span>-- Folder is empty --</span>
+              </NoResources>
+            }
+          />
+        ) : (
+          <TemplateManager />
+        )}
       </FileDisplayView>
       <ConfirmDelete
         deleteResourceFn={deleteResource}
@@ -210,8 +219,16 @@ const CONTEXT_MENU_RENDER = {
   move: labelRender(<SwapOutlined />, 'Move resources'),
 }
 
-function generateContextMenuItems(createResource, folderView, reorderMode) {
+function generateContextMenuItems(
+  createResource,
+  folderView,
+  reorderMode,
+  resourceType,
+) {
+  const { isRoot } = typeFlags(resourceType)
   const optionValidations = {
+    newFolder: !isRoot,
+    newFile: !isRoot,
     sort: !reorderMode.state,
     move: !!reorderMode.state,
     gridView: folderView.is('list'),

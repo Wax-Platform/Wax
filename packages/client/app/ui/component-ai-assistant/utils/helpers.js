@@ -43,7 +43,10 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
             window.parent.console.log(e)
           }
 
-          setTimeout(() => document.documentElement.scrollTo(0, ${scrollPos}), 200)
+          setTimeout(() => {
+            document.documentElement.scrollTo(0, ${scrollPos})
+            document.documentElement.querySelector('body').style.backgroundColor = '#fbf8fd';
+            }, 200)
         });
 
           document.addEventListener("scroll", () => {

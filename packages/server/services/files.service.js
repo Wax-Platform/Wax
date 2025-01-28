@@ -13,6 +13,7 @@ const TEMPLATES_URLS = [
   'https://gitlab.coko.foundation/coko-org/products/ketty/ketty-templates/gaia',
   'https://gitlab.coko.foundation/coko-org/products/ketty/ketty-templates/tenberg',
   'https://gitlab.coko.foundation/coko-org/products/ketty/ketty-templates/eclypse',
+  'https://gitlab.coko.foundation/coko-org/products/ketty/ketty-templates/atosh',
 ]
 
 const execute = async command =>
@@ -127,6 +128,29 @@ const uploadFontFile = async (trx, fontFolder, fileName, s3BaseKey) => {
     )
   }
 }
+const uploadImageFile = async (trx, imageFolder, fileName, s3BaseKey) => {
+  const imageFilePath = path.join(imageFolder, fileName)
+  if (fs.existsSync(imageFilePath)) {
+    const imageFileContents = fs.readFileSync(imageFilePath)
+    const extension = path.extname(fileName).substring(1)
+
+    // Upload the image file to S3
+    const s3Key = `${s3BaseKey}/${fileName}`
+    const storedObjectKey = await uploadFileToS3(imageFileContents, s3Key)
+
+    // Store the image file reference using the File model
+    await insertFileRecord(
+      trx,
+      fileName,
+      storedObjectKey,
+      'image/png',
+      extension,
+      Buffer.byteLength(imageFileContents),
+    )
+
+    return storedObjectKey
+  }
+}
 
 const getCssFileContentsFromURL = async url => {
   try {
@@ -179,9 +203,23 @@ const fetchAndStoreTemplate = async (
     await cloneRepository(gitUrl, templateFolderPath)
 
     const fileIds = []
+    let imageKey = null
     const sourceRoot = templateFolderPath
     const distFolder = path.join(sourceRoot, 'dist')
     const cssOnRoot = path.join(sourceRoot, 'css')
+
+    if (fs.existsSync(distFolder)) {
+      const templateImage = readDirectoryContents(distFolder).find(fn =>
+        fn.endsWith('.png'),
+      )
+
+      if (templateImage) {
+        const imageFilePath = path.join(distFolder, templateImage)
+        const imageFileContents = fs.createReadStream(imageFilePath)
+        const s3Key = `_${templateImage}`
+        imageKey = await uploadFileToS3(imageFileContents, s3Key)
+      }
+    }
 
     if (fs.existsSync(distFolder) || fs.existsSync(cssOnRoot)) {
       const cssFolder = fs.existsSync(cssOnRoot)
@@ -193,6 +231,7 @@ const fetchAndStoreTemplate = async (
       )
 
       for (const fileName of cssFiles) {
+        logger.info(`${s3BaseKey}/${tempTemplateFolderName}/css`)
         const fileId = await uploadCssFile(
           trx,
           cssFolder,
@@ -222,7 +261,7 @@ const fetchAndStoreTemplate = async (
       // logger.info('File IDs:', fileIds)
       await Template.query(trx)
         .whereIn('fileId', fileIds)
-        .patch({ meta: manifest })
+        .patch({ meta: { ...manifest, ...(imageKey ? { imageKey } : {}) } })
     }
 
     await fs.remove(templateFolderPath)
@@ -234,13 +273,12 @@ const fetchAndStoreTemplate = async (
 
 const fetchAndStoreAllTemplates = async () => {
   return useTransaction(
-    tr => {
-      return Promise.all(
+    tr =>
+      Promise.all(
         TEMPLATES_URLS.map(async url =>
           fetchAndStoreTemplate(url, { trx: tr }),
         ),
-      )
-    },
+      ),
     { passedTrxOnly: true },
   )
 }

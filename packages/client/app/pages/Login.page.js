@@ -52,7 +52,7 @@ const LoginPage = () => {
     <Login
       errorMessage={errorMessage}
       hasError={!!error}
-      loading={loading}
+      loading={!!loading}
       onSubmit={login}
       showEmailOption
     />

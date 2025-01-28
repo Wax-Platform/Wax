@@ -9,16 +9,16 @@ type Template {
   status: String!
   rawCss: String
   isForked: Boolean
+  imageUrl: String
 }
 
 input CreateTemplateInput {
-  userId: ID
   docId: ID
   fileId: ID
   displayName: String!
-  category: String!
+  category: String
   meta: String
-  status: String!
+  status: String
   rawCss: String
 }
 
@@ -30,6 +30,7 @@ extend type Query {
 
 extend type Mutation {
   createTemplate(input: CreateTemplateInput!): ID
-  updateTemplateCss(id: ID, rawCss: String): ID
-  deleteTemplate(input: ID): ID
+  updateTemplateCss(id: ID, rawCss: String, displayName: String): ID
+  renameTemplate(id: ID, displayName: String): ID
+  deleteTemplate(id: ID): ID
 }

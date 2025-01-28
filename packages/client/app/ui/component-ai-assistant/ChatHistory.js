@@ -17,7 +17,7 @@ import { copyTextContent, htmlTagNames } from './utils'
 import logoSmall from '../../../static/AI Design Studio-Icon.svg'
 import userSmall from '../../../static/user-icon.svg'
 import PromptBox from './components/PromptBox'
-import { TemplateManager } from './components/CodeEditor'
+import { CodeEditor, TemplateManager } from './components/CodeEditor'
 import Each from './utils/Each'
 
 const chatFadeIn = keyframes`
@@ -360,7 +360,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
             }
           />
         )}
-        {layout.templateManager && <TemplateManager />}
+        {layout.templateManager && <CodeEditor />}
       </ChatHistoryContainer>
       <PromptBox />
     </Root>

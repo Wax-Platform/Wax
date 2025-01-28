@@ -1,5 +1,22 @@
 import { gql } from '@apollo/client'
 
+export const GET_DOC = gql`
+  query GetDocument($identifier: String!) {
+    getDocument(identifier: $identifier) {
+      id
+      identifier
+      title
+      resourceId
+      template {
+        id
+        displayName
+        rawCss
+        meta
+      }
+    }
+  }
+`
+
 export const OPEN_FOLDER = gql`
   query OpenFolder($id: ID, $resourceType: String) {
     openFolder(id: $id, resourceType: $resourceType) {

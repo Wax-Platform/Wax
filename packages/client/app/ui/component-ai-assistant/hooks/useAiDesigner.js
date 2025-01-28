@@ -54,7 +54,6 @@ const voidElements = [
 
 const useAssistant = () => {
   const {
-    setCss,
     htmlSrc,
     onHistory,
     history,
@@ -72,10 +71,10 @@ const useAssistant = () => {
     settings,
     setSettings,
     css,
+    setCss,
     useRag,
     model,
   } = useAiDesignerContext()
-  const { docId } = useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
 
@@ -108,7 +107,15 @@ const useAssistant = () => {
       }
       const actions = {
         css: val => {
-          getCssTemplate({ variables: { docId, css: val } })
+          const { toReplace = [] } = safeParse(val)
+          let clonedCss = css
+          toReplace.forEach(({ previous, newCss }) => {
+            console.log({ matches: clonedCss.match(previous) })
+            clonedCss = clonedCss.replace(previous, newCss)
+          })
+          console.log('css', safeParse(val))
+          setCss(clonedCss)
+          AiDesigner.emit('updateCss', clonedCss)
         },
         snippet: val => {
           addSnippet(true, val)
@@ -211,12 +218,6 @@ const useAssistant = () => {
     },
   })
   const [getAidMiscById] = useLazyQuery(GET_AID_MISC_BY_ID)
-  const [getCssTemplate] = useLazyQuery(GET_CSS, {
-    onCompleted: async ({ getCssTemplate: { css } }) => {
-      setCss(css)
-      updatePreview(true)
-    },
-  })
 
   // #endregion GQL Hooks ----------------------------------------------------------------
 
@@ -316,7 +317,6 @@ const useAssistant = () => {
     getAidMisc,
     getAidMiscById,
     aidMisc,
-    getCssTemplate,
   }
 
   return values

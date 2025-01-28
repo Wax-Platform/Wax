@@ -121,159 +121,6 @@ export const ModelsList = {
     { label: 'Mistral 8x22b', model: 'open-mixtral-8x22b' },
   ],
 }
-export const cssTemplate1 = /* css */ `
-@page {
-  @bottom-center {
-    content: counter(page);
-    font-size: var(--page-counter-font-size);
-    text-align: center;
-    color: var(--page-counter-color);
-  }
-}
-/* CSS for Paged.js interface – v0.4 */
-
-/* Change the look */
-
-
-/* To define how the book look on the screen: */
-@media screen, pagedjs-ignore {
-    body {
-        background-color: #fbf8fd;
-        padding-top: 30px;
-    }
-
-      * {
-        transition: outline 0.5s, outline-offset 0.5s;
-        outline: 2px dashed #0000;
-        outline-offset: 12px;
-      }   
-      
-      .selected-id {
-        outline: 1px dashed #a34ba1;
-        outline-offset: 8px;
-      }
-
-    .pagedjs_pages {
-        display: flex;
-        width: calc(var(--pagedjs-width) * 2);
-        flex: 0;
-        flex-wrap: wrap;
-        margin: 0 auto;
-
-    }
-
-    .pagedjs_page {
-      box-shadow: 0 0 8px #0004;
-      margin: 0;
-      flex-shrink: 0;
-      flex-grow: 0;
-      margin-top: 10mm;
-    }
-
-    .pagedjs_first_page {
-        margin-left: var(--pagedjs-width);
-    }
-
-    .pagedjs_page:last-of-type {
-        margin-bottom: 10mm;
-    }
-
-    .pagedjs_pagebox{
-        box-shadow: 0 0 0 1px transparent;
-    }
-
-    .pagedjs_left_page{
-        z-index: 20;
-        width: calc(var(--pagedjs-bleed-left) + var(--pagedjs-pagebox-width))!important;
-    }
-
-    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-crop {
-        border-color: transparent;
-    }
-    
-    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-middle{
-        width: 0;
-    } 
-
-    .pagedjs_right_page{
-        z-index: 10;
-        position: relative;
-        left: calc(var(--pagedjs-bleed-left)*-1);
-    }
-
-    /* show the margin-box 
-
-    .pagedjs_margin-top-left-corner-holder,
-    .pagedjs_margin-top,
-    .pagedjs_margin-top-left,
-    .pagedjs_margin-top-center,
-    .pagedjs_margin-top-right,
-    .pagedjs_margin-top-right-corner-holder,
-    .pagedjs_margin-bottom-left-corner-holder,
-    .pagedjs_margin-bottom,
-    .pagedjs_margin-bottom-left,
-    .pagedjs_margin-bottom-center,
-    .pagedjs_margin-bottom-right,
-    .pagedjs_margin-bottom-right-corner-holder,
-    .pagedjs_margin-right,
-    .pagedjs_margin-right-top,
-    .pagedjs_margin-right-middle,
-    .pagedjs_margin-right-bottom,
-    .pagedjs_margin-left,
-    .pagedjs_margin-left-top,
-    .pagedjs_margin-left-middle,
-    .pagedjs_margin-left-bottom {
-        box-shadow: 0 0 0 1px inset var(--color-marginBox);
-    }
-*/
-
-    .pagedjs_pages {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .pagedjs_first_page {
-        margin-left: 0;
-    }
-
-    .pagedjs_page {
-        margin: 0 auto;
-        margin-top: 10mm;
-    } 
-
-    .pagedjs_left_page{
-        width: calc(var(--pagedjs-bleed-left) + var(--pagedjs-pagebox-width) + var(--pagedjs-bleed-left))!important;
-    }
-
-    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-crop{
-        border-color: var(--pagedjs-crop-color);
-    }
-
-    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-middle{
-        width: var(--pagedjs-cross-size)!important;
-    } 
-
-    .pagedjs_right_page{
-        left: 0; 
-    } 
-
-}
-  ::-webkit-scrollbar {
-    height: 5px;
-    width: 5px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #a34ba11d;
-    border-radius: 5px;
-    width: 5px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #fff0;
-    padding: 5px;
-  }
-`
 
 export const finishReasons = {
   content_filter: 'The content was filtered due to violating content policies.',
@@ -344,10 +191,20 @@ const cssRules = `Consider the following when writing css:
 
   - font-family property values can never be with quotes, eg: don't use 'sans-serif' use sans-serif instead`
 
-const cssDescription = `Only if user requested a change on the css: A well formed valid CSS string that will be the complete provided context stylesheet with the following: 
-  - You must add, to the provided stylesheet, the required changes that 'user' requested.
-  - if a declaration exists on the provided stylesheet apply the changes on that declaration, instead of creating a new one.
-  - With this guides in mind you will always return a well formed valid CSS string including line breaks and indentation
+const cssDescription = `Only if user requested a change on the css: 
+Purpose:
+The CSS output is designed to dynamically update the styles of the article based on user requests. This allows for real-time customization and styling adjustments.
+Expected Format:
+The CSS output should be a stringified JSON object with the following structure:
+{
+  "toReplace": [
+    {
+      "previous": "The previous CSS rule to be replaced, including all of its declarations. Is Expected to match the previous CSS rule in the provided stylesheet so it can be replaced.",
+      "newCss": "The new CSS rule that will replace the previous one, including all of its declarations."
+    }
+  ],
+  "toAdd": "A string with the new CSS rule to add, only if no matching rule is found in the provided stylesheet."
+}
 `
 
 const contentDescription = `Only in case that user request a change, improvement or replacement that requires to modify element's inner html content: 

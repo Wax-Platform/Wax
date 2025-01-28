@@ -13,7 +13,7 @@ import {
 } from '../component-ai-assistant/hooks/AiDesignerContext'
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
 import { snippetsToCssText } from '../component-ai-assistant/utils'
-import { debounce } from 'lodash'
+import { debounce, get } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
@@ -58,7 +58,7 @@ const renderImage = file => {
 
 const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
-  const { setDocId } = useDocumentContext()
+  const { setDocId, getDoc } = useDocumentContext()
   const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
 
   const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, designerOn } =
@@ -107,6 +107,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       setDocId(docIdentifier)
       yjsProvider?.disconnect()
       setShowSpinner(true)
+      getDoc({ variables: { identifier: docIdentifier } })
 
       debounce(() => {
         createYjsProvider(docIdentifier)
@@ -120,12 +121,12 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
     }
   }, [docIdentifier])
 
-  useEffect(() => {
-    aidMisc &&
-      getCssTemplate({
-        variables: { docId: docIdentifier },
-      })
-  }, [aidMisc])
+  // useEffect(() => {
+  //   aidMisc &&
+  //     getCssTemplate({
+  //       variables: { docId: docIdentifier },
+  //     })
+  // }, [aidMisc])
 
   useEffect(() => {
     if (yjsProvider) {

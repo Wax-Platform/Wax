@@ -36,7 +36,12 @@ import {
   AiDesignerProvider,
   useAiDesignerContext,
 } from './ui/component-ai-assistant/hooks/AiDesignerContext'
-import { DocumentContextProvider } from './ui/dashboard/hooks/DocumentContext'
+import {
+  DocumentContextProvider,
+  useDocumentContext,
+} from './ui/dashboard/hooks/DocumentContext'
+import { ModalProvider } from './hooks/modalContext'
+import ContextModal from './ui/common/ContextModal'
 const StyledContextMenu = styled(ContextMenu)`
   --svg-fill: var(--color-trois-opaque-2);
   margin: 0;
@@ -201,15 +206,25 @@ const Authenticated = ({ children }) => {
 
 const PageWrapper = props => {
   const { setUserInteractions } = useAiDesignerContext()
+  const { contextualMenu, setSelectedDocs } = useDocumentContext()
 
   useEffect(() => {
+    const hideContextMenu = ({ target }) => {
+      const { dataset } = target
+      !dataset.contextmenu && contextualMenu.update({ show: false })
+      !dataset.contextmenu && setSelectedDocs([])
+    }
+
     const keydownHandler = e => {
       setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
     }
+
     const scrollHandler = () => {
       document.querySelector('body').scrollTop = 0
       document.querySelector('html').scrollTop = 0
     }
+
+    window.addEventListener('click', hideContextMenu)
     window.addEventListener('keydown', keydownHandler)
     window.addEventListener('keyup', keydownHandler)
     window.addEventListener('scroll', scrollHandler)
@@ -218,63 +233,67 @@ const PageWrapper = props => {
       window.removeEventListener('keydown', keydownHandler)
       window.removeEventListener('keyup', keydownHandler)
       window.removeEventListener('scroll', scrollHandler)
+      window.removeEventListener('click', hideContextMenu)
     }
   }, [])
   return <StyledPage {...props} $height={`calc(100% - 82px)`} />
 }
 
 const routes = enableLogin => (
-  <DocumentContextProvider>
-    <AiDesignerProvider>
-      <Layout id="layout-root">
-        <GlobalStyles />
-        <YjsProvider enableLogin={enableLogin}>
-          <SiteHeader enableLogin={enableLogin} />
-          <PageWrapper fadeInPages={false} padPages={false}>
-            <Switch>
-              <Route component={Login} exact path="/login" />
-              <Route component={Signup} exact path="/signup" />
-              <Route
-                component={VerifyEmail}
-                exact
-                path="/email-verification/:token"
-              />
-              <Route
-                component={RequestPasswordReset}
-                exact
-                path="/request-password-reset"
-              />
-              <Route
-                component={ResetPassword}
-                exact
-                path="/password-reset/:token"
-              />
-              <Route
-                component={VerifyCheck}
-                exact
-                path="/ensure-verified-login"
-              />
-              <Route
-                exact
-                path={['/', '/:docIdentifier']}
-                render={() =>
-                  enableLogin ? (
-                    <Authenticated>
-                      <Dashboard showFilemanager enableLogin={enableLogin} />
-                    </Authenticated>
-                  ) : (
-                    <Dashboard />
-                  )
-                }
-              />
-              <Route render={() => <Redirect to="/login" />} path="*" />
-            </Switch>
-            <StyledContextMenu />
-          </PageWrapper>
-        </YjsProvider>
-      </Layout>
-    </AiDesignerProvider>
-  </DocumentContextProvider>
+  <AiDesignerProvider>
+    <DocumentContextProvider>
+      <ModalProvider>
+        <Layout id="layout-root">
+          <GlobalStyles />
+          <YjsProvider enableLogin={enableLogin}>
+            <SiteHeader enableLogin={enableLogin} />
+            <PageWrapper fadeInPages={false} padPages={false}>
+              <Switch>
+                <Route component={Login} exact path="/login" />
+                <Route component={Signup} exact path="/signup" />
+                <Route
+                  component={VerifyEmail}
+                  exact
+                  path="/email-verification/:token"
+                />
+                <Route
+                  component={RequestPasswordReset}
+                  exact
+                  path="/request-password-reset"
+                />
+                <Route
+                  component={ResetPassword}
+                  exact
+                  path="/password-reset/:token"
+                />
+                <Route
+                  component={VerifyCheck}
+                  exact
+                  path="/ensure-verified-login"
+                />
+                <Route
+                  exact
+                  path={['/', '/:docIdentifier']}
+                  render={() =>
+                    enableLogin ? (
+                      <Authenticated>
+                        <Dashboard showFilemanager enableLogin={enableLogin} />
+                      </Authenticated>
+                    ) : (
+                      <Dashboard />
+                    )
+                  }
+                />
+                <Route render={() => <Redirect to="/login" />} path="*" />
+              </Switch>
+              <StyledContextMenu />
+            </PageWrapper>
+          </YjsProvider>
+          <ContextModal />
+        </Layout>
+      </ModalProvider>
+    </DocumentContextProvider>
+  </AiDesignerProvider>
 )
 
 export default enableLogin => {

@@ -29,7 +29,7 @@ const RequestPasswordResetForm = props => {
       alternativeActionLink="/login"
       errorMessage="Something went wrong! Please contact the administrator."
       hasError={hasError}
-      loading={loading}
+      loading={!!loading}
       onSubmit={onSubmit}
       // submitButtonLabel="Send"
     >
@@ -79,7 +79,7 @@ const RequestPasswordReset = props => {
         {!hasSuccess && (
           <RequestPasswordResetForm
             hasError={hasError}
-            loading={loading}
+            loading={!!loading}
             onSubmit={onSubmit}
           />
         )}

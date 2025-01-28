@@ -16,9 +16,7 @@ import {
   RedoIcon,
   RefreshIcon,
   newSnippet,
-  saveToLs,
   onEntries,
-  cssTemplate1,
   snippetsToCssText,
   srcdoc,
   parseContent,
@@ -27,6 +25,18 @@ import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
 import { UPDATE_SNIPPETS } from '../../../graphql/aiDesignerMisc'
 import { useMutation } from '@apollo/client'
+
+const CSS_SELECTED_ID_EXCEPT = `      
+* {
+    transition: outline 0.5s, outline-offset 0.5s;
+    outline: 2px dashed #0000;
+    outline-offset: 12px;
+}   
+      
+.selected-id {
+     outline: 1px dashed #a34ba1;
+     outline-offset: 8px;
+}`
 
 const defaultSettings = {
   gui: {
@@ -145,14 +155,8 @@ export const AiDesignerProvider = ({ children }) => {
     markedSnippet && setMarkedSnippet('')
     showSnippets && setShowSnippets(false)
     if (ctx.id === 'aid-ctx-main') return
-
-    // TODO: this should be moved to a separate function
-    // const node = ctx.node
-    // tools.dropper.active && updateTools('brush', { data: node.className })
-    // tools.brush.active &&
-    //   tools.brush.data &&
-    //   AiDesigner.snippets.toggle(tools.brush.data)
   }
+
   const [updateSnippets] = useMutation(UPDATE_SNIPPETS)
 
   AiDesigner.on('select', onSelect)
@@ -202,17 +206,6 @@ export const AiDesignerProvider = ({ children }) => {
     })
   }
 
-  const saveSession = () => {
-    saveToLs(
-      {
-        settings,
-        css,
-        content: htmlSrc.innerHtml,
-      },
-      'storedsession',
-    )
-  }
-
   const onHistory = {
     addRegistry: (
       regKey,
@@ -247,42 +240,41 @@ export const AiDesignerProvider = ({ children }) => {
     },
   }
 
-  const updatePreview = manualUpdate => {
+  const updatePreview = (manualUpdate, providedCss = css) => {
     const previewDoc = previewRef?.current?.contentDocument?.documentElement
-    css &&
+    const canUpdate =
+      providedCss &&
       htmlSrc?.outerHTML &&
-      (settings.preview.livePreview || manualUpdate) &&
-      setPreviewSource(
-        srcdoc(
-          parseContent(
-            editorContainerRef?.current?.querySelector(
-              '.ProseMirror[contenteditable]',
-            ).innerHTML,
-            doc => {
-              !!selectedCtx?.node &&
-                doc
-                  .querySelector(`[data-id="${selectedCtx.id}"]`)
-                  ?.classList?.add('selected-id')
-              doc.querySelectorAll('.ProseMirror-widget').forEach(el => {
-                el.remove()
-              })
-            },
-          ),
-          css.replaceAll(
-            '.ProseMirror[contenteditable]',
-            '.pagedjs_page_content',
-          ),
-          cssTemplate1.replaceAll(
-            '.ProseMirror[contenteditable]',
-            '.pagedjs_page_content',
-          ) +
-            snippetsToCssText(
-              settings.snippetsManager.snippets,
-              '.pagedjs_page_content .aid-snip-',
-            ),
-          previewDoc?.scrollTop ?? 0,
-        ),
+      (settings.preview.livePreview || manualUpdate)
+
+    if (canUpdate) {
+      const content = parseContent(
+        editorContainerRef?.current?.querySelector(
+          '.ProseMirror[contenteditable]',
+        ).innerHTML,
+        doc => {
+          !!selectedCtx?.node &&
+            doc
+              .querySelector(`[data-id="${selectedCtx.id}"]`)
+              ?.classList?.add('selected-id')
+          doc.querySelectorAll('.ProseMirror-widget').forEach(el => {
+            el.remove()
+          })
+        },
       )
+      const cssTemplate =
+        providedCss.replaceAll(
+          '.ProseMirror[contenteditable]',
+          '.pagedjs_page_content',
+        ) + CSS_SELECTED_ID_EXCEPT
+      const snippetsCss = snippetsToCssText(
+        settings.snippetsManager.snippets,
+        '.pagedjs_page_content .aid-snip-',
+      )
+      const scrollPos = previewDoc?.scrollTop ?? 0
+
+      setPreviewSource(srcdoc(content, cssTemplate, snippetsCss, scrollPos))
+    }
 
     // updateCtxNodes()
   }
@@ -389,7 +381,6 @@ export const AiDesignerProvider = ({ children }) => {
         removeSnippet,
         markedSnippet,
         setMarkedSnippet,
-        saveSession,
         editorContainerRef,
 
         previewRef,

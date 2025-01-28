@@ -16,6 +16,8 @@ import {
   FileImageFilled,
   FileTextFilled,
   PictureFilled,
+  FontColorsOutlined,
+  FontSizeOutlined,
 } from '@ant-design/icons'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
@@ -28,6 +30,7 @@ import {
   switchOn,
 } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
+import { useBool } from '../../../hooks/dataTypeHooks'
 
 const ListContainer = styled.div`
   --icon-size: 16px;
@@ -199,6 +202,9 @@ const SYSTEM_FOLDER_ICONS_MAP = {
   Shared: ShareAltOutlined,
   Trash: DeleteFilled,
   Templates: FileTextFilled,
+  Fonts: FontSizeOutlined,
+  CSS: FileTextFilled,
+  Snippets: ScissorOutlined,
   default: FolderFilled,
 }
 
@@ -258,20 +264,6 @@ const Resource = props => {
   const currentDocIsDescendant = docPath?.includes(id)
   const allowDnD =
     (!isSystem && !isActive && !currentDocIsDescendant) || reorderMode.state
-
-  useEffect(() => {
-    const hideContextMenu = ({ target }) => {
-      const { dataset } = target
-      !dataset.contextmenu && contextualMenu.update({ show: false })
-      !dataset.contextmenu && setSelectedDocs([])
-    }
-
-    window.addEventListener('click', hideContextMenu)
-
-    return () => {
-      window.removeEventListener('click', hideContextMenu)
-    }
-  }, [contextualMenu])
 
   const handleOpen = useCallback(
     e => {

@@ -15,6 +15,7 @@ import ChatHistory from '../../component-ai-assistant/ChatHistory'
 import TeamPopup from '../../common/TeamPopup'
 import PathRender from './PathRender'
 import { useDocumentContext } from '../hooks/DocumentContext'
+import { TemplateManagerHeader } from '../../component-ai-assistant/components/CodeEditor'
 
 const Menu = styled.nav`
   align-items: center;
@@ -88,7 +89,7 @@ const FilesInfoFixed = styled.div`
 
 const MainMenu = ({ enableLogin }) => {
   const { layout } = useAiDesignerContext()
-  const { resourcesInFolder = [] } = useDocumentContext()
+  const { resourcesInFolder = [], currentFolder } = useDocumentContext()
   const { team, chat, templateManager, files } = layout
 
   const menuLabel = chat
@@ -96,9 +97,11 @@ const MainMenu = ({ enableLogin }) => {
     : team
     ? 'Team'
     : templateManager
-    ? 'Template Editor'
+    ? 'Code Editor'
     : null
 
+  const isTemplatesFolder =
+    currentFolder.resourceType === 'sys' && currentFolder.title === 'Templates'
   return (
     <Fragment>
       <Menu>
@@ -113,10 +116,14 @@ const MainMenu = ({ enableLogin }) => {
           {files && (
             <FlexCol style={{ width: '100%' }}>
               <PathRender />
-              <FilesInfoFixed>
-                <span>{resourcesInFolder?.length} resource(s)</span>
-                <span>(Right click to open context menu)</span>
-              </FilesInfoFixed>
+              {!isTemplatesFolder ? (
+                <FilesInfoFixed>
+                  <span>{resourcesInFolder?.length} resource(s)</span>
+                  <span>(Right click to open context menu)</span>
+                </FilesInfoFixed>
+              ) : (
+                <TemplateManagerHeader />
+              )}
             </FlexCol>
           )}
         </Heading>

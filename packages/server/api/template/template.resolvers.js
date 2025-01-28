@@ -1,4 +1,4 @@
-const { logger } = require('@coko/server')
+const { logger, fileStorage } = require('@coko/server')
 const Template = require('../../models/template/template.model')
 const { capitalize } = require('lodash')
 
@@ -32,7 +32,14 @@ const resolvers = {
       return JSON.stringify(meta)
     },
     isForked: async template => {
-      !!template.fileId
+      return !!template.fileId
+    },
+    imageUrl: async template => {
+      const { meta } = template
+      const imageUrl = meta?.imageKey
+        ? await fileStorage.getURL(meta?.imageKey)
+        : ''
+      return imageUrl
     },
   },
   Query: {
@@ -56,40 +63,37 @@ const resolvers = {
     },
   },
   Mutation: {
-    createTemplate: async (_, { input }) => {
-      const {
-        userId,
-        docId,
-        fileId,
-        displayName,
-        category,
-        meta,
-        status,
-        rawCss,
-      } = input
+    createTemplate: async (_, { input }, ctx) => {
+      const { user: userId } = ctx
 
-      const newTemplate = await Template.query().insert({
-        userId,
-        docId,
-        fileId,
-        displayName,
-        category,
-        meta,
-        status,
-        rawCss,
-      })
-      return newTemplate.id
+      try {
+        const newTemplate = await Template.query().insert({
+          userId,
+          category: 'user',
+          status: 'private',
+          ...input,
+        })
+        return newTemplate.id
+      } catch (error) {
+        logger.error('Error creating template', error)
+        throw new Error('Error creating template', error)
+      }
     },
-    updateTemplateCss: async (_, { id, rawCss }) => {
+    updateTemplateCss: async (_, { id, ...restFields }) => {
       const updatedTemplate = await Template.query().patchAndFetchById(id, {
-        rawCss,
+        ...restFields,
       })
       return updatedTemplate.id
     },
-    deleteTemplate: async (_, { input }) => {
-      const { id } = input
+    deleteTemplate: async (_, { id }) => {
       await Template.query().deleteById(id)
       return id
+    },
+    renameTemplate: async (_, { id, displayName }) => {
+      const updatedTemplate = await Template.query().patchAndFetchById(id, {
+        displayName,
+      })
+      return updatedTemplate.id
     },
   },
 }

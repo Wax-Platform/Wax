@@ -6,14 +6,7 @@ import AuthenticationForm from './AuthenticationForm'
 import AuthenticationHeader from './AuthenticationHeader'
 import AuthenticationWrapper from './AuthenticationWrapper'
 
-import {
-  Form,
-  Input,
-  Result,
-
-  Paragraph,
-  Page,
-} from '../common'
+import { Form, Input, Result, Paragraph, Page } from '../common'
 
 const StyledPage = styled(Page)`
   height: unset;
@@ -24,14 +17,8 @@ const StyledPage = styled(Page)`
 `
 
 const Signup = props => {
-  const {
-    className,
-    errorMessage,
-    hasError,
-    hasSuccess,
-    loading,
-    onSubmit,
-  } = props
+  const { className, errorMessage, hasError, hasSuccess, loading, onSubmit } =
+    props
 
   return (
     <StyledPage maxWidth={600}>
@@ -60,7 +47,7 @@ const Signup = props => {
             alternativeActionLink="/login"
             errorMessage={errorMessage}
             hasError={hasError}
-            loading={loading}
+            loading={!!loading}
             onSubmit={onSubmit}
             showForgotPassword={false}
             submitButtonLabel="Sign up"
@@ -114,7 +101,7 @@ const Signup = props => {
               name="password"
               rules={[
                 { required: true, message: 'Password is required' },
-                { min: 8, message: 'Should be at least 8 characters' }
+                { min: 8, message: 'Should be at least 8 characters' },
               ]}
             >
               <Input
