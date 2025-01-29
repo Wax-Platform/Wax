@@ -32,7 +32,7 @@ import {
 import { labelRender, typeFlags } from './utils/resourcesUtils'
 import { useBool } from '../../../hooks/dataTypeHooks'
 
-const ListContainer = styled.div`
+export const ListContainer = styled.div`
   --icon-size: 16px;
   --icon-title-direction: row;
   --w-h: 100%;
@@ -67,7 +67,7 @@ const ListContainer = styled.div`
   }
 `
 
-const GridContainer = styled.div`
+export const GridContainer = styled.div`
   --grid-size: ${p => p.$gridSize || 6};
   --w-h: calc((var(--container-size, 26.5dvw) / var(--grid-size)));
   --icon-size: calc(var(--w-h) * 0.4);
@@ -104,7 +104,7 @@ const GridContainer = styled.div`
   }
 `
 
-const StyledInput = styled.input`
+export const StyledInput = styled.input`
   background-color: #fff0;
   border: none;
   border-bottom: 1px solid var(--svg-fill);
@@ -117,7 +117,7 @@ const StyledInput = styled.input`
   }
 `
 
-const IconTitleContainer = styled.div`
+export const IconTitleContainer = styled.div`
   align-items: center;
   display: flex;
   flex-direction: var(--icon-title-direction);
@@ -138,16 +138,16 @@ const IconTitleContainer = styled.div`
   }
 `
 
-const FolderIcon = styled(FolderFilled)`
+export const FolderIcon = styled(FolderFilled)`
   font-size: var(--icon-size);
   min-width: 20px;
 `
 
-const FileIcon = styled(FileOutlined)`
+export const FileIcon = styled(FileOutlined)`
   font-size: var(--icon-size);
 `
 
-const TitleLabel = styled.span`
+export const TitleLabel = styled.span`
   align-items: center;
   font-size: 12px;
   height: var(--label-height);

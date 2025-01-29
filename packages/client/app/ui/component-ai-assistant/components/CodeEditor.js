@@ -10,6 +10,7 @@ import {
   CodeOutlined,
   DeleteOutlined,
   EyeOutlined,
+  FileOutlined,
   ForkOutlined,
 } from '@ant-design/icons'
 import { FlexCol, FlexRow } from '../../_styleds/common'
@@ -17,6 +18,12 @@ import { labelRender } from '../../dashboard/MainMenu/utils/resourcesUtils'
 import { switchOn } from '../../../shared/generalUtils'
 import { useModalContext } from '../../../hooks/modalContext'
 import { capitalize, set } from 'lodash'
+import {
+  FileIcon,
+  GridContainer,
+  IconTitleContainer,
+  TitleLabel,
+} from '../../dashboard/MainMenu/Resource'
 
 const CssEditor = styled(ReactCodeMirror)`
   * {
@@ -67,15 +74,14 @@ const TemplateItem = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   min-height: calc(25.5dvw / 5);
-  padding: 10px;
   width: calc((25.5dvw) / 4.3);
 
   p {
     color: var(--color-trois-opaque);
     font-size: 14px;
-    padding: 0 10px;
+    margin: 0;
   }
 `
 
@@ -199,90 +205,68 @@ export const TemplateManager = () => {
     const isCurrentTemplate = currentDoc?.template?.id === template.id
     console.log(template.imageUrl)
 
-    return (
-      <TemplateItem
-        $docTemplate={isCurrentTemplate}
-        key={template.id}
-        onContextMenu={e => {
-          e.preventDefault()
+    const handleContextMenu = e => {
+      e.preventDefault()
 
-          const contextMenuActions = {
-            preview: () => {
-              setCss(template.rawCss)
+      const contextMenuActions = {
+        preview: () => {
+          setCss(template.rawCss)
+        },
+        fork: () => {
+          updateTemplateCss({
+            variables: {
+              id: currentDoc.template.id,
+              rawCss: template.rawCss,
+              displayName: template.displayName,
             },
-            fork: () => {
-              updateTemplateCss({
-                variables: {
-                  id: currentDoc.template.id,
-                  rawCss: template.rawCss,
-                  displayName: template.displayName,
-                },
-              }).then(() => getDoc({ variables: { id: currentDoc.id } }))
-              setCss(template.rawCss)
-              updatePreview(true)
-            },
-            showCode: () => {
-              modalState.update({
-                show: true,
-                title: capitalize(template.displayName),
-                items: [
-                  {
-                    label: null,
-                    component: (
-                      <TemplateEditor
-                        extensions={[cssLang(), EditorView.editable.of(false)]}
-                        onChange={() => {}}
-                        value={template.rawCss}
-                        basicSetup={{ readOnly: true }}
-                      />
-                    ),
-                  },
-                ],
-              })
-            },
-            delete: () => {
-              deleteTemplate({ variables: { id: template.id } })
-            },
-          }
-
-          contextualMenu.update({
+          }).then(() => getDoc({ variables: { id: currentDoc.id } }))
+          setCss(template.rawCss)
+          updatePreview(true)
+        },
+        showCode: () => {
+          modalState.update({
             show: true,
-            x: e.clientX,
-            y: e.clientY,
-            items: generateContextMenuItems(contextMenuActions),
+            title: capitalize(template.displayName),
+            items: [
+              {
+                label: null,
+                component: (
+                  <TemplateEditor
+                    extensions={[cssLang(), EditorView.editable.of(false)]}
+                    onChange={() => {}}
+                    value={template.rawCss}
+                    basicSetup={{ readOnly: true }}
+                  />
+                ),
+              },
+            ],
           })
-        }}
-      >
-        <img
-          src={template?.imageUrl}
-          alt={template.displayName}
-          style={{ width: '100%' }}
-        />
-        <span style={{ display: 'flex', alignItems: 'center' }}>
-          <p>
+        },
+        delete: () => {
+          deleteTemplate({ variables: { id: template.id } })
+        },
+      }
+
+      contextualMenu.update({
+        show: true,
+        x: e.clientX,
+        y: e.clientY,
+        items: generateContextMenuItems(contextMenuActions),
+      })
+    }
+    return (
+      <GridContainer style={{ gap: '4px' }} onContextMenu={handleContextMenu}>
+        <FileIcon />
+        <IconTitleContainer>
+          <TitleLabel>
             {isCurrentTemplate ? 'Document template' : template.displayName}
-          </p>
-          {template?.isForked && <ForkOutlined style={{ fontSize: '12px' }} />}
-        </span>
-      </TemplateItem>
+          </TitleLabel>
+        </IconTitleContainer>
+      </GridContainer>
     )
   }
 
-  return (
-    <FlexCol>
-      {currentDoc?.template && (
-        <>
-          <h4>Document Template</h4>
-          {templateItemRender(currentDoc.template)}
-        </>
-      )}
-      <hr />
-      <h4>User Templates</h4>
-      <TemplatesWrapper>
-        <Each of={templates} as={templateItemRender} if={templates.length} />
-      </TemplatesWrapper>
-    </FlexCol>
-  )
+  return <Each of={templates} as={templateItemRender} if={templates.length} />
 }
 
 const CONTEXT_MENU_OPTIONS = ['preview', 'fork', 'showCode', 'delete']

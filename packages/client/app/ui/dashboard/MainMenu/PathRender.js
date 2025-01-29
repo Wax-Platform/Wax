@@ -64,10 +64,15 @@ const Actions = styled(FlexRow)`
 
 const PathRender = props => {
   const { layout } = useAiDesignerContext()
-  const { currentPath, graphQL, createResource } = useDocumentContext()
+  const { currentPath, graphQL, createResource, currentFolder } =
+    useDocumentContext()
   const { openFolder } = graphQL ?? {}
   const { length: pathLevel } = currentPath ?? []
   const isClamped = pathLevel > MAX_PATH_LEVEL
+
+  const isTemplatesFolder =
+    currentFolder?.title === 'Templates' &&
+    currentFolder?.resourceType === 'sys'
 
   const lastPaths = takeRight(currentPath, MAX_PATH_LEVEL)
   const { length: currentLevel } = lastPaths ?? []
@@ -100,12 +105,16 @@ const PathRender = props => {
         <Each of={lastPaths} as={pathRender} if={pathLevel} />
       </Container>
       <Actions>
-        <CleanButton onClick={createResource('doc')}>
-          <PlusCircleOutlined style={{ fontSize: '15px' }} />
-        </CleanButton>
-        <CleanButton onClick={createResource('dir')}>
-          <FolderAddOutlined style={{ fontSize: '18px' }} />
-        </CleanButton>
+        {!isTemplatesFolder && (
+          <>
+            <CleanButton onClick={createResource('doc')}>
+              <PlusCircleOutlined style={{ fontSize: '15px' }} />
+            </CleanButton>
+            <CleanButton onClick={createResource('dir')}>
+              <FolderAddOutlined style={{ fontSize: '18px' }} />
+            </CleanButton>
+          </>
+        )}
         <CleanButton $disabled={pathLevel === 1} onClick={goBack}>
           <ArrowLeftOutlined />
         </CleanButton>

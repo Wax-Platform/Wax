@@ -146,12 +146,16 @@ const Files = props => {
       })}
     />
   )
+  const isTemplatesFolder =
+    currentFolder?.title === 'Templates' &&
+    currentFolder?.resourceType === 'sys'
 
   return (
     <FilesWrapper
       expand={layout.userMenu}
       onClick={() => contextualMenu.update({ show: false })}
       onContextMenu={e => {
+        if (isTemplatesFolder) return
         e.preventDefault()
         contextualMenu.update({
           show: true,
@@ -170,16 +174,20 @@ const Files = props => {
       {...props}
     >
       <FileDisplayView>
-        <Each
-          of={resources}
-          as={resourceRender}
-          if={hasResources}
-          or={
-            <NoResources>
-              <span>-- Folder is empty --</span>
-            </NoResources>
-          }
-        />
+        {!isTemplatesFolder ? (
+          <Each
+            of={resources}
+            as={resourceRender}
+            if={hasResources}
+            or={
+              <NoResources>
+                <span>-- Folder is empty --</span>
+              </NoResources>
+            }
+          />
+        ) : (
+          <TemplateManager />
+        )}
       </FileDisplayView>
       <ConfirmDelete
         deleteResourceFn={deleteResource}
