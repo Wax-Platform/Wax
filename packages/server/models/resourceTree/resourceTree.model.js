@@ -7,6 +7,7 @@ const {
 const { Team, TeamMember, Doc, User } = require('@pubsweet/models')
 const { idNullable, stringNullable, arrayOfIds, string } = modelTypes
 const config = require('config')
+const Template = require('../template/template.model')
 
 const AUTHOR_TEAM = config.teams.nonGlobal.author
 const RESOURCE_TYPES = ['doc', 'dir', 'root', 'sys']
@@ -556,6 +557,7 @@ class ResourceTree extends BaseModel {
     }
 
     const docIds = []
+    const templateIds = []
 
     const collectIds = async (nodeId, ids = []) => {
       const node = await ResourceTree.query(trx).findById(nodeId)
@@ -566,6 +568,10 @@ class ResourceTree extends BaseModel {
         )
       } else if (node?.resourceType === 'doc') {
         docIds.push(node.docId)
+        const doc = await Doc.query(trx).findById(node.docId)
+        if (doc?.templateId) {
+          templateIds.push(doc.templateId)
+        }
       }
       return ids
     }
@@ -579,12 +585,17 @@ class ResourceTree extends BaseModel {
       await Team.query(trx)
         .whereIn('objectId', [...ids, ...docIds])
         .delete()
+      if (docIds.length) {
+        await ResourceTree.query(trx).delete().whereIn('docId', docIds)
+      }
+      if (templateIds.length) {
+        await Template.query(trx).delete().whereIn('id', templateIds)
+      }
+      if (docIds.length) {
+        await Doc.query(trx).delete().whereIn('id', docIds)
+      }
       await ResourceTree.query(trx).delete().whereIn('id', ids)
-      docIds.length && (await Doc.query(trx).delete().whereIn('id', docIds))
     }
-
-    // logger.info(`Resource ${id} deleted successfully`)
-    return id
   }
 
   static async bulkDeleteResources(ids, options = {}) {

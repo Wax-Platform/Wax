@@ -1,5 +1,5 @@
 /* stylelint-disable declaration-no-important */
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import styled from 'styled-components'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { FlexCol, FlexRow, WindowHeading } from '../../_styleds/common'
@@ -104,7 +104,7 @@ const Footer = styled(FlexRow)`
 `
 
 const MainMenu = ({ enableLogin }) => {
-  const { layout } = useAiDesignerContext()
+  const { layout, previewRef, css } = useAiDesignerContext()
   const { resourcesInFolder = [] } = useDocumentContext()
   const { team, chat, codeEditor, files, templateManager } = layout
 
@@ -115,6 +115,19 @@ const MainMenu = ({ enableLogin }) => {
     : codeEditor
     ? 'Code Editor'
     : null
+
+  useEffect(() => {
+    const body = previewRef?.current?.contentDocument.body
+    console.log({
+      body,
+    })
+    if (body) {
+      body.style.transformOrigin = 'top center'
+      layout.userMenu
+        ? (body.style.transform = 'scale(0.80) translateX(-10%)')
+        : (body.style.transform = 'scale(1)')
+    }
+  }, [layout.userMenu, css])
 
   return (
     <Fragment>

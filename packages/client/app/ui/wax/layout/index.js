@@ -34,7 +34,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   font-family: '${th('fontInterface')}';
   font-size: ${th('fontSizeBase')};
-  height: 100dvh;
+  height: 100%;
   line-height: ${grid(4)};
   min-width: 100%;
   overflow: hidden;

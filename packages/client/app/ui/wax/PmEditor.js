@@ -112,7 +112,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       debounce(() => {
         createYjsProvider(docIdentifier)
         setShowSpinner(false)
-      }, 500)()
+      }, 2000)()
       getAidMisc({
         variables: {
           input: { docId: docIdentifier },
@@ -164,20 +164,30 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
           )}
         </style>
       )}
-
-      <Wax
-        config={WaxConfig}
-        fileUpload={file => renderImage(file)}
-        layout={layout}
-        onChange={value => {
-          designerOn && debounce(setEditorContent, 250)(value)
+      <span
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          width: '100%',
+          opacity: showSpinner ? 0.4 : 1,
+          transition: 'all 0.5s',
         }}
-        // readonly={!contentEditable}
-        placeholder="Type Something ..."
-        ref={refElement}
-        scrollThreshold={50}
-        showFilemanager
-      />
+      >
+        <Wax
+          config={WaxConfig}
+          fileUpload={file => renderImage(file)}
+          layout={layout}
+          onChange={value => {
+            designerOn && debounce(setEditorContent, 250)(value)
+          }}
+          // readonly={!contentEditable}
+          placeholder="Type Something ..."
+          ref={refElement}
+          scrollThreshold={50}
+          showFilemanager
+        />
+      </span>
       <SpinnerWrapper
         showSpinner={showSpinner}
         showFilemanager={showFilemanager}

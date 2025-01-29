@@ -31,12 +31,39 @@ const CSS_SELECTED_ID_EXCEPT = `
     transition: outline 0.5s, outline-offset 0.5s;
     outline: 2px dashed #0000;
     outline-offset: 12px;
-}   
+}
+
+body {
+  transform-origin: top right;
+  transition: transform 0.3s;
+}
+
+.pagedjs_page {
+    background: #fff;
+    box-shadow: 0 0 8px #0004;
+}
       
 .selected-id {
-     outline: 1px dashed #a34ba1;
-     outline-offset: 8px;
-}`
+    outline: 1px dashed #a34ba1;
+    outline-offset: 8px;
+}
+
+::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #a34ba11d;
+    border-radius: 5px;
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #fff0;
+    padding: 5px;
+}
+`
 
 const defaultSettings = {
   gui: {
