@@ -1,12 +1,8 @@
 /* stylelint-disable string-quotes */
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from '../hooks/AiDesignerContext'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { useAiDesignerContext } from '../hooks/AiDesignerContext'
 import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
-import { ToolsCursor } from './ToolsCursor'
 import { debounce } from 'lodash'
 import { Result, Spin } from 'antd'
 import useAssistant from '../hooks/useAiDesigner'

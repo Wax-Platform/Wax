@@ -2,23 +2,14 @@
 /* stylelint-disable length-zero-no-unit */
 /* stylelint-disable indentation */
 /* stylelint-disable string-quotes */
-import React, { useContext, useState } from 'react'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from '../hooks/AiDesignerContext'
+import React, { useState } from 'react'
+import { useAiDesignerContext } from '../hooks/AiDesignerContext'
 import useAssistant from '../hooks/useAiDesigner'
 import styled from 'styled-components'
 import PromptsInput from '../PromptsInput'
-import {
-  DownOutlined,
-  FileSyncOutlined,
-  PictureOutlined,
-  PrinterOutlined,
-} from '@ant-design/icons'
+import { DownOutlined, PictureOutlined } from '@ant-design/icons'
 import { ModelsList, htmlTagNames } from '../utils'
 import Toolbar from './Toolbar'
-import { SnippetsDropdown } from '../SelectionBox'
 
 const Dropdown = styled.div`
   background: linear-gradient(90deg, var(--color-purple), var(--color-trois))

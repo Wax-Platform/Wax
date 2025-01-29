@@ -146,6 +146,7 @@ export const DocumentContextProvider = ({ children }) => {
   }
 
   AiDesigner.on('updateCss', css => {
+    console.log('Triggered updateSnippets')
     templatesGQL.updateTemplateCss({
       variables: { id: currentDoc.template.id, rawCss: css },
     })

@@ -33,6 +33,7 @@ const CssEditor = styled(ReactCodeMirror)`
   .cm-content {
     border: none;
     font-size: 14px;
+    width: 100%;
   }
 
   .cm-activeLineGutter,
@@ -59,29 +60,11 @@ const CssEditor = styled(ReactCodeMirror)`
     white-space: unset;
   }
 `
-const TemplateEditor = styled(CssEditor)`
+export const TemplateEditor = styled(CssEditor)`
   > :first-child {
     height: 100%;
     max-height: unset;
     width: 100%;
-  }
-`
-
-const TemplateItem = styled.div`
-  align-items: center;
-  background: var(--color-trois-lightest);
-  border: ${p => (p.$docTemplate ? '1px dashed var(--color-trois)' : 'none')};
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  min-height: calc(25.5dvw / 5);
-  width: calc((25.5dvw) / 4.3);
-
-  p {
-    color: var(--color-trois-opaque);
-    font-size: 14px;
-    margin: 0;
   }
 `
 
@@ -178,14 +161,6 @@ export const TemplateManagerHeader = () => {
     </Header>
   )
 }
-
-const TemplatesWrapper = styled(FlexRow)`
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-start;
-  padding: 4px;
-  width: 100%;
-`
 
 export const TemplateManager = () => {
   const { modalState } = useModalContext()

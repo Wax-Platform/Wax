@@ -88,5 +88,6 @@ export const useResourceTree = () => {
     reorderChildren,
     getCurrentDocPath,
     docPath,
+    loadingFolder: loading,
   }
 }

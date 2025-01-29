@@ -33,6 +33,17 @@ const CSS_SELECTED_ID_EXCEPT = `
     outline-offset: 12px;
 }
 
+body, html {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    transition: transform 0.3s;
+}
+
 .pagedjs_page {
     background: #fff;
     box-shadow: 0 0 8px #0004;
@@ -184,7 +195,12 @@ export const AiDesignerProvider = ({ children }) => {
 
   AiDesigner.on('select', onSelect)
   // AiDesigner.on('addtocontext', console.log)
-  AiDesigner.on('snippets', updatePreview)
+  AiDesigner.on('snippets', ev => {
+    const { classes, selected, method } = ev
+    const body = previewRef?.current?.contentDocument?.body
+    const elements = body.querySelectorAll(`[data-id="${selected}"]`)
+    elements.forEach(element => element.classList[method](...classes))
+  })
   // #endregion HOOKS ----------------------------------------------------------------
 
   // #region CONTEXT ----------------------------------------------------------------

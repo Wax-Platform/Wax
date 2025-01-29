@@ -15,14 +15,10 @@ import ChatHistory from '../../component-ai-assistant/ChatHistory'
 import TeamPopup from '../../common/TeamPopup'
 import PathRender from './PathRender'
 import { useDocumentContext } from '../hooks/DocumentContext'
-import {
-  CodeEditor,
-  TemplateManager,
-  TemplateManagerHeader,
-} from '../../component-ai-assistant/components/CodeEditor'
+import { CodeEditor } from '../../component-ai-assistant/components/CodeEditor'
 import PromptBox from '../../component-ai-assistant/components/PromptBox'
-import Manage from '../../component-ai-assistant/components/WaxManagement'
-import { SnippetsDropdown } from '../../component-ai-assistant/SelectionBox'
+import { SnippetsManager } from '../../component-ai-assistant/SnippetsManager'
+import { htmlTagNames } from '../../component-ai-assistant/utils'
 
 const Menu = styled.nav`
   align-items: center;
@@ -60,7 +56,9 @@ const Content = styled.section`
 const Header = styled(WindowHeading)`
   background: #fff0;
   gap: 15px;
-  padding: 20px 5px 0;
+  height: fit-content;
+  max-height: 100%;
+  padding: ${({ $files }) => ($files ? '20px 5px 0' : '25px 5px 0')};
   width: 100%;
 
   p {
@@ -68,11 +66,11 @@ const Header = styled(WindowHeading)`
     border-radius: 1.5rem;
     box-shadow: var(--button-shadow);
     color: var(--color-trois-opaque) !important;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 200;
     letter-spacing: 1px;
-    margin: 0;
-    padding: 5px 12px;
+    margin: 0 0 10px 8px;
+    padding: 8px 12px;
   }
 `
 
@@ -106,7 +104,8 @@ const Footer = styled(FlexRow)`
 `
 
 const MainMenu = ({ enableLogin }) => {
-  const { layout, previewRef, css } = useAiDesignerContext()
+  const { layout, previewRef, css, selectedCtx, userInteractions } =
+    useAiDesignerContext()
   const { resourcesInFolder = [] } = useDocumentContext()
   const { team, chat, codeEditor, files, templateManager } = layout
 
@@ -141,7 +140,7 @@ const MainMenu = ({ enableLogin }) => {
         <TemplateManagerButton />
       </Menu>
       <Content layout={layout}>
-        <Header>
+        <Header $files={files}>
           {menuLabel && <p>{menuLabel}</p>}
           {files && (
             <FlexCol style={{ width: '100%' }}>
@@ -152,12 +151,25 @@ const MainMenu = ({ enableLogin }) => {
               </FilesInfoFixed>
             </FlexCol>
           )}
+          {templateManager && (
+            <FlexCol style={{ width: '100%' }}>
+              <p>Snippets collection</p>
+              <FilesInfoFixed>
+                <span>
+                  {userInteractions.ctrl && htmlTagNames[selectedCtx.tagName]
+                    ? `All ${htmlTagNames[selectedCtx.tagName]}s`
+                    : `${htmlTagNames[selectedCtx.tagName] || 'Document'}`}
+                </span>
+                <span>Select an element to apply a snippet</span>
+              </FilesInfoFixed>
+            </FlexCol>
+          )}
         </Header>
         <ContentScrollWrapper>
           {files && <FileBrowser />}
           {team && <TeamPopup enableLogin={enableLogin} />}
           {chat && <ChatHistory />}
-          {templateManager && <SnippetsDropdown />}
+          {templateManager && <SnippetsManager />}
           {codeEditor && <CodeEditor />}
         </ContentScrollWrapper>
         <Footer
