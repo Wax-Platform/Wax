@@ -21,6 +21,8 @@ import {
   TemplateManagerHeader,
 } from '../../component-ai-assistant/components/CodeEditor'
 import PromptBox from '../../component-ai-assistant/components/PromptBox'
+import Manage from '../../component-ai-assistant/components/WaxManagement'
+import { SnippetsDropdown } from '../../component-ai-assistant/SelectionBox'
 
 const Menu = styled.nav`
   align-items: center;
@@ -150,13 +152,12 @@ const MainMenu = ({ enableLogin }) => {
               </FilesInfoFixed>
             </FlexCol>
           )}
-          {templateManager && <TemplateManagerHeader />}
         </Header>
         <ContentScrollWrapper>
           {files && <FileBrowser />}
           {team && <TeamPopup enableLogin={enableLogin} />}
           {chat && <ChatHistory />}
-          {templateManager && <TemplateManager />}
+          {templateManager && <SnippetsDropdown />}
           {codeEditor && <CodeEditor />}
         </ContentScrollWrapper>
         <Footer

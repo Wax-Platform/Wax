@@ -136,7 +136,7 @@ export const TemplateManagerButton = () => {
         $expanded={layout.userMenu && layout.templateManager}
         title="Template Manager"
       >
-        <img src={brushIcon} alt="Templates" />
+        <ScissorOutlined />
       </Button>
     )
   )

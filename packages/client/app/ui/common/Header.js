@@ -3,15 +3,14 @@ import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import logoMobile from '../../../static/waxdesignerwhite.svg'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from '../component-ai-assistant/hooks/AiDesignerContext'
+import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import Toggle from '../component-ai-assistant/components/Toggle'
 import { DocumentContext } from '../dashboard/hooks/DocumentContext'
 import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
 import PathRender from '../dashboard/MainMenu/PathRender'
 import { objIf } from '../../shared/generalUtils'
+import { RefreshIcon } from '../component-ai-assistant/utils'
+import { PrinterOutlined } from '@ant-design/icons'
 
 // #region styles
 const StyledHeader = styled.header`
@@ -21,6 +20,7 @@ const StyledHeader = styled.header`
   height: var(--header-height);
   justify-content: space-between;
   padding: 0 10px 0 0;
+  position: relative;
   z-index: 999;
 `
 
@@ -39,24 +39,19 @@ const UserMenu = styled.div`
   height: 100%;
   justify-content: space-between;
 
-  .anticon svg {
-    height: 25px;
-    width: 25px;
-  }
-
   button {
     background: none;
     border: none;
     cursor: pointer;
 
     img {
-      height: 25px;
+      height: 22px;
       object-fit: contain;
-      width: 25px;
+      width: 22px;
     }
   }
 
-  > :first-child {
+  > :last-child {
     align-items: center;
     border-left: 1px solid #0001;
     display: flex;
@@ -92,6 +87,35 @@ const EditDesignLabels = styled(CleanButton)`
   transform-origin: center;
   transition: all 0.3s;
 `
+
+const DesignerActions = styled(FlexRow)`
+  /* background: var(--color-trois-lightest); */
+  border-radius: 1rem;
+  bottom: -40px;
+  gap: 12px;
+  height: 30px;
+  justify-content: center;
+  max-width: ${p => (p.$designerOn ? '300px' : '0')};
+  opacity: ${p => (p.$designerOn ? '1' : '0')};
+  padding: 0 0.5rem;
+  pointer-events: ${p => (p.$designerOn ? 'all' : 'none')};
+  /* position: absolute; */
+  /* right: 40px; */
+  transition: all 0.3s;
+  z-index: 999999;
+
+  button {
+    padding: 0;
+  }
+
+  svg {
+    fill: var(--color-trois-opaque);
+    height: 16px;
+    transform: ${p => (p.$designerOn ? 'scale(1)' : 'scale(0)')};
+    transition: all 0.3s;
+    width: 16px;
+  }
+`
 // #endregion styles
 
 const Header = props => {
@@ -105,8 +129,16 @@ const Header = props => {
     enableLogin,
     ...rest
   } = props
-  const { designerOn, setDesignerOn, updateLayout, layout } =
-    useAiDesignerContext()
+
+  const {
+    designerOn,
+    setDesignerOn,
+    updateLayout,
+    layout,
+    previewRef,
+    updatePreview,
+  } = useAiDesignerContext()
+
   const { currentDoc, graphQL, docId } = useContext(DocumentContext)
   const { openFolder, getCurrentDocPath } = graphQL
 
@@ -166,6 +198,37 @@ const Header = props => {
       </FlexRow>
       {currentDoc?.title ? (
         <UserMenu $designerOn={designerOn}>
+          <DocumentInfoArea>
+            <small>CSS Template:</small>
+            <p>{currentDoc.template.displayName}</p>
+          </DocumentInfoArea>
+          <DesignerActions $designerOn={designerOn}>
+            <RefreshIcon
+              onClick={updatePreview}
+              title="Update preview"
+              type="button"
+            />
+            <PrinterOutlined
+              as="button"
+              onClick={() => {
+                const body = previewRef?.current?.contentDocument.body
+                console.log({
+                  body,
+                })
+                body && (body.style.transform = 'scale(1)')
+
+                previewRef?.current?.contentWindow?.print()
+                if (body) {
+                  body.style.transformOrigin = 'top center'
+                  layout.userMenu
+                    ? (body.style.transform = 'scale(0.80) translateX(-10%)')
+                    : (body.style.transform = 'scale(1)')
+                }
+              }}
+              title="Print"
+              type="button"
+            />
+          </DesignerActions>
           <FlexRow>
             <EditDesignLabels $active={!designerOn} $activecolor="#222">
               Edit

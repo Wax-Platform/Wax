@@ -760,11 +760,12 @@ const RefreshIcon = props => {
   return (
     <ButtonWrapper type="button" {...props}>
       <svg
-        height="28px"
+        height="25px"
         preserveAspectRatio="none"
         version="1.1"
         viewBox="0 0 28 28"
-        width="28px"
+        width="25px"
+        style={{ transform: 'translateY(2px)' }}
         x="0px"
         xmlns="http://www.w3.org/2000/svg"
         y="0px"
@@ -778,7 +779,7 @@ M 330 144.2
 Q 354.7 163.55 360.45 172.9 354.1 150.95 336.55 133.4 328.35 125.2 319.45 118.8 292.2 99.2 258.1 96.1 251.65 95.5 245 95.5 191.35 95.5 153.4 133.4 133.1 153.75 123.7 178.6
 L 155.5 178.6
 Q 162.5 165.35 173.9 153.9 203.35 124.5 249.25 120.7 295.1 116.9 330 144.2 Z"
-              fill="var(--color-trois)"
+              fill="var(--color-trois-opaque)"
               stroke="none"
             />
           </g>

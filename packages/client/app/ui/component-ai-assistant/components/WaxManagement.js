@@ -3,7 +3,7 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
-import { capitalize, keys } from 'lodash'
+import { capitalize, debounce, keys } from 'lodash'
 import {
   CodeOutlined,
   DeleteOutlined,
@@ -25,27 +25,12 @@ import {
   htmlTagNames,
   parseContent,
 } from '../utils'
-import Each from '../utils/Each'
 import {
   AiDesignerContext,
   useAiDesignerContext,
 } from '../hooks/AiDesignerContext'
 import Toggle from './Toggle'
-import { Files } from '../../rag-test-component/Files'
-
-const tabsColors = {
-  snippets: 'var(--color-blue)',
-  images: 'var(--color-orange)',
-  template: 'var(--color-yellow)',
-  files: 'var(--color-green)',
-}
-
-const tabsBorders = {
-  snippets: 'var(--color-blue-dark)',
-  images: 'var(--color-orange-dark)',
-  template: 'var(--color-yellow-dark)',
-  files: 'var(--color-green-dark)',
-}
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 const ButtonBase = styled.button.attrs({ type: 'button' })`
   display: flex;
@@ -57,45 +42,6 @@ const ButtonBase = styled.button.attrs({ type: 'button' })`
   margin: 0;
   outline: none;
   width: fit-content;
-`
-
-const imagesShow = keyframes`
-from {
-  transform: scale(0);
-  opacity: 0;
-}
-
-to {
-  transform: scale(1);
-  opacity: 1;
-}
-`
-
-const Root = styled.div`
-  --grid-images-per-row: 5;
-
-  background-color: #fff;
-  border-left: ${p => (p.alignment === 'right' ? '1px solid #0002' : '')};
-  border-right: ${p => (p.alignment === 'left' ? '1px solid #0002' : '')};
-  box-shadow: 0 11px 10px #0001;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 60vh;
-  min-width: 40vw;
-  overflow: hidden;
-  position: absolute;
-  top: -1px;
-  z-index: 9999999;
-
-  > div {
-    background: #f8f8f8;
-    /* border-top: 1px solid #0002; */
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow-y: auto;
-  }
 `
 
 const ListContainer = styled.ul`
@@ -188,35 +134,6 @@ const ListItem = styled.li`
   }
 `
 
-const Heading = styled.span`
-  align-items: center;
-  border: 1px solid gainsboro;
-  background-color: #ffffff;
-  display: flex;
-  justify-content: space-between;
-  overflow: visible;
-  padding: 0;
-  z-index: 99;
-  /* cursor: ${p => (p.$dragging ? 'grabbing' : 'grab')}; */
-  > span {
-    height: 38px;
-    display: flex;
-    padding: 3px 0 0 3px;
-    gap: 3px;
-
-    > svg,
-    .anticon svg {
-      display: flex;
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  .anticon svg {
-    color: #777;
-  }
-`
-
 const Group = styled.div`
   display: flex;
   justify-content: space-between;
@@ -230,51 +147,51 @@ const Group = styled.div`
   }
 `
 
-const MainTab = styled(ButtonBase)`
-  align-self: flex-end;
-  align-items: center;
-  border-radius: 0.5rem 0.5rem 0 0;
-  border: 1px solid gainsboro;
-  border-bottom: 1px solid ${p => (p.$selected ? `#f8f8f8` : '#0001')};
-  background-color: ${p => (p.$selected ? `#f8f8f8` : '#f5f5f5')};
-  background-image: linear-gradient(
-    to bottom,
-    ${p => (p.$selected ? `#f8f8f8` : '#f5f5f5')} 80%,
-    ${p => (p.$selected ? `#f8f8f8` : '#eee')}
-  );
-  height: ${p => (p.$selected ? '35px' : '34px')};
-  justify-content: center;
-  padding: 10px 25px 10px 15px;
-  min-width: 10%;
-  margin-bottom: -1px;
-  transition: all 0.3s;
+// const MainTab = styled(ButtonBase)`
+//   align-self: flex-end;
+//   align-items: center;
+//   border-radius: 0.5rem 0.5rem 0 0;
+//   border: 1px solid gainsboro;
+//   border-bottom: 1px solid ${p => (p.$selected ? `#f8f8f8` : '#0001')};
+//   background-color: ${p => (p.$selected ? `#f8f8f8` : '#f5f5f5')};
+//   background-image: linear-gradient(
+//     to bottom,
+//     ${p => (p.$selected ? `#f8f8f8` : '#f5f5f5')} 80%,
+//     ${p => (p.$selected ? `#f8f8f8` : '#eee')}
+//   );
+//   height: ${p => (p.$selected ? '35px' : '34px')};
+//   justify-content: center;
+//   padding: 10px 25px 10px 15px;
+//   min-width: 10%;
+//   margin-bottom: -1px;
+//   transition: all 0.3s;
 
-  > h3 {
-    align-items: center;
-    display: flex;
-    gap: 10px;
-    color: ${p => (p.$selected ? tabsBorders[p.$tabkey] : '#aaa')};
-    font-weight: normal;
-    font-size: 12px;
-    text-transform: uppercase;
-    line-height: 1;
-    margin: 0;
-    transition: color 0.2s;
+//   > h3 {
+//     align-items: center;
+//     display: flex;
+//     gap: 10px;
+//     color: ${p => (p.$selected ? tabsBorders[p.$tabkey] : '#aaa')};
+//     font-weight: normal;
+//     font-size: 12px;
+//     text-transform: uppercase;
+//     line-height: 1;
+//     margin: 0;
+//     transition: color 0.2s;
 
-    &::before {
-      display: flex;
-      content: ' ';
-      border-radius: 50%;
-      width: 8px;
-      height: 8px;
-      opacity: ${p => (p.$selected ? `1` : '0.5')};
-      filter: grayscale(${p => (!p.$selected ? `30%` : '0')});
-      transition: all 0.3s;
+//     &::before {
+//       display: flex;
+//       content: ' ';
+//       border-radius: 50%;
+//       width: 8px;
+//       height: 8px;
+//       opacity: ${p => (p.$selected ? `1` : '0.5')};
+//       filter: grayscale(${p => (!p.$selected ? `30%` : '0')});
+//       transition: all 0.3s;
 
-      background-color: ${p => tabsColors[p.$tabkey]};
-    }
-  }
-`
+//       background-color: ${p => tabsColors[p.$tabkey]};
+//     }
+//   }
+// `
 
 const SnippetOptions = styled.span`
   align-self: flex-end;
@@ -327,75 +244,74 @@ const CssEditor = styled(ReactCodeMirror)`
   }
 `
 
-const ImagesGridList = styled(ListContainer)`
-  --list-container-padding: 15px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 10px;
-  height: fit-content;
-  width: 100%;
-  padding: var(--list-container-padding);
-`
+// const ImagesGridList = styled(ListContainer)`
+//   --list-container-padding: 15px;
+//   display: flex;
+//   flex-direction: row;
+//   flex-wrap: wrap;
+//   gap: 10px;
+//   height: fit-content;
+//   width: 100%;
+//   padding: var(--list-container-padding);
+// `
 
-const ImageItem = styled.li`
-  animation: ${imagesShow} 0.5s;
-  animation-delay: ${p => `${0.1 * p.$index}s`};
-  animation-fill-mode: forwards;
-  aspect-ratio: 1 / 1;
-  display: flex;
-  width: calc(
-    (100% / var(--grid-images-per-row)) -
-      round(up, var(--list-container-padding) / 2, 1px)
-  );
-  object-fit: contain;
-  opacity: 0;
-  position: relative;
+// const ImageItem = styled.li`
+//   animation: ${imagesShow} 0.5s;
+//   animation-delay: ${p => `${0.1 * p.$index}s`};
+//   animation-fill-mode: forwards;
+//   aspect-ratio: 1 / 1;
+//   display: flex;
+//   width: calc(
+//     (100% / var(--grid-images-per-row)) -
+//       round(up, var(--list-container-padding) / 2, 1px)
+//   );
+//   object-fit: contain;
+//   opacity: 0;
+//   position: relative;
 
-  > img {
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-    width: 100%;
-  }
+//   > img {
+//     aspect-ratio: 1 / 1;
+//     object-fit: contain;
+//     width: 100%;
+//   }
 
-  > span {
-    display: flex;
-    position: absolute;
-    padding: 5px 8px;
-    margin: 3px;
-    gap: 5px;
-    right: 0;
-    background-color: #fffb;
-    border-radius: 10px;
-    box-shadow: 0 0 3px #0007;
-    opacity: 0.7;
-    pointer-events: none;
-    transition: all 0.4s;
+//   > span {
+//     display: flex;
+//     position: absolute;
+//     padding: 5px 8px;
+//     margin: 3px;
+//     gap: 5px;
+//     right: 0;
+//     background-color: #fffb;
+//     border-radius: 10px;
+//     box-shadow: 0 0 3px #0007;
+//     opacity: 0.7;
+//     pointer-events: none;
+//     transition: all 0.4s;
 
-    svg {
-      color: var(--color-blue);
-    }
-  }
+//     svg {
+//       color: var(--color-blue);
+//     }
+//   }
 
-  &:hover {
-    > span {
-      opacity: 1;
-      pointer-events: all;
-    }
-  }
-`
+//   &:hover {
+//     > span {
+//       opacity: 1;
+//       pointer-events: all;
+//     }
+//   }
+// `
 
-const TemplateEditor = styled(CssEditor)`
-  > :first-child {
-    height: 100%;
-    max-height: unset;
-  }
-`
+// const TemplateEditor = styled(CssEditor)`
+//   > :first-child {
+//     height: 100%;
+//     max-height: unset;
+//   }
+// `
 
 const SnippetItem = ({
   snippetName,
   snippetValue,
-  updatePreview,
   removeSnip,
   filter,
   selectedSnippets,
@@ -412,12 +328,18 @@ const SnippetItem = ({
     editorContent,
     setEditorContent,
     getCtxNode,
+    onHistory,
+
+    updatePreview,
+    userInteractions,
+    removeSnippet,
+    designerOn,
   } = useAiDesignerContext()
 
   const [showCss, setShowCss] = useState(
     settings.snippetsManager.showCssByDefault,
   )
-
+  const { className, elementType, description } = snippetValue
   const isMarked = markedSnippet === snippetName
 
   const isAdded = getCtxNode()?.classList.contains(`aid-snip-${snippetName}`)
@@ -474,6 +396,29 @@ const SnippetItem = ({
         : [...prev, snippetName],
     )
   }
+  const handleSnippets = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    const action = e.target.getAttribute('data-action') ?? 'toggle'
+    const { tagName } = selectedCtx
+    onHistory.addRegistry('undo')
+
+    if (action === 'delete') {
+      removeSnippet(className)
+      AiDesigner.filterBy({ tagName }, c =>
+        c.snippets.remove(`aid-snip-${className}`),
+      )
+    } else {
+      userInteractions.ctrl
+        ? AiDesigner.updateContext().filterBy({ tagName }, c =>
+            c.snippets[action](`aid-snip-${className}`),
+          )
+        : selectedCtx.snippets[action](`aid-snip-${className}`)
+    }
+
+    updatePreview()
+    isMarked && setMarkedSnippet('')
+  }
 
   return (snippetValue.elementType === filter || filter === 'all' || !filter) &&
     snippetName ? (
@@ -515,7 +460,7 @@ const SnippetItem = ({
           {selectedCtx?.node !== htmlSrc && (
             <Toggle
               checked={containsClass}
-              handleChange={handleToggleSnippet}
+              handleChange={handleSnippets}
               style={{ margin: 0 }}
               title="Add snippet"
             />
@@ -548,139 +493,129 @@ const SnippetItem = ({
   ) : null
 }
 
-const ImagesTabContent = ({ imagesData, getImageUrl, updatePreview }) => {
-  const {
-    selectedCtx,
-    htmlSrc,
-    setUserImages,
-    promptRef,
-    onHistory,
-    editorContent,
-    setEditorContent,
-  } = useAiDesignerContext()
+// const ImagesTabContent = ({ imagesData, getImageUrl, updatePreview }) => {
+//   const {
+//     selectedCtx,
+//     htmlSrc,
+//     setUserImages,
+//     promptRef,
+//     onHistory,
+//     editorContent,
+//     setEditorContent,
+//   } = useAiDesignerContext()
 
-  const ctxIsHtmlSrc = selectedCtx?.node === htmlSrc
-  const [images, setImages] = useState([...imagesData])
-  const [newImages, setNewImages] = useState([])
+//   const ctxIsHtmlSrc = selectedCtx?.node === htmlSrc
+//   const [images, setImages] = useState([...imagesData])
+//   const [newImages, setNewImages] = useState([])
 
-  useEffect(() => {
-    setNewImages(
-      imagesData
-        .map(img => img.key)
-        .filter(imgkey => !images.map(img => img.key).includes(imgkey)),
-    )
-    imagesData && setImages(imagesData)
-  }, [imagesData])
+//   useEffect(() => {
+//     setNewImages(
+//       imagesData
+//         .map(img => img.key)
+//         .filter(imgkey => !images.map(img => img.key).includes(imgkey)),
+//     )
+//     imagesData && setImages(imagesData)
+//   }, [imagesData])
 
-  const switchImages = async key => {
-    const src = await handleImgElementSelection({
-      getImageUrl,
-      imageKey: key.replace('_medium.png', '_full.png'),
-    })
+//   const switchImages = async key => {
+//     const src = await handleImgElementSelection({
+//       getImageUrl,
+//       imageKey: key.replace('_medium.png', '_full.png'),
+//     })
 
-    onHistory.addRegistry('undo')
-    setEditorContent(
-      parseContent(editorContent, dom => {
-        const node = dom.querySelector(`[data-id="${selectedCtx.id}"]`)
-        node.setAttribute('src', src)
-        node.setAttribute(
-          'data-imgkey',
-          key.replace('_medium.png', '_full.png'),
-        )
-      }),
-    )
-    updatePreview(true)
-  }
+//     onHistory.addRegistry('undo')
+//     setEditorContent(
+//       parseContent(editorContent, dom => {
+//         const node = dom.querySelector(`[data-id="${selectedCtx.id}"]`)
+//         node.setAttribute('src', src)
+//         node.setAttribute(
+//           'data-imgkey',
+//           key.replace('_medium.png', '_full.png'),
+//         )
+//       }),
+//     )
+//     updatePreview(true)
+//   }
 
-  const addImage = async (position, key) => {
-    const src = await handleImgElementSelection({
-      getImageUrl,
-      imageKey: key.replace('_medium.png', '_full.png'),
-    })
+//   const addImage = async (position, key) => {
+//     const src = await handleImgElementSelection({
+//       getImageUrl,
+//       imageKey: key.replace('_medium.png', '_full.png'),
+//     })
 
-    onHistory.addRegistry('undo')
+//     onHistory.addRegistry('undo')
 
-    addElement(selectedCtx?.node, {
-      position,
-      html: `<img src="${src}" alt="dall-e generated img" data-imgkey="${key.replace(
-        '_medium.png',
-        '_full.png',
-      )}" class="aid-snip-img-default"/>`,
-    })
+//     addElement(selectedCtx?.node, {
+//       position,
+//       html: `<img src="${src}" alt="dall-e generated img" data-imgkey="${key.replace(
+//         '_medium.png',
+//         '_full.png',
+//       )}" class="aid-snip-img-default"/>`,
+//     })
 
-    updatePreview(true)
-  }
+//     updatePreview(true)
+//   }
 
-  const sendImageToPrompt = key => {
-    handleImgElementSelection({
-      setUserImages,
-      getImageUrl,
-      imageKey: key,
-    })
-    promptRef?.current.focus()
-  }
+//   const sendImageToPrompt = key => {
+//     handleImgElementSelection({
+//       setUserImages,
+//       getImageUrl,
+//       imageKey: key,
+//     })
+//     promptRef?.current.focus()
+//   }
 
-  const imageItem = ({ url, key, modified }, i) => (
-    <ImageItem
-      $index={!newImages.includes(key) ? i : 0}
-      title={`Generated on: ${formatDate(modified)}`}
-    >
-      <span>
-        <PictureFilled
-          onClick={() => sendImageToPrompt(key)}
-          title="Send to prompt"
-        />
-        {!ctxIsHtmlSrc && (
-          <>
-            {selectedCtx?.node.localName === 'img' && (
-              <SwitcherFilled
-                onClick={async () => switchImages(key)}
-                title="Replace selected image"
-              />
-            )}
-            <UpCircleFilled
-              onClick={async () => addImage('beforebegin', key)}
-              title={`Insert before the selected ${htmlTagNames[
-                selectedCtx?.node.localName
-              ]?.toLowerCase()}`}
-            />
-            <DownCircleFilled
-              onClick={async () => addImage('afterend', key)}
-              title={`Insert after the selected ${htmlTagNames[
-                selectedCtx?.node.localName
-              ]?.toLowerCase()}`}
-            />
-          </>
-        )}
-      </span>
-      <img alt="dall-e generated img" data-imgkey={key} src={url} />
-    </ImageItem>
-  )
+//   const imageItem = ({ url, key, modified }, i) => (
+//     <ImageItem
+//       $index={!newImages.includes(key) ? i : 0}
+//       title={`Generated on: ${formatDate(modified)}`}
+//     >
+//       <span>
+//         <PictureFilled
+//           onClick={() => sendImageToPrompt(key)}
+//           title="Send to prompt"
+//         />
+//         {!ctxIsHtmlSrc && (
+//           <>
+//             {selectedCtx?.node.localName === 'img' && (
+//               <SwitcherFilled
+//                 onClick={async () => switchImages(key)}
+//                 title="Replace selected image"
+//               />
+//             )}
+//             <UpCircleFilled
+//               onClick={async () => addImage('beforebegin', key)}
+//               title={`Insert before the selected ${htmlTagNames[
+//                 selectedCtx?.node.localName
+//               ]?.toLowerCase()}`}
+//             />
+//             <DownCircleFilled
+//               onClick={async () => addImage('afterend', key)}
+//               title={`Insert after the selected ${htmlTagNames[
+//                 selectedCtx?.node.localName
+//               ]?.toLowerCase()}`}
+//             />
+//           </>
+//         )}
+//       </span>
+//       <img alt="dall-e generated img" data-imgkey={key} src={url} />
+//     </ImageItem>
+//   )
 
-  return (
-    <ImagesGridList>
-      <Each
-        condition={imagesData.length > 0}
-        fallback={<p>No images added</p>}
-        of={imagesData}
-        render={imageItem}
-      />
-    </ImagesGridList>
-  )
-}
+//   return (
+//     <ImagesGridList>
+//       <Each
+//         condition={imagesData.length > 0}
+//         fallback={<p>No images added</p>}
+//         of={imagesData}
+//         render={imageItem}
+//       />
+//     </ImagesGridList>
+//   )
+// }
 
 // eslint-disable-next-line react/prop-types
-export const Manage = ({
-  updatePreview,
-  alignment = 'right',
-  imagesData,
-  getImageUrl,
-  chunksLoading,
-  createDocument,
-  deleteDocument,
-  documents,
-  getChunks,
-}) => {
+export const Manage = () => {
   const {
     settings,
     onHistory,
@@ -689,18 +624,11 @@ export const Manage = ({
     htmlSrc,
     markedSnippet,
     setMarkedSnippet,
-    setCss,
-    css,
+    updatePreview,
   } = useAiDesignerContext()
 
-  const [width, setWidth] = useState('50%')
   const [filter, setFilter] = useState('all')
   const [selectedSnippets, setSelectedSnippets] = useState([])
-  const [currentTab, setCurrentTab] = useState(keys(tabsColors)[0])
-
-  const setTab = tabName => {
-    keys(tabs).includes(tabName) && setCurrentTab(tabName)
-  }
 
   const removeSnip = name => {
     onHistory.addRegistry('undo')
@@ -765,110 +693,52 @@ export const Manage = ({
     updatePreview(true)
   }
 
-  const tabs = {
-    snippets: (
-      <>
-        <TypesList onClick={e => e.stopPropagation()}>
-          {allElementTypes.map(type => (
-            <SnippetsFilterButton
-              key={type}
-              onClick={e => {
-                e.stopPropagation()
-                setFilter(type)
-                setSelectedSnippets([])
-              }}
-              style={{
-                borderBottom: `2px solid ${
-                  filter === type ? 'var(--color-blue)' : '#fff0'
-                }`,
-              }}
-            >
-              {htmlTagNames[type] ? htmlTagNames[type] : capitalize(type)}
-            </SnippetsFilterButton>
-          ))}
-        </TypesList>
-
-        <Group style={{ position: 'relative', overflowY: 'scroll' }}>
-          {selectedSnippets.length > 1 && (
-            <SnippetOptions>
-              {!nodeIsHtmlSrc && (
-                <>
-                  <PlusOutlined
-                    onClick={handleAddAllSelected}
-                    title="Add selected snippets"
-                  />
-                  <MinusOutlined
-                    onClick={handleRemoveAllSelected}
-                    title="Remove selected snippets"
-                  />
-                </>
-              )}
-              <DeleteOutlined
-                onClick={handleDeleteAllSelected}
-                title="Remove selected snippets (from document)"
-              />
-            </SnippetOptions>
-          )}
-          <ListContainer>{mappedSnippets}</ListContainer>
-        </Group>
-      </>
-    ),
-    images: (
-      <Group style={{ position: 'relative', overflowY: 'scroll' }}>
-        <ImagesTabContent
-          getImageUrl={getImageUrl}
-          imagesData={imagesData?.getGeneratedImages}
-          updatePreview={updatePreview}
-        />
-      </Group>
-    ),
-    template: (
-      <TemplateEditor
-        extensions={[cssLang()]}
-        onChange={content => {
-          setCss(content)
-          updatePreview(true)
-        }}
-        value={css}
-      />
-    ),
-    files: (
-      <Files
-        chunksLoading={chunksLoading}
-        createDocument={createDocument}
-        deleteDocument={deleteDocument}
-        documents={documents}
-        getChunks={getChunks}
-      />
-    ),
-  }
-
   return (
-    <Root
-      alignment={width !== '100%' && alignment}
-      onClick={() => setSelectedSnippets([])}
-      style={{ [alignment]: 0, width }}
-    >
-      <Heading>
-        <span style={{ width: '100%', overflow: 'visible' }}>
-          {keys(tabs).map(tab => (
-            <MainTab
-              $selected={tab === currentTab}
-              $tabkey={tab}
-              key={tab}
-              onClick={() => setTab(tab)}
-            >
-              <h3>{capitalize(tab)}</h3>
-            </MainTab>
-          ))}
-        </span>
-        <FullscreenOutlined
-          onClick={() => setWidth(width === '50%' ? '100%' : '50%')}
-          style={{ color: '#fff', padding: '0 10px 0 0' }}
-        />
-      </Heading>
-      {tabs[currentTab]}
-    </Root>
+    <>
+      <TypesList onClick={e => e.stopPropagation()}>
+        {allElementTypes.map(type => (
+          <SnippetsFilterButton
+            key={type}
+            onClick={e => {
+              e.stopPropagation()
+              setFilter(type)
+              setSelectedSnippets([])
+            }}
+            style={{
+              borderBottom: `2px solid ${
+                filter === type ? 'var(--color-blue)' : '#fff0'
+              }`,
+            }}
+          >
+            {htmlTagNames[type] ? htmlTagNames[type] : capitalize(type)}
+          </SnippetsFilterButton>
+        ))}
+      </TypesList>
+
+      <Group style={{ position: 'relative', overflowY: 'scroll' }}>
+        {selectedSnippets.length > 1 && (
+          <SnippetOptions>
+            {!nodeIsHtmlSrc && (
+              <>
+                <PlusOutlined
+                  onClick={handleAddAllSelected}
+                  title="Add selected snippets"
+                />
+                <MinusOutlined
+                  onClick={handleRemoveAllSelected}
+                  title="Remove selected snippets"
+                />
+              </>
+            )}
+            <DeleteOutlined
+              onClick={handleDeleteAllSelected}
+              title="Remove selected snippets (from document)"
+            />
+          </SnippetOptions>
+        )}
+        <ListContainer>{mappedSnippets}</ListContainer>
+      </Group>
+    </>
   )
 }
 

@@ -440,7 +440,6 @@ export const PromptBox = () => {
 
         <span>
           <StyledToolbar />
-          {!!selectedCtx?.node && <SnippetsDropdown />}
         </span>
       </RelativeContainer>
       <PromptBoxWrapper>
@@ -466,17 +465,6 @@ export const PromptBox = () => {
               <settings.Icons.RedoIcon
                 onClick={() => onHistory.apply('redo')}
                 title="Redo (Ctrl + y)"
-              />
-              <settings.Icons.RefreshIcon
-                onClick={updatePreview}
-                title="Update preview"
-                type="button"
-              />
-              <PrinterOutlined
-                as="button"
-                onClick={() => previewRef?.current?.contentWindow?.print()}
-                title="Print"
-                type="button"
               />
               <input
                 accept=".png,.jpg,.webp,.gif,.jpeg"
