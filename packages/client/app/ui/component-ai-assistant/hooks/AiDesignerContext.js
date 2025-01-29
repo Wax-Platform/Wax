@@ -33,11 +33,6 @@ const CSS_SELECTED_ID_EXCEPT = `
     outline-offset: 12px;
 }
 
-body {
-  transform-origin: top right;
-  transition: transform 0.3s;
-}
-
 .pagedjs_page {
     background: #fff;
     box-shadow: 0 0 8px #0004;
