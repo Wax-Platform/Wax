@@ -23,7 +23,7 @@ const Menu = styled(FlexRow)`
   padding: 5px 8px;
   transition: all 0.2s linear;
   width: 98%;
-  z-index: 9999;
+  z-index: 99;
 
   > * {
     border-color: var(--color-trois-light) !important;

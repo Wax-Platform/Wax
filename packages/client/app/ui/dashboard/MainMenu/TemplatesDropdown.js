@@ -1,0 +1,127 @@
+import React from 'react'
+import { IconTitleContainer } from './Resource'
+import styled from 'styled-components'
+import { useBool } from '../../../hooks/dataTypeHooks'
+import { CleanButton, FlexRow } from '../../_styleds/common'
+import {
+  ArrowDownOutlined,
+  DownOutlined,
+  EyeOutlined,
+  ForkOutlined,
+} from '@ant-design/icons'
+import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
+import { useDocumentContext } from '../hooks/DocumentContext'
+import Each from '../../component-ai-assistant/utils/Each'
+import { Menu, MenuButton, MenuItem } from '../../common/ContextMenu'
+
+const Root = styled.div`
+  --dropdown-h: 300px;
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: space-between;
+  position: relative;
+  width: 200px;
+`
+
+const TemplatesList = styled(Menu)`
+  background: var(--color-trois-lightest-2);
+  display: flex;
+  flex-direction: column;
+  height: var(--dropdown-h);
+  list-style: none;
+  margin: 0;
+  max-width: 100%;
+  overflow-y: auto;
+  top: calc(var(--header-height) - 10px);
+  width: 100%;
+`
+
+const TemplateItem = styled(MenuItem)`
+  align-items: center;
+  background: var(--color-trois-lightest-2);
+  border-bottom: 1px solid #0001;
+  padding: 16px 8px;
+`
+
+const CurrentTemplateLabel = styled.p`
+  color: var(--color-trois-opaque);
+  font-size: 14px;
+  margin: 0;
+  padding: 0 8px;
+  white-space: nowrap;
+  width: 100%;
+`
+const Button = styled(MenuButton)`
+  width: fit-content;
+`
+const DropdownToggleButton = styled(CleanButton)`
+  border-bottom: 1px solid var(--color-trois-lightest);
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`
+
+export const TemplatesDropdown = () => {
+  const { setCss, updatePreview } = useAiDesignerContext()
+
+  const { currentDoc, updateTemplateCss, systemTemplatesData, getDoc } =
+    useDocumentContext()
+
+  const showDropdown = useBool()
+  const templates = systemTemplatesData?.getUserTemplates || []
+
+  const templateItemRender = template => {
+    const { rawCss, displayName } = template
+
+    const forkTemplate = () => {
+      const { id } = currentDoc?.template || {}
+      const variables = { id, rawCss, displayName }
+
+      updateTemplateCss({ variables }).then(() =>
+        getDoc({ variables: { id: currentDoc.id } }),
+      )
+
+      setCss(rawCss)
+      updatePreview(true)
+      showDropdown.off()
+    }
+
+    const previewTemplate = () => {
+      setCss(rawCss)
+      showDropdown.off()
+    }
+
+    return (
+      <TemplateItem>
+        <MenuButton>{displayName}</MenuButton>
+        <FlexRow style={{ gap: '8px' }}>
+          <Button onClick={previewTemplate}>
+            <EyeOutlined />
+          </Button>
+          <Button onClick={forkTemplate}>
+            <ForkOutlined />
+          </Button>
+        </FlexRow>
+      </TemplateItem>
+    )
+  }
+
+  return (
+    <Root>
+      <DropdownToggleButton onClick={showDropdown.toggle}>
+        <CurrentTemplateLabel>
+          {currentDoc?.template?.displayName}
+        </CurrentTemplateLabel>
+        <DownOutlined />
+      </DropdownToggleButton>
+      <TemplatesList
+        visible={showDropdown.state}
+        onMouseLeave={showDropdown.off}
+      >
+        <Each of={templates} as={templateItemRender} if={templates.length} />
+      </TemplatesList>
+    </Root>
+  )
+}

@@ -22,7 +22,7 @@ import { htmlTagNames } from '../../component-ai-assistant/utils'
 
 const Menu = styled.nav`
   align-items: center;
-  background: var(--color-trois-lightest-2);
+  background: #fff0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -77,6 +77,7 @@ const Header = styled(WindowHeading)`
 const FilesInfoFixed = styled.div`
   background: #fff0;
   border-bottom: 3px solid var(--color-trois-lightest);
+  border-top: 1px solid var(--color-trois-lightest);
   color: var(--color-trois-opaque-2);
   display: flex;
   font-size: 11px;
@@ -145,6 +146,7 @@ const MainMenu = ({ enableLogin }) => {
           {files && (
             <FlexCol style={{ width: '100%' }}>
               <PathRender />
+              <hr style={{ height: '8px', margin: 0 }} />
               <FilesInfoFixed>
                 <span>{resourcesInFolder?.length} resource(s)</span>
                 <span>(Right click to open context menu)</span>

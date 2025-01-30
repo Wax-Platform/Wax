@@ -11,6 +11,7 @@ import PathRender from '../dashboard/MainMenu/PathRender'
 import { objIf } from '../../shared/generalUtils'
 import { RefreshIcon } from '../component-ai-assistant/utils'
 import { PrinterOutlined } from '@ant-design/icons'
+import { TemplatesDropdown } from '../dashboard/MainMenu/TemplatesDropdown'
 
 // #region styles
 const StyledHeader = styled.header`
@@ -198,10 +199,6 @@ const Header = props => {
       </FlexRow>
       {currentDoc?.title ? (
         <UserMenu $designerOn={designerOn}>
-          <DocumentInfoArea>
-            <small>CSS Template:</small>
-            <p>{currentDoc.template.displayName}</p>
-          </DocumentInfoArea>
           <DesignerActions $designerOn={designerOn}>
             <RefreshIcon
               onClick={updatePreview}
@@ -228,6 +225,7 @@ const Header = props => {
               title="Print"
               type="button"
             />
+            <TemplatesDropdown />
           </DesignerActions>
           <FlexRow>
             <EditDesignLabels $active={!designerOn} $activecolor="#222">

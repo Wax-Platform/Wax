@@ -54,10 +54,10 @@ class AiDesignerMisc extends BaseModel {
 
   static async findByUserIdOrCreate({ userId, docId }, trx) {
     return useTransaction(
-      async transaction => {
+      async trx => {
         let record
         try {
-          record = await this.query(transaction).where({ userId }).first()
+          record = await this.query(trx).where({ userId }).first()
           logger.info('Record was fetched')
         } catch (error) {
           logger.info(error)
@@ -65,7 +65,7 @@ class AiDesignerMisc extends BaseModel {
         }
         if (!record) {
           try {
-            record = await this.query(transaction).insert({
+            record = await this.query(trx).insert({
               userId,
               templates: defaultTemplates(docId),
               snippets: defaultSnippets,

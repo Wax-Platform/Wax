@@ -82,8 +82,10 @@ const init = async () => {
 
       if (userId) {
         if (docObject) {
+          logger.info('Adding user as viewer')
           await docObject.addMemberAsViewer(userId)
         } else {
+          logger.info('Creating new document')
           await ResourceTree.createNewDocumentResource({ identifier, userId })
         }
       } else if (CLIENT_SHOW_EMAIL_LOGIN_OPTION == 'false') {

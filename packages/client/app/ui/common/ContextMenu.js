@@ -21,7 +21,7 @@ const showAnimation = keyframes`
 `
 const ITEM_HEIGHT = 24
 
-const Menu = styled.ul`
+export const Menu = styled.ul`
   --item-height: ${ITEM_HEIGHT}px;
   --svg-fill: var(--color-trois-opaque-2);
   animation: ${p => p.shouldAnimate && showAnimation} 0.3s;
@@ -63,14 +63,14 @@ const Menu = styled.ul`
     }
   }
 `
-const MenuItem = styled.li`
+export const MenuItem = styled.li`
   display: flex;
 
   &:hover {
     background-color: #0001;
   }
 `
-const MenuButton = styled(CleanButton)`
+export const MenuButton = styled(CleanButton)`
   align-items: center;
   color: var(--svg-fill);
   display: flex;

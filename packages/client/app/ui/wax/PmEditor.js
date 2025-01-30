@@ -21,7 +21,7 @@ import { FlexRow, StyledWindow } from '../_styleds/common'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 import Files from '../dashboard/MainMenu/FileBrowser'
 
-const SpinnerWrapper = styled(FlexRow)`
+export const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
   background: #fff9;
   height: 100%;
@@ -59,7 +59,7 @@ const renderImage = file => {
 const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
   const { setDocId, getDoc } = useDocumentContext()
-  const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
+  const { getAidMisc } = useAssistant()
 
   const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, designerOn } =
     useAiDesignerContext()
@@ -120,13 +120,6 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       })
     }
   }, [docIdentifier])
-
-  // useEffect(() => {
-  //   aidMisc &&
-  //     getCssTemplate({
-  //       variables: { docId: docIdentifier },
-  //     })
-  // }, [aidMisc])
 
   useEffect(() => {
     if (yjsProvider) {

@@ -19,6 +19,8 @@ import { useBool, useString } from '../../../hooks/dataTypeHooks'
 import { objIf, switchOn } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
 import { TemplateManager } from '../../component-ai-assistant/components/CodeEditor'
+import { SpinnerWrapper } from '../../wax/PmEditor'
+import { Result, Spin } from '../../common'
 
 const FilesWrapper = styled.div`
   --container-size: 26.5dvw;
@@ -32,11 +34,11 @@ const FilesWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  left: 50px;
   min-width: 26.5dvw;
   overflow-x: clip;
   overflow-y: auto;
   padding: 0 0 50px;
+  position: relative;
   transition: all 0.3s;
   width: calc(var(--container-size) + 6px);
   z-index: 999;
@@ -80,7 +82,8 @@ const Files = props => {
   } = useDocumentContext()
   const draggedItemRef = useRef(null)
   const dragOverItemRef = useRef(null)
-  const { moveResource, reorderChildren, deleteResource } = graphQL ?? {}
+  const { moveResource, reorderChildren, deleteResource, loadingFolder } =
+    graphQL ?? {}
   const [resourceToDelete, setResourceToDelete] = useState(null)
   const reorderMode = useBool({ start: false })
   const [dragging, setDragging] = useState(false)
@@ -173,6 +176,17 @@ const Files = props => {
       onScroll={() => contextualMenu.update({ show: false })}
       {...props}
     >
+      <SpinnerWrapper showSpinner={loadingFolder}>
+        <p
+          style={{
+            textAlign: 'center',
+            userSelect: 'none',
+            color: 'var(--color-trois-opaque)',
+          }}
+        >
+          Loading resource...
+        </p>
+      </SpinnerWrapper>
       <FileDisplayView>
         {!isTemplatesFolder ? (
           <Each
