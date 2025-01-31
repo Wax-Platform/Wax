@@ -44,7 +44,7 @@ const StyledForm = styled.form`
   }
 
   textarea {
-    --height: ${p => p.height || `22px`};
+    --height: ${p => p.height || `60px`};
     background: none;
     border: none;
     caret-color: var(--color);
@@ -97,7 +97,6 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
   const handleChange = ({ target }) => {
     if (loading || disabled) return
     setUserPrompt(target.value)
-    debouncedResize()
   }
 
   const handleKeydown = e => {

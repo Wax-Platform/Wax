@@ -1,7 +1,7 @@
 /* stylelint-disable string-quotes, declaration-no-important */
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import logoMobile from '../../../static/waxdesignerwhite.svg'
 import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import Toggle from '../component-ai-assistant/components/Toggle'
@@ -9,8 +9,12 @@ import { DocumentContext } from '../dashboard/hooks/DocumentContext'
 import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
 import PathRender from '../dashboard/MainMenu/PathRender'
 import { objIf } from '../../shared/generalUtils'
-import { RefreshIcon } from '../component-ai-assistant/utils'
-import { PrinterOutlined } from '@ant-design/icons'
+import {
+  RedoIcon,
+  RefreshIcon,
+  UndoIcon,
+} from '../component-ai-assistant/utils'
+import { PrinterOutlined, SaveOutlined } from '@ant-design/icons'
 import { TemplatesDropdown } from '../dashboard/MainMenu/TemplatesDropdown'
 
 // #region styles
@@ -103,7 +107,7 @@ const DesignerActions = styled(FlexRow)`
   /* position: absolute; */
   /* right: 40px; */
   transition: all 0.3s;
-  z-index: 999999;
+  z-index: 88;
 
   button {
     padding: 0;
@@ -138,9 +142,12 @@ const Header = props => {
     layout,
     previewRef,
     updatePreview,
+    onHistory,
+    css,
   } = useAiDesignerContext()
 
-  const { currentDoc, graphQL, docId } = useContext(DocumentContext)
+  const { currentDoc, graphQL, docId, updateTemplateCss } =
+    useContext(DocumentContext)
   const { openFolder, getCurrentDocPath } = graphQL
 
   useEffect(() => {
@@ -154,6 +161,7 @@ const Header = props => {
       console.log({ currentDoc })
       getCurrentDocPath({ variables: { id: currentDoc.id } })
       document.title = `${currentDoc.title} - Wax`
+      designerOn && updatePreview(true)
     }
   }, [currentDoc])
 
@@ -167,7 +175,7 @@ const Header = props => {
             chat: true,
             team: false,
             files: false,
-            templateManager: false,
+            snippetsManager: false,
             codeEditor: false,
             userMenu: true,
           }),
@@ -178,10 +186,11 @@ const Header = props => {
           chat: false,
           userMenu: true,
           files: true,
-          templateManager: false,
+          snippetsManager: false,
           codeEditor: false,
         })
   }
+
   return (
     <StyledHeader
       role="banner"
@@ -200,6 +209,14 @@ const Header = props => {
       {currentDoc?.title ? (
         <UserMenu $designerOn={designerOn}>
           <DesignerActions $designerOn={designerOn}>
+            <UndoIcon
+              onClick={() => onHistory.apply('undo')}
+              title="Undo (Ctrl + z)"
+            />
+            <RedoIcon
+              onClick={() => onHistory.apply('redo')}
+              title="Redo (Ctrl + y)"
+            />
             <RefreshIcon
               onClick={updatePreview}
               title="Update preview"
@@ -213,25 +230,36 @@ const Header = props => {
                   body,
                 })
                 body && (body.style.transform = 'scale(1)')
+                body && (body.style.padding = '0')
 
                 previewRef?.current?.contentWindow?.print()
                 if (body) {
-                  body.style.transformOrigin = 'top center'
+                  body.style.padding = '50px 0 50px 50px'
                   layout.userMenu
-                    ? (body.style.transform = 'scale(0.80) translateX(-10%)')
+                    ? (body.style.transform = 'scale(0.8)')
                     : (body.style.transform = 'scale(1)')
                 }
               }}
               title="Print"
               type="button"
             />
-            <TemplatesDropdown />
+            <SaveOutlined
+              onClick={() => {
+                updateTemplateCss({
+                  variables: { rawCss: css, id: currentDoc.template.id },
+                })
+              }}
+            />
+            <TemplatesDropdown $show={designerOn} />
           </DesignerActions>
           <FlexRow>
             <EditDesignLabels $active={!designerOn} $activecolor="#222">
               Edit
             </EditDesignLabels>
-            <Toggle handleChange={toggleDesigner} checked={designerOn} />
+            <Toggle
+              handleChange={() => toggleDesigner()}
+              checked={designerOn}
+            />
             <EditDesignLabels
               $active={designerOn}
               $activecolor="var(--color-trois)"

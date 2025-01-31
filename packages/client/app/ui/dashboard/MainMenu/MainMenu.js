@@ -36,7 +36,7 @@ const Menu = styled.nav`
   }
 `
 
-const Content = styled.section`
+const Content = styled.div`
   --border-color: ${({ layout }) =>
     layout.chat && layout.userMenu ? 'var(--color-trois-alpha)' : '#fff0'};
   background: #fff0;
@@ -70,12 +70,12 @@ const Header = styled(WindowHeading)`
     font-weight: 200;
     letter-spacing: 1px;
     margin: 0 0 10px 8px;
-    padding: 8px 12px;
+    padding: 6px 12px;
   }
 `
 
 const FilesInfoFixed = styled.div`
-  background: #fff0;
+  background: var(--color-trois-lightest-2);
   border-bottom: 3px solid var(--color-trois-lightest);
   border-top: 1px solid var(--color-trois-lightest);
   color: var(--color-trois-opaque-2);
@@ -107,16 +107,10 @@ const Footer = styled(FlexRow)`
 const MainMenu = ({ enableLogin }) => {
   const { layout, previewRef, css, selectedCtx, userInteractions } =
     useAiDesignerContext()
-  const { resourcesInFolder = [] } = useDocumentContext()
-  const { team, chat, codeEditor, files, templateManager } = layout
+  const { resourcesInFolder = [], currentDoc } = useDocumentContext()
+  const { team, chat, codeEditor, files, snippetsManager } = layout
 
-  const menuLabel = chat
-    ? 'Chat'
-    : team
-    ? 'Team'
-    : codeEditor
-    ? 'Code Editor'
-    : null
+  const menuLabel = chat ? 'Chat' : team ? 'Team' : null
 
   useEffect(() => {
     const body = previewRef?.current?.contentDocument.body
@@ -136,7 +130,7 @@ const MainMenu = ({ enableLogin }) => {
       <Menu>
         <FileManagerButton />
         <TeamButton />
-        <ChatButton />
+        {/* <ChatButton /> */}
         <CodeEditorButton />
         <TemplateManagerButton />
       </Menu>
@@ -153,7 +147,7 @@ const MainMenu = ({ enableLogin }) => {
               </FilesInfoFixed>
             </FlexCol>
           )}
-          {templateManager && (
+          {snippetsManager && (
             <FlexCol style={{ width: '100%' }}>
               <p>Snippets collection</p>
               <FilesInfoFixed>
@@ -166,20 +160,25 @@ const MainMenu = ({ enableLogin }) => {
               </FilesInfoFixed>
             </FlexCol>
           )}
+          {codeEditor && (
+            <FlexCol style={{ width: '100%' }}>
+              <p>Code Editor</p>
+
+              <FilesInfoFixed>
+                <span>Editing: {currentDoc?.template?.displayName || ''}</span>
+              </FilesInfoFixed>
+            </FlexCol>
+          )}
         </Header>
         <ContentScrollWrapper>
           {files && <FileBrowser />}
           {team && <TeamPopup enableLogin={enableLogin} />}
           {chat && <ChatHistory />}
-          {templateManager && <SnippetsManager />}
+          {snippetsManager && <SnippetsManager />}
           {codeEditor && <CodeEditor />}
         </ContentScrollWrapper>
-        <Footer
-          style={{
-            marginBottom: chat || codeEditor ? '15px' : '0',
-          }}
-        >
-          {(chat || codeEditor) && <PromptBox />}
+        <Footer>
+          {(chat || codeEditor || snippetsManager) && <PromptBox />}
         </Footer>
       </Content>
     </Fragment>

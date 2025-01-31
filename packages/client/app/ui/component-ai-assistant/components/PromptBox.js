@@ -12,10 +12,8 @@ import { ModelsList, htmlTagNames } from '../utils'
 import Toolbar from './Toolbar'
 
 const Dropdown = styled.div`
-  background: linear-gradient(90deg, var(--color-purple), var(--color-trois))
-      padding-box,
-    linear-gradient(90deg, var(--color-purple), var(--color-trois)) border-box;
-  border: ${p => (p.$open ? '3px' : '0px')} solid transparent;
+  background: var(--color-trois-lightest-2);
+  border: ${p => (p.$open ? '1px' : '0px')} solid var(--color-trois-alpha);
   border-radius: 5px;
   bottom: 0;
   height: fit-content;
@@ -37,8 +35,8 @@ const Dropdown = styled.div`
 
     small {
       background-color: transparent;
-      color: #f1f1f1;
-      padding: 2px 4px;
+      color: var(--color-trois-opaque-2);
+      padding: 2px 8px;
       width: 100%;
     }
 
@@ -76,7 +74,7 @@ const Dropdown = styled.div`
       }
 
       button[data-selected='true'] {
-        color: var(--color-trois);
+        color: var(--color-trois-opaque);
 
         &::after {
           background-color: var(--color-trois);
@@ -89,7 +87,7 @@ const Dropdown = styled.div`
     }
 
     li:not(:last-child) {
-      border-bottom: 1px solid #0001;
+      border-bottom: 1px solid var(--color-trois-alpha);
     }
   }
 `
@@ -163,110 +161,8 @@ const ModelsDropdown = () => {
   )
 }
 
-const StyledToolbar = styled(Toolbar)`
-  --snippet-icon-st: #fff;
-  align-items: center;
-  background: none;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  /* height: 100%; */
-  outline: none;
-  padding: 0;
-  /* position: absolute; */
-  position: unset;
-  transform: none;
-  transform-origin: top right;
-  transition: transform 0.5s;
-  user-select: none;
-  width: fit-content;
-  z-index: 99999999;
-
-  #snips-dropdown {
-    right: ${p => (p.$horizontal ? '0' : '53px')};
-    top: ${p => (p.$horizontal ? '53px' : '-1px')};
-    transition: all 0.3s;
-    z-index: 1;
-  }
-
-  > button,
-  > :first-child {
-    background: #fff;
-    border-radius: 50%;
-    border-right: 1px solid var(--color-blue-alpha-2);
-    height: 20px;
-    transform: rotateZ(${p => (p.$horizontal ? '90deg' : '0')});
-    transition: all 0.8s;
-    width: 20px;
-    z-index: 9;
-  }
-
-  img:not(:first-child),
-  .anticon svg:not(#snips-dropdown .anticon svg),
-  > button > img {
-    color: var(--color-trois);
-    height: 14px;
-    object-fit: contain;
-    width: 100%;
-  }
-
-  > :first-child {
-    display: none;
-    height: 22px;
-    margin: ${p => (!p.$horizontal ? '8px 6px 10px 2px' : '8px 0px 10px 3px')};
-    width: 22px;
-  }
-
-  > *:not(:first-child) {
-    background: #fff;
-    border-radius: 50%;
-    box-shadow: 0 0 4px #0004;
-    color: #eee;
-    cursor: pointer;
-    outline: none;
-    padding: 2px;
-    pointer-events: all;
-    transition: all 0.3s;
-  }
-
-  button {
-    background: none;
-    cursor: pointer;
-    margin: 0;
-    outline: none;
-    padding: 0;
-
-    .anticon svg:not(#snips-dropdown .anticon svg),
-    > img {
-      filter: grayscale();
-    }
-
-    > svg {
-      height: 20px;
-      width: 20px;
-    }
-  }
-
-  button[data-active='true'] {
-    .anticon svg:not(#snips-dropdown .anticon svg),
-    > img {
-      filter: none;
-    }
-  }
-
-  button[data-dropdown='true'] {
-    background: var(--color-blue-alpha-2);
-  }
-
-  svg {
-    fill: var(--color-trois);
-  }
-`
-
 const Assistant = styled(PromptsInput)`
+  background: none;
   border: none;
   height: 100%;
   margin: 0;
@@ -274,40 +170,30 @@ const Assistant = styled(PromptsInput)`
   width: 100%;
 
   svg {
-    fill: var(--color-trois);
+    fill: var(--color-trois-opaque);
     height: 15px;
     width: 15px;
   }
 `
 const AbsoluteContainer = styled.div`
   align-items: center;
-  /* bottom: 0; */
   display: flex;
   flex-direction: column;
-  /* position: fixed; */
+  padding-bottom: 16px;
   transition: all 0.3s 0.2s;
-  width: 95%;
+  width: 98%;
 `
 
 const PromptBoxWrapper = styled.div`
   align-items: center;
-  background: linear-gradient(#fff, #fff) padding-box,
-    linear-gradient(
-        90deg,
-        var(--color-trois),
-        var(--color-pink),
-        var(--color-secondary)
-      )
-      border-box;
-  border: 3px solid transparent;
-  border-radius: 15px;
-  box-shadow: 0 0 4px #0004, inset 0 0 2px #000a;
+  background: var(--color-trois-lightest-2);
+  border-top: 1px solid var(--color-trois-alpha);
   display: flex;
   flex-direction: column;
   gap: 1rem;
   justify-content: space-between;
   /* overflow: hidden; */
-  padding: 8px;
+  padding: 16px 8px;
   transition: all 0.3s;
   width: 100%;
 
@@ -397,16 +283,13 @@ const RelativeContainer = styled.div`
     padding: 5px 8px;
   }
 `
-export const PromptBox = () => {
+export const PromptBox = props => {
   const {
     layout,
     settings,
     onHistory,
     // useRag,
     // setUseRag,
-    previewRef,
-    updatePreview,
-    selectedCtx,
     designerOn,
   } = useAiDesignerContext()
 
@@ -423,16 +306,8 @@ export const PromptBox = () => {
       $bothEditors={layout.preview && layout.editor}
       $showChat={layout.chat}
       $show={designerOn}
+      {...props}
     >
-      <RelativeContainer>
-        <small className="element-type">
-          {htmlTagNames[selectedCtx?.tagName] || 'Document'}
-        </small>
-
-        <span>
-          <StyledToolbar />
-        </span>
-      </RelativeContainer>
       <PromptBoxWrapper>
         <Assistant
           loading={loading || ragSearchLoading || dalleLoading}
@@ -449,14 +324,6 @@ export const PromptBox = () => {
           <ModelsDropdown />
           <span>
             <span style={{ display: 'flex', alignItems: 'center' }}>
-              <settings.Icons.UndoIcon
-                onClick={() => onHistory.apply('undo')}
-                title="Undo (Ctrl + z)"
-              />
-              <settings.Icons.RedoIcon
-                onClick={() => onHistory.apply('redo')}
-                title="Redo (Ctrl + y)"
-              />
               <input
                 accept=".png,.jpg,.webp,.gif,.jpeg"
                 id="add-file-to-prompt"

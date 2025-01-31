@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import React, {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useRef,
@@ -26,7 +27,7 @@ import { snippets } from '../utils/snippets'
 import { UPDATE_SNIPPETS } from '../../../graphql/aiDesignerMisc'
 import { useMutation } from '@apollo/client'
 
-const CSS_SELECTED_ID_EXCEPT = `      
+const CSS_SELECTED_ID_EXCEPT = userMenu => /* css */ `      
 * {
     transition: outline 0.5s, outline-offset 0.5s;
     outline: 2px dashed #0000;
@@ -36,11 +37,13 @@ const CSS_SELECTED_ID_EXCEPT = `
 body, html {
     width: 100%;
     margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
 body {
+    padding: 50px 0 50px 50px;
+    transform: scale(${userMenu ? 0.8 : 1});
+    transform-origin: top left;
     transition: transform 0.3s;
 }
 
@@ -141,6 +144,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
+  const [loadingPreview, setLoadingPreview] = useState(false)
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -159,7 +163,7 @@ export const AiDesignerProvider = ({ children }) => {
     teams: false,
     userMenu: true,
     codeEditor: false,
-    templateManager: false,
+    snippetsManager: false,
   })
 
   const [tools, setTools] = useState({
@@ -221,30 +225,6 @@ export const AiDesignerProvider = ({ children }) => {
 
   // #region HELPERS -----------------------------------------------------------------
 
-  const updateSelectionBoxPosition = (yOffset = 10, xOffset = 10) => {
-    if (!settings.editor.enableSelection && !selectionBoxRef?.current) return
-    if (selectedCtx.id === 'aid-ctx-main' || !designerOn) {
-      selectionBoxRef.current.style.opacity = 0
-      return
-    }
-    const { top, left, height, width } =
-      selectedCtx.node?.getBoundingClientRect() ?? {}
-
-    if (!left && !top) return
-
-    const parent = selectionBoxRef?.current?.parentNode
-    const { left: pLeft, top: pTop } = parent.getBoundingClientRect()
-
-    setInlineStyle(selectionBoxRef.current, {
-      opacity: 1,
-      left: `${Math.floor(parent.scrollLeft + left - pLeft - xOffset)}px`,
-      top: `${Math.floor(parent.scrollTop + top - pTop - yOffset)}px`,
-      width: `${width + xOffset * 2}px`,
-      height: `${height + yOffset * 2}px`,
-      zIndex: '9',
-    })
-  }
-
   const onHistory = {
     addRegistry: (
       regKey,
@@ -276,10 +256,12 @@ export const AiDesignerProvider = ({ children }) => {
 
       setEditorContent(lastRegistry.content)
       setCss(lastRegistry.css)
+      updatePreview(true, lastRegistry.css)
     },
   }
 
   const updatePreview = (manualUpdate, providedCss = css) => {
+    setLoadingPreview(true)
     const previewDoc = previewRef?.current?.contentDocument?.documentElement
     const canUpdate =
       providedCss &&
@@ -305,7 +287,7 @@ export const AiDesignerProvider = ({ children }) => {
         providedCss.replaceAll(
           '.ProseMirror[contenteditable]',
           '.pagedjs_page_content',
-        ) + CSS_SELECTED_ID_EXCEPT
+        ) + CSS_SELECTED_ID_EXCEPT(layout.userMenu)
       const snippetsCss = snippetsToCssText(
         settings.snippetsManager.snippets,
         '.pagedjs_page_content .aid-snip-',
@@ -410,7 +392,6 @@ export const AiDesignerProvider = ({ children }) => {
         editorContent,
         selectionBoxRef,
         setEditorContent,
-        updateSelectionBoxPosition,
         deleteLastMessage,
         onHistory,
         settings,
@@ -440,6 +421,8 @@ export const AiDesignerProvider = ({ children }) => {
         setDesignerOn,
         userInteractions,
         setUserInteractions,
+        loadingPreview,
+        setLoadingPreview,
       }}
     >
       {children}

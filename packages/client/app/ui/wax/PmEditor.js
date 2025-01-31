@@ -13,7 +13,7 @@ import {
 } from '../component-ai-assistant/hooks/AiDesignerContext'
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
 import { snippetsToCssText } from '../component-ai-assistant/utils'
-import { debounce, get } from 'lodash'
+import { debounce, get, update } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 
 import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
@@ -58,11 +58,18 @@ const renderImage = file => {
 
 const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
-  const { setDocId, getDoc } = useDocumentContext()
+  const { setDocId, getDoc, fetchingTemplates } = useDocumentContext()
   const { getAidMisc } = useAssistant()
 
-  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, designerOn } =
-    useAiDesignerContext()
+  const {
+    setHtmlSrc,
+    htmlSrc,
+    setEditorContent,
+    css,
+    settings,
+    designerOn,
+    updatePreview,
+  } = useAiDesignerContext()
 
   const { displayStyles } = settings.editor
   const { snippets } = settings.snippetsManager
@@ -172,7 +179,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
           fileUpload={file => renderImage(file)}
           layout={layout}
           onChange={value => {
-            designerOn && debounce(setEditorContent, 250)(value)
+            setEditorContent(value)
           }}
           // readonly={!contentEditable}
           placeholder="Type Something ..."
@@ -182,12 +189,14 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
         />
       </span>
       <SpinnerWrapper
-        showSpinner={showSpinner}
+        showSpinner={showSpinner || fetchingTemplates}
         showFilemanager={showFilemanager}
       >
         <Result
           icon={<Spin size={18} spinning />}
-          title="Loading your document"
+          title={
+            fetchingTemplates ? 'Fetching templates' : 'Loading your document'
+          }
         />
       </SpinnerWrapper>
     </>

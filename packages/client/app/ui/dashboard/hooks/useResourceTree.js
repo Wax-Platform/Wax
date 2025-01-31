@@ -23,14 +23,15 @@ export const useResourceTree = () => {
 
   const { data: openFolderData } = useQuery(OPEN_FOLDER, {
     variables: { id: null },
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first',
     skip: !currentUser?.id,
   })
 
   const [openFolder, { data: lazyOpenFolderData, loading }] = useLazyQuery(
     OPEN_FOLDER,
     {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'cache-first',
+      skip: !currentUser?.id || loading,
     },
   )
   const [getCurrentDocPath, { data: currentDocPath }] = useLazyQuery(
@@ -49,6 +50,7 @@ export const useResourceTree = () => {
       {
         query: OPEN_FOLDER,
         variables: { id: currentFolder?.id },
+        fetchPolicy: 'cache-and-network',
       },
     ],
     [currentFolder?.id],

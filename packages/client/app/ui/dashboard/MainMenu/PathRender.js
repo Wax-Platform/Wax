@@ -10,6 +10,8 @@ import { useDocumentContext } from '../hooks/DocumentContext'
 import Each from '../../component-ai-assistant/utils/Each'
 import { takeRight } from 'lodash'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
+import { typeFlags } from './utils/resourcesUtils'
+import { TemplateManagerHeader } from '../../component-ai-assistant/components/CodeEditor'
 
 const MAX_PATH_LEVEL = 4
 
@@ -62,6 +64,10 @@ const Actions = styled(FlexRow)`
   padding: 7px 10px;
 `
 
+const createFolderIsChecker = folder => title => folder?.title === title
+
+const CANT_CREATE = ['Templates', 'Favorites', 'Shared', 'Snippets']
+
 const PathRender = props => {
   const { layout } = useAiDesignerContext()
   const { currentPath, graphQL, createResource, currentFolder } =
@@ -70,9 +76,11 @@ const PathRender = props => {
   const { length: pathLevel } = currentPath ?? []
   const isClamped = pathLevel > MAX_PATH_LEVEL
 
-  const isTemplatesFolder =
-    currentFolder?.title === 'Templates' &&
-    currentFolder?.resourceType === 'sys'
+  const { isSystem, isRoot } = typeFlags(currentFolder?.resourceType)
+  const folderIs = createFolderIsChecker(currentFolder)
+
+  const isSpecialFolder = CANT_CREATE.includes(currentFolder?.title) && isSystem
+  const canCreate = !isSpecialFolder && !isRoot
 
   const lastPaths = takeRight(currentPath, MAX_PATH_LEVEL)
   const { length: currentLevel } = lastPaths ?? []
@@ -105,7 +113,7 @@ const PathRender = props => {
         <Each of={lastPaths} as={pathRender} if={pathLevel} />
       </Container>
       <Actions>
-        {!isTemplatesFolder && (
+        {canCreate && (
           <>
             <CleanButton onClick={createResource('doc')}>
               <PlusCircleOutlined style={{ fontSize: '15px' }} />
@@ -115,6 +123,7 @@ const PathRender = props => {
             </CleanButton>
           </>
         )}
+        {folderIs('Templates') && <TemplateManagerHeader />}
         <CleanButton $disabled={pathLevel === 1} onClick={goBack}>
           <ArrowLeftOutlined />
         </CleanButton>

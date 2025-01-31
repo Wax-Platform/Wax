@@ -1,14 +1,8 @@
-import React from 'react'
-import { IconTitleContainer } from './Resource'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useBool } from '../../../hooks/dataTypeHooks'
 import { CleanButton, FlexRow } from '../../_styleds/common'
-import {
-  ArrowDownOutlined,
-  DownOutlined,
-  EyeOutlined,
-  ForkOutlined,
-} from '@ant-design/icons'
+import { DownOutlined, EyeOutlined, ForkOutlined } from '@ant-design/icons'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
 import Each from '../../component-ai-assistant/utils/Each'
@@ -21,21 +15,29 @@ const Root = styled.div`
   flex-direction: column;
   gap: 8px;
   justify-content: space-between;
+  max-width: ${p => (p.$show ? '200px' : '0')};
+  pointer-events: ${p => (p.$show ? 'all' : 'none')};
   position: relative;
+  transition: max-width 0.3s;
   width: 200px;
 `
 
 const TemplatesList = styled(Menu)`
   background: var(--color-trois-lightest-2);
+  border-color: var(--color-trois-lightest);
+  box-shadow: 0 0 10px 0 #0000;
   display: flex;
   flex-direction: column;
   height: var(--dropdown-h);
   list-style: none;
   margin: 0;
-  max-width: 100%;
+  max-width: 300px;
+  opacity: 1;
   overflow-y: auto;
-  top: calc(var(--header-height) - 10px);
-  width: 100%;
+  padding: 0;
+  right: -20px;
+  top: calc(var(--header-height) - 20px);
+  width: 300px;
 `
 
 const TemplateItem = styled(MenuItem)`
@@ -43,6 +45,14 @@ const TemplateItem = styled(MenuItem)`
   background: var(--color-trois-lightest-2);
   border-bottom: 1px solid #0001;
   padding: 16px 8px;
+
+  > button {
+    color: ${p =>
+      p.$selected
+        ? 'var(--color-trois-opaque-2)'
+        : 'var(--color-trois-opaque)'};
+    font-weight: ${p => (p.$selected ? 'bold' : 'normal')};
+  }
 `
 
 const CurrentTemplateLabel = styled.p`
@@ -63,38 +73,38 @@ const DropdownToggleButton = styled(CleanButton)`
   width: 100%;
 `
 
-export const TemplatesDropdown = () => {
+export const TemplatesDropdown = props => {
   const { setCss, updatePreview } = useAiDesignerContext()
 
-  const { currentDoc, updateTemplateCss, systemTemplatesData, getDoc } =
+  const { currentDoc, updateTemplateCss, systemTemplatesData } =
     useDocumentContext()
 
-  const showDropdown = useBool()
+  const showDropdown = useBool({ start: false })
   const templates = systemTemplatesData?.getUserTemplates || []
+  const documentTemplate = currentDoc.template || {}
+  const [selectedTemplate, setSelectedTemplate] = useState(documentTemplate)
 
   const templateItemRender = template => {
     const { rawCss, displayName } = template
+    const isSelected = selectedTemplate?.id === template.id
 
     const forkTemplate = () => {
       const { id } = currentDoc?.template || {}
       const variables = { id, rawCss, displayName }
-
-      updateTemplateCss({ variables }).then(() =>
-        getDoc({ variables: { id: currentDoc.id } }),
-      )
-
-      setCss(rawCss)
-      updatePreview(true)
-      showDropdown.off()
+      setSelectedTemplate(template)
+      updateTemplateCss({ variables })
+      previewTemplate()
     }
 
     const previewTemplate = () => {
+      setSelectedTemplate(template)
       setCss(rawCss)
+      updatePreview(true, rawCss)
       showDropdown.off()
     }
 
     return (
-      <TemplateItem>
+      <TemplateItem $selected={isSelected}>
         <MenuButton>{displayName}</MenuButton>
         <FlexRow style={{ gap: '8px' }}>
           <Button onClick={previewTemplate}>
@@ -109,10 +119,10 @@ export const TemplatesDropdown = () => {
   }
 
   return (
-    <Root>
+    <Root {...props}>
       <DropdownToggleButton onClick={showDropdown.toggle}>
         <CurrentTemplateLabel>
-          {currentDoc?.template?.displayName}
+          {selectedTemplate.displayName}
         </CurrentTemplateLabel>
         <DownOutlined />
       </DropdownToggleButton>
@@ -120,7 +130,11 @@ export const TemplatesDropdown = () => {
         visible={showDropdown.state}
         onMouseLeave={showDropdown.off}
       >
-        <Each of={templates} as={templateItemRender} if={templates.length} />
+        <Each
+          of={[currentDoc?.template, ...templates]}
+          as={templateItemRender}
+          if={templates.length}
+        />
       </TemplatesList>
     </Root>
   )

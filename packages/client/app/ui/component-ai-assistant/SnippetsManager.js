@@ -113,7 +113,6 @@ const SnippetsName = styled.span`
 export const SnippetsManager = () => {
   const {
     settings,
-    onHistory,
     selectedCtx,
     setMarkedSnippet,
     markedSnippet,
@@ -136,7 +135,6 @@ export const SnippetsManager = () => {
       e.stopPropagation()
       const action = e.target.getAttribute('data-action') ?? 'toggle'
       const { tagName } = selectedCtx
-      onHistory.addRegistry('undo')
 
       if (action === 'delete') {
         removeSnippet

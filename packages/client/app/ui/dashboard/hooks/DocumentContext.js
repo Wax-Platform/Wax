@@ -28,16 +28,17 @@ const useTemplates = () => {
     fetchPolicy: 'cache-and-network',
   })
 
-  const refetchQueries = [{ query: GET_USER_TEMPLATES }]
+  const refetchQueries = [
+    { query: GET_USER_TEMPLATES, fetchPolicy: 'cache-and-network' },
+  ]
 
   const [updateTemplateCss] = useMutation(UPDATE_TEMPLATE_CSS, {
     refetchQueries,
   })
   const [deleteTemplate] = useMutation(DELETE_TEMPLATE, { refetchQueries })
   const [createTemplate] = useMutation(CREATE_TEMPLATE, { refetchQueries })
-  const [fetchAndCreateTemplateFromUrl] = useMutation(
-    FETCH_AND_CREATE_TEMPLATE_FROM_URL,
-  )
+  const [fetchAndCreateTemplateFromUrl, { loading: fetchingTemplates }] =
+    useMutation(FETCH_AND_CREATE_TEMPLATE_FROM_URL, { refetchQueries })
 
   useEffect(() => {
     getUserTemplates()
@@ -51,6 +52,7 @@ const useTemplates = () => {
     deleteTemplate,
     createTemplate,
     fetchAndCreateTemplateFromUrl,
+    fetchingTemplates,
 
     masterTemplateId,
     setMasterTemplateId,
@@ -87,9 +89,10 @@ export const DocumentContextProvider = ({ children }) => {
   const [getDoc] = useLazyQuery(GET_DOC, {
     fetchPolicy: 'cache-and-network',
     onCompleted: data => {
-      setCurrentDoc(data.getDocument)
-      history.push(`/${data.getDocument.identifier}`, { replace: true })
-      setCss(data.getDocument.template.rawCss)
+      const doc = data.getDocument
+      history.push(`/${doc.identifier}`, { replace: true })
+      setCurrentDoc(doc)
+      setCss(doc.template.rawCss)
     },
   })
 
@@ -98,11 +101,12 @@ export const DocumentContextProvider = ({ children }) => {
   const { id: parentId, children: resourcesInFolder } = currentFolder || {}
 
   const openResource = resource => {
-    if (!resource) return
+    if (!resource || graphQL.loadingFolder) return
     const { id, doc = {}, resourceType } = resource
     const variables = { id, resourceType }
 
     if (resourceType === 'doc') {
+      console.log('isDoc')
       const { identifier } = doc
       console.log({ identifier })
       getDoc({ variables: { identifier } })
@@ -110,7 +114,7 @@ export const DocumentContextProvider = ({ children }) => {
     }
 
     setSelectedDocs([])
-
+    console.log('openFolder', { resource })
     graphQL.openFolder({ variables, fetchPolicy: 'cache-and-network' })
   }
 

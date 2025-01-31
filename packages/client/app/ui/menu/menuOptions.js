@@ -46,7 +46,7 @@ const toggleLayout = (...keys) => ({
   team: keys.includes('team'),
   chat: keys.includes('chat'),
   files: keys.includes('files'),
-  templateManager: keys.includes('templateManager'),
+  snippetsManager: keys.includes('snippetsManager'),
   codeEditor: keys.includes('codeEditor'),
   userMenu: !keys.includes('userMenu'),
 })
@@ -126,14 +126,14 @@ export const CodeEditorButton = () => {
 
 export const TemplateManagerButton = () => {
   const { layout, updateLayout, designerOn } = useAiDesignerContext()
-  const action = layout.templateManager && layout.userMenu && 'userMenu'
-  const newLayout = toggleLayout('templateManager', action)
+  const action = layout.snippetsManager && layout.userMenu && 'userMenu'
+  const newLayout = toggleLayout('snippetsManager', action)
 
   return (
     designerOn && (
       <Button
         onClick={() => updateLayout(newLayout)}
-        $expanded={layout.userMenu && layout.templateManager}
+        $expanded={layout.userMenu && layout.snippetsManager}
         title="Template Manager"
       >
         <ScissorOutlined />

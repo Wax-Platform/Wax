@@ -118,6 +118,7 @@ const MenuWrapper = styled.div`
   /* opacity: ${p => (p.$show ? '1' : '0')}; */
   pointer-events: ${p => (p.$show ? 'all' : 'none')};
   transition: all 0.3s linear;
+  z-index: 9999;
 
   div:last-child {
     margin-left: auto;
@@ -190,6 +191,25 @@ const FileManagerWrapper = styled.div`
   width: fit-content;
 `
 
+const EditorWrapper = styled(StyledWindow)`
+  position: relative;
+
+  &::before {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-trois-lightest-2),
+      #fff0
+    );
+    content: '';
+    display: flex;
+    height: 20px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 99;
+  }
+`
+
 const BottomRightInfo = ComponentPlugin('BottomRightInfo')
 const RightArea = ComponentPlugin('rightArea')
 
@@ -205,12 +225,11 @@ const Layout = props => {
     editorContainerRef,
     layout,
     updatePreview,
-    htmlSrc,
     updateLayout,
     css,
     editorContent,
-    settings,
     designerOn,
+    onHistory,
     previewRef,
   } = useAiDesignerContext()
 
@@ -220,8 +239,12 @@ const Layout = props => {
   const [open, toggleMenu] = useState(false)
 
   useEffect(() => {
-    !!layout.preview && settings.preview.livePreview && updatePreview()
-  }, [htmlSrc, css, editorContent])
+    onHistory.addRegistry('undo')
+  }, [css])
+
+  useEffect(() => {
+    designerOn && updatePreview(true)
+  }, [editorContent])
 
   useEffect(() => {
     !!layout.preview && updatePreview()
@@ -309,7 +332,7 @@ const Layout = props => {
           <FileManagerWrapper>
             <MainMenu enableLogin={enableLogin} />
           </FileManagerWrapper>
-          <StyledWindow $show={layout.editor}>
+          <EditorWrapper $show={layout.editor}>
             <WaxSurfaceScroll
               id="wax-surface-scroll"
               $loading={!!loading}
@@ -332,7 +355,7 @@ const Layout = props => {
                 <BottomRightInfo />
               </InfoContainer>
             </WaxBottomRightInfo>
-          </StyledWindow>
+          </EditorWrapper>
           <PagedJsPreview $show={designerOn} loading={loading} />
         </WaxEditorWrapper>
       </Wrapper>

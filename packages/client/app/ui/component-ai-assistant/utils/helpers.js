@@ -39,15 +39,19 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
 
           try {
             scopeIsReady && PagedPolyfill.preview(scopeIsReady);
+            PagedPolyfill.on('rendered', () => {
+                  window.parent.postMessage({ loaded: true }, '*');
+            });
           }
           catch (e) { 
             window.parent.console.log(e)
           }
-
+          finally {
           setTimeout(() => {
             document.documentElement.scrollTo(0, ${scrollPos})
             document.documentElement.querySelector('body').style.backgroundColor = '#fbf8fd';
             }, 200)
+          }
         });
 
           document.addEventListener("scroll", () => {

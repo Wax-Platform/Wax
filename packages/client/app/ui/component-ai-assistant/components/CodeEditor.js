@@ -1,5 +1,5 @@
 /* stylelint-disable declaration-no-important */
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { css as cssLang } from '@codemirror/lang-css'
 import { useAiDesignerContext } from '../hooks/AiDesignerContext'
@@ -10,14 +10,15 @@ import {
   CodeOutlined,
   DeleteOutlined,
   EyeOutlined,
-  FileOutlined,
   ForkOutlined,
+  GitlabOutlined,
+  PlusCircleOutlined,
 } from '@ant-design/icons'
-import { FlexCol, FlexRow } from '../../_styleds/common'
+import { CleanButton } from '../../_styleds/common'
 import { labelRender } from '../../dashboard/MainMenu/utils/resourcesUtils'
 import { switchOn } from '../../../shared/generalUtils'
 import { useModalContext } from '../../../hooks/modalContext'
-import { capitalize, set } from 'lodash'
+import { capitalize } from 'lodash'
 import {
   FileIcon,
   GridContainer,
@@ -95,58 +96,35 @@ const CREATE_TEMPLATE_MODAL_ITEMS = [
   },
 ]
 
-const Header = styled(FlexRow)`
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  width: 100%;
-
-  input {
-    background: none;
-    border: none;
-    border-bottom: 1px solid var(--color-trois-opaque);
-    font-size: 14px;
-    padding: 5px;
-    width: 100%;
-
-    &:focus {
-      border-bottom-color: var(--color-trois);
-      outline: none;
-    }
-  }
-`
+const FETCH_TEMPLATE_MODAL_ITEMS = [
+  {
+    label: 'Url',
+    component: (
+      <input
+        type="text"
+        placeholder="...Write the url to fetch the template"
+        data-field-id="url"
+      />
+    ),
+  },
+]
 
 export const TemplateManagerHeader = () => {
   const { createTemplate, fetchAndCreateTemplateFromUrl } = useDocumentContext()
   const { modalState } = useModalContext()
-  const [fetchTemplateInput, setFetchTemplateInput] = useState('')
 
-  const handleInputChange = event => {
-    setFetchTemplateInput(event.target.value)
-  }
   const onSubmit = fields => {
     createTemplate({ variables: { input: { ...fields } } })
   }
 
+  const onSubmitFetch = fields => {
+    fetchAndCreateTemplateFromUrl({
+      variables: { ...fields },
+    })
+  }
   return (
-    <Header>
-      <input
-        type="text"
-        placeholder="Write the url to fetch the template"
-        value={fetchTemplateInput}
-        onChange={handleInputChange}
-      />
-      <button
-        onClick={e => {
-          e.preventDefault()
-          fetchAndCreateTemplateFromUrl({
-            variables: { url: fetchTemplateInput },
-          })
-        }}
-      >
-        Fetch
-      </button>
-      <button
+    <>
+      <CleanButton
         onClick={() =>
           modalState.update({
             show: true,
@@ -156,9 +134,21 @@ export const TemplateManagerHeader = () => {
           })
         }
       >
-        Create
-      </button>
-    </Header>
+        <PlusCircleOutlined />
+      </CleanButton>
+      <CleanButton
+        onClick={() => {
+          modalState.update({
+            show: true,
+            title: 'Fetch template from url',
+            onSubmit: onSubmitFetch,
+            items: FETCH_TEMPLATE_MODAL_ITEMS,
+          })
+        }}
+      >
+        <GitlabOutlined />
+      </CleanButton>
+    </>
   )
 }
 
@@ -178,7 +168,6 @@ export const TemplateManager = () => {
 
   const templateItemRender = template => {
     const isCurrentTemplate = currentDoc?.template?.id === template.id
-    console.log(template.imageUrl)
 
     const handleContextMenu = e => {
       e.preventDefault()
@@ -194,7 +183,7 @@ export const TemplateManager = () => {
               rawCss: template.rawCss,
               displayName: template.displayName,
             },
-          }).then(() => getDoc({ variables: { id: currentDoc.id } }))
+          })
           setCss(template.rawCss)
           updatePreview(true)
         },
@@ -284,7 +273,7 @@ export const CodeEditor = () => {
 
   return (
     <TemplateEditor
-      extensions={[cssLang()]}
+      extensions={[cssLang(), EditorView.lineWrapping]}
       onChange={content => {
         setCss(content)
       }}

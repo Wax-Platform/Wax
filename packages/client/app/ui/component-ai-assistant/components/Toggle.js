@@ -9,6 +9,7 @@ const Root = styled.div`
   display: flex;
   gap: 5px;
   margin: 3px 0;
+  z-index: 999;
 `
 
 const Container = styled.div`

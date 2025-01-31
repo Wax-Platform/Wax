@@ -73,11 +73,11 @@ class ResourceTree extends BaseModel {
     return {
       properties: {
         userId: idNullable,
+        docId: idNullable,
         resourceType: { type: string, enum: RESOURCE_TYPES },
         extension: { type: string, enum: EXTENSIONS, nullable: true },
         title: stringNullable,
         parentId: idNullable,
-        docId: idNullable,
         children: arrayOfIds,
       },
     }
@@ -226,106 +226,113 @@ class ResourceTree extends BaseModel {
   }
 
   static async openFolder(id, resourceType, userId, fallbackFolderTitle = '') {
-    return useTransaction(async trx => {
-      let rootFolder = await ResourceTree.findRootFolderOfUser(userId, {
-        trx,
-        forUpdate: true,
-      })
+    logger.info(
+      `Opening \x1b[33m${resourceType}\x1b[0m ${id} for user ${userId}`,
+    )
 
-      let fallbackFolder = rootFolder
-      if (!rootFolder) {
-        rootFolder = await ResourceTree.createUserRootFolder(userId, { trx })
-        // logger.info(`Created root folder ${rootFolder.id} for user ${userId}`)
+    return useTransaction(
+      async trx => {
+        let rootFolder = await ResourceTree.findRootFolderOfUser(userId, {
+          trx,
+          forUpdate: true,
+        })
 
-        if (fallbackFolderTitle) {
-          fallbackFolder = await ResourceTree.findSystemFolder(
-            fallbackFolderTitle,
-            userId,
-            {
-              trx,
-            },
-          )
-        }
+        let fallbackFolder = rootFolder
+        if (!rootFolder) {
+          rootFolder = await ResourceTree.createUserRootFolder(userId, { trx })
+          // logger.info(`Created root folder ${rootFolder.id} for user ${userId}`)
 
-        fallbackFolder = fallbackFolder || rootFolder
-
-        return {
-          path: [{ title: fallbackFolder.title, id: fallbackFolder.id }],
-          currentFolder: { ...fallbackFolder, children: [] },
-          requestAccessTo: null,
-        }
-      } else {
-        if (fallbackFolderTitle) {
-          fallbackFolder = await ResourceTree.findSystemFolder(
-            fallbackFolderTitle,
-            userId,
-            {
-              trx,
-            },
-          )
+          if (fallbackFolderTitle) {
+            fallbackFolder = await ResourceTree.findSystemFolder(
+              fallbackFolderTitle,
+              userId,
+              {
+                trx,
+              },
+            )
+          }
 
           fallbackFolder = fallbackFolder || rootFolder
-        }
-      }
 
-      const isDoc = resourceType === 'doc'
-      const method = isDoc ? 'getParentFolderByIdentifier' : 'getResource'
+          return {
+            path: [{ title: fallbackFolder.title, id: fallbackFolder.id }],
+            currentFolder: { ...fallbackFolder, children: [] },
+            requestAccessTo: null,
+          }
+        } else {
+          if (fallbackFolderTitle) {
+            fallbackFolder = await ResourceTree.findSystemFolder(
+              fallbackFolderTitle,
+              userId,
+              {
+                trx,
+              },
+            )
 
-      let currentResource = id && (await ResourceTree[method](id, { trx }))
-      let requestAccessTo = null
-
-      const notOwner = currentResource && currentResource?.userId !== userId
-
-      if (notOwner) {
-        const team = await Team.query(trx)
-          .where({
-            objectId: currentResource?.id,
-            objectType: TEAM_OBJECT_TYPE,
-          })
-          .first()
-
-        if (team?.id) {
-          const isMember = await TeamMember.query(trx)
-            .where({ teamId: team.id, userId })
-            .first()
-
-          if (!isMember) {
-            requestAccessTo = currentResource?.userId
-            currentResource = null
+            fallbackFolder = fallbackFolder || rootFolder
           }
         }
-      }
 
-      // If no resource found or access denied, use the fallback folder
-      if (!currentResource) {
-        if (fallbackFolderTitle) {
-          currentResource = await ResourceTree.findSystemFolder(
-            fallbackFolderTitle,
-            userId,
-            { trx },
-          )
+        const isDoc = resourceType === 'doc'
+        const method = isDoc ? 'getParentFolderByIdentifier' : 'getResource'
+
+        let currentResource = id && (await ResourceTree[method](id, { trx }))
+        let requestAccessTo = null
+
+        const notOwner = currentResource && currentResource?.userId !== userId
+
+        if (notOwner) {
+          const team = await Team.query(trx)
+            .where({
+              objectId: currentResource?.id,
+              objectType: TEAM_OBJECT_TYPE,
+            })
+            .first()
+
+          if (team?.id) {
+            const isMember = await TeamMember.query(trx)
+              .where({ teamId: team.id, userId })
+              .first()
+
+            if (!isMember) {
+              requestAccessTo = currentResource?.userId
+              currentResource = null
+            }
+          }
         }
+
+        // If no resource found or access denied, use the fallback folder
         if (!currentResource) {
-          currentResource = fallbackFolder
+          if (fallbackFolderTitle) {
+            currentResource = await ResourceTree.findSystemFolder(
+              fallbackFolderTitle,
+              userId,
+              { trx },
+            )
+          }
+          if (!currentResource) {
+            currentResource = fallbackFolder
+          }
         }
-      }
 
-      let folder = currentResource
+        let folder = currentResource
 
-      if (!['dir', 'sys'].includes(currentResource?.resourceType)) {
-        folder = currentResource?.parentId
-          ? await ResourceTree.query(trx).findById(currentResource?.parentId)
-          : fallbackFolder
-      }
+        if (!['dir', 'sys'].includes(currentResource?.resourceType)) {
+          folder = currentResource?.parentId
+            ? await ResourceTree.query(trx).findById(currentResource?.parentId)
+            : fallbackFolder
+        }
 
-      const path = await ResourceTree.buildPath(folder.id, { trx })
+        const path = await ResourceTree.buildPath(folder.id, { trx })
 
-      return {
-        path,
-        currentFolder: { ...folder },
-        requestAccessTo,
-      }
-    })
+        return {
+          path,
+          currentFolder: { ...folder },
+          requestAccessTo,
+        }
+      },
+      { passedTrxOnly: true },
+    )
   }
 
   static async buildPath(id, options = {}) {

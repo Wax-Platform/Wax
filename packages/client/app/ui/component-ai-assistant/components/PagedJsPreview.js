@@ -3,7 +3,7 @@ import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useAiDesignerContext } from '../hooks/AiDesignerContext'
 import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
-import { debounce } from 'lodash'
+import { debounce, isBoolean } from 'lodash'
 import { Result, Spin } from 'antd'
 import useAssistant from '../hooks/useAiDesigner'
 
@@ -32,6 +32,21 @@ const StyledWindow = styled.div`
   position: relative;
   transition: all 0.3s linear;
   width: ${p => (p.$show ? '100%' : '0')};
+
+  &::before {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-trois-lightest-2),
+      #fbf8fd00
+    );
+    content: '';
+    display: flex;
+    height: 60px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 99;
+  }
 `
 const PreviewIframe = styled.iframe`
   border: none;
@@ -41,7 +56,8 @@ const PreviewIframe = styled.iframe`
 `
 
 export const PagedJsPreview = props => {
-  const { previewRef, previewSource } = useAiDesignerContext()
+  const { previewRef, previewSource, loadingPreview, setLoadingPreview } =
+    useAiDesignerContext()
   const { loading } = useAssistant()
   const [fakeSrc, setFakeSrc] = useState(null)
   const [mainSrc, setMainSrc] = useState(null)
@@ -50,6 +66,14 @@ export const PagedJsPreview = props => {
   useEffect(() => {
     const handleMessage = e => {
       const id = e.data.id
+      console.log(e.data)
+      if (Object.keys(e.data).includes('loaded')) {
+        setLoadingPreview(false)
+        debounce(() => {
+          setShowMain(true)
+          setFakeSrc('')
+        }, 1200)()
+      }
       if (!id) return
       AiDesigner.select(id)
     }
@@ -66,11 +90,7 @@ export const PagedJsPreview = props => {
     debounce(src => {
       setMainSrc(src)
       setShowMain(false)
-      debounce(() => {
-        setShowMain(true)
-        setFakeSrc('')
-      }, 1200)()
-    }, 1200)(previewSource)
+    })(previewSource)
   }, [previewSource])
 
   return (
@@ -91,10 +111,12 @@ export const PagedJsPreview = props => {
         srcDoc={fakeSrc}
         title="Article preview"
       />
-      <SpinnerWrapper showSpinner={!!showMain === !!fakeSrc || !!loading}>
+      <SpinnerWrapper
+        showSpinner={!!showMain === !!fakeSrc || !!loading || !!loadingPreview}
+      >
         <Result
           icon={<Spin size={18} spinning />}
-          title="Applying changes..."
+          title="Refreshing editable PDF..."
         />
       </SpinnerWrapper>
     </StyledWindow>

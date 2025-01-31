@@ -68,6 +68,11 @@ const NoResources = styled.div`
   user-select: none;
   width: 100%;
 `
+const Loader = styled.p`
+  color: var(--color-trois-opaque);
+  text-align: center;
+  user-select: none;
+`
 
 const Files = props => {
   const { layout } = useAiDesignerContext()
@@ -176,16 +181,11 @@ const Files = props => {
       onScroll={() => contextualMenu.update({ show: false })}
       {...props}
     >
-      <SpinnerWrapper showSpinner={loadingFolder}>
-        <p
-          style={{
-            textAlign: 'center',
-            userSelect: 'none',
-            color: 'var(--color-trois-opaque)',
-          }}
-        >
-          Loading resource...
-        </p>
+      <SpinnerWrapper
+        style={{ background: '#fff0' }}
+        showSpinner={loadingFolder}
+      >
+        <Loader>Loading resource...</Loader>
       </SpinnerWrapper>
       <FileDisplayView>
         {!isTemplatesFolder ? (
