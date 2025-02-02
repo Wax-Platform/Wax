@@ -14,6 +14,15 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <script src="https://unpkg.com/pagedjs@0.4.3/dist/paged.polyfill.js"></script>
+            <script>
+
+        window.PagedConfig || {
+		auto: true,
+    before: window.parent.postMessage({loaded:false}, '*'),
+		after: window.parent.postMessage({loaded:true}, '*'),
+	};
+
+      </script>
       <style>
         ${template}
         ${css.replace('#body', 'body') || ''}
@@ -21,45 +30,7 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
     </head>
     <body>
       ${htmlSrc}
-      <script>
-          window.addEventListener('click', (event) => {
-              const { target } = event;
-            if (!target.hasAttribute('data-id')) event.preventDefault();
-              let id = event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id');
-              if (event.target.contains(document.documentElement.querySelector('.pagedjs_page_content'))) {id = 'aid-ctx-main'}
-              if (id) {
-                const onAllSelected = cb => document.documentElement.querySelectorAll('[data-id="' + id + '"]').forEach(cb)
-                document.documentElement.querySelectorAll('.selected-id').forEach(el =>el?.classList.remove('selected-id'))
-                id !== 'aid-ctx-main' && onAllSelected(el => el?.classList.add('selected-id'))
-                window.parent.postMessage({ id }, '*')
-              };
-          });
-        document.addEventListener("DOMContentLoaded", () => {
-          const scopeIsReady = document.getElementById("css-assistant-scope")
 
-          try {
-            scopeIsReady && PagedPolyfill.preview(scopeIsReady);
-            PagedPolyfill.on('rendered', () => {
-                  window.parent.postMessage({ loaded: true }, '*');
-            });
-          }
-          catch (e) { 
-            window.parent.console.log(e)
-          }
-          finally {
-          setTimeout(() => {
-            document.documentElement.scrollTo(0, ${scrollPos})
-            document.documentElement.querySelector('body').style.backgroundColor = '#fbf8fd';
-            }, 200)
-          }
-        });
-
-          document.addEventListener("scroll", () => {
-            if(document.documentElement.scrollTop < 10) {
-              document.documentElement.scrollTo(0, 10)
-            }
-          })
-      </script>
     </body>
     </html>
 `

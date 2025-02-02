@@ -16,6 +16,7 @@ import {
 } from '../component-ai-assistant/utils'
 import { PrinterOutlined, SaveOutlined } from '@ant-design/icons'
 import { TemplatesDropdown } from '../dashboard/MainMenu/TemplatesDropdown'
+import { debounce } from 'lodash'
 
 // #region styles
 const StyledHeader = styled.header`
@@ -144,6 +145,7 @@ const Header = props => {
     updatePreview,
     onHistory,
     css,
+    setCss,
   } = useAiDesignerContext()
 
   const { currentDoc, graphQL, docId, updateTemplateCss } =
@@ -161,9 +163,10 @@ const Header = props => {
       console.log({ currentDoc })
       getCurrentDocPath({ variables: { id: currentDoc.id } })
       document.title = `${currentDoc.title} - Wax`
-      designerOn && updatePreview(true)
+      setCss(currentDoc.template.rawCss)
+      debounce(() => updatePreview(true, currentDoc.template.rawCss), 2300)()
     }
-  }, [currentDoc])
+  }, [currentDoc?.id])
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)

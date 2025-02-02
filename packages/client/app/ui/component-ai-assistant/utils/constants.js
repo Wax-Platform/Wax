@@ -114,7 +114,10 @@ export const htmlTagNames = {
   wbr: 'Word Break Opportunity',
 }
 export const ModelsList = {
-  openAi: [{ label: 'GPT-4o', model: 'gpt-4o' }],
+  openAi: [
+    { label: 'GPT-4o', model: 'gpt-4o' },
+    { label: 'o3-mini', model: 'o3-mini' },
+  ],
   mistral: [
     { label: 'Mistral small', model: 'mistral-small-latest' },
     { label: 'Mistral large', model: 'mistral-large-latest' },

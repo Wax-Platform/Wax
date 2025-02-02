@@ -200,7 +200,7 @@ const Files = props => {
             }
           />
         ) : (
-          <TemplateManager />
+          <TemplateManager view={fileExplorerView.state} />
         )}
       </FileDisplayView>
       <ConfirmDelete

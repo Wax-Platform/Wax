@@ -236,7 +236,7 @@ const NoMessages = styled.span`
   text-align: center;
 `
 
-const ChatHistory = ({ nomessages, ...props }) => {
+const ChatHistory = ({ nomessages, className, ...props }) => {
   const { selectedCtx, feedback, deleteLastMessage, settings, layout } =
     useAiDesignerContext()
   const { currentUser } = useCurrentUser()
@@ -278,7 +278,7 @@ const ChatHistory = ({ nomessages, ...props }) => {
   }, [feedback, selectedCtx.conversation])
 
   return (
-    <Root>
+    <Root className={className}>
       <ChatHistoryContainer ref={threadRef} {...props}>
         {layout.chat && (
           <Each

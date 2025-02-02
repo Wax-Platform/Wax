@@ -1,10 +1,12 @@
-const { Doc: PubSubDoc, Team, TeamMember, User } = require('@pubsweet/models')
+const { Doc, Team, TeamMember, User } = require('@pubsweet/models')
 const Template = require('../../models/template/template.model')
 const ResourceTree = require('../../models/resourceTree/resourceTree.model')
+const { logger } = require('@coko/server')
 
-const getDocResolver = async (_, { identifier }) =>
-  PubSubDoc.query().findOne({ identifier })
-
+const getDocResolver = async (_, { identifier }) => {
+  const doc = await Doc.query().findOne({ identifier })
+  return doc
+}
 module.exports = {
   Query: {
     getDocument: getDocResolver,

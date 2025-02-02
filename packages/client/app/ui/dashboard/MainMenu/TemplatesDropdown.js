@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useBool } from '../../../hooks/dataTypeHooks'
 import { CleanButton, FlexRow } from '../../_styleds/common'
@@ -66,6 +66,13 @@ const CurrentTemplateLabel = styled.p`
 const Button = styled(MenuButton)`
   width: fit-content;
 `
+const TemplateButton = styled(CleanButton)`
+  color: var(--color-trois-opaque);
+  font-size: 13px;
+  text-align: left;
+  width: 100%;
+`
+
 const DropdownToggleButton = styled(CleanButton)`
   border-bottom: 1px solid var(--color-trois-lightest);
   display: flex;
@@ -83,6 +90,15 @@ export const TemplatesDropdown = props => {
   const templates = systemTemplatesData?.getUserTemplates || []
   const documentTemplate = currentDoc.template || {}
   const [selectedTemplate, setSelectedTemplate] = useState(documentTemplate)
+  const sortedTemplates = [...templates].sort((a, b) => {
+    if (a.displayName < b.displayName) return -1
+    if (a.displayName > b.displayName) return 1
+    return 0
+  })
+
+  useEffect(() => {
+    setSelectedTemplate(currentDoc?.template)
+  }, [currentDoc?.template?.displayName])
 
   const templateItemRender = template => {
     const { rawCss, displayName } = template
@@ -105,11 +121,8 @@ export const TemplatesDropdown = props => {
 
     return (
       <TemplateItem $selected={isSelected}>
-        <MenuButton>{displayName}</MenuButton>
+        <TemplateButton onClick={previewTemplate}>{displayName}</TemplateButton>
         <FlexRow style={{ gap: '8px' }}>
-          <Button onClick={previewTemplate}>
-            <EyeOutlined />
-          </Button>
           <Button onClick={forkTemplate}>
             <ForkOutlined />
           </Button>
@@ -122,7 +135,7 @@ export const TemplatesDropdown = props => {
     <Root {...props}>
       <DropdownToggleButton onClick={showDropdown.toggle}>
         <CurrentTemplateLabel>
-          {selectedTemplate.displayName}
+          {selectedTemplate?.displayName || currentDoc?.template?.displayName}
         </CurrentTemplateLabel>
         <DownOutlined />
       </DropdownToggleButton>
@@ -131,9 +144,9 @@ export const TemplatesDropdown = props => {
         onMouseLeave={showDropdown.off}
       >
         <Each
-          of={[currentDoc?.template, ...templates]}
+          of={sortedTemplates}
           as={templateItemRender}
-          if={templates.length}
+          if={sortedTemplates.length}
         />
       </TemplatesList>
     </Root>

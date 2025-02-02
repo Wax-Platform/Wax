@@ -1,5 +1,5 @@
 /* stylelint-disable declaration-no-important */
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { css as cssLang } from '@codemirror/lang-css'
 import { useAiDesignerContext } from '../hooks/AiDesignerContext'
@@ -23,8 +23,10 @@ import {
   FileIcon,
   GridContainer,
   IconTitleContainer,
+  ListContainer,
   TitleLabel,
 } from '../../dashboard/MainMenu/Resource'
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 const CssEditor = styled(ReactCodeMirror)`
   * {
@@ -152,7 +154,12 @@ export const TemplateManagerHeader = () => {
   )
 }
 
-export const TemplateManager = () => {
+const VIEW_BASED_CONTAINERS = {
+  list: ListContainer,
+  default: GridContainer,
+}
+
+export const TemplateManager = ({ view }) => {
   const { modalState } = useModalContext()
   const { setCss, updatePreview } = useAiDesignerContext()
   const {
@@ -161,7 +168,6 @@ export const TemplateManager = () => {
     updateTemplateCss,
     deleteTemplate,
     systemTemplatesData,
-    getDoc,
   } = useDocumentContext()
 
   const templates = systemTemplatesData?.getUserTemplates || []
@@ -175,6 +181,7 @@ export const TemplateManager = () => {
       const contextMenuActions = {
         preview: () => {
           setCss(template.rawCss)
+          updatePreview(true)
         },
         fork: () => {
           updateTemplateCss({
@@ -218,15 +225,17 @@ export const TemplateManager = () => {
         items: generateContextMenuItems(contextMenuActions),
       })
     }
+
+    const Container = switchOn(view, VIEW_BASED_CONTAINERS)
     return (
-      <GridContainer style={{ gap: '4px' }} onContextMenu={handleContextMenu}>
+      <Container style={{ gap: '4px' }} onContextMenu={handleContextMenu}>
         <FileIcon />
         <IconTitleContainer>
           <TitleLabel>
             {isCurrentTemplate ? 'Document template' : template.displayName}
           </TitleLabel>
         </IconTitleContainer>
-      </GridContainer>
+      </Container>
     )
   }
 
@@ -270,6 +279,10 @@ function generateContextMenuItems({ preview, fork, showCode, delete: remove }) {
 
 export const CodeEditor = () => {
   const { css, setCss } = useAiDesignerContext()
+
+  useEffect(() => {
+    AiDesigner.select('aid-ctx-main')
+  }, [])
 
   return (
     <TemplateEditor

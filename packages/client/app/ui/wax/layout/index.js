@@ -227,7 +227,6 @@ const Layout = props => {
     updatePreview,
     updateLayout,
     css,
-    editorContent,
     designerOn,
     onHistory,
     previewRef,
@@ -241,10 +240,6 @@ const Layout = props => {
   useEffect(() => {
     onHistory.addRegistry('undo')
   }, [css])
-
-  useEffect(() => {
-    designerOn && updatePreview(true)
-  }, [editorContent])
 
   useEffect(() => {
     !!layout.preview && updatePreview()

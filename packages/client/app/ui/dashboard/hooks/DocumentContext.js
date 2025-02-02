@@ -93,6 +93,7 @@ export const DocumentContextProvider = ({ children }) => {
       history.push(`/${doc.identifier}`, { replace: true })
       setCurrentDoc(doc)
       setCss(doc.template.rawCss)
+      updatePreview(true)
     },
   })
 

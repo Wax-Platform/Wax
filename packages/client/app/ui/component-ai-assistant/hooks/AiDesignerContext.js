@@ -256,12 +256,11 @@ export const AiDesignerProvider = ({ children }) => {
 
       setEditorContent(lastRegistry.content)
       setCss(lastRegistry.css)
-      updatePreview(true, lastRegistry.css)
+      // updatePreview(true, lastRegistry.css)
     },
   }
 
   const updatePreview = (manualUpdate, providedCss = css) => {
-    setLoadingPreview(true)
     const previewDoc = previewRef?.current?.contentDocument?.documentElement
     const canUpdate =
       providedCss &&
@@ -294,11 +293,13 @@ export const AiDesignerProvider = ({ children }) => {
       )
       const scrollPos = previewDoc?.scrollTop ?? 0
 
+      setLoadingPreview(true)
       setPreviewSource(srcdoc(content, cssTemplate, snippetsCss, scrollPos))
     }
 
     // updateCtxNodes()
   }
+  const callUpdatePreview = useCallback(updatePreview, [css, editorContent])
 
   // #endregion HELPERS -----------------------------------------------------------------
 
@@ -406,7 +407,7 @@ export const AiDesignerProvider = ({ children }) => {
         previewRef,
         previewSource,
         setPreviewSource,
-        updatePreview,
+        updatePreview: callUpdatePreview,
         mutateSettings,
         getCtxNode,
         updateTools,
