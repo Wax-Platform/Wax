@@ -164,7 +164,6 @@ export const SnipsDropDown = () => {
     setShowSnippets,
     tools,
     updateTools,
-    updateSelectionBoxPosition,
   } = useAiDesignerContext()
 
   const searchSnippetRef = useRef(null)

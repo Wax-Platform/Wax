@@ -11,11 +11,14 @@ type TemplateOld {
 }
 
 type Snippet {
-  className: String!
-  elementType: String!
-  description: String!
+  id: ID!
   classBody: String!
+  className: String!
+  displayName: String!
+  description: String!
+  meta: String!
 }
+
 input TemplateInput {
   docId: String
   name: String!

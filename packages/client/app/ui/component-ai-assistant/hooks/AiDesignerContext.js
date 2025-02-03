@@ -7,25 +7,20 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { isString, merge, takeRight } from 'lodash'
+import { isString, takeRight } from 'lodash'
 import {
-  setInlineStyle,
   SendIcon,
   SettingsIcon,
   DeleteIcon,
   UndoIcon,
   RedoIcon,
   RefreshIcon,
-  newSnippet,
   onEntries,
-  snippetsToCssText,
   srcdoc,
   parseContent,
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
-import { UPDATE_SNIPPETS } from '../../../graphql/aiDesignerMisc'
-import { useMutation } from '@apollo/client'
 
 const CSS_SELECTED_ID_EXCEPT = userMenu => /* css */ `      
 * {
@@ -133,7 +128,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [css, setCss] = useState('')
   const [previewSource, setPreviewSource] = useState('')
   const [editorContent, setEditorContent] = useState('')
-  const [markedSnippet, setMarkedSnippet] = useState('')
+  const [markedSnippet, setMarkedSnippet] = useState({})
 
   const [feedback, setFeedback] = useState('')
 
@@ -190,12 +185,10 @@ export const AiDesignerProvider = ({ children }) => {
   const onSelect = ctx => {
     ctx.id && setSelectedCtx(ctx)
 
-    markedSnippet && setMarkedSnippet('')
+    markedSnippet && setMarkedSnippet({})
     showSnippets && setShowSnippets(false)
     if (ctx.id === 'aid-ctx-main') return
   }
-
-  const [updateSnippets] = useMutation(UPDATE_SNIPPETS)
 
   AiDesigner.on('select', onSelect)
   // AiDesigner.on('addtocontext', console.log)
@@ -287,14 +280,11 @@ export const AiDesignerProvider = ({ children }) => {
           '.ProseMirror[contenteditable]',
           '.pagedjs_page_content',
         ) + CSS_SELECTED_ID_EXCEPT(layout.userMenu)
-      const snippetsCss = snippetsToCssText(
-        settings.snippetsManager.snippets,
-        '.pagedjs_page_content .aid-snip-',
-      )
+
       const scrollPos = previewDoc?.scrollTop ?? 0
 
       setLoadingPreview(true)
-      setPreviewSource(srcdoc(content, cssTemplate, snippetsCss, scrollPos))
+      setPreviewSource(srcdoc(content, cssTemplate, '', scrollPos))
     }
 
     // updateCtxNodes()
@@ -304,35 +294,6 @@ export const AiDesignerProvider = ({ children }) => {
   // #endregion HELPERS -----------------------------------------------------------------
 
   // #region SNIPPETS -------------------------------------------------------------------
-  const addSnippet = (add, snippet) => {
-    const { snippets, createNewSnippetVersions, markNewSnippet } =
-      settings.snippetsManager
-    const snippetToAdd = !createNewSnippetVersions
-      ? snippet
-      : newSnippet(
-          snippet,
-          snippets.map(s => s.className),
-        )
-
-    const foundIndex = snippets.findIndex(
-      s => s.className === snippetToAdd.className,
-    )
-
-    let finalOutput = [...snippets]
-    foundIndex >= 0
-      ? (finalOutput[foundIndex] = snippetToAdd)
-      : (finalOutput = [...finalOutput, snippetToAdd])
-
-    setSettings(prev => {
-      const temp = prev
-      temp.snippetsManager.snippets = finalOutput
-      return temp
-    })
-    updateSnippets({ variables: { snippets: finalOutput } })
-
-    add && selectedCtx.snippets.add(`aid-snip-${snippetToAdd.className}`)
-    markNewSnippet && !markedSnippet && setMarkedSnippet(snippetToAdd.className)
-  }
 
   const removeSnippet = snippetName => {
     const updatedSnippets = settings.snippetsManager.snippets
@@ -345,15 +306,6 @@ export const AiDesignerProvider = ({ children }) => {
     isString(snippetName)
       ? removeSnip(snippetName)
       : Array.isArray(snippetName) && snippetName.forEach(removeSnip)
-
-    setSettings(prev => {
-      return merge(
-        {},
-        { ...prev },
-        { snippetsManager: { snippets: updatedSnippets } },
-      )
-    })
-    updateSnippets({ variables: { snippets: updatedSnippets } })
   }
 
   // #endregion SNIPPETS -------------------------------------------------------------------
@@ -398,7 +350,6 @@ export const AiDesignerProvider = ({ children }) => {
         settings,
         setSettings,
         // TODO: memoize in a new object
-        addSnippet,
         removeSnippet,
         markedSnippet,
         setMarkedSnippet,

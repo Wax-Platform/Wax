@@ -59,6 +59,7 @@ const Menu = styled.ul`
   --svg-fill: var(--color-trois-opaque-2);
   display: flex;
   flex-direction: column;
+  gap: 8px;
   height: 100%;
   justify-content: flex-start;
   list-style: none;
@@ -82,26 +83,30 @@ const Menu = styled.ul`
 
 const MenuItem = styled.li`
   align-items: flex-start;
+  background-color: none;
   display: flex;
+  filter: drop-shadow(0 0 2px var(--color-trois-alpha));
+  flex-direction: column;
   max-height: 300px;
   overflow-y: auto;
   width: 100%;
-
-  span {
-    padding: 0 8px;
-    width: fit-content;
-  }
 
   [data-field-id] {
     width: 100%;
   }
 
   input {
-    background: none;
+    align-self: flex-end;
+    background: var(--color-trois-lightest-2);
     border: none;
-    border-bottom: 1px solid #0001;
-    font-size: 14px;
-    width: 100%;
+    border-bottom: 1px solid #0000;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-top: -12px;
+    padding: 12px 20px 4px;
+    transition: all 0.2s;
+    width: calc(100% - 8px);
+    z-index: 1;
 
     &:focus {
       border-bottom-color: var(--color-trois-opaque);
@@ -122,11 +127,16 @@ const SubmitButton = styled(CleanButton)`
 `
 
 const Label = styled.span`
+  background: var(--color-trois-lightest-2);
+  border-radius: 1rem;
   color: var(--color-trois-opaque);
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 0 8px;
+  line-height: 1;
+  padding: 6px 8px;
+  text-decoration: underline;
   width: fit-content;
+  z-index: 3;
 `
 
 const ModalFooter = styled.div`
@@ -135,15 +145,6 @@ const ModalFooter = styled.div`
   padding: 8px;
   width: 100%;
 `
-
-const removeDuplicatedSeparators = items => {
-  return (item, index) => {
-    const isDash = item.label === '-'
-    const previousIsDash = items[index - 1]?.label === '-'
-    const isFirstAndDash = index === 0 && isDash
-    return (isDash && previousIsDash) || isFirstAndDash ? null : item
-  }
-}
 
 const optionRender = option => {
   const { label, component, ...props } = option
@@ -177,13 +178,14 @@ const ContextModal = ({ className }) => {
   if (shouldNotDisplay) return null
 
   const shouldAnimate = visible.state && transitioning.state
-  const options = items.filter(removeDuplicatedSeparators(items))
+  const options = items
 
   return (
     <Overlay visible={modalState.state?.show}>
       <ModalForm>
         <FlexRow
           style={{
+            alignItems: 'center',
             backgroundColor: '#0001',
             padding: '4px 12px',
             borderRadius: '12px',
@@ -211,8 +213,8 @@ const ContextModal = ({ className }) => {
 
                 const fieldsEntries = [...fieldsInDom].map(buildEntries)
                 const fields = Object.fromEntries(fieldsEntries)
-                safeCall(onSubmit, console.log)(fields)
-                modalState.reset()
+                const passed = safeCall(onSubmit, console.log)(fields)
+                passed !== false && modalState.reset()
               }}
             >
               Submit

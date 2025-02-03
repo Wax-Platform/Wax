@@ -1,11 +1,12 @@
 /* stylelint-disable string-quotes */
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAiDesignerContext } from '../hooks/AiDesignerContext'
 import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { debounce, isBoolean, set } from 'lodash'
 import { Result, Spin } from 'antd'
-import useAssistant from '../hooks/useAiDesigner'
+import { useDocumentContext } from '../../dashboard/hooks/DocumentContext'
+import { createOrUpdateStyleSheet, getPreviewIframe } from '../utils'
 
 const SpinnerWrapper = styled.div`
   align-items: center;
@@ -66,8 +67,9 @@ const PreviewIframe = styled.iframe`
 `
 
 export const PagedJsPreview = props => {
-  const { previewRef, previewSource, loadingPreview, setLoadingPreview } =
-    useAiDesignerContext()
+  const { previewRef, previewSource } = useAiDesignerContext()
+  const { userSnippets } = useDocumentContext()
+  const [srcDoc, setSrcDoc] = useState('')
 
   useEffect(() => {
     const handleMessage = e => {
@@ -78,6 +80,14 @@ export const PagedJsPreview = props => {
         const spinner = document.querySelector('[data-spinner]')
         const setSpinner = () => set(spinner, 'dataset.spinner', !loaded)
         loaded ? debounce(setSpinner, 2000)() : setSpinner()
+        loaded && createOrUpdateStyleSheet(userSnippets)
+        loaded &&
+          getPreviewIframe().contentWindow.addEventListener('click', () =>
+            selectNodeOnPreview(
+              getPreviewIframe().contentDocument,
+              getPreviewIframe().contentWindow,
+            ),
+          )
       }
       AiDesigner.select(id)
     }
@@ -93,6 +103,7 @@ export const PagedJsPreview = props => {
     const previewWindow = previewRef?.current?.contentWindow
 
     if (!previewDocument || !previewWindow) return
+
     const handleClick = selectNodeOnPreview(previewDocument, previewWindow)
 
     previewWindow.addEventListener('click', handleClick)
@@ -101,17 +112,24 @@ export const PagedJsPreview = props => {
       previewWindow.removeEventListener('click', handleClick)
     }
   }, [
-    previewSource,
     previewRef?.current?.contentDocument,
     previewRef?.current?.contentDocument?.body?.querySelector('.pagedjs_pages'),
   ])
+
+  useEffect(() => {
+    debounce(() => setSrcDoc(previewSource), 1000)()
+    const spinner = document.querySelector('[data-spinner]')
+    if (spinner) {
+      spinner.dataset.spinner = true
+    }
+  }, [previewSource])
 
   return (
     <StyledWindow {...props}>
       <PreviewIframe
         id="pagedjs-preview-iframe"
         ref={previewRef}
-        srcDoc={previewSource}
+        srcDoc={srcDoc}
         title="Article preview"
       />
       <SpinnerWrapper data-spinner={false}>

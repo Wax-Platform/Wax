@@ -17,7 +17,10 @@ import PathRender from './PathRender'
 import { useDocumentContext } from '../hooks/DocumentContext'
 import { CodeEditor } from '../../component-ai-assistant/components/CodeEditor'
 import PromptBox from '../../component-ai-assistant/components/PromptBox'
-import { SnippetsManager } from '../../component-ai-assistant/SnippetsManager'
+import {
+  SnippetManagerHeader,
+  SnippetsManager,
+} from '../../component-ai-assistant/SnippetsManager'
 import { htmlTagNames } from '../../component-ai-assistant/utils'
 
 const Menu = styled.nav`
@@ -149,7 +152,7 @@ const MainMenu = ({ enableLogin }) => {
           )}
           {snippetsManager && (
             <FlexCol style={{ width: '100%' }}>
-              <p>Snippets collection</p>
+              <SnippetManagerHeader />
               <FilesInfoFixed>
                 <span>
                   {userInteractions.ctrl && htmlTagNames[selectedCtx.tagName]

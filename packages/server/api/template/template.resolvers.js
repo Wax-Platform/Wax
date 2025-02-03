@@ -4,12 +4,17 @@ const { capitalize } = require('lodash')
 const { fetchAndStoreTemplate } = require('../../services/files.service')
 
 const seedUserTemplates = async userId => {
-  const systemTemplates = await Template.query().where('category', 'system')
-  logger.info('Seeding user templates', systemTemplates)
-  await Promise.all(
-    systemTemplates.map(async template => {
+  logger.info('Seeding user templates')
+
+  await useTransaction(async trx => {
+    const systemTemplates = await Template.query(trx).where(
+      'category',
+      'system',
+    )
+
+    const templatesPromises = systemTemplates.map(async template => {
       const { docId, fileId, displayName, meta, status, rawCss } = template
-      return Template.query().insert({
+      return Template.query(trx).insert({
         userId,
         docId,
         fileId,
@@ -19,8 +24,34 @@ const seedUserTemplates = async userId => {
         status,
         rawCss,
       })
-    }),
-  )
+    })
+
+    return Promise.all(templatesPromises)
+  })
+}
+
+const seedUserSnippets = async userId => {
+  logger.info('Seeding user snippets')
+
+  await useTransaction(async trx => {
+    const snippets = await Template.query(trx).where('category', 'snippet')
+
+    const snippetsPromises = snippets.map(async snippet => {
+      const { docId, fileId, displayName, meta, status, rawCss } = snippet
+      return Template.query(trx).insert({
+        userId,
+        docId,
+        fileId,
+        displayName,
+        category: 'user-snippets',
+        meta,
+        status,
+        rawCss,
+      })
+    })
+
+    return Promise.all(snippetsPromises)
+  })
 }
 
 const resolvers = {
@@ -94,17 +125,47 @@ const resolvers = {
       }
       return userTemplates
     },
+    getUserSnippets: async (_, __, ctx) => {
+      const { user: userId } = ctx
+      let existingSnippets = await Template.query()
+        .where('userId', userId)
+        .andWhere('category', 'user-snippets')
+      if (!existingSnippets.length) {
+        logger.info('Seeding user snippets')
+        await seedUserSnippets(userId)
+        existingSnippets = await Template.query()
+          .where('userId', userId)
+          .andWhere('category', 'user-snippets')
+      }
+
+      const snippets = existingSnippets.map(snippet => {
+        const { meta, displayName, rawCss, id } = snippet
+        return {
+          classBody: rawCss,
+          className: meta.className,
+          displayName: capitalize(displayName.split('.')[0]),
+          description: meta.description,
+          id: id,
+          meta: JSON.stringify(meta),
+        }
+      })
+
+      return snippets
+    },
   },
   Mutation: {
     createTemplate: async (_, { input }, ctx) => {
       const { user: userId } = ctx
+      const { meta, ...restInput } = input
+      const parsedMeta = JSON.parse(meta || '{}')
 
       try {
         const newTemplate = await Template.query().insert({
           userId,
           category: 'user',
           status: 'private',
-          ...input,
+          meta: parsedMeta,
+          ...restInput,
         })
         return newTemplate.id
       } catch (error) {

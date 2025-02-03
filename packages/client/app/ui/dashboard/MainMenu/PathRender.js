@@ -57,7 +57,7 @@ const Container = styled.div`
   width: 100%;
 `
 
-const Actions = styled(FlexRow)`
+export const Actions = styled(FlexRow)`
   background: var(--color-trois-lightest);
   border-radius: 1.5rem;
   gap: 8px;

@@ -26,6 +26,7 @@ extend type Query {
   getSystemTemplates: [Template]
   getUserTemplates: [Template]
   getDocumentTemplates: [Template]
+  getUserSnippets: [Snippet]
 }
 
 extend type Mutation {

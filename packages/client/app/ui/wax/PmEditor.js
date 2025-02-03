@@ -7,16 +7,11 @@ import config from './config/config'
 import layout from './layout'
 import YjsContext from '../../yjsProvider'
 import { Result, Spin } from '../common'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from '../component-ai-assistant/hooks/AiDesignerContext'
+import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
-import { snippetsToCssText } from '../component-ai-assistant/utils'
-import { debounce, get, update } from 'lodash'
+import { debounce } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 
-import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
 import { FlexRow, StyledWindow } from '../_styleds/common'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 import Files from '../dashboard/MainMenu/FileBrowser'
@@ -58,21 +53,13 @@ const renderImage = file => {
 
 const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
-  const { setDocId, getDoc, fetchingTemplates } = useDocumentContext()
-  const { getAidMisc } = useAssistant()
+  const { setDocId, getDoc, fetchingTemplates, userSnippets } =
+    useDocumentContext()
 
-  const {
-    setHtmlSrc,
-    htmlSrc,
-    setEditorContent,
-    css,
-    settings,
-    designerOn,
-    updatePreview,
-  } = useAiDesignerContext()
+  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings } =
+    useAiDesignerContext()
 
   const { displayStyles } = settings.editor
-  const { snippets } = settings.snippetsManager
 
   const editorRef = useRef(null)
   useDomObserver({
@@ -120,11 +107,6 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
         createYjsProvider(docIdentifier)
         setShowSpinner(false)
       }, 2000)()
-      getAidMisc({
-        variables: {
-          input: { docId: docIdentifier },
-        },
-      })
     }
   }, [docIdentifier])
 
@@ -156,12 +138,9 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
   return (
     <>
       {displayStyles && <style id="aid-css-template">{css}</style>}
-      {snippets && displayStyles && (
+      {userSnippets && displayStyles && (
         <style id="aid-snippets">
-          {snippetsToCssText(
-            snippets,
-            '.ProseMirror[contenteditable] .aid-snip-',
-          )}
+          {userSnippets.map(s => s.classBody.join('\n'))}
         </style>
       )}
       <span

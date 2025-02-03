@@ -1,11 +1,14 @@
+/* stylelint-disable string-quotes */
+/* stylelint-disable no-descending-specificity */
 import React from 'react'
 import styled from 'styled-components'
 import {
   DeleteOutlined,
   EditOutlined,
+  PlusOutlined,
   PoweroffOutlined,
+  SaveOutlined,
 } from '@ant-design/icons'
-import { capitalize } from 'lodash'
 import { useAiDesignerContext } from './hooks/AiDesignerContext'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 import { css as cssLang } from '@codemirror/lang-css'
@@ -13,6 +16,10 @@ import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
 import Each from './utils/Each'
 import { TemplateEditor } from './components/CodeEditor'
 import { EditorView } from '@uiw/react-codemirror'
+import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
+import { useModalContext } from '../../hooks/modalContext'
+import { Actions } from '../dashboard/MainMenu/PathRender'
+import { getSnippetsStyleTag } from './utils'
 
 const SnippetEditor = styled(TemplateEditor)`
   background-color: var(--color-trois-lightest-2);
@@ -55,6 +62,14 @@ const SnippetActions = styled(FlexRow)`
       svg {
         transform: scale(1.2);
       }
+    }
+  }
+
+  > button[data-action='toggle'] {
+    color: var(--color-states);
+
+    svg {
+      fill: var(--color-states-dark);
     }
   }
 `
@@ -110,6 +125,160 @@ const SnippetsName = styled.span`
   white-space: nowrap;
 `
 
+const StyledActions = styled(Actions)`
+  button {
+    color: var(--color-trois-opaque-2);
+
+    &:hover {
+      background-color: #0001;
+    }
+
+    svg {
+      fill: var(--color-trois-opaque);
+    }
+  }
+`
+
+const CREATE_TEMPLATE_MODAL_ITEMS = [
+  {
+    label: 'Name',
+    component: (
+      <input
+        type="text"
+        placeholder="...Choose a name for your template"
+        data-field-id="displayName"
+      />
+    ),
+  },
+  {
+    label: 'Description',
+    component: (
+      <input
+        type="text"
+        placeholder="...Add a description"
+        data-field-id="description"
+      />
+    ),
+  },
+  {
+    label: 'Class',
+    component: (
+      <input
+        type="text"
+        placeholder="...Add a class name"
+        data-field-id="className"
+      />
+    ),
+  },
+  {
+    label: 'Css',
+    component: (
+      <TemplateEditor
+        style={{ width: '100%' }}
+        data-field-id="rawCss"
+        extensions={[cssLang(), EditorView.lineWrapping]}
+        onChange={content => {
+          document.querySelector('[data-field-id="rawCss"]').value = content
+        }}
+      />
+    ),
+  },
+]
+
+export const SnippetManagerHeader = () => {
+  const { createTemplate, userSnippets } = useDocumentContext()
+  const { modalState } = useModalContext()
+
+  const onSubmit = fields => {
+    const { displayName, rawCss = '', className, description } = fields
+
+    const validations = {
+      displayName,
+      rawCss: (rawCss.length && rawCss.includes('[class]')) || !rawCss.length,
+      className: !userSnippets.find(snip => snip.className === className),
+    }
+
+    if (Object.values(validations).some(v => !v)) {
+      const failedValidationFieldNames = Object.keys(validations).filter(
+        key => !validations[key],
+      )
+
+      const passedValidationFieldNames = Object.keys(validations).filter(
+        key => !!validations[key],
+      )
+
+      passedValidationFieldNames.forEach(
+        name =>
+          (document.querySelector(`[data-field-id="${name}"]`).style.border =
+            '1px solid #0000'),
+      )
+
+      failedValidationFieldNames.forEach(
+        name =>
+          (document.querySelector(`[data-field-id="${name}"]`).style.border =
+            '1px solid red'),
+      )
+
+      return false
+    }
+
+    const meta = { className, description }
+    const css = rawCss.replaceAll('[class]', `.${className}`)
+
+    const payload = {
+      displayName,
+      rawCss: css,
+      meta: JSON.stringify(meta),
+    }
+
+    createTemplate({
+      variables: {
+        input: { ...payload, category: 'user-snippets', status: 'private' },
+      },
+    })
+
+    return true
+  }
+
+  return (
+    <FlexRow
+      style={{
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
+      <p>Snippets</p>
+      <StyledActions>
+        <CleanButton
+          onClick={() =>
+            modalState.update({
+              show: true,
+              title: 'Create a new snippet',
+              onSubmit,
+              items: CREATE_TEMPLATE_MODAL_ITEMS,
+            })
+          }
+        >
+          <PlusOutlined />
+        </CleanButton>
+      </StyledActions>
+    </FlexRow>
+  )
+}
+
+const Description = styled.span`
+  background-color: var(--color-trois-lightest-2);
+  border-radius: 8px;
+  color: var(--color-trois-opaque);
+  font-size: 12px;
+  padding: 8px;
+  width: 100%;
+`
+
+const getSnippetEditorValue = id =>
+  document.querySelector(`#snippet-${id}`)?.value
+
 export const SnippetsManager = () => {
   const {
     settings,
@@ -118,17 +287,37 @@ export const SnippetsManager = () => {
     markedSnippet,
     getCtxNode,
     userInteractions,
-    removeSnippet,
   } = useAiDesignerContext()
+
+  const { userSnippets, updateTemplateCss, deleteTemplate } =
+    useDocumentContext()
 
   if (!settings.editor.enableSelection) return null
 
-  const { snippets } = settings.snippetsManager
+  const snippets = [...userSnippets].sort((a, b) => {
+    const isAddedA = getCtxNode()?.classList?.contains(`${a.className}`)
+    const isAddedB = getCtxNode()?.classList?.contains(`${b.className}`)
+    return isAddedB - isAddedA
+  })
 
   const snippetRender = snip => {
-    const { className, description, classBody } = snip
-    const isAdded = getCtxNode()?.classList?.contains(`aid-snip-${className}`)
-    const isMarked = className === markedSnippet
+    const { className, description, classBody, displayName, id } = snip
+    const isAdded = getCtxNode()?.classList?.contains(`${className}`)
+    const isMarked = className === markedSnippet?.className
+
+    const handleSave = e => {
+      e.preventDefault()
+      e.stopPropagation()
+      const newCss = getSnippetEditorValue(id)
+      const styleTag = getSnippetsStyleTag()
+
+      if (styleTag && newCss) {
+        styleTag.innerHTML = styleTag.innerHTML.replace(classBody, newCss)
+        updateTemplateCss({
+          variables: { id, rawCss: newCss, displayName },
+        })
+      }
+    }
 
     const handleSnippets = e => {
       e.preventDefault()
@@ -137,22 +326,19 @@ export const SnippetsManager = () => {
       const { tagName } = selectedCtx
 
       if (action === 'delete') {
-        removeSnippet
-        AiDesigner.filterBy({ tagName }, c =>
-          c.snippets.remove(`aid-snip-${className}`),
-        )
+        AiDesigner.filterBy({ tagName }, c => c.snippets.remove(`${className}`))
+        deleteTemplate({ variables: { id } })
       } else {
         userInteractions.ctrl
           ? AiDesigner.updateContext().filterBy({ tagName }, c =>
-              c.snippets[action](`aid-snip-${className}`),
+              c.snippets[action](`${className}`),
             )
-          : selectedCtx.snippets[action](`aid-snip-${className}`)
+          : selectedCtx.snippets[action](`${className}`)
       }
 
-      isMarked && setMarkedSnippet('')
+      isMarked && setMarkedSnippet({})
     }
 
-    const displayName = capitalize(className?.replaceAll('-', ' '))
     return (
       <SnippetWrapper>
         <Snippet $active={!isMarked && isAdded} $marked={isMarked}>
@@ -169,13 +355,22 @@ export const SnippetsManager = () => {
               onClick={e => {
                 e.preventDefault()
                 e.stopPropagation()
-                setMarkedSnippet(isMarked ? '' : className)
+                setMarkedSnippet(isMarked ? {} : snip)
               }}
               title={`Edit snippet via prompt: \nYou can change the styles, description\n name of the snippet and/or create a copy.\n Only one snippet can be edited at a time.\n`}
               type="button"
             >
               <EditOutlined style={{ pointerEvents: 'none' }} />
             </CleanButton>
+            {isMarked && (
+              <CleanButton
+                $disabled={!getSnippetEditorValue(id)}
+                onClick={handleSave}
+                title={'Save'}
+              >
+                <SaveOutlined style={{ pointerEvents: 'none' }} />
+              </CleanButton>
+            )}
             <CleanButton
               data-action="delete"
               onClick={handleSnippets}
@@ -187,17 +382,24 @@ export const SnippetsManager = () => {
           </SnippetActions>
         </Snippet>
         {isMarked && (
-          <SnippetEditor
-            extensions={[cssLang(), EditorView.lineWrapping]}
-            onChange={content => {
-              updateSnippetBody(className, content)
-            }}
-            value={classBody}
-          />
+          <>
+            {description && (
+              <Description>Description: {description}</Description>
+            )}
+            <SnippetEditor
+              id={`snippet-${id}`}
+              extensions={[cssLang(), EditorView.lineWrapping]}
+              onChange={content => {
+                document.querySelector(`#snippet-${id}`).value = content
+              }}
+              value={classBody}
+            />
+          </>
         )}
       </SnippetWrapper>
     )
   }
+
   return (
     <Root $active>
       <Each of={snippets} as={snippetRender} if={snippets.length} />

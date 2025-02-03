@@ -28,11 +28,7 @@ import {
   GET_FILES_FROM_DOCUMENT,
 } from '../queries/documentAndSections'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
-import {
-  GET_AID_MISC,
-  GET_AID_MISC_BY_ID,
-  GET_CSS,
-} from '../../../graphql/aiDesignerMisc'
+
 import { useDocumentContext } from '../../dashboard/hooks/DocumentContext'
 
 const voidElements = [
@@ -69,12 +65,14 @@ const useAssistant = () => {
     setUserImages,
     updatePreview,
     settings,
-    setSettings,
     css,
     setCss,
     useRag,
     model,
   } = useAiDesignerContext()
+
+  const { userSnippets, createTemplate, updateTemplateCss } =
+    useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
 
@@ -107,19 +105,50 @@ const useAssistant = () => {
       }
       const actions = {
         css: val => {
-          const { toReplace = [] } = safeParse(val)
+          const { toReplace = [], toAdd } = safeParse(val)
           let clonedCss = css
           toReplace.forEach(({ previous, newCss }) => {
             console.log({ matches: clonedCss.match(previous) })
             clonedCss = clonedCss.replace(previous, newCss)
           })
+          toAdd && (clonedCss += `\n${toAdd}`)
           console.log('css', safeParse(val))
           setCss(clonedCss)
+          debounce(() => updatePreview(true, clonedCss), 1000)()
           AiDesigner.emit('updateCss', clonedCss)
         },
-        snippet: val => {
-          addSnippet(true, val)
-          updatePreview(true)
+        snippet: snippet => {
+          if (snippet?.id) {
+            const rawCss = snippet?.classBody
+            const meta = JSON.stringify({
+              className: snippet?.className,
+              description: snippet?.description,
+            })
+
+            updateTemplateCss({
+              variables: {
+                id: snippet.id,
+                rawCss: rawCss,
+                meta,
+              },
+            })
+          } else {
+            createTemplate({
+              variables: {
+                input: {
+                  displayName: snippet?.displayName,
+                  rawCss: snippet.classBody,
+                  meta: JSON.stringify({
+                    className: snippet.className,
+                    description: snippet.description,
+                  }),
+                  category: 'user-snippets',
+                  status: 'private',
+                },
+              },
+            })
+          }
+          selectedCtx.snippets.add(`${snippet.className}`)
         },
         feedback: val => {
           selectedCtx.conversation.push({ role: 'assistant', content: val })
@@ -184,8 +213,6 @@ const useAssistant = () => {
         actionsApplied?.push(action)
       })
       // console.log({ response, actionsApplied })
-
-      updatePreview(true)
     },
   })
 
@@ -207,24 +234,18 @@ const useAssistant = () => {
   const [ragSearchQuery, { loading: ragSearchLoading }] =
     useLazyQuery(RAG_SEARCH_QUERY)
 
-  const [getAidMisc, { data: aidMisc }] = useMutation(GET_AID_MISC, {
-    onCompleted: ({ getOrCreateAidMisc: { snippets, templates } }) => {
-      setSettings(prev => {
-        const temp = prev
-        temp.snippetsManager.snippets = snippets
-        return temp
-      })
-      // console.log(templates)
-    },
-  })
-  const [getAidMiscById] = useLazyQuery(GET_AID_MISC_BY_ID)
-
   // #endregion GQL Hooks ----------------------------------------------------------------
 
   const handleSend = async e => {
     if (loading || userPrompt?.length < 2) return
     e?.preventDefault()
     setFeedback(userPrompt)
+    const userSnippetsShape = userSnippets?.map(t => ({
+      className: safeParse(t.meta)?.className,
+      description: safeParse(t.meta)?.description,
+      classBody: t?.rawCss,
+      id: t?.id,
+    }))
 
     const input = {
       text: [userPrompt],
@@ -241,7 +262,7 @@ const useAssistant = () => {
       selectors: getNodes(htmlSrc, '*', 'localName'),
       providedText: ContextIsNotDocument && selectedCtx.node.innerHTML,
       markedSnippet,
-      snippets: ContextIsNotDocument && settings.snippetsManager.snippets,
+      snippets: ContextIsNotDocument && userSnippetsShape,
       waxClass: '.ProseMirror[contenteditable]',
     }
 
@@ -314,9 +335,6 @@ const useAssistant = () => {
     handleSend,
     updateImageUrl,
     handleImageUpload,
-    getAidMisc,
-    getAidMiscById,
-    aidMisc,
   }
 
   return values

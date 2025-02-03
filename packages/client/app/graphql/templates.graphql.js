@@ -46,3 +46,15 @@ export const FETCH_AND_CREATE_TEMPLATE_FROM_URL = gql`
     fetchAndCreateTemplateFromUrl(url: $url)
   }
 `
+export const GET_USER_SNIPPETS = gql`
+  query GetUserSnippets {
+    getUserSnippets {
+      id
+      classBody
+      className
+      displayName
+      description
+      meta
+    }
+  }
+`

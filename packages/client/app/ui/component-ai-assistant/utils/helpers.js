@@ -130,10 +130,7 @@ export const setImagesDefaultStyles = node => {
 // #region SNIPPETS
 export const getNodes = (src, selector, prop) =>
   [...src.querySelectorAll(selector)]?.map(el => el[prop] ?? el)
-export const snippetsToCssText = (
-  snippets,
-  prefix = 'div#assistant-ctx .aid-snip-',
-) =>
+export const snippetsToCssText = (snippets, prefix = 'div#assistant-ctx ') =>
   snippets
     .map(({ className, description, classBody }) =>
       className
@@ -149,7 +146,7 @@ export const snippetsToCssText = (
 
 export const getSnippetsByNode = (node, snippets) => {
   if (!node) return
-  const classList = [...node.classList].map(c => c.replace('aid-snip-', ''))
+  const classList = [...node.classList].map(c => c)
 
   const snips = snippets
     .map(s => classList.includes(s.className) && s)
@@ -309,4 +306,22 @@ export const safeParse = (str, fallbackKey) => {
   } catch (e) {
     return { [fallbackKey]: str }
   }
+}
+
+export const getPreviewIframe = () =>
+  document.querySelector('#pagedjs-preview-iframe')
+export const getSnippetsStyleTag = () =>
+  getPreviewIframe()?.contentDocument?.body?.querySelector('#snippets')
+
+export const createOrUpdateStyleSheet = content => {
+  if (!content || !getPreviewIframe()) return
+  const cssContent = content.map(snippet => snippet.classBody).join('\n')
+  if (getSnippetsStyleTag()) {
+    getSnippetsStyleTag().textContent = cssContent
+    return
+  }
+  const style = document.createElement('style')
+  style.id = 'snippets'
+  style.textContent = cssContent
+  getPreviewIframe()?.contentDocument?.body?.appendChild(style)
 }

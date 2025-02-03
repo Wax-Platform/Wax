@@ -192,6 +192,7 @@ const Header = props => {
           snippetsManager: false,
           codeEditor: false,
         })
+    updatePreview(true, css)
   }
 
   return (

@@ -10,12 +10,16 @@ import {
   CREATE_TEMPLATE,
   DELETE_TEMPLATE,
   FETCH_AND_CREATE_TEMPLATE_FROM_URL,
+  GET_USER_SNIPPETS,
   GET_USER_TEMPLATES,
   UPDATE_TEMPLATE_CSS,
 } from '../../../graphql/templates.graphql'
+import { getSnippetsStyleTag } from '../../component-ai-assistant/utils'
+import { debounce } from 'lodash'
 
 const useTemplates = () => {
   const [masterTemplateId, setMasterTemplateId] = useState(null)
+  const [userSnippets, setUserSnippets] = useState([])
 
   const [
     getUserTemplates,
@@ -28,8 +32,20 @@ const useTemplates = () => {
     fetchPolicy: 'cache-and-network',
   })
 
+  const [
+    getUserSnippets,
+    {
+      data: userSnippetsData,
+      loading: userSnippetsLoading,
+      error: userSnippetsError,
+    },
+  ] = useLazyQuery(GET_USER_SNIPPETS, {
+    fetchPolicy: 'cache-and-network',
+  })
+
   const refetchQueries = [
     { query: GET_USER_TEMPLATES, fetchPolicy: 'cache-and-network' },
+    { query: GET_USER_SNIPPETS, fetchPolicy: 'cache-and-network' },
   ]
 
   const [updateTemplateCss] = useMutation(UPDATE_TEMPLATE_CSS, {
@@ -42,7 +58,20 @@ const useTemplates = () => {
 
   useEffect(() => {
     getUserTemplates()
+    getUserSnippets()
   }, [])
+
+  useEffect(() => {
+    if (userSnippetsData?.getUserSnippets) {
+      setUserSnippets(userSnippetsData.getUserSnippets)
+      const styleTag = getSnippetsStyleTag()
+      if (styleTag) {
+        styleTag.innerHTML = userSnippetsData.getUserSnippets
+          .map(s => s.classBody)
+          .join('\n')
+      }
+    }
+  }, [userSnippetsData])
 
   return {
     systemTemplatesData,
@@ -56,6 +85,7 @@ const useTemplates = () => {
 
     masterTemplateId,
     setMasterTemplateId,
+    userSnippets,
   }
 }
 
@@ -93,7 +123,7 @@ export const DocumentContextProvider = ({ children }) => {
       history.push(`/${doc.identifier}`, { replace: true })
       setCurrentDoc(doc)
       setCss(doc.template.rawCss)
-      updatePreview(true)
+      debounce(updatePreview(true), 2000)
     },
   })
 

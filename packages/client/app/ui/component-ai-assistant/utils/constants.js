@@ -170,23 +170,6 @@ IMPORTANT:
 `,
 })
 
-const cssWriteRules = ({ selectors, waxClass }) => {
-  const editorSelector = waxClass || 'div#assistant-ctx'
-
-  return `${`- This are all elements in the context of the artcle, you must change them as needed: ${[
-    ...new Set(selectors),
-  ].join(', ')}.`}
-- All selectors except for pagedjs special selectors must be prefixed with the main container selector, like this: 
-  ${editorSelector} [tagname] {
-    ...rules
-  }
-  ${editorSelector} [another Tagname] {
-    ..rules
-  }
-  ... and so on as needed.
-`
-}
-
 const cssRules = `Consider the following when writing css: 
   - Use hex for colors. 'user' can request to mix colors: for example if the color is #000000 and 'user' asks for a litle more of blue you have to mix the hex values acordingly
 
@@ -197,6 +180,7 @@ const cssRules = `Consider the following when writing css:
 const cssDescription = `Only if user requested a change on the css: 
 Purpose:
 The CSS output is designed to dynamically update the styles of the article based on user requests. This allows for real-time customization and styling adjustments.
+Always ensure that the CSS output is valid and well-formed (with newlines) css text.
 Expected Format:
 The CSS output should be a stringified JSON object with the following structure:
 {
@@ -206,7 +190,7 @@ The CSS output should be a stringified JSON object with the following structure:
       "newCss": "The new CSS rule that will replace the previous one, including all of its declarations."
     }
   ],
-  "toAdd": "A string with the new CSS rule to add, only if no matching rule is found in the provided stylesheet."
+  "toAdd": "A string with the new CSS rule to add, only if no matching rule is found in the provided stylesheet (IMPORTANT: you must ensure that the new rule does not exists on the provided stylesheet to use this property)."
 }
 `
 
@@ -219,34 +203,29 @@ const contentDescription = `Only in case that user request a change, improvement
 Otherwise omit this property
 `
 
-const snippetShape = (ctx, marked, snippets) => {
+const snippetShape = (ctx, markedSnippet) => {
   return `If user request a style change: A object with the following shape(described below).
   Consider this before building the object:
-  - This Object is a snippet to create a css class with nested declarations.
+  - This Object is a snippet to create a css class.
 ${
-  marked
-    ? `- Based on user's request, you must udpate the following snippet returning the same properties, keeping the same className and updating only the following properties: "description"(if needed) and "classBody", dont remove the properties if user does not specify it. This is the snippet to update: ${JSON.stringify(
-        snippets[snippets.findIndex(s => s.className === marked)],
-      )}`
+  markedSnippet
+    ? `- Based on user's request, you must udpate the following snippet returning the same properties, keeping the same className and updating only the following properties: "description"(if needed) and "classBody", dont remove the properties if user does not specify it. This is the snippet classBody to update: ${markedSnippet?.classBody}`
     : `- You must create a new snippet from the ground, without mixing the styles requested on previous prompts. this means that the new snippet only must address changes requested on the last prompt only`
 }
   This is the expected object properties description:
   {
-    className: ${
-      marked ||
-      `the name of the class, it must be short, in kebab case and it must describe the changes on the element in context, in this case ${
-        htmlTagNames[ctx.node.localName] || ctx.node.localName
-      }`
+    ${markedSnippet?.id ? `id: ${markedSnippet.id},` : ''}
+    ${
+      !markedSnippet?.id
+        ? `className: the name of the class, it must be short, in kebab case and it must describe the changes on the element in context, in this case ${
+            htmlTagNames[ctx.node.localName] || ctx.node.localName
+          },
+          displayName: a human readable name for the snippet,`
+        : ''
     },
-    elementType: - The tag name of element in context, in this case: '${
-      ctx.node.localName
-    }'
     description: - The description of the styles applied, it most be acurate. (use the word snippet instead of class)
     classBody: 
-      - A valid and well-formed and formatted(with newlines) css text containing the class body: 
-      - It must have nested declarations for childs styling.
-      - don't add the either className or the initial and end curly brackets(only add them on the child's nested declarations)
-      - if the element in context has childs you must style them within the nested declarations
+      - A valid and well-formed and formatted(with newlines) css text containing the class rule, (use the className): 
   }
   `
 }
@@ -312,27 +291,16 @@ const notesSE = [
 const generatedContext = (
   isSingleElement,
   sheet,
-  snippets,
+  snippets = null,
   providedText,
-  ctx,
-  selectors,
-  waxClass,
 ) => {
   return `${
     !isSingleElement && sheet
       ? `This style sheet is the css context:\nBEGIN STYLESHEET:\n${sheet}\nEND STYLESHEET\n`
       : ''
   }${
-    isSingleElement && snippets
-      ? `\nThis are the classes that affect the styles of the element(and childs) in context: ${snippets}`
-      : ''
-  }${
     isSingleElement && providedText
       ? `\nThis is the html content of the element in context: "${providedText}"\n`
-      : ''
-  }${
-    !isSingleElement
-      ? `\n${cssWriteRules({ ...ctx, selectors, waxClass })}`
       : ''
   }
 `
@@ -346,7 +314,6 @@ export const AiDesignerSystem = ({
   selectors,
   providedText,
   markedSnippet,
-  snippets,
   waxClass,
 }) => {
   const isSE = ctx?.id !== 'aid-ctx-main'
@@ -354,7 +321,7 @@ export const AiDesignerSystem = ({
   const context = generatedContext(
     isSE,
     sheet,
-    !isSE && getSnippetsByNode(ctx.node, snippets),
+    null,
     providedText,
     ctx,
     selectors,
@@ -368,7 +335,7 @@ export const AiDesignerSystem = ({
     callDallE: callDallEDescription,
     ...(isSE
       ? {
-          snippet: snippetShape(ctx, markedSnippet, snippets),
+          snippet: snippetShape(ctx, markedSnippet),
           insertHtml: insertHtmlShape,
           content: contentDescription,
         }
