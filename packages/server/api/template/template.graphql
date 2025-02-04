@@ -12,6 +12,15 @@ type Template {
   imageUrl: String
 }
 
+type Snippet {
+  id: ID!
+  classBody: String!
+  className: String!
+  displayName: String!
+  description: String!
+  meta: String!
+}
+
 input CreateTemplateInput {
   docId: ID
   fileId: ID
