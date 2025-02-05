@@ -1,5 +1,5 @@
 /* stylelint-disable declaration-no-important */
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { debounce } from 'lodash'
 import { CleanButton, FlexRow } from '../_styleds/common'
@@ -26,7 +26,6 @@ const ITEM_HEIGHT = 24
 const Overlay = styled.div`
   align-items: center;
   backdrop-filter: blur(4px);
-  background-color: #fff7;
   display: ${p => (p.visible ? 'flex' : 'none')};
   height: 100dvh;
   justify-content: center;
@@ -35,7 +34,8 @@ const Overlay = styled.div`
   z-index: 999999999;
 `
 
-const ModalForm = styled.div`
+const ModalForm = styled.form`
+  align-items: center;
   animation: ${p => p.shouldAnimate && showAnimation} 0.3s;
   background-color: var(--color-trois-lightest);
   border: 1px solid var(--color-trois-alpha);
@@ -44,7 +44,7 @@ const ModalForm = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 50%;
+  max-height: 50%;
   padding: 8px;
   width: 35%;
 
@@ -54,9 +54,22 @@ const ModalForm = styled.div`
   }
 `
 
+const ModalHeader = styled(FlexRow)`
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 8px;
+  width: 100%;
+
+  * {
+    color: var(--color-trois-opaque-2);
+    margin: 0;
+  }
+`
+
 const Menu = styled.ul`
   --item-height: ${ITEM_HEIGHT}px;
   --svg-fill: var(--color-trois-opaque-2);
+  align-items: center;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -85,11 +98,10 @@ const MenuItem = styled.li`
   align-items: flex-start;
   background-color: none;
   display: flex;
-  filter: drop-shadow(0 0 2px var(--color-trois-alpha));
   flex-direction: column;
-  max-height: 300px;
+  height: fit-content;
   overflow-y: auto;
-  width: 100%;
+  width: 98%;
 
   [data-field-id] {
     width: 100%;
@@ -97,20 +109,23 @@ const MenuItem = styled.li`
 
   input {
     align-self: flex-end;
-    background: var(--color-trois-lightest-2);
+    background: none;
     border: none;
-    border-bottom: 1px solid #0000;
-    border-radius: 8px;
+    border-bottom: 1px solid var(--color-trois-alpha);
     font-size: 12px;
-    margin-top: -12px;
-    padding: 12px 20px 4px;
+    padding-top: 4px;
     transition: all 0.2s;
-    width: calc(100% - 8px);
     z-index: 1;
 
     &:focus {
-      border-bottom-color: var(--color-trois-opaque);
+      border-bottom-color: var(--color-trois-opaque-2);
       outline: none;
+    }
+
+    &::placeholder {
+      color: var(--color-trois-opaque);
+      font-size: 12px;
+      opacity: 0.8;
     }
   }
 `
@@ -127,14 +142,10 @@ const SubmitButton = styled(CleanButton)`
 `
 
 const Label = styled.span`
-  background: var(--color-trois-lightest-2);
-  border-radius: 1rem;
-  color: var(--color-trois-opaque);
+  color: var(--color-trois-opaque-2);
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
-  padding: 6px 8px;
-  text-decoration: underline;
   width: fit-content;
   z-index: 3;
 `
@@ -165,6 +176,7 @@ const ContextModal = ({ className }) => {
   const visible = useBool({ start: show })
   const transitioning = useBool({ start: false })
   const { length: itemsCount } = items || []
+  const formRef = useRef(null)
 
   const handleHide = debounce(transitioning.off, 300)
 
@@ -174,51 +186,48 @@ const ContextModal = ({ className }) => {
     handleHide()
   }, [show])
 
+  useEffect(() => {
+    if (formRef?.current) {
+      formRef.current.querySelector('input').focus()
+    }
+  }, [formRef?.current])
+
   const shouldNotDisplay = !transitioning.state && !visible.state && !show
   if (shouldNotDisplay) return null
 
   const shouldAnimate = visible.state && transitioning.state
   const options = items
 
+  const handleSubmit = e => {
+    e.preventDefault()
+    const fieldsInDom = document.querySelectorAll('[data-field-id]')
+    const buildEntries = ({ dataset: { fieldId }, value }) => [fieldId, value]
+
+    const fieldsEntries = [...fieldsInDom].map(buildEntries)
+    const fields = Object.fromEntries(fieldsEntries)
+    const passed = safeCall(onSubmit, console.log)(fields)
+    passed !== false && modalState.reset()
+  }
   return (
     <Overlay visible={modalState.state?.show}>
-      <ModalForm>
-        <FlexRow
-          style={{
-            alignItems: 'center',
-            backgroundColor: '#0001',
-            padding: '4px 12px',
-            borderRadius: '12px',
-            fontSize: '16px',
-          }}
-        >
+      <ModalForm
+        ref={formRef}
+        onSubmit={handleSubmit}
+        shouldAnimate={shouldAnimate}
+      >
+        <ModalHeader>
           {modalState.state?.title && <h3>{modalState.state.title}</h3>}
           <CloseOutlined
             style={{ fontSize: '14px' }}
             onClick={modalState.reset}
           />
-        </FlexRow>
+        </ModalHeader>
         <Menu>
           <Each of={options} as={optionRender} if={itemsCount} />
         </Menu>
         {itemsCount && onSubmit && (
           <ModalFooter>
-            <SubmitButton
-              onClick={() => {
-                const fieldsInDom = document.querySelectorAll('[data-field-id]')
-                const buildEntries = ({ dataset: { fieldId }, value }) => [
-                  fieldId,
-                  value,
-                ]
-
-                const fieldsEntries = [...fieldsInDom].map(buildEntries)
-                const fields = Object.fromEntries(fieldsEntries)
-                const passed = safeCall(onSubmit, console.log)(fields)
-                passed !== false && modalState.reset()
-              }}
-            >
-              Submit
-            </SubmitButton>
+            <SubmitButton onClick={handleSubmit}>ok</SubmitButton>
           </ModalFooter>
         )}
       </ModalForm>

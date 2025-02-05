@@ -170,9 +170,11 @@ export const DocumentContextProvider = ({ children }) => {
   const createResource = (resourceType, additionalProperties = {}) => {
     return e => {
       if (resourceType === 'doc' && !parentId) return
-      const parent = ['template', 'snip'].includes(extension)
-        ? null
-        : currentFolder?.parent?.id
+      const parent =
+        !['template', 'snip'].includes(extension) &&
+        ['template', 'snippet'].includes(resourceType)
+          ? null
+          : parentId
 
       graphQL.addResource({
         variables: { id: parent, resourceType, ...additionalProperties },
