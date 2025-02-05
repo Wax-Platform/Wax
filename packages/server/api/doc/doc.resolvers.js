@@ -1,6 +1,5 @@
 const { Doc, Team, TeamMember, User } = require('@pubsweet/models')
 const Template = require('../../models/template/template.model')
-const ResourceTree = require('../../models/resourceTree/resourceTree.model')
 const { logger } = require('@coko/server')
 
 const getDocResolver = async (_, { identifier }) => {
@@ -31,12 +30,16 @@ module.exports = {
       return docTemplate
     },
     title: async doc => {
+      const ResourceTree = require('../../models/resourceTree/resourceTree.model')
+
       const titleFromResource = await ResourceTree.query().findOne({
         docId: doc.id,
       })
       return titleFromResource.title || ''
     },
     resourceId: async doc => {
+      const ResourceTree = require('../../models/resourceTree/resourceTree.model')
+
       const resource = await ResourceTree.query().findOne({ docId: doc.id })
       return resource.id
     },

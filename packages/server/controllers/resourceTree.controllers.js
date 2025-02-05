@@ -1,4 +1,4 @@
-const { ResourceTree } = require('@pubsweet/models')
+const { logger } = require('@coko/server')
 
 const createIdentifier = () => {
   return Array.from(Array(20), () =>
@@ -7,14 +7,23 @@ const createIdentifier = () => {
 }
 
 const openFolder = async (_, { id, resourceType = 'dir' }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   return ResourceTree.openFolder(id, resourceType, ctx.user)
 }
 
-const addResource = async (_, { id, resourceType }, ctx) => {
+const addResource = async (
+  _,
+  { id, resourceType, extension, templateProps, title },
+  ctx,
+) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
+  logger.info(`creating`, { id, resourceType, extension })
   if (resourceType === 'dir') {
     const newFolder = await ResourceTree.createNewFolderResource({
+      title,
       id,
       userId: ctx.user,
+      extension,
     })
 
     return {
@@ -27,6 +36,10 @@ const addResource = async (_, { id, resourceType }, ctx) => {
     const newResource = await ResourceTree.createNewDocumentResource({
       id,
       identifier,
+      templateProps,
+      resourceType,
+      extension,
+      title,
       userId: ctx.user,
     })
 
@@ -40,6 +53,7 @@ const addResource = async (_, { id, resourceType }, ctx) => {
 }
 
 const deleteResource = async (_, { id }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   const resource = await ResourceTree.getResource(id)
   const parentId = resource.parentId
   await ResourceTree.deleteFolderAndChildren(id, ctx.user)
@@ -47,6 +61,7 @@ const deleteResource = async (_, { id }, ctx) => {
 }
 
 const renameResource = async (_, { id, title }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   const getSafeName = await ResourceTree.getSafeName({ id, title })
 
   const updatedItem = await ResourceTree.query()
@@ -58,6 +73,7 @@ const renameResource = async (_, { id, title }, ctx) => {
 }
 
 const moveResource = async (_, { id, newParentId }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   await ResourceTree.moveResource({
     id,
     newParentId,
@@ -67,6 +83,7 @@ const moveResource = async (_, { id, newParentId }, ctx) => {
 }
 
 const shareResource = async (_, { resourceId, userId }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   const resource = await ResourceTree.shareResource(
     resourceId,
     userId,
@@ -76,6 +93,7 @@ const shareResource = async (_, { resourceId, userId }, ctx) => {
 }
 
 const unshareResource = async (_, { resourceId, userId }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   const resource = await ResourceTree.unshareResource(
     resourceId,
     userId,
@@ -85,11 +103,13 @@ const unshareResource = async (_, { resourceId, userId }, ctx) => {
 }
 
 const addToFavorites = async (_, { resourceId }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   const resource = await ResourceTree.addToFavorites(resourceId, ctx.user)
   return resource
 }
 
 const pasteResources = async (_, { parentId, resourceIds, copy }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   const resources = await ResourceTree.pasteResources(
     parentId,
     resourceIds,
@@ -100,6 +120,7 @@ const pasteResources = async (_, { parentId, resourceIds, copy }, ctx) => {
 }
 
 const reorderChildren = async (_, { parentId, newChildrenIds }, ctx) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   await ResourceTree.reorderChildren(parentId, newChildrenIds)
   return true
 }

@@ -2,11 +2,10 @@
 const { startServer, verifyJWT, logger } = require('@coko/server')
 const map = require('lib0/map')
 const { WebSocketServer } = require('ws')
-const { Doc, ResourceTree } = require('@pubsweet/models')
 const config = require('config')
 const seedResourceTree = require('./scripts/seedResourceTree')
-
 const { WSSharedDoc, utils } = require('./services')
+const Doc = require('./models/doc/doc.model')
 
 const pingTimeout = 30000
 
@@ -85,16 +84,16 @@ const init = async () => {
           // logger.info('Adding user as viewer')
           // await docObject.addMemberAsViewer(userId)
         } else {
-          logger.info('Creating new document')
-          await ResourceTree.createNewDocumentResource({ identifier, userId })
+          // logger.info('Creating new document')
+          // await ResourceTree.createNewDocumentResource({ identifier, userId })
         }
       } else if (CLIENT_SHOW_EMAIL_LOGIN_OPTION == 'false') {
         logger.info('Creating new document')
         if (!docObject) {
-          await ResourceTree.createNewDocumentResource({
-            title: identifier,
-            identifier,
-          })
+          // await ResourceTree.createNewDocumentResource({
+          //   title: identifier,
+          //   identifier,
+          // })
         }
       }
 

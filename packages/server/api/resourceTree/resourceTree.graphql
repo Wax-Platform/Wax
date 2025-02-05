@@ -6,6 +6,8 @@ type Resource {
   doc: Doc
   parentId: ID
   resourceType: String
+  templateId: ID
+  extension: String
   identifier: String
 }
 
@@ -37,7 +39,14 @@ extend type Query {
 }
 
 extend type Mutation {
-  addResource(id: ID, resourceType: String!, identifier: String): NewResource!
+  addResource(
+    id: ID
+    resourceType: String!
+    identifier: String
+    extension: String
+    title: String
+    templateProps: String # JSON string of template props
+  ): NewResource!
   deleteResource(id: ID!): FolderIdResponse!
   renameResource(id: ID!, title: String!): FolderIdResponse!
   moveResource(id: ID!, newParentId: ID): FolderIdResponse!

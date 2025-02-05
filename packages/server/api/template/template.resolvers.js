@@ -2,6 +2,7 @@ const { logger, fileStorage, useTransaction } = require('@coko/server')
 const Template = require('../../models/template/template.model')
 const { capitalize } = require('lodash')
 const { fetchAndStoreTemplate } = require('../../services/files.service')
+const createResourcesForTemplates = require('../helpers/resourceHelpers')
 
 const seedUserTemplates = async userId => {
   logger.info('Seeding user templates')
@@ -107,23 +108,69 @@ const resolvers = {
     },
   },
   Query: {
+    getTemplate: async (_, { id }) => {
+      const template = await Template.query().findById(id)
+      return template
+    },
     getSystemTemplates: async () => {
       const systemTemplates = await Template.query().where('category', 'system')
       return systemTemplates
     },
     getUserTemplates: async (_, __, ctx) => {
+      const ResourceTree = require('../../models/resourceTree/resourceTree.model')
       const { user: userId } = ctx
-      logger.info('Getting user templates', userId)
-      const userTemplates = await Template.query()
-        .where('userId', userId)
-        .andWhere('category', 'user')
-      if (!userTemplates.length) {
-        await seedUserTemplates(userId)
-        return Template.query()
-          .where('userId', userId)
-          .andWhere('category', 'user')
-      }
-      return userTemplates
+      return useTransaction(
+        async trx => {
+          logger.info('Getting user templates', userId)
+          const userTemplates = await Template.query(trx)
+            .where('userId', userId)
+            .andWhere('category', 'user')
+
+          if (!userTemplates.length) {
+            await seedUserTemplates(userId)
+            return Template.query(trx)
+              .where('userId', userId)
+              .andWhere('category', 'user')
+          }
+
+          const templatesInResources = await ResourceTree.query(trx)
+            .where({
+              userId,
+              resourceType: 'sys',
+              title: 'My Snippets',
+            })
+            .orWhere({
+              userId,
+              resourceType: 'sys',
+              title: 'My Templates',
+            })
+
+          if (!templatesInResources.length) {
+            await createResourcesForTemplates({
+              category: 'user',
+              folderName: 'My Templates',
+              extension: 'template',
+              options: { trx },
+              userId,
+            })
+
+            await createResourcesForTemplates({
+              category: 'user-snippets',
+              folderName: 'My Snippets',
+              extension: 'snip',
+              options: { trx },
+              userId,
+            })
+
+            return Template.query(trx)
+              .where('userId', userId)
+              .andWhere('category', 'user')
+          }
+
+          return userTemplates
+        },
+        { passedTrxOnly: true },
+      )
     },
     getUserSnippets: async (_, __, ctx) => {
       const { user: userId } = ctx
@@ -154,19 +201,57 @@ const resolvers = {
     },
   },
   Mutation: {
+    // TODO: this should be done using the same logic as the documents on createNewDocumentResource
     createTemplate: async (_, { input }, ctx) => {
+      const ResourceTree = require('../../models/resourceTree/resourceTree.model')
+
       const { user: userId } = ctx
-      const { meta, ...restInput } = input
+      const {
+        meta,
+        parentFolderId,
+        displayName,
+        resourceType = 'template', // snippet for snippets
+        status = 'private',
+        rawCss = '/* Create a new template */',
+        ...restInput
+      } = input
       const parsedMeta = JSON.parse(meta || '{}')
+      const isTemplate = resourceType === 'template'
+      const extension = isTemplate ? 'template' : 'snip'
+      const category = isTemplate ? 'user' : 'user-snippets'
 
       try {
         const newTemplate = await Template.query().insert({
           userId,
-          category: 'user',
-          status: 'private',
+          category,
+          status,
+          displayName,
           meta: parsedMeta,
           ...restInput,
         })
+
+        logger.info('Created new template', newTemplate)
+
+        const whereFallback = {
+          userId,
+          resourceType: 'sys',
+          title: isTemplate ? 'My Templates' : 'My Snippets',
+        }
+
+        const parentId =
+          parentFolderId ||
+          (await ResourceTree.query().where(whereFallback)?.id)
+
+        await ResourceTree.createNewDocumentResource({
+          id: parentId,
+          resourceType,
+          userId,
+          extension,
+          templateId: newTemplate.id,
+          title: displayName,
+          resourceType,
+        })
+
         return newTemplate.id
       } catch (error) {
         logger.error('Error creating template', error)
@@ -180,6 +265,8 @@ const resolvers = {
       return updatedTemplate.id
     },
     deleteTemplate: async (_, { id }) => {
+      const ResourceTree = require('../../models/resourceTree/resourceTree.model')
+      await ResourceTree.query().delete().where('templateId', id)
       await Template.query().deleteById(id)
       return id
     },

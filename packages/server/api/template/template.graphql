@@ -29,9 +29,12 @@ input CreateTemplateInput {
   meta: String
   status: String
   rawCss: String
+  resourceType: String
+  parentFolderId: ID
 }
 
 extend type Query {
+  getTemplate(id: ID!): Template
   getSystemTemplates: [Template]
   getUserTemplates: [Template]
   getDocumentTemplates: [Template]

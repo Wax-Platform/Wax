@@ -4,15 +4,14 @@ const {
   logger,
   useTransaction,
 } = require('@coko/server')
-const { Team, TeamMember, Doc, User } = require('@pubsweet/models')
+const { Team, TeamMember, User } = require('@pubsweet/models')
 const { idNullable, stringNullable, arrayOfIds, string } = modelTypes
 const config = require('config')
-const Template = require('../template/template.model')
 
 const AUTHOR_TEAM = config.teams.nonGlobal.author
-const RESOURCE_TYPES = ['doc', 'dir', 'root', 'sys']
-const TEAM_OBJECT_TYPE = 'resource'
+const RESOURCE_TYPES = ['doc', 'dir', 'root', 'sys', 'template', 'snippet']
 const EXTENSIONS = ['doc', 'img', 'snip', 'css', 'template', 'book']
+const TEAM_OBJECT_TYPE = 'resource'
 const TYPES_TO_EXCLUDE_FROM_TEAM = ['sys', 'root']
 const SYSTEM_FOLDERS = [
   'Templates',
@@ -74,7 +73,8 @@ class ResourceTree extends BaseModel {
       properties: {
         userId: idNullable,
         docId: idNullable,
-        resourceType: { type: string, enum: RESOURCE_TYPES },
+        templateId: idNullable,
+        resourceType: { type: string },
         extension: { type: string, enum: EXTENSIONS, nullable: true },
         title: stringNullable,
         parentId: idNullable,
@@ -102,6 +102,8 @@ class ResourceTree extends BaseModel {
         }
       }
 
+      logger.info('user exist')
+
       const insertedResource = await ResourceTree.query(trx).insert({
         title,
         resourceType,
@@ -109,6 +111,8 @@ class ResourceTree extends BaseModel {
         userId,
         extension,
       })
+
+      logger.info('resource created')
 
       if (!TYPES_TO_EXCLUDE_FROM_TEAM.includes(resourceType)) {
         const authorTeam = await Team.query(trx).insert({
@@ -133,6 +137,8 @@ class ResourceTree extends BaseModel {
   }
 
   static async getParentFolderByIdentifier(identifier, options = {}) {
+    const Doc = require('../doc/doc.model')
+
     const { trx } = options
     // logger.info(`Getting parent folder of ${identifier}`)
     const doc = await Doc.query(trx).findOne({ identifier })
@@ -448,8 +454,9 @@ class ResourceTree extends BaseModel {
     return systemFolder
   }
 
+  /* A 'dir' may have(or not) a 'extension', used to determine what kind of resources you can create inside of it */
   static async createNewFolderResource(
-    { id = null, title = 'untitled', userId },
+    { id = null, title = 'untitled', userId, extension },
     options = {},
   ) {
     const { trx } = options
@@ -468,6 +475,7 @@ class ResourceTree extends BaseModel {
         {
           title: safeTitle,
           resourceType: 'dir',
+          extension,
           parentId: parent.id,
           userId,
         },
@@ -485,7 +493,7 @@ class ResourceTree extends BaseModel {
     return null
   }
 
-  static async getParentOrRoot(id, userId, options = {}) {
+  static async getParentOrRoot(id, userId, options = {}, fallback) {
     const { trx } = options
     if (id) {
       const resource = await this.getResource(id, { trx })
@@ -494,7 +502,9 @@ class ResourceTree extends BaseModel {
       }
     }
 
-    let rootFolder = await this.findRootFolderOfUser(userId, { trx })
+    let rootFolder = fallback
+      ? await this.query(trx).where(fallback)
+      : await this.findRootFolderOfUser(userId, { trx })
     if (!rootFolder) {
       rootFolder = await this.createUserRootFolder(userId, { trx })
     }
@@ -504,59 +514,118 @@ class ResourceTree extends BaseModel {
 
   static async createNewDocumentResource(
     {
-      id = null,
+      id = null, // the parentId
       title = 'untitled',
       extension = 'doc',
+      resourceType = 'doc',
       identifier,
-      delta,
-      state,
+      // delta,
+      // state,
       userId,
+      templateProps = '{}',
+      ...rest
     },
     options = {},
   ) {
     const { trx } = options
-    const parent = await ResourceTree.getParentOrRoot(id, userId, { trx })
 
-    try {
-      const safeTitle = await ResourceTree.getSafeName(
-        {
-          title,
-          id,
-          parentId: parent.id,
-        },
-        { trx },
-      )
+    return useTransaction(
+      async tr => {
+        try {
+          const isTemplate = resourceType === 'template'
+          const isSnippet = resourceType === 'snippet'
+          const isTemplateResource = isTemplate || isSnippet
+          const fallback = isTemplateResource && {
+            userId,
+            resourceType: 'sys',
+            title: isSnippet ? 'My Snippets' : 'My Templates',
+          }
 
-      const insertedResource = await ResourceTree.createResource(
-        {
-          title: safeTitle,
-          resourceType: 'doc',
-          extension,
-          parentId: parent.id,
-          userId,
-        },
-        { trx },
-      )
+          const parent = await ResourceTree.getParentOrRoot(
+            id,
+            userId,
+            { tr },
+            fallback,
+          )
 
-      parent.children.unshift(insertedResource.id)
-      await ResourceTree.query(trx)
-        .patch({ children: parent.children })
-        .findOne({ id: parent.id })
+          const safeTitle = await ResourceTree.getSafeName(
+            {
+              title,
+              id,
+              parentId: parent.id,
+            },
+            { tr },
+          )
 
-      const doc = await Doc.createDoc({ delta, state, identifier, userId })
+          logger.info(`extension: ${extension}`)
 
-      const resourceTree = await ResourceTree.query(trx)
-        .patch({ docId: doc.id })
-        .findOne({ id: insertedResource.id })
-        .returning('*')
+          const insertedResource = await ResourceTree.createResource(
+            {
+              title: safeTitle,
+              resourceType,
+              extension: extension || 'doc',
+              parentId: parent.id,
+              userId,
+              ...rest,
+            },
+            { tr },
+          )
 
-      return resourceTree
-    } catch (error) {
-      // logger.info(error)
-    }
+          parent.children.unshift(insertedResource.id)
+          await ResourceTree.query(tr)
+            .patch({ children: parent.children })
+            .findOne({ id: parent.id })
+
+          if (resourceType === 'doc') {
+            const Doc = require('../doc/doc.model')
+            const doc = await Doc.createDoc({
+              // delta,
+              // state,
+              identifier,
+              userId,
+            })
+
+            const resourceTree = await ResourceTree.query(tr)
+              .patch({ docId: doc.id })
+              .findOne({ id: insertedResource.id })
+              .returning('*')
+
+            return resourceTree
+          }
+
+          if (isTemplateResource) {
+            logger.info('Creating template resource')
+            const Template = require('../template/template.model')
+            const props = JSON.parse(templateProps)
+            const meta = JSON.parse(props?.meta || '{}')
+            const template = await Template.query(tr).insert({
+              ...props,
+              meta,
+              userId,
+              displayName: safeTitle,
+            })
+
+            const resourceTree = await ResourceTree.query(tr)
+              .patch({ templateId: template.id })
+              .findOne({ id: insertedResource.id })
+              .returning('*')
+
+            return resourceTree
+          }
+
+          return insertedResource.id
+        } catch (error) {
+          logger.info(error)
+        }
+      },
+      { trx },
+    )
   }
 
   static async deleteFolderAndChildren(id, userId, options = {}) {
+    const Doc = require('../doc/doc.model')
+    const Template = require('../template/template.model')
+
     const { trx } = options
     const resource = await ResourceTree.query(trx).findById(id)
     if (!resource) {
@@ -565,6 +634,7 @@ class ResourceTree extends BaseModel {
 
     const docIds = []
     const templateIds = []
+    const resourceTemplateIds = []
 
     const collectIds = async (nodeId, ids = []) => {
       const node = await ResourceTree.query(trx).findById(nodeId)
@@ -576,11 +646,17 @@ class ResourceTree extends BaseModel {
       } else if (node?.resourceType === 'doc') {
         docIds.push(node.docId)
         const doc = await Doc.query(trx).findById(node.docId)
+
         if (doc?.templateId) {
           templateIds.push(doc.templateId)
         }
       }
-      return ids
+
+      if (node?.templateId) {
+        resourceTemplateIds.push(node.templateId)
+      }
+
+      return [...new Set(ids)]
     }
 
     const ids = await collectIds(id)
@@ -592,6 +668,14 @@ class ResourceTree extends BaseModel {
       await Team.query(trx)
         .whereIn('objectId', [...ids, ...docIds])
         .delete()
+
+      if (resourceTemplateIds.length) {
+        // Delete resources in resource_tree that reference the templates
+        await ResourceTree.query(trx)
+          .delete()
+          .whereIn('templateId', resourceTemplateIds)
+      }
+
       if (docIds.length) {
         await ResourceTree.query(trx).delete().whereIn('docId', docIds)
       }
@@ -602,6 +686,11 @@ class ResourceTree extends BaseModel {
         await Doc.query(trx).delete().whereIn('id', docIds)
       }
       await ResourceTree.query(trx).delete().whereIn('id', ids)
+
+      // Now delete the templates
+      if (resourceTemplateIds.length) {
+        await Template.query(trx).delete().whereIn('id', resourceTemplateIds)
+      }
     }
   }
 
@@ -722,6 +811,8 @@ class ResourceTree extends BaseModel {
   }
 
   static async copyResource({ id, newParentId }, options = {}) {
+    const Doc = require('../doc/doc.model')
+
     const { trx } = options
     const resource = await this.getResource(id, { trx })
 

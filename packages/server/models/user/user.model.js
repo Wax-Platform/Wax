@@ -1,7 +1,6 @@
 const { modelTypes } = require('@coko/server')
 const UserModel = require('@coko/server/src/models/user/user.model')
-const { ResourceTree } = require('@pubsweet/models')
-
+const ResourceTree = require('../resourceTree/resourceTree.model')
 const { stringNullable } = modelTypes
 
 class User extends UserModel {
