@@ -13,16 +13,12 @@ import {
   StarFilled,
   BookFilled,
   FolderViewOutlined,
-  FileImageFilled,
-  FileTextFilled,
   PictureFilled,
-  FontColorsOutlined,
   FontSizeOutlined,
 } from '@ant-design/icons'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
-import { FlexRow } from '../../_styleds/common'
-import { capitalize, template } from 'lodash'
+import { CleanButton, FlexRow } from '../../_styleds/common'
 import {
   callOn,
   objIf,
@@ -30,7 +26,7 @@ import {
   switchOn,
 } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
-import { useBool } from '../../../hooks/dataTypeHooks'
+import templateIcon from '../../../../static/template-icon.svg'
 
 export const ListContainer = styled.div`
   --icon-size: 16px;
@@ -68,7 +64,7 @@ export const ListContainer = styled.div`
 `
 
 export const GridContainer = styled.div`
-  --grid-size: ${p => p.$gridSize || 6};
+  --grid-size: ${p => p.$gridSize || 5};
   --w-h: calc((var(--container-size, 26.5dvw) / var(--grid-size)));
   --icon-size: calc(var(--w-h) * 0.4);
   --icon-min-width: calc(var(--w-h) - 10px);
@@ -121,10 +117,15 @@ export const IconTitleContainer = styled.div`
   align-items: center;
   display: flex;
   flex-direction: var(--icon-title-direction);
-  gap: 8px;
+  gap: 16 filebropx;
+  justify-content: space-between;
   min-height: var(--icon-title-min-height);
 
   .anticon {
+    height: 100%;
+  }
+
+  button {
     height: 100%;
   }
 
@@ -206,6 +207,12 @@ const TEMPLATE_MENU_OPTIONS = [
   'info',
 ]
 
+const TemplateIcon = styled.img.attrs({ src: templateIcon })`
+  height: var(--icon-size);
+  object-fit: cover;
+  width: calc(var(--icon-size) * 1.2);
+`
+
 const SYSTEM_FOLDER_ICONS_MAP = {
   Documents: FolderViewOutlined,
   Favorites: StarFilled,
@@ -213,9 +220,9 @@ const SYSTEM_FOLDER_ICONS_MAP = {
   Images: PictureFilled,
   Shared: ShareAltOutlined,
   Trash: DeleteFilled,
-  Templates: FileTextFilled,
+  Templates: TemplateIcon,
   Fonts: FontSizeOutlined,
-  'My Templates': FileTextFilled,
+  'My Templates': TemplateIcon,
   'My Snippets': ScissorOutlined,
   default: FolderFilled,
 }
@@ -448,20 +455,24 @@ const Resource = props => {
       {...rest}
     >
       <IconTitleContainer data-contextmenu>
-        <ResourceIcon data-contextmenu />
-        {rename.state.id === id ? (
-          <FlexRow>
-            <StyledInput
-              type="text"
-              autoFocus
-              value={rename.state.title}
-              onKeyDown={handleRenameOnEnter}
-              onChange={e => rename.update({ title: e.target.value })}
-            />
-          </FlexRow>
-        ) : (
-          <TitleLabel>{title}</TitleLabel>
-        )}
+        <FlexRow>
+          <ResourceIcon data-contextmenu />
+        </FlexRow>
+        <TitleLabel>
+          {rename.state.id === id ? (
+            <FlexRow>
+              <StyledInput
+                type="text"
+                autoFocus
+                value={rename.state.title}
+                onKeyDown={handleRenameOnEnter}
+                onChange={e => rename.update({ title: e.target.value })}
+              />
+            </FlexRow>
+          ) : (
+            <p>{title}</p>
+          )}
+        </TitleLabel>
       </IconTitleContainer>
     </Container>
   )
