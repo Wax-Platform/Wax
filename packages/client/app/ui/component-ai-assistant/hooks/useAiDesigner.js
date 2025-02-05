@@ -131,7 +131,10 @@ const useAssistant = () => {
               },
             })
           } else {
+            console.log('creating snippet', snippet)
             createResource('snippet', {
+              resourceType: 'snippet',
+              extension: 'snip',
               title: snippet?.displayName,
               templateProps: JSON.stringify({
                 displayName: snippet?.displayName,
@@ -143,9 +146,10 @@ const useAssistant = () => {
                 category: 'user-snippets',
                 status: 'private',
               }),
-            })
+            })()
           }
-          selectedCtx.snippets.add(`${snippet.className}`)
+
+          debounce(() => selectedCtx.snippets.add(`${snippet.className}`), 2000)
         },
         feedback: val => {
           selectedCtx.conversation.push({ role: 'assistant', content: val })

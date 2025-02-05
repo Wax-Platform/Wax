@@ -23,11 +23,6 @@ import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
 
 const CSS_SELECTED_ID_EXCEPT = userMenu => /* css */ `      
-* {
-    transition: outline 0.5s, outline-offset 0.5s;
-    outline: 2px dashed #0000;
-    outline-offset: 12px;
-}
 
 body, html {
     width: 100%;
@@ -45,6 +40,12 @@ body {
 .pagedjs_page {
     background: #fff;
     box-shadow: 0 0 8px #0004;
+
+    * {
+      transition: all 0.8s;
+      outline: 2px dashed #0000;
+      outline-offset: 12px;
+    }
 }
       
 .selected-id {
@@ -139,7 +140,6 @@ export const AiDesignerProvider = ({ children }) => {
   const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
-  const [loadingPreview, setLoadingPreview] = useState(false)
   const [templateToEdit, setTemplateToEdit] = useState(false)
 
   // const [userInput, setUserInput] = useState({
@@ -248,7 +248,6 @@ export const AiDesignerProvider = ({ children }) => {
         content: editorContent,
       })
 
-      setEditorContent(lastRegistry.content)
       setCss(lastRegistry.css)
       // updatePreview(true, lastRegistry.css)
     },
@@ -286,7 +285,6 @@ export const AiDesignerProvider = ({ children }) => {
 
       const scrollPos = previewDoc?.scrollTop ?? 0
 
-      setLoadingPreview(true)
       setPreviewSource(srcdoc(content, cssTemplate, '', scrollPos))
     }
 
@@ -376,8 +374,6 @@ export const AiDesignerProvider = ({ children }) => {
         setDesignerOn,
         userInteractions,
         setUserInteractions,
-        loadingPreview,
-        setLoadingPreview,
         templateToEdit,
         setTemplateToEdit,
       }}
