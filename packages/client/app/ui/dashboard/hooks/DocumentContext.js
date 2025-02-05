@@ -77,7 +77,7 @@ const useTemplates = () => {
           .join('\n')
       }
     }
-  }, [userSnippetsData])
+  }, [userSnippetsData?.getUserSnippets?.length])
 
   return {
     systemTemplatesData,
@@ -144,7 +144,11 @@ export const DocumentContextProvider = ({ children }) => {
     [docLoading, getDocument],
   )
 
-  const { id: parentId, children: resourcesInFolder } = currentFolder || {}
+  const {
+    id: parentId,
+    children: resourcesInFolder,
+    extension,
+  } = currentFolder || {}
 
   const openResource = resource => {
     if (!resource || graphQL.loadingFolder) return
@@ -165,10 +169,15 @@ export const DocumentContextProvider = ({ children }) => {
 
   const createResource = (resourceType, additionalProperties = {}) => {
     return e => {
-      if (!parentId) return
+      if (resourceType === 'doc' && !parentId) return
+      const parent = ['template', 'snip'].includes(extension)
+        ? null
+        : currentFolder?.parent?.id
+
       graphQL.addResource({
-        variables: { id: parentId, resourceType, ...additionalProperties },
+        variables: { id: parent, resourceType, ...additionalProperties },
       })
+
       resourceType === 'snippet' && templatesGQL.getUserSnippets()
       resourceType === 'template' && templatesGQL.getUserTemplates()
     }

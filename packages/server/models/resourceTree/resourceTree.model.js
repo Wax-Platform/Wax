@@ -503,8 +503,9 @@ class ResourceTree extends BaseModel {
     }
 
     let rootFolder = fallback
-      ? await this.query(trx).where(fallback)
+      ? await this.query(trx).findOne(fallback)
       : await this.findRootFolderOfUser(userId, { trx })
+
     if (!rootFolder) {
       rootFolder = await this.createUserRootFolder(userId, { trx })
     }

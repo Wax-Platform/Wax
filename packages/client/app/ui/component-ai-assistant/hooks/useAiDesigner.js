@@ -147,9 +147,9 @@ const useAssistant = () => {
                 status: 'private',
               }),
             })()
-          }
 
-          debounce(() => selectedCtx.snippets.add(`${snippet.className}`), 2000)
+            selectedCtx.snippets.add(`${snippet.className}`)
+          }
         },
         feedback: val => {
           selectedCtx.conversation.push({ role: 'assistant', content: val })
