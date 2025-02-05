@@ -11,6 +11,7 @@ import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesigner
 import { CleanButton } from '../_styleds/common'
 import brushIcon from '../../../static/brush-icon.svg'
 import chatIcon from '../../../static/chat-icon2.svg'
+import templateIcon from '../../../static/template-icon-2.svg'
 
 const Button = styled(CleanButton)`
   --shadow: ${p => (p.$expanded ? '#0001' : '#0000')};
@@ -24,10 +25,6 @@ const Button = styled(CleanButton)`
   transition: all 0.2s;
   width: 80%;
 
-  &:hover {
-    background-color: var(--color-trois-lightest);
-  }
-
   svg {
     fill: ${p =>
       p.$expanded ? 'var(--color-trois-opaque)' : 'var(--color-trois)'};
@@ -37,9 +34,18 @@ const Button = styled(CleanButton)`
   }
 
   img {
-    height: 80%;
+    height: 20px;
+    object-fit: contain;
     padding: 0;
-    width: 20px;
+    transform: scale(1.1) translateY(2px);
+  }
+
+  &:hover {
+    background-color: var(--color-trois-lightest);
+
+    img {
+      filter: brightness(0.8);
+    }
   }
 `
 const toggleLayout = (...keys) => ({
@@ -118,7 +124,7 @@ export const CodeEditorButton = () => {
         $expanded={layout.userMenu && layout.codeEditor}
         title="Template Editor"
       >
-        <CodeOutlined style={{ fontSize: '25px' }} />
+        <img src={templateIcon} alt="Code Editor" />
       </Button>
     )
   )

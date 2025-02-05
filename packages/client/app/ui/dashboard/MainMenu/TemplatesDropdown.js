@@ -15,16 +15,15 @@ const Root = styled.div`
   flex-direction: column;
   gap: 8px;
   justify-content: space-between;
-  max-width: ${p => (p.$show ? '200px' : '0')};
-  pointer-events: ${p => (p.$show ? 'all' : 'none')};
   position: relative;
   transition: max-width 0.3s;
-  width: 200px;
+  width: fit-content;
 `
 
 const TemplatesList = styled(Menu)`
   background: var(--color-trois-lightest-2);
-  border-color: var(--color-trois-lightest);
+  border: 3px solid var(--color-trois-lightest);
+  border-top: none;
   box-shadow: 0 0 10px 0 #0000;
   display: flex;
   flex-direction: column;
@@ -35,16 +34,24 @@ const TemplatesList = styled(Menu)`
   opacity: 1;
   overflow-y: auto;
   padding: 0;
-  right: -20px;
-  top: calc(var(--header-height) - 20px);
+  right: -21px;
+  top: calc(var(--header-height) - 29px);
   width: 300px;
+  z-index: 9;
 `
 
 const TemplateItem = styled(MenuItem)`
+  --item-height: 32px;
   align-items: center;
   background: var(--color-trois-lightest-2);
   border-bottom: 1px solid #0001;
+  height: var(--item-height);
   padding: 16px 8px;
+
+  p {
+    font-size: 12px;
+    margin: 0;
+  }
 
   > button {
     color: ${p =>
@@ -52,12 +59,23 @@ const TemplateItem = styled(MenuItem)`
         ? 'var(--color-trois-opaque-2)'
         : 'var(--color-trois-opaque)'};
     font-weight: ${p => (p.$selected ? 'bold' : 'normal')};
+
+    svg {
+      fill: ${p =>
+        p.$selected ? 'var(--color-trois-opaque-2)' : 'var(--color-trois)'};
+    }
+  }
+
+  .anticon svg {
+    fill: var(--color-trois-opaque);
+    height: 12px;
+    width: 12px;
   }
 `
 
 const CurrentTemplateLabel = styled.p`
-  color: var(--color-trois-opaque);
-  font-size: 14px;
+  color: var(--color-trois-opaque-2);
+  font-size: 10px;
   margin: 0;
   padding: 0 8px;
   white-space: nowrap;
@@ -69,15 +87,26 @@ const Button = styled(MenuButton)`
 const TemplateButton = styled(CleanButton)`
   color: var(--color-trois-opaque);
   font-size: 13px;
+  height: 32px;
+  padding: 0 8px;
   text-align: left;
   width: 100%;
 `
 
 const DropdownToggleButton = styled(CleanButton)`
-  border-bottom: 1px solid var(--color-trois-lightest);
+  align-items: center;
   display: flex;
+  gap: 16px;
   justify-content: space-between;
-  width: 100%;
+  padding: 0;
+  width: fit-content;
+
+  .anticon svg {
+    height: 8px;
+    transform: ${p => (p.$open ? 'scaleY(-1)' : 'scaleY(1)')};
+    transition: transform 0.3s;
+    width: 8px;
+  }
 `
 
 export const TemplatesDropdown = props => {
@@ -128,7 +157,10 @@ export const TemplatesDropdown = props => {
 
   return (
     <Root {...props}>
-      <DropdownToggleButton onClick={showDropdown.toggle}>
+      <DropdownToggleButton
+        onClick={showDropdown.toggle}
+        $open={showDropdown.state}
+      >
         <CurrentTemplateLabel>
           {selectedTemplate?.displayName || currentDoc?.template?.displayName}
         </CurrentTemplateLabel>

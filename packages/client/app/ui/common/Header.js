@@ -247,7 +247,6 @@ const Header = props => {
               title="Print"
               type="button"
             />
-            <TemplatesDropdown $show={designerOn} />
           </DesignerActions>
           <FlexRow>
             <EditDesignLabels $active={!designerOn} $activecolor="#222">

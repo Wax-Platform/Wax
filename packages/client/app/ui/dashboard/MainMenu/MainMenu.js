@@ -29,6 +29,7 @@ import {
 } from '../../component-ai-assistant/SnippetsManager'
 import { htmlTagNames } from '../../component-ai-assistant/utils'
 import { SaveOutlined } from '@ant-design/icons'
+import { TemplatesDropdown } from './TemplatesDropdown'
 
 const Menu = styled.nav`
   align-items: center;
@@ -70,18 +71,17 @@ const Header = styled(WindowHeading)`
   max-height: 100%;
   padding: ${({ $files }) => ($files ? '20px 5px 0' : '25px 5px 0')};
   width: 100%;
-
-  p {
-    background: var(--color-trois-lightest);
-    border-radius: 1.5rem;
-    box-shadow: var(--button-shadow);
-    color: var(--color-trois-opaque) !important;
-    font-size: 14px;
-    font-weight: 200;
-    letter-spacing: 1px;
-    margin: 0 0 10px 8px;
-    padding: 6px 12px;
-  }
+`
+const MenuLabel = styled.p`
+  background: var(--color-trois-lightest);
+  border-radius: 1.5rem;
+  box-shadow: var(--button-shadow);
+  color: var(--color-trois-opaque) !important;
+  font-size: 14px;
+  font-weight: 200;
+  letter-spacing: 1px;
+  margin: 0 0 10px 8px;
+  padding: 6px 12px;
 `
 
 const FilesInfoFixed = styled.div`
@@ -133,7 +133,12 @@ const CodeEditorHeaderRow = styled(FlexRow)`
 const MainMenu = ({ enableLogin }) => {
   const { layout, previewRef, css, selectedCtx, userInteractions } =
     useAiDesignerContext()
-  const { resourcesInFolder = [], currentDoc } = useDocumentContext()
+  const {
+    resourcesInFolder = [],
+    currentDoc,
+    updateTemplateCss,
+    updatePreview,
+  } = useDocumentContext()
   const { team, chat, codeEditor, files, snippetsManager } = layout
 
   const menuLabel = chat ? 'Chat' : team ? 'Team' : null
@@ -162,7 +167,7 @@ const MainMenu = ({ enableLogin }) => {
       </Menu>
       <Content layout={layout}>
         <Header $files={files}>
-          {menuLabel && <p>{menuLabel}</p>}
+          {menuLabel && <MenuLabel>{menuLabel}</MenuLabel>}
           {files && (
             <FlexCol style={{ width: '100%' }}>
               <PathRender />
@@ -189,21 +194,24 @@ const MainMenu = ({ enableLogin }) => {
           {codeEditor && (
             <FlexCol style={{ width: '100%' }}>
               <CodeEditorHeaderRow>
-                <p>Code Editor</p>
-                <CleanButton
-                  onClick={() => {
-                    updateTemplateCss({
-                      variables: { rawCss: css, id: currentDoc.template.id },
-                    })
-                    updatePreview(true, css)
-                  }}
-                >
-                  <SaveOutlined />
-                </CleanButton>
+                <MenuLabel>Code Editor</MenuLabel>
+                <FlexRow style={{ gap: '10px' }}>
+                  <CleanButton
+                    onClick={() => {
+                      updateTemplateCss({
+                        variables: { rawCss: css, id: currentDoc.template.id },
+                      })
+                      updatePreview(true, css)
+                    }}
+                  >
+                    <SaveOutlined />
+                  </CleanButton>
+                </FlexRow>
               </CodeEditorHeaderRow>
 
               <FilesInfoFixed>
-                <span>Editing: {currentDoc?.template?.displayName || ''}</span>
+                <span>Editing document template</span>
+                <TemplatesDropdown $show />
               </FilesInfoFixed>
             </FlexCol>
           )}
