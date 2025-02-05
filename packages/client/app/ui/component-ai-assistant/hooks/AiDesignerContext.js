@@ -140,6 +140,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
   const [loadingPreview, setLoadingPreview] = useState(false)
+  const [templateToEdit, setTemplateToEdit] = useState(false)
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -261,6 +262,8 @@ export const AiDesignerProvider = ({ children }) => {
       (settings.preview.livePreview || manualUpdate)
 
     if (canUpdate) {
+      console.log('updatePreview')
+
       const content = parseContent(
         editorContainerRef?.current?.querySelector(
           '.ProseMirror[contenteditable]',
@@ -375,6 +378,8 @@ export const AiDesignerProvider = ({ children }) => {
         setUserInteractions,
         loadingPreview,
         setLoadingPreview,
+        templateToEdit,
+        setTemplateToEdit,
       }}
     >
       {children}

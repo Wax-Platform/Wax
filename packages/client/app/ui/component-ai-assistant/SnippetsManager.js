@@ -125,20 +125,6 @@ const SnippetsName = styled.span`
   white-space: nowrap;
 `
 
-const StyledActions = styled(Actions)`
-  button {
-    color: var(--color-trois-opaque-2);
-
-    &:hover {
-      background-color: #0001;
-    }
-
-    svg {
-      fill: var(--color-trois-opaque);
-    }
-  }
-`
-
 const CREATE_TEMPLATE_MODAL_ITEMS = [
   {
     label: 'Name',
@@ -185,8 +171,8 @@ const CREATE_TEMPLATE_MODAL_ITEMS = [
   },
 ]
 
-export const SnippetManagerHeader = () => {
-  const { createTemplate, userSnippets } = useDocumentContext()
+export const useCreateSnippet = () => {
+  const { createResource, userSnippets } = useDocumentContext()
   const { modalState } = useModalContext()
 
   const onSubmit = fields => {
@@ -231,15 +217,35 @@ export const SnippetManagerHeader = () => {
       meta: JSON.stringify(meta),
     }
 
-    createTemplate({
-      variables: {
-        input: { ...payload, category: 'user-snippets', status: 'private' },
-      },
+    const templateProps = JSON.stringify({
+      ...payload,
+      category: 'user-snippets',
+      status: 'private',
     })
+
+    createResource('snippet', {
+      title: displayName,
+      resourceType: 'snippet',
+      extension: 'snip',
+      templateProps,
+    })()
 
     return true
   }
 
+  const handleCreateSnippet = () => {
+    modalState.update({
+      show: true,
+      title: 'Create a new snippet',
+      onSubmit,
+      items: CREATE_TEMPLATE_MODAL_ITEMS,
+    })
+  }
+
+  return handleCreateSnippet
+}
+
+export const SnippetManagerHeader = () => {
   return (
     <FlexRow
       style={{
@@ -249,20 +255,6 @@ export const SnippetManagerHeader = () => {
       }}
     >
       <p>Snippets</p>
-      <StyledActions>
-        <CleanButton
-          onClick={() =>
-            modalState.update({
-              show: true,
-              title: 'Create a new snippet',
-              onSubmit,
-              items: CREATE_TEMPLATE_MODAL_ITEMS,
-            })
-          }
-        >
-          <PlusOutlined />
-        </CleanButton>
-      </StyledActions>
     </FlexRow>
   )
 }
@@ -294,11 +286,10 @@ export const SnippetsManager = () => {
 
   if (!settings.editor.enableSelection) return null
 
-  const snippets = [...userSnippets].sort((a, b) => {
-    const isAddedA = getCtxNode()?.classList?.contains(`${a.className}`)
-    const isAddedB = getCtxNode()?.classList?.contains(`${b.className}`)
-    return isAddedB - isAddedA
-  })
+  const checkIfAdded = s => getCtxNode()?.classList?.contains(s.className)
+
+  const addedSnippets = userSnippets.filter(checkIfAdded)
+  const notAdded = userSnippets.filter(snip => !checkIfAdded(snip))
 
   const snippetRender = snip => {
     const { className, description, classBody, displayName, id } = snip
@@ -319,7 +310,7 @@ export const SnippetsManager = () => {
       }
     }
 
-    const handleSnippets = e => {
+    const handleActions = e => {
       e.preventDefault()
       e.stopPropagation()
       const action = e.target.getAttribute('data-action') ?? 'toggle'
@@ -346,15 +337,13 @@ export const SnippetsManager = () => {
           <SnippetActions $disabled={!selectedCtx?.node}>
             <CleanButton
               data-action="toggle"
-              onClick={handleSnippets}
+              onClick={handleActions}
               title={description}
             >
               <PoweroffOutlined style={{ pointerEvents: 'none' }} />
             </CleanButton>
             <CleanButton
               onClick={e => {
-                e.preventDefault()
-                e.stopPropagation()
                 setMarkedSnippet(isMarked ? {} : snip)
               }}
               title={`Edit snippet via prompt: \nYou can change the styles, description\n name of the snippet and/or create a copy.\n Only one snippet can be edited at a time.\n`}
@@ -373,7 +362,7 @@ export const SnippetsManager = () => {
             )}
             <CleanButton
               data-action="delete"
-              onClick={handleSnippets}
+              onClick={handleActions}
               title={`Delete snipet (not undoable)`}
               type="button"
             >
@@ -402,7 +391,92 @@ export const SnippetsManager = () => {
 
   return (
     <Root $active>
-      <Each of={snippets} as={snippetRender} if={snippets.length} />
+      <Each of={addedSnippets} as={snippetRender} if={addedSnippets.length} />
+      <Each of={notAdded} as={snippetRender} if={notAdded.length} />
     </Root>
   )
+}
+
+export const useCreateDoc = () => {
+  const { createResource } = useDocumentContext()
+  const { modalState } = useModalContext()
+
+  const onSubmit = fields => {
+    const displayName = document.querySelector('[data-field-id="title"]').value
+
+    if (!displayName) {
+      document.querySelector('[data-field-id="title"]').style.border =
+        '1px solid red'
+      return false
+    }
+
+    createResource('doc', { title: displayName, extension: 'doc' })()
+    return true
+  }
+
+  const handleCreateDoc = () => {
+    modalState.update({
+      show: true,
+      title: 'Create a new document',
+      onSubmit,
+      items: [
+        {
+          label: 'Name',
+          component: (
+            <input
+              type="text"
+              placeholder="...Choose a name for your document"
+              data-field-id="title"
+            />
+          ),
+        },
+      ],
+    })
+  }
+
+  return handleCreateDoc
+}
+
+export const useCreateFolder = () => {
+  const { createResource, currentFolder } = useDocumentContext()
+  const { extension } = currentFolder
+  const { modalState } = useModalContext()
+
+  const onSubmit = fields => {
+    const displayName = document.querySelector('[data-field-id="title"]').value
+
+    if (!displayName) {
+      document.querySelector('[data-field-id="title"]').style.border =
+        '1px solid red'
+      return false
+    }
+
+    createResource('dir', {
+      title: displayName,
+      extension: extension || 'doc',
+    })()
+    return true
+  }
+
+  const handleCreateFolder = () => {
+    modalState.update({
+      show: true,
+      title: 'Create a new folder',
+      onSubmit,
+      items: [
+        {
+          label: 'Name',
+          component: (
+            <input
+              type="text"
+              placeholder="...Choose a name for your folder"
+              data-field-id="title"
+            />
+          ),
+        },
+      ],
+    })
+  }
+
+  return handleCreateFolder
 }

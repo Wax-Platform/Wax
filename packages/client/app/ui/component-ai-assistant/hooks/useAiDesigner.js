@@ -1,8 +1,7 @@
 /* eslint-disable camelcase */
-import { useContext, useEffect } from 'react'
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
 import { debounce, takeRight } from 'lodash'
-import { AiDesignerContext, useAiDesignerContext } from './AiDesignerContext'
+import { useAiDesignerContext } from './AiDesignerContext'
 import { GET_SETTINGS, UPDATE_SETTINGS } from '../queries/settings'
 import {
   CALL_AI_SERVICE,
@@ -55,7 +54,6 @@ const useAssistant = () => {
     history,
     setEditorContent,
     setUserPrompt,
-    addSnippet,
     editorContent,
     selectedCtx,
     setFeedback,
@@ -71,7 +69,7 @@ const useAssistant = () => {
     model,
   } = useAiDesignerContext()
 
-  const { userSnippets, createTemplate, updateTemplateCss } =
+  const { userSnippets, createResource, updateTemplateCss } =
     useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
@@ -133,19 +131,18 @@ const useAssistant = () => {
               },
             })
           } else {
-            createTemplate({
-              variables: {
-                input: {
-                  displayName: snippet?.displayName,
-                  rawCss: snippet.classBody,
-                  meta: JSON.stringify({
-                    className: snippet.className,
-                    description: snippet.description,
-                  }),
-                  category: 'user-snippets',
-                  status: 'private',
-                },
-              },
+            createResource('snippet', {
+              title: snippet?.displayName,
+              templateProps: JSON.stringify({
+                displayName: snippet?.displayName,
+                rawCss: snippet.classBody,
+                meta: JSON.stringify({
+                  className: snippet.className,
+                  description: snippet.description,
+                }),
+                category: 'user-snippets',
+                status: 'private',
+              }),
             })
           }
           selectedCtx.snippets.add(`${snippet.className}`)

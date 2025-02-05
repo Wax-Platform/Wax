@@ -38,9 +38,13 @@ export const OPEN_FOLDER = gql`
             id
             identifier
           }
+          extension
+          templateId
           resourceType
         }
         resourceType
+        extension
+        templateId
       }
       requestAccessTo
     }
@@ -48,8 +52,20 @@ export const OPEN_FOLDER = gql`
 `
 
 export const ADD_RESOURCE = gql`
-  mutation addResource($id: ID, $resourceType: String!) {
-    addResource(id: $id, resourceType: $resourceType) {
+  mutation addResource(
+    $id: ID
+    $resourceType: String!
+    $extension: String
+    $templateProps: String
+    $title: String
+  ) {
+    addResource(
+      id: $id
+      resourceType: $resourceType
+      extension: $extension
+      templateProps: $templateProps
+      title: $title
+    ) {
       id
       identifier
       title

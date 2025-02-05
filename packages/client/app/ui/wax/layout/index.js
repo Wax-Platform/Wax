@@ -25,6 +25,7 @@ import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsPreview'
 import { setInlineStyle } from '../../component-ai-assistant/utils'
 import { StyledWindow, WindowHeading } from '../../_styleds/common'
+import { FullCodeEditor } from '../../component-ai-assistant/components/FullCodeEditor'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -230,6 +231,7 @@ const Layout = props => {
     designerOn,
     onHistory,
     previewRef,
+    templateToEdit,
   } = useAiDesignerContext()
 
   const { loading } = useAssistant()
@@ -310,13 +312,13 @@ const Layout = props => {
       <Wrapper
         id="wax-container"
         style={fullScreenStyles}
-        $menuvisible={!!layout.editor}
+        $menuvisible={!!layout.editor && !templateToEdit}
       >
-        <MenuWrapper $show={layout.editor}>
+        <MenuWrapper $show={layout.editor && !templateToEdit}>
           {main && (
             <MenuComponent
               fullScreen={fullScreen}
-              open={layout.editor}
+              open={layout.editor && !templateToEdit}
               ref={ref}
             />
           )}
@@ -327,7 +329,7 @@ const Layout = props => {
           <FileManagerWrapper>
             <MainMenu enableLogin={enableLogin} />
           </FileManagerWrapper>
-          <EditorWrapper $show={layout.editor}>
+          <EditorWrapper $show={layout.editor && !templateToEdit}>
             <WaxSurfaceScroll
               id="wax-surface-scroll"
               $loading={!!loading}
@@ -339,11 +341,14 @@ const Layout = props => {
               >
                 <WaxView {...props} />
               </EditorContainer>
-              {!layout.userMenu && !layout.preview && layout.editor && (
-                <CommentsContainer $show>
-                  <RightArea area="main" users={users} />
-                </CommentsContainer>
-              )}
+              {!layout.userMenu &&
+                !layout.preview &&
+                !templateToEdit &&
+                layout.editor && (
+                  <CommentsContainer $show>
+                    <RightArea area="main" users={users} />
+                  </CommentsContainer>
+                )}
             </WaxSurfaceScroll>
             <WaxBottomRightInfo>
               <InfoContainer id="info-container">
@@ -351,7 +356,18 @@ const Layout = props => {
               </InfoContainer>
             </WaxBottomRightInfo>
           </EditorWrapper>
-          <PagedJsPreview $show={designerOn} loading={loading} />
+          {!templateToEdit ? (
+            <PagedJsPreview
+              $show={designerOn && !templateToEdit}
+              loading={loading}
+            />
+          ) : (
+            <FullCodeEditor
+              $show={templateToEdit}
+              code={'somecode'}
+              config={{}}
+            />
+          )}
         </WaxEditorWrapper>
       </Wrapper>
     </ThemeProvider>

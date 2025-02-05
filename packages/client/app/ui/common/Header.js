@@ -247,13 +247,6 @@ const Header = props => {
               title="Print"
               type="button"
             />
-            <SaveOutlined
-              onClick={() => {
-                updateTemplateCss({
-                  variables: { rawCss: css, id: currentDoc.template.id },
-                })
-              }}
-            />
             <TemplatesDropdown $show={designerOn} />
           </DesignerActions>
           <FlexRow>

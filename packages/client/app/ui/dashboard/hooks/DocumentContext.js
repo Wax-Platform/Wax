@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from 'react'
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from 'react'
 import { useResourceTree } from './useResourceTree'
 import { useHistory } from 'react-router-dom'
 import { useObject } from '../../../hooks/dataTypeHooks'
@@ -82,6 +88,8 @@ const useTemplates = () => {
     createTemplate,
     fetchAndCreateTemplateFromUrl,
     fetchingTemplates,
+    getUserTemplates,
+    getUserSnippets,
 
     masterTemplateId,
     setMasterTemplateId,
@@ -115,20 +123,27 @@ export const DocumentContextProvider = ({ children }) => {
   const contextualMenu = useObject()
 
   const { setCss, updatePreview } = useAiDesignerContext()
+  const { currentFolder, currentPath, docPath, ...graphQL } = useResourceTree()
+  const templatesGQL = useTemplates()
 
-  const [getDoc] = useLazyQuery(GET_DOC, {
+  const [getDocument, { loading: docLoading }] = useLazyQuery(GET_DOC, {
     fetchPolicy: 'cache-and-network',
     onCompleted: data => {
       const doc = data.getDocument
       history.push(`/${doc.identifier}`, { replace: true })
       setCurrentDoc(doc)
       setCss(doc.template.rawCss)
-      debounce(updatePreview(true), 2000)
+      // debounce(updatePreview, 2000)(true)
     },
   })
 
-  const { currentFolder, currentPath, docPath, ...graphQL } = useResourceTree()
-  const templatesGQL = useTemplates()
+  const getDoc = useCallback(
+    params => {
+      !docLoading && getDocument(params)
+    },
+    [docLoading, getDocument],
+  )
+
   const { id: parentId, children: resourcesInFolder } = currentFolder || {}
 
   const openResource = resource => {
@@ -137,10 +152,9 @@ export const DocumentContextProvider = ({ children }) => {
     const variables = { id, resourceType }
 
     if (resourceType === 'doc') {
-      console.log('isDoc')
       const { identifier } = doc
       console.log({ identifier })
-      getDoc({ variables: { identifier } })
+      getDoc({ variables: { identifier }, fetchPolicy: 'cache-first' })
       return
     }
 
@@ -155,6 +169,8 @@ export const DocumentContextProvider = ({ children }) => {
       graphQL.addResource({
         variables: { id: parentId, resourceType, ...additionalProperties },
       })
+      resourceType === 'snippet' && templatesGQL.getUserSnippets()
+      resourceType === 'template' && templatesGQL.getUserTemplates()
     }
   }
 

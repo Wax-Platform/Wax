@@ -18,6 +18,20 @@ export const GET_USER_TEMPLATES = gql`
   }
 `
 
+export const GET_TEMPLATE = gql`
+  query GetTemplate($id: ID!) {
+    getTemplate(id: $id) {
+      id
+      userId
+      displayName
+      category
+      meta
+      status
+      rawCss
+    }
+  }
+`
+
 export const CREATE_TEMPLATE = gql`
   mutation CreateTemplate($input: CreateTemplateInput!) {
     createTemplate(input: $input)

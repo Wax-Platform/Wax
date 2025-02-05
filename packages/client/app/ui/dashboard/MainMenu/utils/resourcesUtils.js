@@ -7,6 +7,8 @@ export const typeFlags = (type, title) => ({
   isFolder: type === 'dir',
   isSystem: type === 'sys',
   isDoc: type === 'doc',
+  isSnippet: type === 'snip',
+  isTemplate: type === 'template',
   ...objIf(type === 'sys' && title, {
     isFavorites: title === 'Favorites',
     isDocuments: title === 'Documents',

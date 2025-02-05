@@ -1,8 +1,14 @@
+/* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-no-important */
 import React, { Fragment, useEffect } from 'react'
 import styled from 'styled-components'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
-import { FlexCol, FlexRow, WindowHeading } from '../../_styleds/common'
+import {
+  CleanButton,
+  FlexCol,
+  FlexRow,
+  WindowHeading,
+} from '../../_styleds/common'
 import {
   ChatButton,
   FileManagerButton,
@@ -22,6 +28,7 @@ import {
   SnippetsManager,
 } from '../../component-ai-assistant/SnippetsManager'
 import { htmlTagNames } from '../../component-ai-assistant/utils'
+import { SaveOutlined } from '@ant-design/icons'
 
 const Menu = styled.nav`
   align-items: center;
@@ -107,6 +114,22 @@ const Footer = styled(FlexRow)`
   justify-content: center;
 `
 
+const CodeEditorHeaderRow = styled(FlexRow)`
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  button {
+    font-size: 18px;
+    padding: 8px 10px;
+
+    svg {
+      fill: var(--color-trois-opaque);
+      pointer-events: none;
+    }
+  }
+`
+
 const MainMenu = ({ enableLogin }) => {
   const { layout, previewRef, css, selectedCtx, userInteractions } =
     useAiDesignerContext()
@@ -165,7 +188,19 @@ const MainMenu = ({ enableLogin }) => {
           )}
           {codeEditor && (
             <FlexCol style={{ width: '100%' }}>
-              <p>Code Editor</p>
+              <CodeEditorHeaderRow>
+                <p>Code Editor</p>
+                <CleanButton
+                  onClick={() => {
+                    updateTemplateCss({
+                      variables: { rawCss: css, id: currentDoc.template.id },
+                    })
+                    updatePreview(true, css)
+                  }}
+                >
+                  <SaveOutlined />
+                </CleanButton>
+              </CodeEditorHeaderRow>
 
               <FilesInfoFixed>
                 <span>Editing: {currentDoc?.template?.displayName || ''}</span>

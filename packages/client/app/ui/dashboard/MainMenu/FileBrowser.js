@@ -18,9 +18,17 @@ import {
 import { useBool, useString } from '../../../hooks/dataTypeHooks'
 import { objIf, switchOn } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
-import { TemplateManager } from '../../component-ai-assistant/components/CodeEditor'
+import {
+  TemplateManager,
+  useCreateTemplate,
+} from '../../component-ai-assistant/components/CodeEditor'
 import { SpinnerWrapper } from '../../wax/PmEditor'
 import { Result, Spin } from '../../common'
+import {
+  useCreateDoc,
+  useCreateFolder,
+  useCreateSnippet,
+} from '../../component-ai-assistant/SnippetsManager'
 
 const FilesWrapper = styled.div`
   --container-size: 26.5dvw;
@@ -85,6 +93,10 @@ const Files = props => {
     currentFolder,
     setResources,
   } = useDocumentContext()
+  const { handleCreateTemplate } = useCreateTemplate()
+  const handleCreateSnippet = useCreateSnippet()
+  const handleCreateDoc = useCreateDoc()
+  const handleCreateFolder = useCreateFolder()
   const draggedItemRef = useRef(null)
   const dragOverItemRef = useRef(null)
   const { moveResource, reorderChildren, deleteResource, loadingFolder } =
@@ -154,27 +166,26 @@ const Files = props => {
       })}
     />
   )
-  const isTemplatesFolder =
-    currentFolder?.title === 'Templates' &&
-    currentFolder?.resourceType === 'sys'
 
   return (
     <FilesWrapper
       expand={layout.userMenu}
       onClick={() => contextualMenu.update({ show: false })}
       onContextMenu={e => {
-        if (isTemplatesFolder) return
         e.preventDefault()
         contextualMenu.update({
           show: true,
           x: e.clientX,
           y: e.clientY,
-          items: generateContextMenuItems(
-            createResource,
+          items: generateContextMenuItems({
             fileExplorerView,
             reorderMode,
-            currentFolder.resourceType,
-          ),
+            currentFolder,
+            handleCreateDoc,
+            handleCreateFolder,
+            handleCreateTemplate,
+            handleCreateSnippet,
+          }),
         })
       }}
       $showRightBorder={layout.chat}
@@ -188,20 +199,17 @@ const Files = props => {
         <Loader>Loading resource...</Loader>
       </SpinnerWrapper>
       <FileDisplayView>
-        {!isTemplatesFolder ? (
-          <Each
-            of={resources}
-            as={resourceRender}
-            if={hasResources}
-            or={
-              <NoResources>
-                <span>-- Folder is empty --</span>
-              </NoResources>
-            }
-          />
-        ) : (
-          <TemplateManager view={fileExplorerView.state} />
-        )}
+        {/* {!isTemplatesFolder ? ( */}
+        <Each
+          of={resources}
+          as={resourceRender}
+          if={hasResources}
+          or={
+            <NoResources>
+              <span>-- Folder is empty --</span>
+            </NoResources>
+          }
+        />
       </FileDisplayView>
       <ConfirmDelete
         deleteResourceFn={deleteResource}
@@ -234,28 +242,43 @@ const CONTEXT_MENU_RENDER = {
   move: labelRender(<SwapOutlined />, 'Move resources'),
 }
 
-function generateContextMenuItems(
-  createResource,
-  folderView,
+function generateContextMenuItems({
+  fileExplorerView,
   reorderMode,
-  resourceType,
-) {
-  const { isRoot } = typeFlags(resourceType)
+  currentFolder,
+  handleCreateDoc,
+  handleCreateFolder,
+  handleCreateTemplate,
+  handleCreateSnippet,
+}) {
+  const { resourceType, extension } = currentFolder
+  const { isRoot, isSystem } = typeFlags(resourceType)
+  const notTemplatesDir = isSystem && !['templates', 'snip'].includes(extension)
+
   const optionValidations = {
-    newFolder: !isRoot,
-    newFile: !isRoot,
+    newFolder: !isRoot && notTemplatesDir,
+    newFile: !isRoot && notTemplatesDir,
     sort: !reorderMode.state,
     move: !!reorderMode.state,
-    gridView: folderView.is('list'),
-    listView: folderView.is('grid'),
+    gridView: fileExplorerView.is('list'),
+    listView: fileExplorerView.is('grid'),
     default: true,
   }
 
+  const isTemplate = extension === 'template'
+  const isSnippet = extension === 'snip'
+
+  const newFile = isTemplate
+    ? handleCreateTemplate
+    : isSnippet
+    ? handleCreateSnippet
+    : handleCreateDoc
+
   const actions = {
-    newFolder: createResource('dir'),
-    newFile: createResource('doc'),
-    gridView: () => folderView.set('grid'),
-    listView: () => folderView.set('list'),
+    newFolder: handleCreateFolder,
+    newFile,
+    gridView: () => fileExplorerView.set('grid'),
+    listView: () => fileExplorerView.set('list'),
     sort: reorderMode.toggle,
     move: reorderMode.toggle,
     default: () => {},

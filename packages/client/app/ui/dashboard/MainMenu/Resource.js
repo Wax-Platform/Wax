@@ -22,7 +22,7 @@ import {
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
 import { FlexRow } from '../../_styleds/common'
-import { capitalize } from 'lodash'
+import { capitalize, template } from 'lodash'
 import {
   callOn,
   objIf,
@@ -179,7 +179,7 @@ const PasteIcon = () => (
   </svg>
 )
 
-const MENU_OPTIONS = [
+const NORMAL_MENU_OPTIONS = [
   'open',
   'rename',
   '-',
@@ -194,6 +194,18 @@ const MENU_OPTIONS = [
   // '-',
 ]
 
+const TEMPLATE_MENU_OPTIONS = [
+  'open',
+  'rename',
+  '-',
+  'copy',
+  'cut',
+  // 'paste',
+  'delete',
+  '-',
+  'info',
+]
+
 const SYSTEM_FOLDER_ICONS_MAP = {
   Documents: FolderViewOutlined,
   Favorites: StarFilled,
@@ -203,8 +215,8 @@ const SYSTEM_FOLDER_ICONS_MAP = {
   Trash: DeleteFilled,
   Templates: FileTextFilled,
   Fonts: FontSizeOutlined,
-  CSS: FileTextFilled,
-  Snippets: ScissorOutlined,
+  'My Templates': FileTextFilled,
+  'My Snippets': ScissorOutlined,
   default: FolderFilled,
 }
 
@@ -226,6 +238,8 @@ const ICON_COLORS = {
   dir: 'var(--color-trois-opaque)',
   root: 'var(--color-trois-opaque)',
   sys: 'var(--color-trois-opaque-2)',
+  template: 'var(--color-blue)',
+  snippet: '#c8617d',
 }
 
 const VIEW_BASED_CONTAINERS = {
@@ -242,11 +256,11 @@ const Resource = props => {
     onResourceDrop,
     ...rest
   } = props
-  const { id, title, resourceType, doc = {} } = resource || {}
-  const { userInteractions } = useAiDesignerContext()
+  const { id, title, resourceType, doc = {}, extension } = resource || {}
+  const { userInteractions, setTemplateToEdit } = useAiDesignerContext()
 
   const {
-    openResource,
+    openResource: open,
     rename,
     selectedDocs,
     setSelectedDocs,
@@ -265,6 +279,18 @@ const Resource = props => {
   const allowDnD =
     (!isSystem && !isActive && !currentDocIsDescendant) || reorderMode.state
 
+  const openResource = useCallback(
+    resource => {
+      const { resourceType, templateId } = resource
+      const isTemplate = resourceType === 'template'
+      const isSnippet = resourceType === 'snippet'
+
+      if (isTemplate) return setTemplateToEdit(templateId)
+      if (isSnippet) return setTemplateToEdit(templateId)
+      return open(resource)
+    },
+    [open, setTemplateToEdit, resource],
+  )
   const handleOpen = useCallback(
     e => {
       e.preventDefault()
@@ -317,7 +343,11 @@ const Resource = props => {
         return includeOption && option
       }
 
-      const contextMenuItems = MENU_OPTIONS.map(buildOption).filter(Boolean)
+      const options = resource.templateId
+        ? TEMPLATE_MENU_OPTIONS
+        : NORMAL_MENU_OPTIONS
+
+      const contextMenuItems = options.map(buildOption).filter(Boolean)
 
       contextualMenu.update({
         items: contextMenuItems,

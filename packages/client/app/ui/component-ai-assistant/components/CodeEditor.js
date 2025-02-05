@@ -111,12 +111,60 @@ const FETCH_TEMPLATE_MODAL_ITEMS = [
   },
 ]
 
-export const TemplateManagerHeader = () => {
-  const { createTemplate, fetchAndCreateTemplateFromUrl } = useDocumentContext()
+export const useCreateTemplate = () => {
+  const { createResource, fetchAndCreateTemplateFromUrl } = useDocumentContext()
   const { modalState } = useModalContext()
 
   const onSubmit = fields => {
-    createTemplate({ variables: { input: { ...fields } } })
+    console.log({ fields })
+    const templateProps = JSON.stringify({
+      ...fields,
+      category: 'user',
+      status: 'private',
+    })
+    createResource('template', { title: fields.displayName, templateProps })()
+  }
+
+  const onSubmitFetch = fields => {
+    fetchAndCreateTemplateFromUrl({
+      variables: { ...fields },
+    })
+  }
+
+  const handleCreateTemplate = () => {
+    modalState.update({
+      show: true,
+      title: 'Create a new template',
+      onSubmit,
+      items: CREATE_TEMPLATE_MODAL_ITEMS,
+    })
+  }
+
+  const handleFetchTemplate = () => {
+    modalState.update({
+      show: true,
+      title: 'Fetch template from url',
+      onSubmit: onSubmitFetch,
+      items: FETCH_TEMPLATE_MODAL_ITEMS,
+    })
+  }
+
+  return { handleCreateTemplate, handleFetchTemplate }
+}
+
+export const TemplateManagerHeader = () => {
+  const { createResource, currentFolder, fetchAndCreateTemplateFromUrl } =
+    useDocumentContext()
+  const { modalState } = useModalContext()
+
+  const onSubmit = fields => {
+    console.log({ fields })
+    const templateProps = JSON.stringify({
+      ...fields,
+      category: 'user',
+      status: 'private',
+    })
+    createResource('template', { title: fields.displayName, templateProps })()
   }
 
   const onSubmitFetch = fields => {

@@ -107,25 +107,20 @@ export const TemplatesDropdown = props => {
     const forkTemplate = () => {
       const { id } = currentDoc?.template || {}
       const variables = { id, rawCss, displayName }
-      setSelectedTemplate(template)
-      updateTemplateCss({ variables })
-      previewTemplate()
-    }
-
-    const previewTemplate = () => {
-      setSelectedTemplate(template)
       setCss(rawCss)
+      updateTemplateCss({ variables })
+      setSelectedTemplate(template)
       updatePreview(true, rawCss)
       showDropdown.off()
     }
 
     return (
       <TemplateItem $selected={isSelected}>
-        <TemplateButton onClick={previewTemplate}>{displayName}</TemplateButton>
+        <TemplateButton onClick={forkTemplate}>
+          <p>{displayName}</p>
+        </TemplateButton>
         <FlexRow style={{ gap: '8px' }}>
-          <Button onClick={forkTemplate}>
-            <ForkOutlined />
-          </Button>
+          <ForkOutlined />
         </FlexRow>
       </TemplateItem>
     )

@@ -1,3 +1,4 @@
+/* stylelint-disable no-descending-specificity */
 import React, { useContext } from 'react'
 import styled from 'styled-components'
 import { CleanButton, FlexRow } from '../../_styleds/common'
@@ -12,6 +13,11 @@ import { takeRight } from 'lodash'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { typeFlags } from './utils/resourcesUtils'
 import { TemplateManagerHeader } from '../../component-ai-assistant/components/CodeEditor'
+import {
+  useCreateDoc,
+  useCreateFolder,
+  useCreateSnippet,
+} from '../../component-ai-assistant/SnippetsManager'
 
 const MAX_PATH_LEVEL = 4
 
@@ -60,18 +66,31 @@ const Container = styled.div`
 export const Actions = styled(FlexRow)`
   background: var(--color-trois-lightest);
   border-radius: 1.5rem;
+  color: var(--color-trois-opaque-2);
   gap: 8px;
   padding: 7px 10px;
+
+  &:hover {
+    background-color: #0001;
+  }
+
+  svg {
+    fill: var(--color-trois-opaque);
+  }
 `
 
-const createFolderIsChecker = folder => title => folder?.title === title
+const createFolderIsChecker = folder => extension =>
+  folder?.extension === extension
 
 const CANT_CREATE = ['Templates', 'Favorites', 'Shared', 'Snippets']
 
 const PathRender = props => {
   const { layout } = useAiDesignerContext()
-  const { currentPath, graphQL, createResource, currentFolder } =
-    useDocumentContext()
+  const { currentPath, graphQL, currentFolder } = useDocumentContext()
+  const handleCreateSnippet = useCreateSnippet()
+  const handleCreateDoc = useCreateDoc()
+  const handleCreateFolder = useCreateFolder()
+
   const { openFolder } = graphQL ?? {}
   const { length: pathLevel } = currentPath ?? []
   const isClamped = pathLevel > MAX_PATH_LEVEL
@@ -80,6 +99,7 @@ const PathRender = props => {
   const folderIs = createFolderIsChecker(currentFolder)
 
   const isSpecialFolder = CANT_CREATE.includes(currentFolder?.title) && isSystem
+  const canCreateDoc = !currentFolder?.extension && !isRoot
   const canCreate = !isSpecialFolder && !isRoot
 
   const lastPaths = takeRight(currentPath, MAX_PATH_LEVEL)
@@ -115,15 +135,24 @@ const PathRender = props => {
       <Actions>
         {canCreate && (
           <>
-            <CleanButton onClick={createResource('doc')}>
-              <PlusCircleOutlined style={{ fontSize: '15px' }} />
-            </CleanButton>
-            <CleanButton onClick={createResource('dir')}>
+            {canCreateDoc && (
+              <CleanButton onClick={handleCreateDoc}>
+                <PlusCircleOutlined style={{ fontSize: '15px' }} />
+              </CleanButton>
+            )}
+            {currentFolder?.extension === 'snip' && (
+              <CleanButton onClick={handleCreateSnippet}>
+                <PlusCircleOutlined style={{ fontSize: '15px' }} />
+              </CleanButton>
+            )}
+            <CleanButton onClick={handleCreateFolder}>
               <FolderAddOutlined style={{ fontSize: '18px' }} />
             </CleanButton>
           </>
         )}
-        {folderIs('Templates') && <TemplateManagerHeader />}
+        {(folderIs('template') || currentFolder?.extension === 'template') && (
+          <TemplateManagerHeader />
+        )}
         <CleanButton $disabled={pathLevel === 1} onClick={goBack}>
           <ArrowLeftOutlined />
         </CleanButton>

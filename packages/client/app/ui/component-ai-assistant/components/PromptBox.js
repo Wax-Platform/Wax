@@ -298,7 +298,7 @@ export const PromptBox = props => {
     ragSearchLoading,
     dalleLoading,
     handleSend,
-    handleImageUpload,
+    // handleImageUpload,
   } = useAssistant()
 
   return (
@@ -322,25 +322,23 @@ export const PromptBox = props => {
           }}
         >
           <ModelsDropdown />
-          <span>
-            <span style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                accept=".png,.jpg,.webp,.gif,.jpeg"
-                id="add-file-to-prompt"
-                onChange={handleImageUpload}
-                style={{ display: 'none' }}
-                type="file"
-              />
-              <label
-                contextMenu="form"
-                htmlFor="add-file-to-prompt"
-                style={{ cursor: 'pointer' }}
-                title="Attach image"
-              >
-                <PictureOutlined style={{ color: 'var(--color-trois)' }} />
-              </label>
-            </span>
-          </span>
+          {/* <span style={{ display: 'flex', alignItems: 'center' }}>
+            <input
+              accept=".png,.jpg,.webp,.gif,.jpeg"
+              id="add-file-to-prompt"
+              onChange={handleImageUpload}
+              style={{ display: 'none' }}
+              type="file"
+            />
+            <label
+              contextMenu="form"
+              htmlFor="add-file-to-prompt"
+              style={{ cursor: 'pointer' }}
+              title="Attach image"
+            >
+              <PictureOutlined style={{ color: 'var(--color-trois)' }} />
+            </label>
+          </span> */}
         </span>
       </PromptBoxWrapper>
     </AbsoluteContainer>
