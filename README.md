@@ -5,3 +5,8 @@ All open source. Currently targeting Mistral and OpenAI models.
 
 See https://wax.is
 
+
+## Credits
+
+Template Icon <a href="https://www.flaticon.com/free-icons/layout" title="layout icons">created by Freepik - Flaticon</a>
+
