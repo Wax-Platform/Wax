@@ -20,8 +20,7 @@ import {
   GET_USER_TEMPLATES,
   UPDATE_TEMPLATE_CSS,
 } from '../../../graphql/templates.graphql'
-import { getSnippetsStyleTag } from '../../component-ai-assistant/utils'
-import { debounce } from 'lodash'
+import { createOrUpdateStyleSheet } from '../../component-ai-assistant/utils'
 
 const useTemplates = () => {
   const [masterTemplateId, setMasterTemplateId] = useState(null)
@@ -70,14 +69,9 @@ const useTemplates = () => {
   useEffect(() => {
     if (userSnippetsData?.getUserSnippets) {
       setUserSnippets(userSnippetsData.getUserSnippets)
-      const styleTag = getSnippetsStyleTag()
-      if (styleTag) {
-        styleTag.innerHTML = userSnippetsData.getUserSnippets
-          .map(s => s.classBody)
-          .join('\n')
-      }
+      createOrUpdateStyleSheet(userSnippetsData.getUserSnippets)
     }
-  }, [userSnippetsData?.getUserSnippets?.length])
+  }, [userSnippetsData, userSnippetsLoading])
 
   return {
     systemTemplatesData,

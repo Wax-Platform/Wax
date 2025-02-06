@@ -14,6 +14,7 @@ import {
   AiDesignerSystem,
   addElement,
   callOn,
+  createOrUpdateStyleSheet,
   filterKeys,
   finishReasons,
   getNodes,
@@ -149,6 +150,7 @@ const useAssistant = () => {
             })()
 
             selectedCtx.snippets.add(`${snippet.className}`)
+            createOrUpdateStyleSheet([...userSnippets, snippet])
           }
         },
         feedback: val => {
