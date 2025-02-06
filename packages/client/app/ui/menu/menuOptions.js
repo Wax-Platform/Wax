@@ -140,7 +140,7 @@ export const TemplateManagerButton = () => {
       <Button
         onClick={() => updateLayout(newLayout)}
         $expanded={layout.userMenu && layout.snippetsManager}
-        title="Template Manager"
+        title="Snippets Manager"
       >
         <ScissorOutlined />
       </Button>

@@ -88,7 +88,6 @@ const Files = props => {
     graphQL,
     resourcesInFolder = [],
     contextualMenu,
-    createResource,
     resources = [],
     currentFolder,
     setResources,

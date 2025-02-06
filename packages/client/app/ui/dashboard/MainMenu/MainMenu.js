@@ -96,7 +96,7 @@ const FilesInfoFixed = styled.div`
   padding: 8px 15px;
   user-select: none;
   width: 100%;
-  z-index: 999;
+  z-index: 9999;
 
   svg {
     fill: var(--color-trois-opaque);
@@ -180,7 +180,7 @@ const MainMenu = ({ enableLogin }) => {
           )}
           {snippetsManager && (
             <FlexCol style={{ width: '100%' }}>
-              <SnippetManagerHeader />
+              <MenuLabel>Snippets Manager</MenuLabel>
               <FilesInfoFixed>
                 <span>
                   {userInteractions.ctrl && htmlTagNames[selectedCtx.tagName]
@@ -194,7 +194,7 @@ const MainMenu = ({ enableLogin }) => {
           {codeEditor && (
             <FlexCol style={{ width: '100%' }}>
               <CodeEditorHeaderRow>
-                <MenuLabel>Code Editor</MenuLabel>
+                <MenuLabel>Template Manager</MenuLabel>
                 <FlexRow style={{ gap: '10px' }}>
                   <CleanButton
                     onClick={() => {

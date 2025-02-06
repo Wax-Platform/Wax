@@ -31,10 +31,13 @@ import templateIcon from '../../../../static/template-icon.svg'
 export const ListContainer = styled.div`
   --icon-size: 16px;
   --icon-title-direction: row;
+  --icon-title-gap: 8px;
   --w-h: 100%;
   --icon-title-min-height: 24px;
-  --label-white-space: nowrap;
+  --label-white-space: normal;
   --label-height: fit-content;
+  --label-width: 100%;
+
   align-items: center;
   background: ${p =>
     p.$selected || p.isDragging ? 'var(--color-trois-lightest)' : '#fff0'};
@@ -46,6 +49,7 @@ export const ListContainer = styled.div`
   filter: ${p => (p.isDragging ? 'brightness(0.97)' : 'unset')};
   font-size: 14px;
   font-weight: ${p => (p.$active ? '600' : 'normal')};
+  gap: 8px;
   height: 35px;
   min-height: 35px;
   /* opacity: ${p => (p.$ghost ? '0.5' : '1')}; */
@@ -70,8 +74,11 @@ export const GridContainer = styled.div`
   --icon-min-width: calc(var(--w-h) - 10px);
   --icon-title-direction: column;
   --icon-title-min-height: 30px;
+  --icon-title-gap: 0;
   --label-white-space: nowrap;
   --label-height: 24px;
+  --label-width: calc(var(--w-h) - 10px);
+
   align-items: center;
   /* animation: ${resourceShow} 0.3s; */
   background: ${p =>
@@ -98,6 +105,8 @@ export const GridContainer = styled.div`
     color: var(--svg-fill);
     cursor: ${p => (p.$reorder ? 'grabbing' : 'pointer')};
   }
+
+  z-index: ${p => (p.$selected ? '999' : 'auto')};
 `
 
 export const StyledInput = styled.input`
@@ -117,7 +126,7 @@ export const IconTitleContainer = styled.div`
   align-items: center;
   display: flex;
   flex-direction: var(--icon-title-direction);
-  gap: 16 filebropx;
+  gap: var(--icon-title-gap);
   justify-content: space-between;
   min-height: var(--icon-title-min-height);
 
@@ -150,16 +159,24 @@ export const FileIcon = styled(FileOutlined)`
 
 export const TitleLabel = styled.span`
   align-items: center;
-  font-size: 12px;
-  height: var(--label-height);
+  height: ${p => !p.$selected && `var(--label-height)`};
   max-height: var(--label-height);
-  max-width: calc(var(--w-h) - 10px);
-  overflow: hidden;
+
   pointer-events: none;
   text-align: center;
-  text-overflow: ellipsis;
   user-select: none;
-  white-space: var(--label-white-space);
+  width: var(--label-width);
+
+  p {
+    background: ${p => (p.$selected ? 'var(--color-trois-opaque-3)' : '#fff0')};
+    border-radius: 4px;
+    font-size: 12px;
+    overflow: ${p => (p.$selected ? 'visible' : `hidden`)};
+    padding: 4px;
+    text-overflow: ellipsis;
+    white-space: ${p => !p.$selected && 'var(--label-white-space)'};
+    word-break: break-word;
+  }
 `
 
 const PasteIcon = () => (
@@ -458,7 +475,7 @@ const Resource = props => {
         <FlexRow>
           <ResourceIcon data-contextmenu />
         </FlexRow>
-        <TitleLabel>
+        <TitleLabel $selected={isSelected}>
           {rename.state.id === id ? (
             <FlexRow>
               <StyledInput
