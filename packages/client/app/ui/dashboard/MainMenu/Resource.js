@@ -281,7 +281,7 @@ const Resource = props => {
     ...rest
   } = props
   const { id, title, resourceType, doc = {}, extension } = resource || {}
-  const { userInteractions, setTemplateToEdit } = useAiDesignerContext()
+  const { userInteractions } = useAiDesignerContext()
 
   const {
     openResource: open,
@@ -293,6 +293,7 @@ const Resource = props => {
     docPath,
     contextualMenu,
     addToFavs,
+    setTemplateToEdit,
     // clipboard,
   } = useDocumentContext()
 

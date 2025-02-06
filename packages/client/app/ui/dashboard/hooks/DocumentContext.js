@@ -121,6 +121,7 @@ export const DocumentContextProvider = ({ children }) => {
   const rename = useObject({ start: RENAME_ITEM })
   const clipboard = useObject({ start: CLIPBOARD_ITEM })
   const contextualMenu = useObject()
+  const [templateToEdit, setTemplateToEdit] = useState(null)
 
   const { setCss, updatePreview } = useAiDesignerContext()
   const { currentFolder, currentPath, docPath, ...graphQL } = useResourceTree()
@@ -159,6 +160,8 @@ export const DocumentContextProvider = ({ children }) => {
       const { identifier } = doc
       console.log({ identifier })
       getDoc({ variables: { identifier }, fetchPolicy: 'cache-first' })
+      setTemplateToEdit(null)
+
       return
     }
 
@@ -179,7 +182,6 @@ export const DocumentContextProvider = ({ children }) => {
       graphQL.addResource({
         variables: { id: parent, resourceType, ...additionalProperties },
       })
-
       resourceType === 'snippet' && templatesGQL.getUserSnippets()
       resourceType === 'template' && templatesGQL.getUserTemplates()
     }
@@ -242,6 +244,8 @@ export const DocumentContextProvider = ({ children }) => {
         getDoc,
 
         // Template
+        templateToEdit,
+        setTemplateToEdit,
         ...templatesGQL,
       }}
     >

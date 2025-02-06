@@ -58,8 +58,8 @@ const Header = styled(FlexRow)`
 
 export const FullCodeEditor = ({ code, config }) => {
   const [localCode, setLocalCode] = useState(code)
-  const { templateToEdit, setTemplateToEdit } = useAiDesignerContext()
-  const { updateTemplateCss } = useDocumentContext()
+  const { updateTemplateCss, templateToEdit, setTemplateToEdit } =
+    useDocumentContext()
 
   const [getTemplate, { data: templateData }] = useLazyQuery(GET_TEMPLATE)
   useEffect(() => {

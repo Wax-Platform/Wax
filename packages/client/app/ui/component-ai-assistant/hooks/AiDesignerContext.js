@@ -140,7 +140,6 @@ export const AiDesignerProvider = ({ children }) => {
   const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
-  const [templateToEdit, setTemplateToEdit] = useState(false)
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -374,8 +373,6 @@ export const AiDesignerProvider = ({ children }) => {
         setDesignerOn,
         userInteractions,
         setUserInteractions,
-        templateToEdit,
-        setTemplateToEdit,
       }}
     >
       {children}

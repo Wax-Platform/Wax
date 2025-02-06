@@ -26,6 +26,7 @@ import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsP
 import { setInlineStyle } from '../../component-ai-assistant/utils'
 import { StyledWindow, WindowHeading } from '../../_styleds/common'
 import { FullCodeEditor } from '../../component-ai-assistant/components/FullCodeEditor'
+import { useDocumentContext } from '../../dashboard/hooks/DocumentContext'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -231,8 +232,9 @@ const Layout = ({ noYjsInConfig, ...props }) => {
     designerOn,
     onHistory,
     previewRef,
-    templateToEdit,
   } = useAiDesignerContext()
+
+  const { templateToEdit } = useDocumentContext()
 
   const { loading } = useAssistant()
   const { enableLogin } = props
@@ -308,6 +310,7 @@ const Layout = ({ noYjsInConfig, ...props }) => {
   }
 
   const showEditor = layout.editor && !templateToEdit && !noYjsInConfig
+
   return (
     <ThemeProvider theme={theme}>
       <Wrapper
