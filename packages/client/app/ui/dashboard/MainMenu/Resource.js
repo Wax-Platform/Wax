@@ -15,6 +15,7 @@ import {
   FolderViewOutlined,
   PictureFilled,
   FontSizeOutlined,
+  FileTextFilled,
 } from '@ant-design/icons'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
@@ -231,7 +232,7 @@ const TemplateIcon = styled.img.attrs({ src: templateIcon })`
 `
 
 const SYSTEM_FOLDER_ICONS_MAP = {
-  Documents: FolderViewOutlined,
+  Documents: FileTextFilled,
   Favorites: StarFilled,
   Books: BookFilled,
   Images: PictureFilled,
