@@ -99,7 +99,8 @@ const PathRender = props => {
   const folderIs = createFolderIsChecker(currentFolder)
 
   const isSpecialFolder = CANT_CREATE.includes(currentFolder?.title) && isSystem
-  const canCreateDoc = !currentFolder?.extension && !isRoot
+  const canCreateDoc =
+    !['snip', 'template'].includes(currentFolder?.extension) && !isRoot
   const canCreate = !isSpecialFolder && !isRoot
 
   const lastPaths = takeRight(currentPath, MAX_PATH_LEVEL)

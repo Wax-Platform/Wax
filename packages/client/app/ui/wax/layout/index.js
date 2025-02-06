@@ -216,7 +216,7 @@ const BottomRightInfo = ComponentPlugin('BottomRightInfo')
 const RightArea = ComponentPlugin('rightArea')
 
 /* eslint-disable-next-line react/prop-types */
-const Layout = ({ noYjsInConfig, ...props }) => {
+const Layout = ({ docIdentifier, ...props }) => {
   const context = useContext(WaxContext)
   const {
     options,
@@ -286,6 +286,23 @@ const Layout = ({ noYjsInConfig, ...props }) => {
     toggleMenu(!open)
   }
 
+  useEffect(() => {
+    if (ref?.current) {
+      ref.current.querySelectorAll('*').forEach(el => {
+        el.addEventListener('click', e => {
+          e.stopPropagation()
+        })
+      })
+
+      return () => {
+        ref.current.querySelectorAll('*').forEach(el => {
+          el.removeEventListener('click', e => {
+            e.stopPropagation()
+          })
+        })
+      }
+    }
+  }, [ref?.current])
   const users = sharedUsers.map(([id, { user }]) => ({
     userId: user.id,
     displayName: user.displayName,
@@ -309,7 +326,7 @@ const Layout = ({ noYjsInConfig, ...props }) => {
     }
   }
 
-  const showEditor = layout.editor && !templateToEdit && !noYjsInConfig
+  const showEditor = layout.editor && !templateToEdit && docIdentifier
 
   return (
     <ThemeProvider theme={theme}>
@@ -343,7 +360,7 @@ const Layout = ({ noYjsInConfig, ...props }) => {
                 $both={!!layout.preview && !!layout.editor}
                 $all={!!layout.preview && !!layout.editor && !!layout.userMenu}
               >
-                <WaxView {...props} />
+                {docIdentifier && <WaxView {...props} />}
               </EditorContainer>
               {!layout.userMenu &&
                 !layout.preview &&

@@ -88,6 +88,7 @@ const useTemplates = () => {
     masterTemplateId,
     setMasterTemplateId,
     userSnippets,
+    setUserSnippets,
   }
 }
 

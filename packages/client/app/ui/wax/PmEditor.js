@@ -96,6 +96,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       window.removeEventListener('message', handleMessage)
     }
   }, [])
+
   useEffect(() => {
     if (docIdentifier) {
       setDocId(docIdentifier)
@@ -111,13 +112,11 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
   }, [docIdentifier])
 
   useEffect(() => {
-    if (yjsProvider) {
+    if (yjsProvider && ydoc && docIdentifier) {
       const configObj = config(yjsProvider, ydoc, docIdentifier)
       setWaxConfig(configObj)
     }
   }, [yjsProvider?.doc?.guid])
-
-  const noYjsInConfig = !yjsProvider || !ydoc || !WaxConfig || !docIdentifier
 
   // if (!) {
   //   return (
@@ -166,7 +165,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
           placeholder="Type Something ..."
           ref={refElement}
           scrollThreshold={50}
-          noYjsInConfig={noYjsInConfig}
+          docIdentifier={docIdentifier}
         />
       </span>
       <SpinnerWrapper

@@ -599,8 +599,27 @@ class ResourceTree extends BaseModel {
             const Template = require('../template/template.model')
             const props = JSON.parse(templateProps)
             const meta = JSON.parse(props?.meta || '{}')
+
+            let rawCss = props.rawCss || ''
+
+            if (
+              Object.keys(meta).includes('className') &&
+              safeTitle !== title &&
+              resourceType === 'snippet'
+            ) {
+              const newClassName = safeTitle.replace('(', '-').replace(')', '')
+
+              meta.classBody = props.rawCss.replaceAll(
+                meta.className,
+                newClassName,
+              )
+              rawCss = props.rawCss.replaceAll(meta.className, newClassName)
+              meta.className = newClassName
+            }
+
             const template = await Template.query(tr).insert({
               ...props,
+              rawCss,
               meta,
               userId,
               displayName: safeTitle,

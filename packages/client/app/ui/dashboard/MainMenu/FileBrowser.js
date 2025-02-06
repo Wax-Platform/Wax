@@ -252,7 +252,8 @@ function generateContextMenuItems({
 }) {
   const { resourceType, extension } = currentFolder
   const { isRoot, isSystem } = typeFlags(resourceType)
-  const notTemplatesDir = isSystem && !['templates', 'snip'].includes(extension)
+  const notTemplatesDir =
+    !isSystem || !['templates', 'snip'].includes(extension)
 
   const optionValidations = {
     newFolder: !isRoot && notTemplatesDir,

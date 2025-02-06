@@ -1,13 +1,16 @@
 /* stylelint-disable string-quotes */
 /* stylelint-disable no-descending-specificity */
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import {
+  ArrowDownOutlined,
+  ArrowUpOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
   PoweroffOutlined,
   SaveOutlined,
+  VerifiedOutlined,
 } from '@ant-design/icons'
 import { useAiDesignerContext } from './hooks/AiDesignerContext'
 import AiDesigner from '../../AiDesigner/AiDesigner'
@@ -19,7 +22,7 @@ import { EditorView } from '@uiw/react-codemirror'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 import { useModalContext } from '../../hooks/modalContext'
 import { Actions } from '../dashboard/MainMenu/PathRender'
-import { getSnippetsStyleTag } from './utils'
+import { createOrUpdateStyleSheet, getSnippetsStyleTag } from './utils'
 
 const SnippetEditor = styled(TemplateEditor)`
   background-color: var(--color-trois-lightest-2);
@@ -65,11 +68,18 @@ const SnippetActions = styled(FlexRow)`
     }
   }
 
-  > button[data-action='toggle'] {
+  > button[data-action='toggle'],
+  > button[data-pin] {
     color: var(--color-states);
 
     svg {
       fill: var(--color-states-dark);
+    }
+  }
+
+  > button[data-pin] {
+    svg {
+      transform: scale(0.8);
     }
   }
 `
@@ -284,12 +294,17 @@ export const SnippetsManager = () => {
   const { userSnippets, updateTemplateCss, deleteTemplate } =
     useDocumentContext()
 
-  if (!settings.editor.enableSelection) return null
+  useEffect(() => {
+    userSnippets && createOrUpdateStyleSheet(userSnippets)
+  }, [])
 
-  const checkIfAdded = s => getCtxNode()?.classList?.contains(s.className)
+  const [pinnedSnippets, setPinnedSnippets] = useState([])
+  const rootRef = useRef()
 
-  const addedSnippets = userSnippets.filter(checkIfAdded)
-  const notAdded = userSnippets.filter(snip => !checkIfAdded(snip))
+  const sortedByName = (a, b) => a.displayName.localeCompare(b.displayName)
+
+  const sortedSnippets = [...userSnippets].sort(sortedByName)
+  const snippets = sortedSnippets.filter(snip => !pinnedSnippets.includes(snip))
 
   const snippetRender = snip => {
     const { className, description, classBody, displayName, id } = snip
@@ -315,6 +330,7 @@ export const SnippetsManager = () => {
       e.stopPropagation()
       const action = e.target.getAttribute('data-action') ?? 'toggle'
       const { tagName } = selectedCtx
+      createOrUpdateStyleSheet(userSnippets)
 
       if (action === 'delete') {
         AiDesigner.filterBy({ tagName }, c => c.snippets.remove(`${className}`))
@@ -330,11 +346,36 @@ export const SnippetsManager = () => {
       isMarked && setMarkedSnippet({})
     }
 
+    const isPinned = pinnedSnippets.find(s => s.id === snip.id)
+
+    const pinSnippet = unpin => {
+      !unpin
+        ? setPinnedSnippets([...pinnedSnippets, snip])
+        : setPinnedSnippets(pinnedSnippets.filter(s => s.id !== snip.id))
+    }
+
+    const goToTop = () => {
+      rootRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
     return (
       <SnippetWrapper>
         <Snippet $active={!isMarked && isAdded} $marked={isMarked}>
           <SnippetsName>{displayName}</SnippetsName>
           <SnippetActions $disabled={!selectedCtx?.node}>
+            <CleanButton
+              onClick={() => pinSnippet(isPinned)}
+              title={`Send to the ${isPinned ? 'bottom' : 'top'} of the list`}
+              data-pin
+            >
+              <ArrowUpOutlined
+                style={{
+                  pointerEvents: 'none',
+                  transform: `scale(0.8) rotate(${isPinned ? '180' : '0'}deg)`,
+                }}
+              />
+            </CleanButton>
+
             <CleanButton
               data-action="toggle"
               onClick={handleActions}
@@ -389,10 +430,11 @@ export const SnippetsManager = () => {
     )
   }
 
+  if (!settings.editor.enableSelection) return null
   return (
-    <Root $active>
-      <Each of={addedSnippets} as={snippetRender} if={addedSnippets.length} />
-      <Each of={notAdded} as={snippetRender} if={notAdded.length} />
+    <Root ref={rootRef} $active>
+      <Each of={pinnedSnippets} as={snippetRender} if={pinnedSnippets.length} />
+      <Each of={snippets} as={snippetRender} if={snippets.length} />
     </Root>
   )
 }

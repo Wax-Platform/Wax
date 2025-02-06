@@ -76,18 +76,10 @@ export const PagedJsPreview = props => {
       const { id, loaded } = e.data
       console.log(id, loaded)
       if (isBoolean(loaded)) {
-        console.log('setting spinner', !loaded)
         const spinner = document.querySelector('[data-spinner]')
         const setSpinner = () => set(spinner, 'dataset.spinner', !loaded)
         loaded ? debounce(setSpinner, 2000)() : setSpinner()
-        loaded && createOrUpdateStyleSheet(userSnippets)
-        loaded &&
-          getPreviewIframe().contentWindow.addEventListener('click', () =>
-            selectNodeOnPreview(
-              getPreviewIframe().contentDocument,
-              getPreviewIframe().contentWindow,
-            ),
-          )
+        createOrUpdateStyleSheet(userSnippets)
       }
       AiDesigner.select(id)
     }
@@ -106,10 +98,10 @@ export const PagedJsPreview = props => {
 
     const handleClick = selectNodeOnPreview(previewDocument, previewWindow)
 
-    previewWindow.addEventListener('click', handleClick)
+    previewWindow.addEventListener('mousedown', handleClick)
 
     return () => {
-      previewWindow.removeEventListener('click', handleClick)
+      previewWindow.removeEventListener('mousedown', handleClick)
     }
   }, [
     previewRef?.current?.contentDocument,
@@ -141,6 +133,7 @@ export const PagedJsPreview = props => {
 
 export function selectNodeOnPreview(previewDocument, previewWindow) {
   return e => {
+    e.stopPropagation()
     const { target } = e
     if (!target.hasAttribute('data-id')) e.preventDefault()
     let id =

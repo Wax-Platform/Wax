@@ -70,7 +70,7 @@ const useAssistant = () => {
     model,
   } = useAiDesignerContext()
 
-  const { userSnippets, createResource, updateTemplateCss } =
+  const { userSnippets, createResource, updateTemplateCss, setUserSnippets } =
     useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
@@ -117,6 +117,17 @@ const useAssistant = () => {
           AiDesigner.emit('updateCss', clonedCss)
         },
         snippet: snippet => {
+          if (
+            ![
+              'classBody',
+              'className',
+              'description',
+              'displayName',
+              'classBody',
+            ].every(k => snippet[k])
+          )
+            return
+
           if (snippet?.id) {
             const rawCss = snippet?.classBody
             const meta = JSON.stringify({
@@ -139,7 +150,7 @@ const useAssistant = () => {
               title: snippet?.displayName,
               templateProps: JSON.stringify({
                 displayName: snippet?.displayName,
-                rawCss: snippet.classBody,
+                rawCss: snippet?.classBody,
                 meta: JSON.stringify({
                   className: snippet.className,
                   description: snippet.description,
@@ -151,6 +162,7 @@ const useAssistant = () => {
 
             selectedCtx.snippets.add(`${snippet.className}`)
             createOrUpdateStyleSheet([...userSnippets, snippet])
+            setUserSnippets(prev => [...prev, snippet])
           }
         },
         feedback: val => {
