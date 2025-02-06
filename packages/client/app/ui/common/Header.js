@@ -148,8 +148,7 @@ const Header = props => {
     setCss,
   } = useAiDesignerContext()
 
-  const { currentDoc, graphQL, docId, updateTemplateCss } =
-    useContext(DocumentContext)
+  const { currentDoc, graphQL, docId } = useContext(DocumentContext)
   const { openFolder, getCurrentDocPath } = graphQL
 
   useEffect(() => {
@@ -210,7 +209,7 @@ const Header = props => {
           </DocumentInfoArea>
         )}
       </FlexRow>
-      {currentDoc?.title ? (
+      {currentDoc?.title && (
         <UserMenu $designerOn={designerOn}>
           <DesignerActions $designerOn={designerOn}>
             <UndoIcon
@@ -264,8 +263,6 @@ const Header = props => {
             </EditDesignLabels>
           </FlexRow>
         </UserMenu>
-      ) : (
-        <PathRender style={{ width: '90%' }} />
       )}
     </StyledHeader>
   )
