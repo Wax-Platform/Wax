@@ -215,7 +215,7 @@ const BottomRightInfo = ComponentPlugin('BottomRightInfo')
 const RightArea = ComponentPlugin('rightArea')
 
 /* eslint-disable-next-line react/prop-types */
-const Layout = props => {
+const Layout = ({ noYjsInConfig, ...props }) => {
   const context = useContext(WaxContext)
   const {
     options,
@@ -307,18 +307,19 @@ const Layout = props => {
     }
   }
 
+  const showEditor = layout.editor && !templateToEdit && !noYjsInConfig
   return (
     <ThemeProvider theme={theme}>
       <Wrapper
         id="wax-container"
         style={fullScreenStyles}
-        $menuvisible={!!layout.editor && !templateToEdit}
+        $menuvisible={showEditor}
       >
-        <MenuWrapper $show={layout.editor && !templateToEdit}>
+        <MenuWrapper $show={showEditor}>
           {main && (
             <MenuComponent
               fullScreen={fullScreen}
-              open={layout.editor && !templateToEdit}
+              open={showEditor}
               ref={ref}
             />
           )}
@@ -329,7 +330,7 @@ const Layout = props => {
           <FileManagerWrapper>
             <MainMenu enableLogin={enableLogin} />
           </FileManagerWrapper>
-          <EditorWrapper $show={layout.editor && !templateToEdit}>
+          <EditorWrapper $show={showEditor}>
             <WaxSurfaceScroll
               id="wax-surface-scroll"
               $loading={!!loading}

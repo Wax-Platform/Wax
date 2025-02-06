@@ -81,7 +81,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
   }, [htmlSrc])
 
   const [showSpinner, setShowSpinner] = useState(false)
-  const [WaxConfig, setWaxConfig] = useState(null)
+  const [WaxConfig, setWaxConfig] = useState(config())
   const { refElement } = usePrintArea({})
 
   useEffect(() => {
@@ -117,24 +117,26 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
     }
   }, [yjsProvider?.doc?.guid])
 
-  if (!yjsProvider || !ydoc || !WaxConfig || !docIdentifier) {
-    return (
-      <StyledWindow
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          display: 'flex',
-          width: '100%',
-          height: '100%',
-          opacity: 1,
-          background: 'var(--color-trois-lightest-2)',
-          paddingBlock: '1rem',
-        }}
-      >
-        <FileBrowser />
-      </StyledWindow>
-    )
-  }
+  const noYjsInConfig = !yjsProvider || !ydoc || !WaxConfig || !docIdentifier
+
+  // if (!) {
+  //   return (
+  //     <StyledWindow
+  //       style={{
+  //         alignItems: 'center',
+  //         justifyContent: 'center',
+  //         display: 'flex',
+  //         width: '100%',
+  //         height: '100%',
+  //         opacity: 1,
+  //         background: 'var(--color-trois-lightest-2)',
+  //         paddingBlock: '1rem',
+  //       }}
+  //     >
+  //       <FileBrowser />
+  //     </StyledWindow>
+  //   )
+  // }
   return (
     <>
       {displayStyles && <style id="aid-css-template">{css}</style>}
@@ -164,7 +166,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
           placeholder="Type Something ..."
           ref={refElement}
           scrollThreshold={50}
-          showFilemanager
+          noYjsInConfig={noYjsInConfig}
         />
       </span>
       <SpinnerWrapper
