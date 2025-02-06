@@ -46,7 +46,7 @@ const TemplateItem = styled(MenuItem)`
   background: var(--color-trois-lightest-2);
   border-bottom: 1px solid #0001;
   height: var(--item-height);
-  padding: 16px 8px;
+  padding: 16px 11px 16px 8px;
 
   p {
     font-size: 12px;
