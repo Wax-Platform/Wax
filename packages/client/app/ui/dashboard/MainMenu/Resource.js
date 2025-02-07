@@ -261,8 +261,8 @@ const LABELS = {
 const ICON_COLORS = {
   doc: 'var(--color-trois-opaque)',
   dir: 'var(--color-trois-opaque)',
-  root: 'var(--color-trois-opaque)',
-  sys: 'var(--color-trois-opaque-2)',
+  root: 'var(--color-trois)',
+  sys: 'var(--color-trois)',
   template: 'var(--color-blue)',
   snippet: '#c8617d',
 }

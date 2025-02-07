@@ -2,7 +2,7 @@
     preserveAspectRatio="none" x="0px" y="0px" width="125px" height="109px" viewBox="0 0 125 109">
     <defs>
         <g id="Layer0_0_FILL">
-            <path fill="#9386ad" stroke="#9386ad"
+            <path fill="#a34ba1" stroke="#a34ba1"
                 stroke-width="1"
                 d="
 M 119.95 22
@@ -93,7 +93,7 @@ L 96.75 39.75
 Q 95.9 38.4 95.9 36.75 Z" />
         </g>
 
-        <path id="Layer0_0_1_STROKES" stroke="#9386ad" stroke-width="8" stroke-linejoin="round"
+        <path id="Layer0_0_1_STROKES" stroke="#a34ba1" stroke-width="8" stroke-linejoin="round"
             stroke-linecap="round" fill="none" d="
 M 61.5 101.8
 L 62.05 101.8" />
