@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
-import { debounce, takeRight } from 'lodash'
+import { create, debounce, takeRight } from 'lodash'
 import { useAiDesignerContext } from './AiDesignerContext'
 import { GET_SETTINGS, UPDATE_SETTINGS } from '../queries/settings'
 import {
@@ -70,7 +70,7 @@ const useAssistant = () => {
     model,
   } = useAiDesignerContext()
 
-  const { userSnippets, createResource, updateTemplateCss, setUserSnippets } =
+  const { userSnippets, createResource, updateTemplateCss, getUserSnippets } =
     useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
@@ -117,18 +117,11 @@ const useAssistant = () => {
           AiDesigner.emit('updateCss', clonedCss)
         },
         snippet: snippet => {
-          if (
-            ![
-              'classBody',
-              'className',
-              'description',
-              'displayName',
-              'classBody',
-            ].every(k => snippet[k])
-          )
-            return
+          // console.log({ snippet, markedSnippet })
+          if (!['classBody', 'description'].every(k => snippet[k])) return
 
-          if (snippet?.id) {
+          if (markedSnippet?.id) {
+            // console.log('updating snippet', snippet)
             const rawCss = snippet?.classBody
             const meta = JSON.stringify({
               className: snippet?.className,
@@ -137,7 +130,7 @@ const useAssistant = () => {
 
             updateTemplateCss({
               variables: {
-                id: snippet.id,
+                id: markedSnippet.id,
                 rawCss: rawCss,
                 meta,
               },
@@ -161,8 +154,7 @@ const useAssistant = () => {
             })()
 
             selectedCtx.snippets.add(`${snippet.className}`)
-            createOrUpdateStyleSheet([...userSnippets, snippet])
-            setUserSnippets(prev => [...prev, snippet])
+            debounce(getUserSnippets, 2500)()
           }
         },
         feedback: val => {

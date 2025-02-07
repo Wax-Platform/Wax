@@ -131,8 +131,15 @@ const SnippetsName = styled.span`
   display: flex;
   gap: 4px;
   justify-content: space-between;
+  overflow: hidden;
   padding: 8px 5px;
-  white-space: nowrap;
+
+  p {
+    margin: 0;
+    padding: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `
 
 const CREATE_TEMPLATE_MODAL_ITEMS = [
@@ -291,7 +298,7 @@ export const SnippetsManager = () => {
     userInteractions,
   } = useAiDesignerContext()
 
-  const { userSnippets, updateTemplateCss, deleteTemplate } =
+  const { userSnippets, updateTemplateCss, deleteTemplate, getUserSnippets } =
     useDocumentContext()
 
   useEffect(() => {
@@ -299,17 +306,29 @@ export const SnippetsManager = () => {
   }, [])
 
   const [pinnedSnippets, setPinnedSnippets] = useState([])
+  const [snippets, setSnippets] = useState(
+    userSnippets.filter(snip => !pinnedSnippets.includes(snip)),
+  )
   const rootRef = useRef()
 
-  const sortedByName = (a, b) => a.displayName.localeCompare(b.displayName)
-
-  const sortedSnippets = [...userSnippets].sort(sortedByName)
-  const snippets = sortedSnippets.filter(snip => !pinnedSnippets.includes(snip))
+  useEffect(() => {
+    selectedCtx?.node &&
+      setSnippets(
+        [
+          ...userSnippets.filter(snip =>
+            getCtxNode()?.classList?.contains(snip.className),
+          ),
+          ...userSnippets.filter(
+            snip => !getCtxNode()?.classList?.contains(snip.className),
+          ),
+        ].filter(snip => !pinnedSnippets.find(s => s.id === snip.id)),
+      )
+  }, [selectedCtx, userSnippets, pinnedSnippets])
 
   const snippetRender = snip => {
     const { className, description, classBody, displayName, id } = snip
     const isAdded = getCtxNode()?.classList?.contains(`${className}`)
-    const isMarked = className === markedSnippet?.className
+    const isMarked = id === markedSnippet?.id
 
     const handleSave = e => {
       e.preventDefault()
@@ -335,6 +354,7 @@ export const SnippetsManager = () => {
       if (action === 'delete') {
         AiDesigner.filterBy({ tagName }, c => c.snippets.remove(`${className}`))
         deleteTemplate({ variables: { id } })
+        isMarked && setMarkedSnippet({})
       } else {
         userInteractions.ctrl
           ? AiDesigner.updateContext().filterBy({ tagName }, c =>
@@ -343,7 +363,7 @@ export const SnippetsManager = () => {
           : selectedCtx.snippets[action](`${className}`)
       }
 
-      isMarked && setMarkedSnippet({})
+      getUserSnippets()
     }
 
     const isPinned = pinnedSnippets.find(s => s.id === snip.id)
@@ -361,7 +381,9 @@ export const SnippetsManager = () => {
     return (
       <SnippetWrapper>
         <Snippet $active={!isMarked && isAdded} $marked={isMarked}>
-          <SnippetsName>{displayName}</SnippetsName>
+          <SnippetsName>
+            <p>{displayName}</p>
+          </SnippetsName>
           <SnippetActions $disabled={!selectedCtx?.node}>
             <CleanButton
               onClick={() => pinSnippet(isPinned)}

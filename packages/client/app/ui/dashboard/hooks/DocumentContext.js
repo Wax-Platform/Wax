@@ -46,6 +46,10 @@ const useTemplates = () => {
     },
   ] = useLazyQuery(GET_USER_SNIPPETS, {
     fetchPolicy: 'cache-and-network',
+    onCompleted: data => {
+      console.log('getUserSnippets', data)
+      setUserSnippets(data.getUserSnippets)
+    },
   })
 
   const refetchQueries = [
@@ -55,6 +59,10 @@ const useTemplates = () => {
 
   const [updateTemplateCss] = useMutation(UPDATE_TEMPLATE_CSS, {
     refetchQueries,
+    onCompleted: data => {
+      console.log('updateTemplateCss', data)
+      getUserSnippets()
+    },
   })
   const [deleteTemplate] = useMutation(DELETE_TEMPLATE, { refetchQueries })
   const [createTemplate] = useMutation(CREATE_TEMPLATE, { refetchQueries })
@@ -67,11 +75,16 @@ const useTemplates = () => {
   }, [])
 
   useEffect(() => {
-    if (userSnippetsData?.getUserSnippets) {
+    if (!userSnippetsLoading && userSnippetsData?.getUserSnippets) {
+      console.log('SNIPPETS UPDATED', userSnippetsData.getUserSnippets.length)
       setUserSnippets(userSnippetsData.getUserSnippets)
-      createOrUpdateStyleSheet(userSnippetsData.getUserSnippets)
     }
-  }, [userSnippetsData, userSnippetsLoading])
+  }, [JSON.stringify(userSnippetsData?.getUserSnippets), userSnippetsLoading])
+
+  useEffect(() => {
+    console.log('STYLESHEET UPDATED', userSnippets)
+    createOrUpdateStyleSheet(userSnippets)
+  }, [userSnippets])
 
   return {
     systemTemplatesData,
@@ -177,7 +190,8 @@ export const DocumentContextProvider = ({ children }) => {
       graphQL.addResource({
         variables: { id: parent, resourceType, ...additionalProperties },
       })
-      resourceType === 'snippet' && templatesGQL.getUserSnippets()
+      resourceType === 'snippet' &&
+        templatesGQL.getUserSnippets({ fetchPolicy: 'network-only' })
       resourceType === 'template' && templatesGQL.getUserTemplates()
     }
   }
