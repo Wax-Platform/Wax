@@ -9,9 +9,10 @@ import {
 import styled from 'styled-components'
 import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import { CleanButton } from '../_styleds/common'
-import brushIcon from '../../../static/brush-icon.svg'
 import chatIcon from '../../../static/chat-icon2.svg'
 import templateIcon from '../../../static/template-icon-2.svg'
+import AiDesigner from '../../AiDesigner/AiDesigner'
+import { getPreviewIframe } from '../component-ai-assistant/utils'
 
 const Button = styled(CleanButton)`
   --shadow: ${p => (p.$expanded ? '#0001' : '#0000')};
@@ -120,6 +121,13 @@ export const CodeEditorButton = () => {
       <Button
         onClick={() => {
           updateLayout(newLayout)
+
+          if (AiDesigner.selected?.id !== 'aid-ctx-main') {
+            AiDesigner.select('aid-ctx-main')
+            getPreviewIframe()
+              ?.contentDocument.querySelector('.selected-id')
+              ?.classList.remove('selected-id')
+          }
         }}
         $expanded={layout.userMenu && layout.codeEditor}
         title="Template Editor"

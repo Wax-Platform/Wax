@@ -230,7 +230,7 @@ const MainMenu = ({ enableLogin }) => {
         <ContentScrollWrapper id="user-menu-scroller">
           {files && <FileBrowser />}
           {team && <TeamPopup enableLogin={enableLogin} />}
-          {chat && <ChatHistory />}
+          {/* {chat && <ChatHistory />} */}
           {snippetsManager && <SnippetsManager />}
           {codeEditor && <CodeEditor />}
         </ContentScrollWrapper>
