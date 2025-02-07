@@ -131,14 +131,21 @@ const CodeEditorHeaderRow = styled(FlexRow)`
 `
 
 const MainMenu = ({ enableLogin }) => {
-  const { layout, previewRef, css, selectedCtx, userInteractions } =
-    useAiDesignerContext()
+  const {
+    layout,
+    previewRef,
+    css,
+    selectedCtx,
+    userInteractions,
+    updatePreview,
+  } = useAiDesignerContext()
+
   const {
     resourcesInFolder = [],
     currentDoc,
     updateTemplateCss,
-    updatePreview,
   } = useDocumentContext()
+
   const { team, chat, codeEditor, files, snippetsManager } = layout
 
   const menuLabel = chat ? 'Chat' : team ? 'Team' : null
