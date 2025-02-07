@@ -173,23 +173,15 @@ const Header = props => {
       ? updateLayout({
           preview: true,
           editor: false,
-          ...objIf(!layout.userMenu, {
-            chat: true,
-            team: false,
-            files: false,
-            snippetsManager: false,
-            codeEditor: false,
-            userMenu: true,
-          }),
         })
       : updateLayout({
           preview: false,
           editor: true,
-          chat: false,
-          userMenu: true,
-          files: true,
-          snippetsManager: false,
-          codeEditor: false,
+          ...objIf(layout.userMenu, {
+            snippetsManager: false,
+            codeEditor: false,
+            files: true,
+          }),
         })
     updatePreview(true, css)
   }
