@@ -318,8 +318,6 @@ export const AiDesignerSystem = ({
 }) => {
   const isSE = ctx?.id !== 'aid-ctx-main'
 
-  console.log({ ctx, sheet, providedText, markedSnippet })
-
   const context = generatedContext(isSE, sheet, providedText)
 
   const { role, task } = isSE ? taskAndRoleDefsSE(ctx.tagName) : taskAndRoleDefs
