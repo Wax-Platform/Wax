@@ -148,6 +148,7 @@ const MainMenu = ({ enableLogin }) => {
     console.log({
       body,
     })
+
     if (body) {
       body.style.transformOrigin = 'top center'
       layout.userMenu
@@ -180,7 +181,10 @@ const MainMenu = ({ enableLogin }) => {
           )}
           {snippetsManager && (
             <FlexCol style={{ width: '100%' }}>
-              <MenuLabel>Snippets Manager</MenuLabel>
+              <CodeEditorHeaderRow style={{ gap: '10px', width: '100%' }}>
+                <MenuLabel>Snippets Manager</MenuLabel>
+                <SnippetManagerHeader />
+              </CodeEditorHeaderRow>
               <FilesInfoFixed>
                 <span>
                   {userInteractions.ctrl && htmlTagNames[selectedCtx.tagName]
@@ -216,7 +220,7 @@ const MainMenu = ({ enableLogin }) => {
             </FlexCol>
           )}
         </Header>
-        <ContentScrollWrapper>
+        <ContentScrollWrapper id="user-menu-scroller">
           {files && <FileBrowser />}
           {team && <TeamPopup enableLogin={enableLogin} />}
           {chat && <ChatHistory />}

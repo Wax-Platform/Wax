@@ -60,6 +60,7 @@ const useAssistant = () => {
     setFeedback,
     userPrompt,
     markedSnippet,
+    setMarkedSnippet,
     userImages,
     setUserImages,
     updatePreview,
@@ -70,7 +71,7 @@ const useAssistant = () => {
     model,
   } = useAiDesignerContext()
 
-  const { userSnippets, createResource, updateTemplateCss, getUserSnippets } =
+  const { createResource, updateTemplateCss, getUserSnippets } =
     useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
@@ -122,9 +123,9 @@ const useAssistant = () => {
 
           if (markedSnippet?.id) {
             // console.log('updating snippet', snippet)
-            const rawCss = snippet?.classBody
+            const rawCss = snippet.classBody
             const meta = JSON.stringify({
-              className: snippet?.className,
+              className: markedSnippet.className,
               description: snippet?.description,
             })
 
@@ -135,8 +136,14 @@ const useAssistant = () => {
                 meta,
               },
             })
+
+            setMarkedSnippet(prev => ({
+              ...prev,
+              classBody: rawCss,
+              description: snippet.description,
+            }))
           } else {
-            console.log('creating snippet', snippet)
+            // console.log('creating snippet', snippet)
             createResource('snippet', {
               resourceType: 'snippet',
               extension: 'snip',
@@ -247,12 +254,6 @@ const useAssistant = () => {
     if (loading || userPrompt?.length < 2) return
     e?.preventDefault()
     setFeedback(userPrompt)
-    const userSnippetsShape = userSnippets?.map(t => ({
-      className: safeParse(t.meta)?.className,
-      description: safeParse(t.meta)?.description,
-      classBody: t?.rawCss,
-      id: t?.id,
-    }))
 
     const input = {
       text: [userPrompt],
@@ -266,11 +267,8 @@ const useAssistant = () => {
     const systemPayload = {
       ctx: AiDesigner.selected,
       sheet: css,
-      selectors: getNodes(htmlSrc, '*', 'localName'),
       providedText: ContextIsNotDocument && selectedCtx.node.innerHTML,
       markedSnippet,
-      snippets: ContextIsNotDocument && userSnippetsShape,
-      waxClass: '.ProseMirror[contenteditable]',
     }
 
     selectedCtx.conversation.push({ role: 'user', content: userPrompt })

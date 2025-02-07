@@ -607,13 +607,17 @@ class ResourceTree extends BaseModel {
               safeTitle !== title &&
               resourceType === 'snippet'
             ) {
-              const newClassName = safeTitle.replace('(', '-').replace(')', '')
-
+              let newClassName = safeTitle
+                .toLowerCase()
+                .replace('(', '-')
+                .replace(')', '')
+              newClassName = newClassName.replaceAll(' ', '-')
               meta.classBody = props.rawCss.replaceAll(
                 meta.className,
                 newClassName,
               )
               rawCss = props.rawCss.replaceAll(meta.className, newClassName)
+
               meta.className = newClassName
             }
 

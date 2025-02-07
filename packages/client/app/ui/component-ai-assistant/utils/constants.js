@@ -1,3 +1,4 @@
+import { objIf } from '../../../shared/generalUtils'
 import { getSnippetsByNode } from './helpers'
 
 export const htmlTagNames = {
@@ -204,33 +205,39 @@ Otherwise omit this property
 `
 
 const snippetShape = (ctx, markedSnippet) => {
-  return `If user request a style change: A object with the following shape(described below).
+  const htmlTag = htmlTagNames[ctx.node.localName] || ctx.node.localName
+  const { id, classBody, className } = markedSnippet || {}
+
+  const responseShape = {
+    classBody: `A valid and well-formed and formatted(with newlines) css text containing the class rule,${
+      className ? ' (use the same className from the className property)' : ''
+    }.`,
+    description: `The description of the styles applied, it most be acurate. (use the word snippet instead of class)`,
+    ...objIf(!id, {
+      className: `the name of the class, it must be short, in kebab case and it must describe the changes on the element in context, in this case the element is a ${htmlTag}`,
+      displayName: `Same name as the className but human readable, eg: if the className is 'my-class' the displayName must be 'My Class'`,
+    }),
+  }
+
+  const stringifiedShape = JSON.stringify(responseShape)
+
+  return `
+  If user request a style change: 
+  - A object with the following shape(described below).
   Consider this before building the object:
   - This Object is a snippet to create a css class.
 ${
-  markedSnippet
-    ? `- Based on user's request, you must udpate the following snippet returning the same properties, keeping the same className and updating only the following properties: "description"(if needed) and "classBody", dont remove the properties if user does not specify it. This is the snippet classBody to update: ${markedSnippet?.classBody}`
-    : `- You must create a new snippet from the ground, without mixing the styles requested on previous prompts. this means that the new snippet only must address changes requested on the last prompt only`
+  classBody
+    ? `- Based on user's request, you must udpate the following snippet css, 
+    - You must never change its className, in this case: ${className}. 
+    - This is the snippet classBody to update: ${classBody}.`
+    : `- You must create a new snippet from the ground, without mixing the styles requested on previous prompts. This means that the new snippet only must address changes requested on the last prompt only, consider previous prompts as completed unless user says the oposite.`
 }
-  This is the expected object properties description:
-  {
-    ${markedSnippet?.id ? `id: ${markedSnippet.id},` : ''}
-    ${
-      !markedSnippet?.id
-        ? `className: the name of the class, it must be short, in kebab case and it must describe the changes on the element in context, in this case ${
-            htmlTagNames[ctx.node.localName] || ctx.node.localName
-          },
-          displayName: a human readable name for the snippet,`
-        : ''
-    },
-    description: - The description of the styles applied, it most be acurate. (use the word snippet instead of class)
-    classBody: 
-      - A valid and well-formed and formatted(with newlines) css text containing the class rule, (use the className): 
-  }
-  `
+  This is the expected object properties description: ${stringifiedShape}
+`
 }
 
-const insertHtmlShape = `if user request to create or add a new element this property must be an object with the following shape: 
+const insertHtmlShape = `if user request to create or add a new element, this property must be an object with the following shape: 
 "{ 
   "position": - if you could interpret where 'user' wants to create the new dom element this property will be present and its value can be one of the following strings: ["beforebegin","afterbegin","beforeend" or "afterend"]. If user didn't specify a position just dont return this property,
   "html": if you could interpret what type of element or elements 'user' wants to create or add; a valid html string; otherwise omit this property
@@ -288,19 +295,14 @@ const notesSE = [
 `,
 ]
 
-const generatedContext = (
-  isSingleElement,
-  sheet,
-  snippets = null,
-  providedText,
-) => {
+const generatedContext = (isSingleElement, sheet, providedText) => {
   return `${
     !isSingleElement && sheet
       ? `This style sheet is the css context:\nBEGIN STYLESHEET:\n${sheet}\nEND STYLESHEET\n`
       : ''
   }${
     isSingleElement && providedText
-      ? `\nThis is the html content of the element in context: "${providedText}"\n`
+      ? `\nThis is the html content of the element in context: \nBEGIN CONTENT\n"${providedText}"\nEND CONTENT\n`
       : ''
   }
 `
@@ -311,37 +313,29 @@ const callDallEDescription = `If 'user' requests to create a image, it must be t
 export const AiDesignerSystem = ({
   ctx,
   sheet,
-  selectors,
   providedText,
   markedSnippet,
-  waxClass,
 }) => {
   const isSE = ctx?.id !== 'aid-ctx-main'
 
-  const context = generatedContext(
-    isSE,
-    sheet,
-    null,
-    providedText,
-    ctx,
-    selectors,
-    waxClass,
-  )
+  const context = generatedContext(isSE, sheet, providedText)
 
   const { role, task } = isSE ? taskAndRoleDefsSE(ctx.tagName) : taskAndRoleDefs
 
   const shape = {
     feedback: feedBackDescription(providedText, isSE),
     callDallE: callDallEDescription,
-    ...(isSE
-      ? {
-          snippet: snippetShape(ctx, markedSnippet),
-          insertHtml: insertHtmlShape,
-          content: contentDescription,
-        }
-      : {
-          css: cssDescription,
-        }),
+    ...objIf(
+      isSE,
+      {
+        snippet: snippetShape(ctx, markedSnippet),
+        insertHtml: insertHtmlShape,
+        content: contentDescription,
+      },
+      {
+        css: cssDescription,
+      },
+    ),
   }
 
   isSE && !providedText && delete shape.content

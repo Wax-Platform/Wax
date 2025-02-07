@@ -263,15 +263,16 @@ export const useCreateSnippet = () => {
 }
 
 export const SnippetManagerHeader = () => {
+  const goToTop = () => {
+    document
+      .querySelector('#user-menu-scroller')
+      .scrollTo({ top: 0, behavior: 'smooth' })
+  }
   return (
-    <FlexRow
-      style={{
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-      }}
-    >
-      <p>Snippets</p>
+    <FlexRow>
+      <CleanButton onClick={goToTop} title="Go to top">
+        <ArrowUpOutlined />
+      </CleanButton>
     </FlexRow>
   )
 }
@@ -309,7 +310,6 @@ export const SnippetsManager = () => {
   const [snippets, setSnippets] = useState(
     userSnippets.filter(snip => !pinnedSnippets.includes(snip)),
   )
-  const rootRef = useRef()
 
   useEffect(() => {
     selectedCtx?.node &&
@@ -323,7 +323,7 @@ export const SnippetsManager = () => {
           ),
         ].filter(snip => !pinnedSnippets.find(s => s.id === snip.id)),
       )
-  }, [selectedCtx, userSnippets, pinnedSnippets])
+  }, [selectedCtx?.node, JSON.stringify(userSnippets), pinnedSnippets])
 
   const snippetRender = snip => {
     const { className, description, classBody, displayName, id } = snip
@@ -335,6 +335,8 @@ export const SnippetsManager = () => {
       e.stopPropagation()
       const newCss = getSnippetEditorValue(id)
       const styleTag = getSnippetsStyleTag()
+
+      setMarkedSnippet({ ...markedSnippet, classBody: newCss })
 
       if (styleTag && newCss) {
         styleTag.innerHTML = styleTag.innerHTML.replace(classBody, newCss)
@@ -372,10 +374,6 @@ export const SnippetsManager = () => {
       !unpin
         ? setPinnedSnippets([...pinnedSnippets, snip])
         : setPinnedSnippets(pinnedSnippets.filter(s => s.id !== snip.id))
-    }
-
-    const goToTop = () => {
-      rootRef.current.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
     return (
@@ -454,7 +452,7 @@ export const SnippetsManager = () => {
 
   if (!settings.editor.enableSelection) return null
   return (
-    <Root ref={rootRef} $active>
+    <Root $active>
       <Each of={pinnedSnippets} as={snippetRender} if={pinnedSnippets.length} />
       <Each of={snippets} as={snippetRender} if={snippets.length} />
     </Root>
