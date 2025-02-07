@@ -318,9 +318,13 @@ export const AiDesignerSystem = ({
 }) => {
   const isSE = ctx?.id !== 'aid-ctx-main'
 
+  console.log({ ctx, sheet, providedText, markedSnippet })
+
   const context = generatedContext(isSE, sheet, providedText)
 
   const { role, task } = isSE ? taskAndRoleDefsSE(ctx.tagName) : taskAndRoleDefs
+
+  const snippet = isSE ? snippetShape(ctx, markedSnippet) : {}
 
   const shape = {
     feedback: feedBackDescription(providedText, isSE),
@@ -328,7 +332,7 @@ export const AiDesignerSystem = ({
     ...objIf(
       isSE,
       {
-        snippet: snippetShape(ctx, markedSnippet),
+        snippet,
         insertHtml: insertHtmlShape,
         content: contentDescription,
       },
