@@ -102,7 +102,7 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       setDocId(docIdentifier)
       yjsProvider?.disconnect()
       setShowSpinner(true)
-      getDoc({ variables: { identifier: docIdentifier } })
+      getDoc(docIdentifier)
 
       debounce(() => {
         createYjsProvider(docIdentifier)

@@ -1,3 +1,4 @@
+/* stylelint-disable string-quotes */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-underscore-dangle */
 
@@ -29,6 +30,10 @@ const Menu = styled(FlexRow)`
     border-color: var(--color-trois-light) !important;
   }
 
+  [aria-pressed='true'] {
+    background: var(--color-trois-opaque-3);
+  }
+
   > div:last-child {
     border: none;
     margin-left: ${p => (p.openMenu ? 'unset !important' : 'auto')};
@@ -36,6 +41,8 @@ const Menu = styled(FlexRow)`
 `
 
 const MenuToolGroup = styled.div`
+  --toolbar-icons-color: var(--color-trois-opaque-dark);
+
   align-items: center;
   border-right: 1px solid #0001;
   display: flex;

@@ -58,7 +58,7 @@ const useAssistant = () => {
     editorContent,
     selectedCtx,
     setFeedback,
-    userPrompt,
+    // userPrompt,
     markedSnippet,
     setMarkedSnippet,
     userImages,
@@ -108,11 +108,9 @@ const useAssistant = () => {
           const { toReplace = [], toAdd } = safeParse(val)
           let clonedCss = css
           toReplace.forEach(({ previous, newCss }) => {
-            console.log({ matches: clonedCss.match(previous) })
             clonedCss = clonedCss.replace(previous, newCss)
           })
           toAdd && (clonedCss += `\n${toAdd}`)
-          console.log('css', safeParse(val))
           setCss(clonedCss)
           debounce(() => updatePreview(true, clonedCss), 1000)()
           AiDesigner.emit('updateCss', clonedCss)
@@ -251,6 +249,7 @@ const useAssistant = () => {
   // #endregion GQL Hooks ----------------------------------------------------------------
 
   const handleSend = async e => {
+    const userPrompt = document.getElementById('user-prompt').value
     if (loading || userPrompt?.length < 2) return
     e?.preventDefault()
     setFeedback(userPrompt)
@@ -299,7 +298,7 @@ const useAssistant = () => {
         model,
       },
     })
-    setUserPrompt('')
+    document.getElementById('user-prompt').value = ''
   }
 
   const updateImageUrl = async (imagekey, cb) =>

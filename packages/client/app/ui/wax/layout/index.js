@@ -288,17 +288,16 @@ const Layout = ({ docIdentifier, ...props }) => {
 
   useEffect(() => {
     if (ref?.current) {
+      const stopPropagation = e => {
+        e.stopPropagation()
+      }
       ref.current.querySelectorAll('*').forEach(el => {
-        el.addEventListener('click', e => {
-          e.stopPropagation()
-        })
+        el.addEventListener('click', stopPropagation)
       })
 
       return () => {
         ref.current.querySelectorAll('*').forEach(el => {
-          el.removeEventListener('click', e => {
-            e.stopPropagation()
-          })
+          el.removeEventListener('click', stopPropagation)
         })
       }
     }

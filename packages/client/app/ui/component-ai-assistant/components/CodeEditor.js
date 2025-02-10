@@ -202,128 +202,128 @@ export const TemplateManagerHeader = () => {
   )
 }
 
-const VIEW_BASED_CONTAINERS = {
-  list: ListContainer,
-  default: GridContainer,
-}
+// const VIEW_BASED_CONTAINERS = {
+//   list: ListContainer,
+//   default: GridContainer,
+// }
 
-export const TemplateManager = ({ view }) => {
-  const { modalState } = useModalContext()
-  const { setCss, updatePreview } = useAiDesignerContext()
-  const {
-    contextualMenu,
-    currentDoc,
-    updateTemplateCss,
-    deleteTemplate,
-    systemTemplatesData,
-  } = useDocumentContext()
+// export const TemplateManager = ({ view }) => {
+//   const { modalState } = useModalContext()
+//   const { setCss, updatePreview } = useAiDesignerContext()
+//   const {
+//     contextualMenu,
+//     currentDoc,
+//     updateTemplateCss,
+//     deleteTemplate,
+//     systemTemplatesData,
+//   } = useDocumentContext()
 
-  const templates = systemTemplatesData?.getUserTemplates || []
+//   const templates = systemTemplatesData?.getUserTemplates || []
 
-  const templateItemRender = template => {
-    const isCurrentTemplate = currentDoc?.template?.id === template.id
+//   const templateItemRender = template => {
+//     const isCurrentTemplate = currentDoc?.template?.id === template.id
 
-    const handleContextMenu = e => {
-      e.preventDefault()
+//     const handleContextMenu = e => {
+//       e.preventDefault()
 
-      const contextMenuActions = {
-        preview: () => {
-          setCss(template.rawCss)
-          updatePreview(true)
-        },
-        fork: () => {
-          updateTemplateCss({
-            variables: {
-              id: currentDoc.template.id,
-              rawCss: template.rawCss,
-              displayName: template.displayName,
-            },
-          })
-          setCss(template.rawCss)
-          updatePreview(true)
-        },
-        showCode: () => {
-          modalState.update({
-            show: true,
-            title: capitalize(template.displayName),
-            items: [
-              {
-                label: null,
-                component: (
-                  <TemplateEditor
-                    extensions={[cssLang(), EditorView.editable.of(false)]}
-                    onChange={() => {}}
-                    value={template.rawCss}
-                    basicSetup={{ readOnly: true }}
-                  />
-                ),
-              },
-            ],
-          })
-        },
-        delete: () => {
-          deleteTemplate({ variables: { id: template.id } })
-        },
-      }
+//       const contextMenuActions = {
+//         preview: () => {
+//           setCss(template.rawCss)
+//           updatePreview(true)
+//         },
+//         fork: () => {
+//           updateTemplateCss({
+//             variables: {
+//               id: currentDoc.template.id,
+//               rawCss: template.rawCss,
+//               displayName: template.displayName,
+//             },
+//           })
+//           setCss(template.rawCss)
+//           updatePreview(true)
+//         },
+//         showCode: () => {
+//           modalState.update({
+//             show: true,
+//             title: capitalize(template.displayName),
+//             items: [
+//               {
+//                 label: null,
+//                 component: (
+//                   <TemplateEditor
+//                     extensions={[cssLang(), EditorView.editable.of(false)]}
+//                     onChange={() => {}}
+//                     value={template.rawCss}
+//                     basicSetup={{ readOnly: true }}
+//                   />
+//                 ),
+//               },
+//             ],
+//           })
+//         },
+//         delete: () => {
+//           deleteTemplate({ variables: { id: template.id } })
+//         },
+//       }
 
-      contextualMenu.update({
-        show: true,
-        x: e.clientX,
-        y: e.clientY,
-        items: generateContextMenuItems(contextMenuActions),
-      })
-    }
+//       contextualMenu.update({
+//         show: true,
+//         x: e.clientX,
+//         y: e.clientY,
+//         items: generateContextMenuItems(contextMenuActions),
+//       })
+//     }
 
-    const Container = switchOn(view, VIEW_BASED_CONTAINERS)
-    return (
-      <Container style={{ gap: '4px' }} onContextMenu={handleContextMenu}>
-        <FileIcon />
-        <IconTitleContainer>
-          <TitleLabel>
-            {isCurrentTemplate ? 'Document template' : template.displayName}
-          </TitleLabel>
-        </IconTitleContainer>
-      </Container>
-    )
-  }
+//     const Container = switchOn(view, VIEW_BASED_CONTAINERS)
+//     return (
+//       <Container style={{ gap: '4px' }} onContextMenu={handleContextMenu}>
+//         <FileIcon />
+//         <IconTitleContainer>
+//           <TitleLabel>
+//             {isCurrentTemplate ? 'Document template' : template.displayName}
+//           </TitleLabel>
+//         </IconTitleContainer>
+//       </Container>
+//     )
+//   }
 
-  return <Each of={templates} as={templateItemRender} if={templates.length} />
-}
+//   return <Each of={templates} as={templateItemRender} if={templates.length} />
+// }
 
-const CONTEXT_MENU_OPTIONS = ['preview', 'fork', 'showCode', 'delete']
+// const CONTEXT_MENU_OPTIONS = ['preview', 'fork', 'showCode', 'delete']
 
-const CONTEXT_MENU_RENDER = {
-  preview: labelRender(<EyeOutlined />, 'Preview'),
-  fork: labelRender(<ForkOutlined />, 'Fork'),
-  showCode: labelRender(<CodeOutlined />, 'View Code'),
-  delete: labelRender(<DeleteOutlined />, 'Delete'),
-}
+// const CONTEXT_MENU_RENDER = {
+//   preview: labelRender(<EyeOutlined />, 'Preview'),
+//   fork: labelRender(<ForkOutlined />, 'Fork'),
+//   showCode: labelRender(<CodeOutlined />, 'View Code'),
+//   delete: labelRender(<DeleteOutlined />, 'Delete'),
+// }
 
-function generateContextMenuItems({ preview, fork, showCode, delete: remove }) {
-  const optionValidations = {
-    default: true,
-  }
+// function generateContextMenuItems({ preview, fork, showCode, delete: remove }) {
+//   const optionValidations = {
+//     default: true,
+//   }
 
-  const actions = {
-    preview,
-    fork,
-    showCode,
-    delete: remove,
-    default: () => {},
-  }
+//   const actions = {
+//     preview,
+//     fork,
+//     showCode,
+//     delete: remove,
+//     default: () => {},
+//   }
 
-  const buildOption = optionName => {
-    const option = {
-      label: CONTEXT_MENU_RENDER[optionName],
-      action: actions[optionName],
-    }
+//   const buildOption = optionName => {
+//     const option = {
+//       label: CONTEXT_MENU_RENDER[optionName],
+//       action: actions[optionName],
+//     }
 
-    const includeOption = switchOn(optionName, optionValidations)
-    return includeOption && option
-  }
+//     const includeOption = switchOn(optionName, optionValidations)
+//     return includeOption && option
+//   }
 
-  return CONTEXT_MENU_OPTIONS.map(buildOption).filter(Boolean)
-}
+//   return CONTEXT_MENU_OPTIONS.map(buildOption).filter(Boolean)
+// }
 
 export const CodeEditor = () => {
   const { css, setCss } = useAiDesignerContext()

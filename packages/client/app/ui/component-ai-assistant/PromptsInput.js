@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/prop-types */
-import React, { useEffect, useContext, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { debounce } from 'lodash'
 import { rotate360 } from '@coko/client'
@@ -85,48 +85,28 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
     userImages,
     setUserPrompt,
     setUserImages,
-    promptRef,
+    // promptRef,
   } = useAiDesignerContext()
 
   const [showImg, setShowImg] = useState(false)
 
-  useEffect(() => {
-    debouncedResize()
-  }, [userPrompt])
-
-  const handleChange = ({ target }) => {
-    if (loading || disabled) return
-    setUserPrompt(target.value)
-  }
+  // const handleChange = ({ target }) => {
+  //   if (loading || disabled) return
+  //   setUserPrompt(target.value)
+  //   // debouncedResize()
+  // }
 
   const handleKeydown = e => {
     if (disabled) return
     callOn(e.key, {
       Enter: () => !e.shiftKey && onSend(e),
-      ArrowDown: () => {
-        if (!e.shiftKey) return
-        const userHistory = selectedCtx.conversation.filter(
-          v => v.role === 'user',
-        )
-        if (userHistory.length < 1) return
-        history.current.prompts.index > 0
-          ? (history.current.prompts.index -= 1)
-          : (history.current.prompts.index = userHistory.length - 1)
-
-        history.current.prompts.active &&
-          setUserPrompt(userHistory[history.current.prompts.index].content)
-        history.current.prompts.active = true
-      },
-      ArrowUp: () => {},
-      default: () =>
-        history.current.prompts.active &&
-        (history.current.prompts.active = false),
+      default: () => {},
     })
   }
 
-  const debouncedResize = debounce(() => {
-    autoResize(promptRef.current)
-  }, 300)
+  // const debouncedResize = debounce(() => {
+  //   autoResize(promptRef.current)
+  // }, 300)
 
   return (
     <StyledForm $enabled={!disabled} className={className}>
@@ -140,13 +120,14 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
       >
         <textarea
           disabled={disabled}
-          onChange={handleChange}
+          id="user-prompt"
+          // onChange={handleChange}
           onKeyDown={handleKeydown}
-          ref={promptRef}
-          value={userPrompt}
+          // ref={promptRef}
+          // value={userPrompt}
           {...rest}
         />
-        {userImages && (
+        {/* {userImages && (
           <span style={{ gap: '3px' }}>
             <span
               onMouseEnter={() => setShowImg(true)}
@@ -202,20 +183,12 @@ const PromptsInput = ({ disabled, className, loading, onSend, ...rest }) => {
               />
             </div>
           </span>
-        )}
+        )} */}
       </span>
       {loading ? (
         <StyledSpinner />
       ) : (
-        onSend && (
-          <ArrowRightOutlined
-            onClick={e => userPrompt.length > 1 && !disabled && onSend()}
-            style={{
-              filter: userPrompt.length < 2 ? 'grayscale(100)' : 'none',
-              opacity: userPrompt.length < 2 ? '0.5' : 1,
-            }}
-          />
-        )
+        onSend && <ArrowRightOutlined onClick={e => !disabled && onSend()} />
       )}
     </StyledForm>
   )

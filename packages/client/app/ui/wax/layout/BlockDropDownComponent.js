@@ -44,10 +44,11 @@ const DropDownButton = styled.button`
 `
 
 const DropDownMenu = styled.div`
-  background: #fff;
+  background-color: var(--color-trois-lightest);
   border: 1px solid #ddd;
   border-radius: 0.25rem;
   box-shadow: 0 0.2rem 0.4rem rgb(0 0 0 / 10%);
+  color: var(--color-trois-opaque);
   display: flex;
   flex-direction: column;
   margin: 32px auto auto;
@@ -59,14 +60,14 @@ const DropDownMenu = styled.div`
   z-index: 2;
 
   option {
+    color: var(--toolbar-icons-color);
     cursor: pointer;
     padding: 8px 10px;
   }
 
   option:focus,
   option:hover {
-    background: #f2f9fc;
-    outline: 2px solid #f2f9fc;
+    background: var(--color-trois-alpha);
   }
 
   option:disabled {
@@ -78,6 +79,7 @@ const DropDownMenu = styled.div`
 const StyledIcon = styled(Icon)`
   height: 18px;
   margin-left: auto;
+  pointer-events: none;
   width: 18px;
 `
 
@@ -185,12 +187,8 @@ const BlockDropDownComponent = ({ view, tools }) => {
     t('Wax.BlockLevel.Paragraph'),
   ])
 
-  const openCloseMenu = () => {
-    if (!isDisabled) setIsOpen(!isOpen)
-    if (isOpen)
-      setTimeout(() => {
-        activeView.focus()
-      })
+  const openCloseMenu = e => {
+    setIsOpen(!isOpen)
   }
 
   const onKeyDown = (e, index) => {
@@ -269,7 +267,7 @@ const BlockDropDownComponent = ({ view, tools }) => {
                   )
                 }
                 key={option.value}
-                onClick={() => {
+                onMouseDown={() => {
                   tools[option.value].run(main.state, main.dispatch)
 
                   openCloseMenu()
