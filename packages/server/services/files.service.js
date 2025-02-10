@@ -65,7 +65,9 @@ const uploadCssFile = async (
   fileName,
   s3BaseKey,
   templateOptions,
+  userId,
 ) => {
+  const ResourceTree = require('../models/resourceTree/resourceTree.model')
   const cssFilePath = path.join(cssFolder, fileName)
   if (fs.existsSync(cssFilePath)) {
     const cssFileContents = fs.readFileSync(cssFilePath, 'utf-8')
@@ -86,10 +88,50 @@ const uploadCssFile = async (
       fileId: cssFile.id,
       rawCss: cssFileContents,
       displayName: fileName,
-      status: 'public',
-      category: 'system',
+      status: userId ? 'private' : 'public',
+      category: userId ? 'user' : 'system',
       ...templateOptions,
     })
+
+    if (userId) {
+      const parent = await ResourceTree.query(trx)
+        .where({
+          resourceType: 'sys',
+          title: 'My Templates',
+          userId,
+        })
+        .first()
+      logger.info('Parent:', { title: parent.title, id: parent.id })
+
+      const safeTitle = await ResourceTree.getSafeName(
+        {
+          id: null,
+          title: fileName,
+          parentId: parent.id,
+        },
+        { trx },
+      )
+
+      logger.info('Safe title:', safeTitle)
+      logger.info('template id', template.id)
+
+      const insertedResource = await ResourceTree.createResource(
+        {
+          title: safeTitle,
+          resourceType: 'template',
+          extension: 'template',
+          parentId: parent.id,
+          templateId: template.id,
+          userId,
+        },
+        { trx },
+      )
+      parent.children.unshift(insertedResource.id)
+
+      await ResourceTree.query(trx).where({ id: parent.id }).patch({
+        children: parent.children,
+      })
+    }
 
     // logger.info('Inserted template:', { template })
     return cssFile.id // so wherin template fileIds append meta: manifest.json and images
@@ -128,13 +170,14 @@ const uploadFontFile = async (trx, fontFolder, fileName, s3BaseKey) => {
   }
 }
 
-const fetchAndStoreTemplate = async (
+const fetchAndStoreTemplate = async ({
   url = 'https://gitlab.coko.foundation/coko-org/products/ketty/ketty-templates/vanilla',
   options = {},
   templateOptions = {},
   templateBasePath = path.join(__dirname, '..', 'templates'),
   s3BaseKey = 'templates',
-) => {
+  userId,
+}) => {
   const { trx } = options
   const tempTemplateFolderName = url.substring(url.lastIndexOf('/') + 1)
   const gitUrl = url.endsWith('.git') ? url : `${url}.git`
@@ -183,6 +226,7 @@ const fetchAndStoreTemplate = async (
           fileName,
           `${s3BaseKey}/${tempTemplateFolderName}/css`,
           templateOptions,
+          userId,
         )
         fileIds.push(fileId)
       }
@@ -234,7 +278,7 @@ const fetchAndStoreAllTemplates = async () => {
     tr =>
       Promise.all(
         TEMPLATES_URLS.map(async url =>
-          fetchAndStoreTemplate(url, { trx: tr }),
+          fetchAndStoreTemplate({ url, options: { trx: tr } }),
         ),
       ),
     { passedTrxOnly: true },

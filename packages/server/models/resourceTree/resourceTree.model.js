@@ -89,7 +89,7 @@ class ResourceTree extends BaseModel {
   }
 
   static async createResource(
-    { title, resourceType, parentId, userId, extension },
+    { title, resourceType, parentId, userId, extension, templateId = null },
     options = {},
   ) {
     const { trx } = options
@@ -110,6 +110,7 @@ class ResourceTree extends BaseModel {
         parentId,
         userId,
         extension,
+        templateId,
       })
 
       logger.info('resource created')

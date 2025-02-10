@@ -281,10 +281,15 @@ const resolvers = {
       try {
         await useTransaction(
           async trx => {
-            await fetchAndStoreTemplate(url, trx, {
+            await fetchAndStoreTemplate({
+              url,
+              options: { trx },
               userId,
-              category: 'user',
-              status: 'private',
+              templateOptions: {
+                userId,
+                category: 'user',
+                status: 'private',
+              },
             })
           },
           { passedTrxOnly: true },

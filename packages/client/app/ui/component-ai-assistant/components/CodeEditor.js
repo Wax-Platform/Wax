@@ -18,7 +18,7 @@ import { CleanButton } from '../../_styleds/common'
 import { labelRender } from '../../dashboard/MainMenu/utils/resourcesUtils'
 import { switchOn } from '../../../shared/generalUtils'
 import { useModalContext } from '../../../hooks/modalContext'
-import { capitalize } from 'lodash'
+import { capitalize, debounce } from 'lodash'
 import {
   FileIcon,
   GridContainer,
@@ -112,7 +112,12 @@ const FETCH_TEMPLATE_MODAL_ITEMS = [
 ]
 
 export const useCreateTemplate = () => {
-  const { createResource, fetchAndCreateTemplateFromUrl } = useDocumentContext()
+  const {
+    createResource,
+    fetchAndCreateTemplateFromUrl,
+    graphQL,
+    currentFolder,
+  } = useDocumentContext()
   const { modalState } = useModalContext()
 
   const onSubmit = fields => {
@@ -128,6 +133,10 @@ export const useCreateTemplate = () => {
   const onSubmitFetch = fields => {
     fetchAndCreateTemplateFromUrl({
       variables: { ...fields },
+    })
+    graphQL.openFolder({
+      variables: { id: currentFolder.id },
+      fetchPolicy: 'no-cache',
     })
   }
 
@@ -153,8 +162,12 @@ export const useCreateTemplate = () => {
 }
 
 export const TemplateManagerHeader = () => {
-  const { createResource, currentFolder, fetchAndCreateTemplateFromUrl } =
-    useDocumentContext()
+  const {
+    createResource,
+    currentFolder,
+    fetchAndCreateTemplateFromUrl,
+    graphQL,
+  } = useDocumentContext()
   const { modalState } = useModalContext()
 
   const onSubmit = fields => {
@@ -170,6 +183,14 @@ export const TemplateManagerHeader = () => {
   const onSubmitFetch = fields => {
     fetchAndCreateTemplateFromUrl({
       variables: { ...fields },
+    }).then(() => {
+      debounce(
+        graphQL.openFolder,
+        2000,
+      )({
+        variables: { id: currentFolder.id },
+        fetchPolicy: 'no-cache',
+      })
     })
   }
   return (
