@@ -9,22 +9,33 @@ import { useResourceTree } from './useResourceTree'
 import { useHistory } from 'react-router-dom'
 import { useObject } from '../../../hooks/dataTypeHooks'
 import { useLazyQuery, useMutation } from '@apollo/client'
-import { GET_DOC } from '../../../graphql'
+import { GET_DOC, UPDATE_DOCUMENT_TEMPLATE } from '../../../graphql'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import {
   CREATE_TEMPLATE,
   DELETE_TEMPLATE,
   FETCH_AND_CREATE_TEMPLATE_FROM_URL,
+  GET_TEMPLATE,
   GET_USER_SNIPPETS,
   GET_USER_TEMPLATES,
   UPDATE_TEMPLATE_CSS,
 } from '../../../graphql/templates.graphql'
 import { createOrUpdateStyleSheet } from '../../component-ai-assistant/utils'
+import { debounce } from 'lodash'
 
-const useTemplates = () => {
+const useTemplates = currentDoc => {
   const [masterTemplateId, setMasterTemplateId] = useState(null)
   const [userSnippets, setUserSnippets] = useState([])
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+
+  const [getTemplate] = useLazyQuery(GET_TEMPLATE, {
+    fetchPolicy: 'no-cache',
+    onCompleted: data => {
+      console.log('getTemplate', data)
+      setSelectedTemplate(data.getTemplate)
+    },
+  })
 
   const [
     getUserTemplates,
@@ -35,15 +46,15 @@ const useTemplates = () => {
     },
   ] = useLazyQuery(GET_USER_TEMPLATES, {
     fetchPolicy: 'cache-and-network',
+    onCompleted: data => {
+      console.log('getUserTemplates', data)
+      !selectedTemplate && setSelectedTemplate(data.getUserTemplates[0])
+    },
   })
 
   const [
     getUserSnippets,
-    {
-      data: userSnippetsData,
-      loading: userSnippetsLoading,
-      error: userSnippetsError,
-    },
+    { data: userSnippetsData, loading: userSnippetsLoading },
   ] = useLazyQuery(GET_USER_SNIPPETS, {
     fetchPolicy: 'cache-and-network',
     onCompleted: data => {
@@ -61,6 +72,8 @@ const useTemplates = () => {
     refetchQueries,
     onCompleted: data => {
       console.log('updateTemplateCss', data)
+      const id = data.updateTemplateCss
+      id === currentDoc?.templateId && getTemplate({ variables: { id } })
       getUserSnippets()
     },
   })
@@ -76,13 +89,11 @@ const useTemplates = () => {
 
   useEffect(() => {
     if (!userSnippetsLoading && userSnippetsData?.getUserSnippets) {
-      console.log('SNIPPETS UPDATED', userSnippetsData.getUserSnippets.length)
       setUserSnippets(userSnippetsData.getUserSnippets)
     }
   }, [JSON.stringify(userSnippetsData?.getUserSnippets), userSnippetsLoading])
 
   useEffect(() => {
-    console.log('STYLESHEET UPDATED', userSnippets)
     createOrUpdateStyleSheet(userSnippets)
   }, [userSnippets])
 
@@ -102,6 +113,9 @@ const useTemplates = () => {
     setMasterTemplateId,
     userSnippets,
     setUserSnippets,
+    selectedTemplate,
+    setSelectedTemplate,
+    getTemplate: id => getTemplate({ variables: { id } }),
   }
 }
 
@@ -132,26 +146,45 @@ export const DocumentContextProvider = ({ children }) => {
   const [templateToEdit, setTemplateToEdit] = useState(null)
 
   const { setCss, updatePreview } = useAiDesignerContext()
-  const { currentFolder, currentPath, docPath, ...graphQL } = useResourceTree()
-  const templatesGQL = useTemplates()
+  const { currentFolder, currentPath, ...graphQL } = useResourceTree()
+  const templatesGQL = useTemplates(currentDoc)
 
   const [getDocument, { loading: docLoading }] = useLazyQuery(GET_DOC, {
     fetchPolicy: 'cache-and-network',
     onCompleted: data => {
       const doc = data.getDocument
       history.push(`/${doc.identifier}`, { replace: true })
+      document.title = doc.title
       setCurrentDoc(doc)
-      setCss(doc.template.rawCss)
-      // debounce(updatePreview, 2000)(true)
+      graphQL.openFolder({
+        variables: { id: doc.identifier, resourceType: 'doc' },
+      })
+      templatesGQL.getTemplate(doc.templateId).then(({ data }) => {
+        setCss(data.getTemplate.rawCss)
+        debounce(updatePreview, 2000)(true, data.getTemplate.rawCss)
+      })
     },
   })
 
   const getDoc = useCallback(
-    params => {
-      !docLoading && getDocument(params)
+    identifier => {
+      !docLoading && getDocument({ variables: { identifier } })
     },
     [docLoading, getDocument],
   )
+
+  const [updateDocTemplate] = useMutation(UPDATE_DOCUMENT_TEMPLATE, {
+    refetchQueries: [
+      { query: GET_USER_TEMPLATES, fetchPolicy: 'cache-and-network' },
+    ],
+  })
+
+  const updateCurrentDocTemplate = templateId => {
+    updateDocTemplate({
+      variables: { id: currentDoc.id, templateId },
+    })
+    setCurrentDoc({ ...currentDoc, templateId })
+  }
 
   const {
     id: parentId,
@@ -161,15 +194,14 @@ export const DocumentContextProvider = ({ children }) => {
 
   const openResource = resource => {
     if (!resource || graphQL.loadingFolder) return
-    const { id, doc = {}, resourceType } = resource
+    const { id, resourceType } = resource
     const variables = { id, resourceType }
 
     if (resourceType === 'doc') {
-      const { identifier } = doc
+      const { identifier } = resource.doc
       console.log({ identifier })
-      getDoc({ variables: { identifier }, fetchPolicy: 'cache-first' })
-      setTemplateToEdit(null)
-
+      getDoc(identifier)
+      templateToEdit && setTemplateToEdit(null)
       return
     }
 
@@ -192,7 +224,8 @@ export const DocumentContextProvider = ({ children }) => {
       })
       resourceType === 'snippet' &&
         templatesGQL.getUserSnippets({ fetchPolicy: 'network-only' })
-      resourceType === 'template' && templatesGQL.getUserTemplates()
+      resourceType === 'template' &&
+        templatesGQL.getUserTemplates({ fetchPolicy: 'network-only' })
     }
   }
 
@@ -207,8 +240,6 @@ export const DocumentContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    console.log({ docId, resourcesInFolder })
-
     setResources(resourcesInFolder)
   }, [resourcesInFolder])
 
@@ -219,9 +250,8 @@ export const DocumentContextProvider = ({ children }) => {
   }
 
   AiDesigner.on('updateCss', css => {
-    console.log('Triggered updateSnippets')
     templatesGQL.updateTemplateCss({
-      variables: { id: currentDoc.template.id, rawCss: css },
+      variables: { id: currentDoc.templateId, rawCss: css },
     })
     setCss(css)
     updatePreview(true, css)
@@ -245,7 +275,6 @@ export const DocumentContextProvider = ({ children }) => {
         docId,
         setDocId,
         clipboard,
-        docPath,
         contextualMenu,
         resources,
         setResources,
@@ -255,6 +284,7 @@ export const DocumentContextProvider = ({ children }) => {
         // Template
         templateToEdit,
         setTemplateToEdit,
+        updateCurrentDocTemplate,
         ...templatesGQL,
       }}
     >

@@ -112,32 +112,29 @@ const DropdownToggleButton = styled(CleanButton)`
 export const TemplatesDropdown = props => {
   const { setCss, updatePreview } = useAiDesignerContext()
 
-  const { currentDoc, updateTemplateCss, systemTemplatesData } =
-    useDocumentContext()
+  const {
+    updateCurrentDocTemplate,
+    systemTemplatesData,
+    selectedTemplate,
+    setSelectedTemplate,
+  } = useDocumentContext()
 
   const showDropdown = useBool({ start: false })
   const templates = systemTemplatesData?.getUserTemplates || []
-  const documentTemplate = currentDoc.template || {}
-  const [selectedTemplate, setSelectedTemplate] = useState(documentTemplate)
   const sortedTemplates = [...templates].sort((a, b) => {
     if (a.displayName < b.displayName) return -1
     if (a.displayName > b.displayName) return 1
     return 0
   })
 
-  useEffect(() => {
-    setSelectedTemplate(currentDoc?.template)
-  }, [currentDoc?.template?.displayName])
-
   const templateItemRender = template => {
     const { rawCss, displayName } = template
     const isSelected = selectedTemplate?.id === template.id
 
     const forkTemplate = () => {
-      const { id } = currentDoc?.template || {}
-      const variables = { id, rawCss, displayName }
+      const { id } = template
       setCss(rawCss)
-      updateTemplateCss({ variables })
+      updateCurrentDocTemplate(id)
       setSelectedTemplate(template)
       updatePreview(true, rawCss)
       showDropdown.off()
@@ -162,7 +159,7 @@ export const TemplatesDropdown = props => {
         $open={showDropdown.state}
       >
         <CurrentTemplateLabel>
-          {selectedTemplate?.displayName || currentDoc?.template?.displayName}
+          {selectedTemplate?.displayName}
         </CurrentTemplateLabel>
         <DownOutlined />
       </DropdownToggleButton>

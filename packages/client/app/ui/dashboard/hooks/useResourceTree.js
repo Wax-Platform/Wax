@@ -34,16 +34,9 @@ export const useResourceTree = () => {
       skip: !currentUser?.id || loading,
     },
   )
-  const [getCurrentDocPath, { data: currentDocPath }] = useLazyQuery(
-    GET_DOC_PATH,
-    {
-      fetchPolicy: 'cache-and-network',
-    },
-  )
 
   const { currentFolder, path: currentPath } =
     lazyOpenFolderData?.openFolder || openFolderData?.openFolder || {}
-  const { getDocPath: docPath = [] } = currentDocPath || {}
 
   const refetchQueries = useMemo(
     () => [
@@ -68,7 +61,6 @@ export const useResourceTree = () => {
 
   useEffect(() => {
     if (!loading && currentFolder?.id) {
-      console.log('setting folder', currentFolder)
       setCurrentFolder(currentFolder)
       setCurrentPath(currentPath)
     }
@@ -88,8 +80,6 @@ export const useResourceTree = () => {
     addToFavorites,
     pasteResources,
     reorderChildren,
-    getCurrentDocPath,
-    docPath,
     loadingFolder: loading,
   }
 }

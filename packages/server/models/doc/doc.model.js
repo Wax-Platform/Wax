@@ -99,22 +99,9 @@ class Doc extends BaseModel {
     const {
       delta = doc.getText('prosemirror').toDelta(),
       state = Y.encodeStateAsUpdate(doc),
-      templateId: passedTemplate = null,
+      templateId = null,
     } = payload
     logger.info('Creating template for user:', userId)
-    let templateId = passedTemplate
-    if (!passedTemplate) {
-      const { id, ...clonedTemplateData } = await Template.query().findOne({
-        category: 'system',
-      })
-      const newTemplate = await Template.query(trx).insert({
-        ...clonedTemplateData,
-        userId,
-        category: 'document',
-      })
-
-      templateId = newTemplate?.id
-    }
 
     const createdDoc = await Doc.query(trx)
       .insert({
@@ -124,11 +111,6 @@ class Doc extends BaseModel {
         templateId,
       })
       .returning('*')
-
-    // patch the docId to the template
-    await Template.query(trx)
-      .patch({ docId: createdDoc.id })
-      .where('id', templateId)
 
     if (userId) {
       const authorTeam = await Team.insert({
@@ -186,9 +168,12 @@ class Doc extends BaseModel {
   static async deleteDoc(id) {
     const doc = await Doc.query().findById(id)
     if (doc) {
-      await Template.query().delete().where('id', doc.templateId)
       await Doc.query().deleteById(id)
     }
+  }
+
+  static async updateTemplateId(docId, templateId) {
+    await Doc.query().patch({ templateId }).where('id', docId)
   }
 }
 

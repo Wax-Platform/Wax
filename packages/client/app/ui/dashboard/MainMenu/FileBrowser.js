@@ -18,12 +18,8 @@ import {
 import { useBool, useString } from '../../../hooks/dataTypeHooks'
 import { objIf, switchOn } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
-import {
-  TemplateManager,
-  useCreateTemplate,
-} from '../../component-ai-assistant/components/CodeEditor'
+import { useCreateTemplate } from '../../component-ai-assistant/components/CodeEditor'
 import { SpinnerWrapper } from '../../wax/PmEditor'
-import { Result, Spin } from '../../common'
 import {
   useCreateDoc,
   useCreateFolder,

@@ -210,7 +210,7 @@ const MainMenu = ({ enableLogin }) => {
                   <CleanButton
                     onClick={() => {
                       updateTemplateCss({
-                        variables: { rawCss: css, id: currentDoc.template.id },
+                        variables: { rawCss: css, id: currentDoc.templateId },
                       })
                       updatePreview(true, css)
                     }}

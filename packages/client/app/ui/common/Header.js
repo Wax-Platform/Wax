@@ -145,27 +145,9 @@ const Header = props => {
     updatePreview,
     onHistory,
     css,
-    setCss,
   } = useAiDesignerContext()
 
-  const { currentDoc, graphQL, docId } = useContext(DocumentContext)
-  const { openFolder, getCurrentDocPath } = graphQL
-
-  useEffect(() => {
-    if (docId) {
-      openFolder({ variables: { id: docId, resourceType: 'doc' } })
-    }
-  }, [docId])
-
-  useEffect(() => {
-    if (currentDoc?.id) {
-      console.log({ currentDoc })
-      getCurrentDocPath({ variables: { id: currentDoc.id } })
-      document.title = `${currentDoc.title} - Wax`
-      setCss(currentDoc.template.rawCss)
-      debounce(() => updatePreview(true, currentDoc.template.rawCss), 2300)()
-    }
-  }, [currentDoc?.id])
+  const { currentDoc } = useContext(DocumentContext)
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
@@ -226,9 +208,12 @@ const Header = props => {
                 })
                 body && (body.style.transform = 'scale(1)')
                 body && (body.style.padding = '0')
+                const selected = body.querYSelectorAll('.selected-id')
+                selected.forEach(el => el.classList.remove('selected-id'))
 
                 previewRef?.current?.contentWindow?.print()
                 if (body) {
+                  selected.forEach(el => el.classList.add('selected-id'))
                   body.style.padding = '50px 0 50px 50px'
                   layout.userMenu
                     ? (body.style.transform = 'scale(0.8)')

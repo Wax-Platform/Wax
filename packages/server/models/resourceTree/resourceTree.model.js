@@ -657,7 +657,6 @@ class ResourceTree extends BaseModel {
     }
 
     const docIds = []
-    const templateIds = []
     const resourceTemplateIds = []
 
     const collectIds = async (nodeId, ids = []) => {
@@ -669,11 +668,6 @@ class ResourceTree extends BaseModel {
         )
       } else if (node?.resourceType === 'doc') {
         docIds.push(node.docId)
-        const doc = await Doc.query(trx).findById(node.docId)
-
-        if (doc?.templateId) {
-          templateIds.push(doc.templateId)
-        }
       }
 
       if (node?.templateId) {
@@ -702,9 +696,6 @@ class ResourceTree extends BaseModel {
 
       if (docIds.length) {
         await ResourceTree.query(trx).delete().whereIn('docId', docIds)
-      }
-      if (templateIds.length) {
-        await Template.query(trx).delete().whereIn('id', templateIds)
       }
       if (docIds.length) {
         await Doc.query(trx).delete().whereIn('id', docIds)

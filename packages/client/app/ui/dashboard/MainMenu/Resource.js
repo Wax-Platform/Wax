@@ -262,7 +262,7 @@ const ICON_COLORS = {
   doc: 'var(--color-trois-opaque)',
   dir: 'var(--color-trois-opaque)',
   root: 'var(--color-trois)',
-  sys: 'var(--color-trois)',
+  sys: 'var(--color-trois-opaque)',
   template: 'var(--color-blue)',
   snippet: '#c8617d',
 }
@@ -281,7 +281,7 @@ const Resource = props => {
     onResourceDrop,
     ...rest
   } = props
-  const { id, title, resourceType, doc = {}, extension } = resource || {}
+  const { id, title, resourceType, doc = {}, templateId } = resource || {}
   const { userInteractions } = useAiDesignerContext()
 
   const {
@@ -291,7 +291,7 @@ const Resource = props => {
     setSelectedDocs,
     docId,
     renameResource,
-    docPath,
+    currentDoc,
     contextualMenu,
     addToFavs,
     setTemplateToEdit,
@@ -300,29 +300,24 @@ const Resource = props => {
 
   const { isRoot, isFolder, isSystem } = typeFlags(resourceType)
   const isSelected = selectedDocs.includes(id)
-  const isActive = docId === doc?.identifier
-  const currentDocIsDescendant = docPath?.includes(id)
+  const isActive =
+    docId === doc?.identifier || templateId === currentDoc?.templateId
+  const currentDocIsDescendant = currentDoc?.path?.includes(id)
   const allowDnD =
     (!isSystem && !isActive && !currentDocIsDescendant) || reorderMode.state
 
   const openResource = useCallback(
     resource => {
       const { resourceType, templateId } = resource
-      const isTemplate = resourceType === 'template'
-      const isSnippet = resourceType === 'snippet'
-
-      if (isTemplate) return setTemplateToEdit(templateId)
-      if (isSnippet) return setTemplateToEdit(templateId)
-      return open(resource)
+      const isTemplate = ['template', 'snippet'].includes(resourceType)
+      return isTemplate ? setTemplateToEdit(templateId) : open(resource)
     },
-    [open, setTemplateToEdit, resource],
+    [open, setTemplateToEdit, resource, isActive],
   )
   const handleOpen = useCallback(
     e => {
       e.preventDefault()
-      !contextualMenu.state?.show &&
-        !userInteractions.ctrl &&
-        openResource(resource)
+      !isActive && !contextualMenu.state?.show && openResource(resource)
     },
     [contextualMenu.state?.show, userInteractions.ctrl, openResource, resource],
   )
@@ -341,7 +336,7 @@ const Resource = props => {
       e.stopPropagation()
       selectedDocs?.length <= 1 && setSelectedDocs([id])
 
-      const optionValidations = {
+      const avaiableActions = {
         default: true,
         open: !isActive,
         rename: !isRoot && !isSystem,
@@ -357,6 +352,7 @@ const Resource = props => {
         delete: () => confirmDelete(resource),
         rename: () => rename.update({ id, title }),
         'add to favorites': () => addToFavs(id),
+        default: () => {},
       }
 
       const buildOption = optionName => {
@@ -365,7 +361,7 @@ const Resource = props => {
           action: actions[optionName] || (() => {}),
         }
 
-        const includeOption = switchOn(optionName, optionValidations)
+        const includeOption = switchOn(optionName, avaiableActions)
         return includeOption && option
       }
 
@@ -373,14 +369,10 @@ const Resource = props => {
         ? TEMPLATE_MENU_OPTIONS
         : NORMAL_MENU_OPTIONS
 
-      const contextMenuItems = options.map(buildOption).filter(Boolean)
+      const items = options.map(buildOption).filter(Boolean)
+      const { clientX: x, clientY: y } = e
 
-      contextualMenu.update({
-        items: contextMenuItems,
-        x: e.clientX,
-        y: e.clientY,
-        show: true,
-      })
+      contextualMenu.update({ items, x, y, show: true })
     },
     [
       id,
@@ -462,7 +454,10 @@ const Resource = props => {
       $active={isActive || currentDocIsDescendant}
       $folder={isFolder}
       data-contextmenu
-      style={{ '--svg-fill': iconColor }}
+      style={{
+        '--svg-fill': iconColor,
+        opacity: isActive && templateId ? 0.5 : 1,
+      }}
       onClick={handleSelection}
       onDoubleClick={handleOpen}
       onContextMenu={handleContextMenuOpen}
@@ -470,7 +465,11 @@ const Resource = props => {
       onDragStart={handleDragStart}
       onDrop={isFolder && !reorderMode.state ? handleDrop : null}
       onDragOver={isFolder ? handleDragOver : null}
-      title={title}
+      title={
+        isActive && templateId
+          ? 'Current document template:\n Edit in template editor from the left menu'
+          : title
+      }
       {...rest}
     >
       <IconTitleContainer data-contextmenu>

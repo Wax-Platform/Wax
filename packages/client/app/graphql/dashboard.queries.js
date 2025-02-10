@@ -7,13 +7,15 @@ export const GET_DOC = gql`
       identifier
       title
       resourceId
-      template {
-        id
-        displayName
-        rawCss
-        meta
-      }
+      templateId
+      path
     }
+  }
+`
+
+export const UPDATE_DOCUMENT_TEMPLATE = gql`
+  mutation UpdateDocumentTemplate($id: ID!, $templateId: ID!) {
+    updateDocumentTemplate(id: $id, templateId: $templateId)
   }
 `
 
@@ -37,6 +39,8 @@ export const OPEN_FOLDER = gql`
           doc {
             id
             identifier
+            templateId
+            path
           }
           extension
           templateId
