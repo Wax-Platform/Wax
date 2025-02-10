@@ -208,7 +208,7 @@ const Header = props => {
                 })
                 body && (body.style.transform = 'scale(1)')
                 body && (body.style.padding = '0')
-                const selected = body.querYSelectorAll('.selected-id')
+                const selected = body.querySelectorAll('.selected-id')
                 selected.forEach(el => el.classList.remove('selected-id'))
 
                 previewRef?.current?.contentWindow?.print()
