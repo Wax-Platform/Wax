@@ -153,7 +153,6 @@ export const DocumentContextProvider = ({ children }) => {
     fetchPolicy: 'cache-and-network',
     onCompleted: data => {
       const doc = data.getDocument
-      history.push(`/${doc.identifier}`, { replace: true })
       document.title = doc.title
       setCurrentDoc(doc)
       graphQL.openFolder({
@@ -168,6 +167,7 @@ export const DocumentContextProvider = ({ children }) => {
 
   const getDoc = useCallback(
     identifier => {
+      history.push(`/${identifier}`, { replace: true })
       !docLoading && getDocument({ variables: { identifier } })
     },
     [docLoading, getDocument],
