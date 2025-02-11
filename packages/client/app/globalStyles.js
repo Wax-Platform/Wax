@@ -47,6 +47,7 @@ export default createGlobalStyle`
     --color-purple: #612e61;
     --color-primary: #21b1acff;
     --color-primary-dark: #187f7cff;
+    --color-red: #ce4343;
     --color-secondary: #e177a2ff;
     --color-secondary-fade: #e0387a0d;
     --color-trois: #a34ba1;

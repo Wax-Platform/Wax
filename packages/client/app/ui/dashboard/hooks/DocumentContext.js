@@ -167,10 +167,11 @@ export const DocumentContextProvider = ({ children }) => {
 
   const getDoc = useCallback(
     identifier => {
-      history.push(`/${identifier}`, { replace: true })
-      !docLoading && getDocument({ variables: { identifier } })
+      !docLoading &&
+        !currentFolder?.parentId &&
+        getDocument({ variables: { identifier } })
     },
-    [docLoading, getDocument],
+    [docLoading, getDocument, currentFolder?.parentId],
   )
 
   const [updateDocTemplate] = useMutation(UPDATE_DOCUMENT_TEMPLATE, {
@@ -198,9 +199,16 @@ export const DocumentContextProvider = ({ children }) => {
     const variables = { id, resourceType }
 
     if (resourceType === 'doc') {
-      const { identifier } = resource.doc
-      console.log({ identifier })
-      getDoc(identifier)
+      const { doc } = resource
+      const { identifier, templateId, title } = doc
+      history.push(`/${identifier}`, { replace: true })
+      document.title = title
+
+      setCurrentDoc({ ...doc })
+      templatesGQL.getTemplate(templateId).then(({ data }) => {
+        setCss(data.getTemplate.rawCss)
+      })
+
       templateToEdit && setTemplateToEdit(null)
       return
     }

@@ -143,7 +143,7 @@ export const useCreateTemplate = () => {
   const handleCreateTemplate = () => {
     modalState.update({
       show: true,
-      title: 'Create a new template',
+      title: 'New template',
       onSubmit,
       items: CREATE_TEMPLATE_MODAL_ITEMS,
     })
@@ -152,7 +152,7 @@ export const useCreateTemplate = () => {
   const handleFetchTemplate = () => {
     modalState.update({
       show: true,
-      title: 'Fetch template from url',
+      title: 'Fetch template',
       onSubmit: onSubmitFetch,
       items: FETCH_TEMPLATE_MODAL_ITEMS,
     })
@@ -199,7 +199,7 @@ export const TemplateManagerHeader = () => {
         onClick={() =>
           modalState.update({
             show: true,
-            title: 'Create a new template',
+            title: 'New template',
             onSubmit,
             items: CREATE_TEMPLATE_MODAL_ITEMS,
           })
@@ -211,7 +211,7 @@ export const TemplateManagerHeader = () => {
         onClick={() => {
           modalState.update({
             show: true,
-            title: 'Fetch template from url',
+            title: 'Fetch template',
             onSubmit: onSubmitFetch,
             items: FETCH_TEMPLATE_MODAL_ITEMS,
           })

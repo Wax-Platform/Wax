@@ -2,8 +2,12 @@ const { Doc, Team, TeamMember, User } = require('@pubsweet/models')
 const { logger } = require('@coko/server')
 
 const getDocResolver = async (_, { identifier }) => {
-  const doc = await Doc.query().findOne({ identifier })
-  return doc
+  const doc = await Doc.query()
+    .where({ identifier })
+    .select('templateId', 'identifier', 'id')
+
+  logger.info('doc', doc)
+  return doc[0]
 }
 module.exports = {
   Query: {

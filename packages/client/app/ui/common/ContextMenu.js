@@ -65,6 +65,7 @@ export const Menu = styled.ul`
 `
 export const MenuItem = styled.li`
   display: flex;
+  position: relative;
 
   &:hover {
     background-color: #0001;
@@ -88,6 +89,12 @@ export const MenuButton = styled(CleanButton)`
     fill: var(--svg-fill) !important;
   }
 `
+
+const SubMenu = styled(Menu)`
+  left: calc(100% + 1px);
+  top: 0;
+`
+
 const removeDuplicatedSeparators = items => {
   return (item, index) => {
     const isDash = item.label === '-'
@@ -105,21 +112,35 @@ const calculateXandY = (x, y, menuHeight) => {
   return { top, left }
 }
 
-const optionRender = option => {
-  const { contextualMenu } = useDocumentContext()
-  const { action, label, disabled, ...props } = option
+const OptionRender = ({ option }) => {
+  const { action, label, disabled, items, ...props } = option
+  const submenu = useBool({ start: false })
+
   const handleAction = e => {
     safeCall(action)(e)
-    contextualMenu.update({ show: false })
   }
 
   return label === '-' ? (
-    <hr></hr>
+    <hr key={label}></hr>
   ) : (
-    <MenuItem {...props}>
+    <MenuItem
+      key={label}
+      onMouseEnter={submenu.on}
+      onMouseLeave={submenu.off}
+      {...props}
+    >
       <MenuButton $disabled={disabled} onClick={handleAction}>
         {label}
       </MenuButton>
+      {items && (
+        <SubMenu data-contextmenu visible={submenu.state}>
+          {items.map(opt => (
+            <MenuItem>
+              <MenuButton onClick={opt.action}>{opt.label}</MenuButton>
+            </MenuItem>
+          ))}
+        </SubMenu>
+      )}
     </MenuItem>
   )
 }
@@ -140,13 +161,13 @@ const ContextMenu = ({ className }) => {
   }, [show])
 
   const shouldNotDisplay = !transitioning.state && !visible.state && !show
-  if (shouldNotDisplay) return null
 
   const shouldAnimate = visible.state && transitioning.state
   const menuHeight = itemsCount * ITEM_HEIGHT + 8
   const options = items.filter(removeDuplicatedSeparators(items))
   const { top, left } = calculateXandY(x, y, menuHeight)
 
+  if (shouldNotDisplay) return null
   return (
     <Menu
       x={left}
@@ -155,9 +176,13 @@ const ContextMenu = ({ className }) => {
       data-contextmenu
       className={className}
       visible={visible.state}
-      onMouseLeave={() => contextualMenu.update({ show: false })}
+      // onMouseLeave={() => contextualMenu.update({ show: false })}
     >
-      <Each of={options} as={optionRender} if={itemsCount} />
+      <Each
+        of={options}
+        as={option => <OptionRender option={option} />}
+        if={itemsCount}
+      />
     </Menu>
   )
 }

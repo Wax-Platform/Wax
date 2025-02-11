@@ -8,7 +8,14 @@ import { safeCall } from '../component-ai-assistant/utils'
 import { useBool } from '../../hooks/dataTypeHooks'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 import { useModalContext } from '../../hooks/modalContext'
-import { CloseOutlined } from '@ant-design/icons'
+import {
+  CheckCircleFilled,
+  CheckCircleOutlined,
+  CheckOutlined,
+  CloseCircleFilled,
+  CloseCircleOutlined,
+  CloseOutlined,
+} from '@ant-design/icons'
 
 const showAnimation = keyframes`
   from {
@@ -37,16 +44,16 @@ const Overlay = styled.div`
 const ModalForm = styled.form`
   align-items: center;
   animation: ${p => p.shouldAnimate && showAnimation} 0.3s;
-  background-color: var(--color-trois-lightest);
+  background-color: var(--color-trois-opaque-3);
   border: 1px solid var(--color-trois-alpha);
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   box-shadow: 0 2px 8px #0001;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 50%;
-  padding: 8px;
-  width: 35%;
+  max-height: 70%;
+  padding: 4px;
+  width: 25%;
 
   h3 {
     display: flex;
@@ -56,8 +63,12 @@ const ModalForm = styled.form`
 
 const ModalHeader = styled(FlexRow)`
   align-items: center;
-  justify-content: space-between;
-  padding: 0 8px 8px;
+  color: var(--color-trois-opaque-2);
+  font-size: 22px;
+  font-weight: 700;
+
+  justify-content: center;
+  padding: 0 4px;
   width: 100%;
 
   * {
@@ -70,6 +81,8 @@ const Menu = styled.ul`
   --item-height: ${ITEM_HEIGHT}px;
   --svg-fill: var(--color-trois-opaque-2);
   align-items: center;
+  /* background-color: var(--color-trois-opaque-3); */
+  /* border-radius: 0.5rem; */
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -77,7 +90,7 @@ const Menu = styled.ul`
   justify-content: flex-start;
   list-style: none;
   margin: 0 0 auto;
-  padding: 4px 20px;
+  padding: 8px 4px;
   width: 100%;
 
   * {
@@ -95,12 +108,15 @@ const Menu = styled.ul`
 `
 
 const MenuItem = styled.li`
-  align-items: flex-start;
-  background-color: none;
+  align-items: center;
+  background-color: var(--color-trois-lightest-2);
+  border: 1px solid var(--color-trois-alpha);
+  border-radius: 0.5rem;
   display: flex;
-  flex-direction: column;
+  gap: 4px;
   height: fit-content;
   overflow-y: auto;
+  padding: 8px 16px;
   width: 98%;
 
   [data-field-id] {
@@ -111,14 +127,13 @@ const MenuItem = styled.li`
     align-self: flex-end;
     background: none;
     border: none;
-    border-bottom: 1px solid var(--color-trois-alpha);
     font-size: 12px;
     padding-top: 4px;
     transition: all 0.2s;
     z-index: 1;
 
     &:focus {
-      border-bottom-color: var(--color-trois-opaque-2);
+      border-bottom-color: transparent;
       outline: none;
     }
 
@@ -130,20 +145,37 @@ const MenuItem = styled.li`
   }
 `
 const SubmitButton = styled(CleanButton)`
-  background-color: var(--color-trois-opaque);
+  align-items: center;
+  background-color: var(--color-trois-opaque-2);
   border-radius: 8px;
-  box-shadow: 0 2px 8px #0001;
-  color: var(--color-trois-lightest);
+  color: #fff;
   font-size: 16px;
-  margin: 4px;
-  min-width: 100px;
-  padding: 8px;
+  gap: 12px;
+  padding: 8px 16px;
+  transition: all 0.2s;
   width: fit-content;
+
+  .anticon {
+    font-size: 14px;
+  }
+
+  svg {
+    fill: #fff;
+    transition: all 0.2s;
+  }
+
+  &:hover {
+    transform: scale(1.04);
+
+    svg {
+      fill: var(--color-trois-lightest);
+    }
+  }
 `
 
 const Label = styled.span`
   color: var(--color-trois-opaque-2);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1;
   width: fit-content;
@@ -151,9 +183,11 @@ const Label = styled.span`
 `
 
 const ModalFooter = styled.div`
+  align-items: center;
   display: flex;
-  justify-content: flex-end;
-  padding: 8px;
+  gap: 8px;
+  justify-content: space-between;
+  padding: 0 12px 12px;
   width: 100%;
 `
 
@@ -213,23 +247,25 @@ const ContextModal = ({ className }) => {
       <ModalForm
         ref={formRef}
         onSubmit={handleSubmit}
+        onKeyDown={e => e.key === 'Escape' && modalState.reset()}
         shouldAnimate={shouldAnimate}
       >
         <ModalHeader>
-          {modalState.state?.title && <h3>{modalState.state.title}</h3>}
-          <CloseOutlined
-            style={{ fontSize: '14px' }}
-            onClick={modalState.reset}
-          />
+          {modalState.state?.title && modalState.state.title}
         </ModalHeader>
         <Menu>
           <Each of={options} as={optionRender} if={itemsCount} />
         </Menu>
-        {itemsCount && onSubmit && (
-          <ModalFooter>
-            <SubmitButton onClick={handleSubmit}>ok</SubmitButton>
-          </ModalFooter>
-        )}
+        <ModalFooter>
+          <SubmitButton onClick={modalState.reset}>
+            Cancel <CloseOutlined />
+          </SubmitButton>
+          {itemsCount && onSubmit && (
+            <SubmitButton onClick={handleSubmit}>
+              Accept <CheckOutlined />
+            </SubmitButton>
+          )}
+        </ModalFooter>
       </ModalForm>
     </Overlay>
   )

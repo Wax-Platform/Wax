@@ -3,14 +3,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import {
-  ArrowDownOutlined,
   ArrowUpOutlined,
   DeleteOutlined,
   EditOutlined,
-  PlusOutlined,
   PoweroffOutlined,
   SaveOutlined,
-  VerifiedOutlined,
 } from '@ant-design/icons'
 import { useAiDesignerContext } from './hooks/AiDesignerContext'
 import AiDesigner from '../../AiDesigner/AiDesigner'
@@ -21,7 +18,6 @@ import { TemplateEditor } from './components/CodeEditor'
 import { EditorView } from '@uiw/react-codemirror'
 import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 import { useModalContext } from '../../hooks/modalContext'
-import { Actions } from '../dashboard/MainMenu/PathRender'
 import { createOrUpdateStyleSheet, getSnippetsStyleTag } from './utils'
 
 const SnippetEditor = styled(TemplateEditor)`
@@ -174,7 +170,7 @@ const CREATE_TEMPLATE_MODAL_ITEMS = [
     ),
   },
   {
-    label: 'Css',
+    label: '',
     component: (
       <TemplateEditor
         style={{ width: '100%' }}
@@ -253,7 +249,7 @@ export const useCreateSnippet = () => {
   const handleCreateSnippet = () => {
     modalState.update({
       show: true,
-      title: 'Create a new snippet',
+      title: 'New snippet',
       onSubmit,
       items: CREATE_TEMPLATE_MODAL_ITEMS,
     })
@@ -479,7 +475,7 @@ export const useCreateDoc = () => {
   const handleCreateDoc = () => {
     modalState.update({
       show: true,
-      title: 'Create a new document',
+      title: 'New document',
       onSubmit,
       items: [
         {
@@ -523,7 +519,7 @@ export const useCreateFolder = () => {
   const handleCreateFolder = () => {
     modalState.update({
       show: true,
-      title: 'Create a new folder',
+      title: 'New folder',
       onSubmit,
       items: [
         {

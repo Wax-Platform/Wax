@@ -41,6 +41,7 @@ export const OPEN_FOLDER = gql`
             identifier
             templateId
             path
+            title
           }
           extension
           templateId

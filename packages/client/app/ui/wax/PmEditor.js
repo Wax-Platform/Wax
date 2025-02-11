@@ -118,24 +118,6 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
     }
   }, [yjsProvider?.doc?.guid])
 
-  // if (!) {
-  //   return (
-  //     <StyledWindow
-  //       style={{
-  //         alignItems: 'center',
-  //         justifyContent: 'center',
-  //         display: 'flex',
-  //         width: '100%',
-  //         height: '100%',
-  //         opacity: 1,
-  //         background: 'var(--color-trois-lightest-2)',
-  //         paddingBlock: '1rem',
-  //       }}
-  //     >
-  //       <FileBrowser />
-  //     </StyledWindow>
-  //   )
-  // }
   return (
     <>
       {displayStyles && <style id="aid-css-template">{css}</style>}

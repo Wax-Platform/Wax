@@ -74,7 +74,6 @@ export const PagedJsPreview = props => {
   useEffect(() => {
     const handleMessage = e => {
       const { id, loaded } = e.data
-      console.log(id, loaded)
       if (isBoolean(loaded)) {
         const spinner = document.querySelector('[data-spinner]')
         const setSpinner = () => set(spinner, 'dataset.spinner', !loaded)
@@ -103,10 +102,7 @@ export const PagedJsPreview = props => {
     return () => {
       previewWindow.removeEventListener('mousedown', handleClick)
     }
-  }, [
-    previewRef?.current?.contentDocument,
-    previewRef?.current?.contentDocument?.body?.querySelector('.pagedjs_pages'),
-  ])
+  }, [previewRef?.current?.contentDocument])
 
   useEffect(() => {
     debounce(() => setSrcDoc(previewSource), 1000)()
