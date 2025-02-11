@@ -69,7 +69,7 @@ export const ListContainer = styled.div`
 `
 
 export const GridContainer = styled.div`
-  --grid-size: ${p => p.$gridSize || 5};
+  --grid-size: ${p => p.gridSize || 5};
   --w-h: calc((var(--container-size, 26.5dvw) / var(--grid-size)));
   --icon-size: calc(var(--w-h) * 0.4);
   --icon-min-width: calc(var(--w-h) - 10px);

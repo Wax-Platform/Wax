@@ -15,7 +15,7 @@ import {
   SwapOutlined,
   UnorderedListOutlined,
 } from '@ant-design/icons'
-import { useBool, useString } from '../../../hooks/dataTypeHooks'
+import { useBool, useNumber, useString } from '../../../hooks/dataTypeHooks'
 import { objIf, switchOn } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
 import { useCreateTemplate } from '../../component-ai-assistant/components/CodeEditor'
@@ -101,6 +101,7 @@ const Files = props => {
   const [dragging, setDragging] = useState(false)
 
   const fileExplorerView = useString({ start: 'grid' })
+  const gridSize = useNumber({ start: 5 })
   const hasResources = resourcesInFolder.length > 0
 
   const FileDisplayView = fileExplorerView.is('grid') ? GridView : Fragment
@@ -147,6 +148,7 @@ const Files = props => {
 
   const resourceRender = (resource, i) => (
     <Resource
+      gridSize={gridSize.state}
       view={fileExplorerView.state}
       reorderMode={reorderMode}
       onResourceDrop={onResourceDrop}
@@ -172,15 +174,24 @@ const Files = props => {
           show: true,
           x: e.clientX,
           y: e.clientY,
-          items: generateContextMenuItems({
-            fileExplorerView,
-            reorderMode,
-            currentFolder,
-            handleCreateDoc,
-            handleCreateFolder,
-            handleCreateTemplate,
-            handleCreateSnippet,
-          }),
+          items: [
+            ...generateContextMenuItems({
+              fileExplorerView,
+              reorderMode,
+              currentFolder,
+              handleCreateDoc,
+              handleCreateFolder,
+              handleCreateTemplate,
+              handleCreateSnippet,
+            }),
+            {
+              label: 'Grid size',
+              items: Array.from({ length: 10 }, (_, i) => i + 1).map(i => ({
+                label: `${i + 1}x`,
+                action: () => gridSize.set(i + 1),
+              })),
+            },
+          ],
         })
       }}
       $showRightBorder={layout.chat}
