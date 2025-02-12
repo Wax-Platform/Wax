@@ -28,7 +28,7 @@ const Button = styled(CleanButton)`
 
   svg {
     fill: ${p =>
-      p.$expanded ? 'var(--color-trois-opaque)' : 'var(--color-trois)'};
+      p.$expanded ? 'var(--color-trois-opaque)' : 'var(--color-trois-opaque)'};
     height: 80%;
     padding: 0;
     width: 20px;
@@ -43,10 +43,6 @@ const Button = styled(CleanButton)`
 
   &:hover {
     background-color: var(--color-trois-lightest);
-
-    img {
-      filter: brightness(0.8);
-    }
   }
 `
 const toggleLayout = (...keys) => ({

@@ -1,21 +1,14 @@
+/* stylelint-disable string-quotes */
 /* stylelint-disable declaration-no-important */
 import React, { useEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { debounce } from 'lodash'
-import { CleanButton, FlexRow } from '../_styleds/common'
+import { CleanButton } from '../_styleds/common'
 import Each from '../component-ai-assistant/utils/Each'
 import { safeCall } from '../component-ai-assistant/utils'
 import { useBool } from '../../hooks/dataTypeHooks'
-import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 import { useModalContext } from '../../hooks/modalContext'
-import {
-  CheckCircleFilled,
-  CheckCircleOutlined,
-  CheckOutlined,
-  CloseCircleFilled,
-  CloseCircleOutlined,
-  CloseOutlined,
-} from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 
 const showAnimation = keyframes`
   from {
@@ -32,28 +25,28 @@ const ITEM_HEIGHT = 24
 
 const Overlay = styled.div`
   align-items: center;
-  backdrop-filter: blur(4px);
+  /* backdrop-filter: blur(4px); */
   display: ${p => (p.visible ? 'flex' : 'none')};
-  height: 100dvh;
+  height: fit-content;
   justify-content: center;
   position: absolute;
-  width: 100dvw;
+  width: fit-content;
   z-index: 999999999;
 `
 
 const ModalForm = styled.form`
   align-items: center;
   animation: ${p => p.shouldAnimate && showAnimation} 0.3s;
-  background-color: var(--color-trois-opaque-3);
+  background-color: var(--color-trois-lightest-2);
   border: 1px solid var(--color-trois-alpha);
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 8px #0001;
+  border-radius: 1rem 1rem 0.5rem 0.5rem;
+  box-shadow: inset 0 0 6px #0001, 0 2px 8px #0001;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   max-height: 70%;
-  padding: 4px;
-  width: 25%;
+  padding: 0;
+  width: 25dvw;
 
   h3 {
     display: flex;
@@ -61,20 +54,29 @@ const ModalForm = styled.form`
   }
 `
 
-const ModalHeader = styled(FlexRow)`
+const ModalTitle = styled.p`
   align-items: center;
   color: var(--color-trois-opaque-2);
-  font-size: 22px;
-  font-weight: 700;
+  display: flex;
+  font-size: 20px;
+  gap: 8px;
 
-  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  opacity: 0.8;
   padding: 0 4px;
+  text-align: left;
   width: 100%;
 
-  * {
-    color: var(--color-trois-opaque-2);
-    margin: 0;
-  }
+  /* &::before {
+    background-color: var(--color-trois-opaque-2);
+    border-radius: 50%;
+    content: '';
+    display: flex;
+    height: 8px;
+    opacity: 0.5;
+    width: 8px;
+  } */
 `
 
 const Menu = styled.ul`
@@ -85,12 +87,12 @@ const Menu = styled.ul`
   /* border-radius: 0.5rem; */
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   height: 100%;
   justify-content: flex-start;
   list-style: none;
   margin: 0 0 auto;
-  padding: 8px 4px;
+  padding: 12px 24px 24px;
   width: 100%;
 
   * {
@@ -109,15 +111,22 @@ const Menu = styled.ul`
 
 const MenuItem = styled.li`
   align-items: center;
-  background-color: var(--color-trois-lightest-2);
-  border: 1px solid var(--color-trois-alpha);
-  border-radius: 0.5rem;
+  background-color: #fff;
+  border: 1px solid #fff0;
+  border-radius: 0.4rem;
+  box-shadow: 0 0 4px #0001, inset 0 0 2px #0001;
   display: flex;
   gap: 4px;
   height: fit-content;
   overflow-y: auto;
-  padding: 8px 16px;
+  padding: 8px 12px;
+  transition: all 0.2s;
   width: 98%;
+
+  &:focus-within {
+    border-color: var(--color-trois-alpha);
+    outline: none;
+  }
 
   [data-field-id] {
     width: 100%;
@@ -127,18 +136,18 @@ const MenuItem = styled.li`
     align-self: flex-end;
     background: none;
     border: none;
-    font-size: 12px;
-    padding-top: 4px;
+    color: #555;
+    font-size: 14px;
     transition: all 0.2s;
     z-index: 1;
 
     &:focus {
-      border-bottom-color: transparent;
+      border-color: transparent;
       outline: none;
     }
 
     &::placeholder {
-      color: var(--color-trois-opaque);
+      color: #fff0;
       font-size: 12px;
       opacity: 0.8;
     }
@@ -146,12 +155,16 @@ const MenuItem = styled.li`
 `
 const SubmitButton = styled(CleanButton)`
   align-items: center;
-  background-color: var(--color-trois-opaque-2);
-  border-radius: 8px;
+  aspect-ratio: 1;
+  background-color: var(${p => p.colorVar});
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--color-trois-opaque-2), inset 2px 2px 6px #fff6;
   color: #fff;
+  filter: brightness(1);
   font-size: 16px;
   gap: 12px;
-  padding: 8px 16px;
+  padding: 4px 8px;
+  transform: scale(0.8);
   transition: all 0.2s;
   width: fit-content;
 
@@ -165,7 +178,7 @@ const SubmitButton = styled(CleanButton)`
   }
 
   &:hover {
-    transform: scale(1.04);
+    filter: brightness(1.1);
 
     svg {
       fill: var(--color-trois-lightest);
@@ -174,33 +187,35 @@ const SubmitButton = styled(CleanButton)`
 `
 
 const Label = styled.span`
+  border-right: 1px solid var(--color-trois-alpha);
   color: var(--color-trois-opaque-2);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 0 8px 0 0;
+  text-transform: uppercase;
   width: fit-content;
   z-index: 3;
 `
 
-const ModalFooter = styled.div`
-  align-items: center;
+const Header = styled.div`
+  align-items: flex-end;
   display: flex;
-  gap: 8px;
+  gap: 2px;
   justify-content: space-between;
-  padding: 0 12px 12px;
+  padding: 8px 8px 8px 28px;
   width: 100%;
 `
 
-const optionRender = option => {
+const fieldRender = option => {
   const { label, component, ...props } = option
 
   return label === '-' ? (
     <hr></hr>
   ) : (
-    <FlexRow as={MenuItem} {...props}>
-      {label && <Label>{label}:</Label>}
+    <MenuItem {...props} style={!label ? { padding: '0' } : {}}>
+      {label && <Label>{label}</Label>}
       {component}
-    </FlexRow>
+    </MenuItem>
   )
 }
 
@@ -222,15 +237,14 @@ const ContextModal = ({ className }) => {
 
   useEffect(() => {
     if (formRef?.current) {
-      formRef.current.querySelector('input').focus()
+      formRef.current.querySelector('[data-field-id]')?.focus()
     }
-  }, [formRef?.current])
+  }, [items, formRef])
 
   const shouldNotDisplay = !transitioning.state && !visible.state && !show
-  if (shouldNotDisplay) return null
 
   const shouldAnimate = visible.state && transitioning.state
-  const options = items
+  const modalFields = items
 
   const handleSubmit = e => {
     e.preventDefault()
@@ -242,6 +256,9 @@ const ContextModal = ({ className }) => {
     const passed = safeCall(onSubmit, console.log)(fields)
     passed !== false && modalState.reset()
   }
+
+  if (shouldNotDisplay) return null
+
   return (
     <Overlay visible={modalState.state?.show}>
       <ModalForm
@@ -250,22 +267,22 @@ const ContextModal = ({ className }) => {
         onKeyDown={e => e.key === 'Escape' && modalState.reset()}
         shouldAnimate={shouldAnimate}
       >
-        <ModalHeader>
-          {modalState.state?.title && modalState.state.title}
-        </ModalHeader>
-        <Menu>
-          <Each of={options} as={optionRender} if={itemsCount} />
-        </Menu>
-        <ModalFooter>
-          <SubmitButton onClick={modalState.reset}>
-            Cancel <CloseOutlined />
+        <Header>
+          <ModalTitle>
+            {modalState.state?.title && modalState.state.title}
+          </ModalTitle>
+          <SubmitButton onClick={modalState.reset} colorVar="--color-red">
+            <CloseOutlined />
           </SubmitButton>
           {itemsCount && onSubmit && (
-            <SubmitButton onClick={handleSubmit}>
-              Accept <CheckOutlined />
+            <SubmitButton onClick={handleSubmit} colorVar="--color-green">
+              <CheckOutlined />
             </SubmitButton>
           )}
-        </ModalFooter>
+        </Header>
+        <Menu>
+          <Each of={modalFields} as={fieldRender} if={itemsCount} />
+        </Menu>
       </ModalForm>
     </Overlay>
   )

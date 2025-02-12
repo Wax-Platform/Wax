@@ -83,13 +83,12 @@ const CREATE_TEMPLATE_MODAL_ITEMS = [
     ),
   },
   {
-    label: 'Css',
+    label: '',
     component: (
       <TemplateEditor
         style={{ width: '100%' }}
-        basicSetup={{ lineNumbers: false }}
         data-field-id="rawCss"
-        extensions={[cssLang()]}
+        extensions={[cssLang(), EditorView.lineWrapping]}
         onChange={content => {
           document.querySelector('[data-field-id="rawCss"]').value = content
         }}
@@ -222,129 +221,6 @@ export const TemplateManagerHeader = () => {
     </>
   )
 }
-
-// const VIEW_BASED_CONTAINERS = {
-//   list: ListContainer,
-//   default: GridContainer,
-// }
-
-// export const TemplateManager = ({ view }) => {
-//   const { modalState } = useModalContext()
-//   const { setCss, updatePreview } = useAiDesignerContext()
-//   const {
-//     contextualMenu,
-//     currentDoc,
-//     updateTemplateCss,
-//     deleteTemplate,
-//     systemTemplatesData,
-//   } = useDocumentContext()
-
-//   const templates = systemTemplatesData?.getUserTemplates || []
-
-//   const templateItemRender = template => {
-//     const isCurrentTemplate = currentDoc?.template?.id === template.id
-
-//     const handleContextMenu = e => {
-//       e.preventDefault()
-
-//       const contextMenuActions = {
-//         preview: () => {
-//           setCss(template.rawCss)
-//           updatePreview(true)
-//         },
-//         fork: () => {
-//           updateTemplateCss({
-//             variables: {
-//               id: currentDoc.template.id,
-//               rawCss: template.rawCss,
-//               displayName: template.displayName,
-//             },
-//           })
-//           setCss(template.rawCss)
-//           updatePreview(true)
-//         },
-//         showCode: () => {
-//           modalState.update({
-//             show: true,
-//             title: capitalize(template.displayName),
-//             items: [
-//               {
-//                 label: null,
-//                 component: (
-//                   <TemplateEditor
-//                     extensions={[cssLang(), EditorView.editable.of(false)]}
-//                     onChange={() => {}}
-//                     value={template.rawCss}
-//                     basicSetup={{ readOnly: true }}
-//                   />
-//                 ),
-//               },
-//             ],
-//           })
-//         },
-//         delete: () => {
-//           deleteTemplate({ variables: { id: template.id } })
-//         },
-//       }
-
-//       contextualMenu.update({
-//         show: true,
-//         x: e.clientX,
-//         y: e.clientY,
-//         items: generateContextMenuItems(contextMenuActions),
-//       })
-//     }
-
-//     const Container = switchOn(view, VIEW_BASED_CONTAINERS)
-//     return (
-//       <Container style={{ gap: '4px' }} onContextMenu={handleContextMenu}>
-//         <FileIcon />
-//         <IconTitleContainer>
-//           <TitleLabel>
-//             {isCurrentTemplate ? 'Document template' : template.displayName}
-//           </TitleLabel>
-//         </IconTitleContainer>
-//       </Container>
-//     )
-//   }
-
-//   return <Each of={templates} as={templateItemRender} if={templates.length} />
-// }
-
-// const CONTEXT_MENU_OPTIONS = ['preview', 'fork', 'showCode', 'delete']
-
-// const CONTEXT_MENU_RENDER = {
-//   preview: labelRender(<EyeOutlined />, 'Preview'),
-//   fork: labelRender(<ForkOutlined />, 'Fork'),
-//   showCode: labelRender(<CodeOutlined />, 'View Code'),
-//   delete: labelRender(<DeleteOutlined />, 'Delete'),
-// }
-
-// function generateContextMenuItems({ preview, fork, showCode, delete: remove }) {
-//   const optionValidations = {
-//     default: true,
-//   }
-
-//   const actions = {
-//     preview,
-//     fork,
-//     showCode,
-//     delete: remove,
-//     default: () => {},
-//   }
-
-//   const buildOption = optionName => {
-//     const option = {
-//       label: CONTEXT_MENU_RENDER[optionName],
-//       action: actions[optionName],
-//     }
-
-//     const includeOption = switchOn(optionName, optionValidations)
-//     return includeOption && option
-//   }
-
-//   return CONTEXT_MENU_OPTIONS.map(buildOption).filter(Boolean)
-// }
 
 export const CodeEditor = () => {
   const { css, setCss } = useAiDesignerContext()

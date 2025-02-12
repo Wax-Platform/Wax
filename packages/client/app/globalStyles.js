@@ -20,7 +20,7 @@ export default createGlobalStyle`
     --color-yellow-dark: #a27400;
     --color-orange: #fe7b4d;
     --color-orange-dark: #9c4b2e;
-    --color-green: #6fab6a;
+    --color-green: #549b78;
     --color-green-dark: #558151;
     --color-blue: #21799e;
     --color-blue-dark: #154a61;
@@ -47,7 +47,7 @@ export default createGlobalStyle`
     --color-purple: #612e61;
     --color-primary: #21b1acff;
     --color-primary-dark: #187f7cff;
-    --color-red: #ce4343;
+    --color-red: #c85f77;
     --color-secondary: #e177a2ff;
     --color-secondary-fade: #e0387a0d;
     --color-trois: #a34ba1;
@@ -58,7 +58,7 @@ export default createGlobalStyle`
     /* --color-trois-opaque: #936a93; */
     --color-trois-light: #d3afd2;
     --color-trois-lighter: #decfde;
-    --color-trois-lightest: #f2eff5;
+    --color-trois-lightest: #f5eff3;
     --color-trois-lightest-2: #fbf8fd;
     --color-trois-lightest-3: #bc0bc205;
     --color-trois-dark: #6d336c;
