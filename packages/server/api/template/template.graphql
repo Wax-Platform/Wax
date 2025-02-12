@@ -42,6 +42,7 @@ extend type Query {
 }
 
 extend type Mutation {
+  checkIfUserTemplatesExist: Boolean!
   createTemplate(input: CreateTemplateInput!): ID
   updateTemplateCss(id: ID, rawCss: String, displayName: String): ID
   renameTemplate(id: ID, displayName: String): ID

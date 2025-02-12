@@ -114,13 +114,24 @@ export const TemplatesDropdown = props => {
 
   const {
     updateCurrentDocTemplate,
-    systemTemplatesData,
+    userTemplatesData,
     selectedTemplate,
     setSelectedTemplate,
+    getUserTemplates,
   } = useDocumentContext()
+  const [templates, setTemplates] = useState([])
+
+  useEffect(() => {
+    getUserTemplates()
+  }, [])
+
+  useEffect(() => {
+    if (userTemplatesData?.getUserTemplates) {
+      setTemplates(userTemplatesData.getUserTemplates)
+    }
+  }, [JSON.stringify(userTemplatesData?.getUserTemplates)])
 
   const showDropdown = useBool({ start: false })
-  const templates = systemTemplatesData?.getUserTemplates || []
   const sortedTemplates = [...templates].sort((a, b) => {
     if (a.displayName < b.displayName) return -1
     if (a.displayName > b.displayName) return 1

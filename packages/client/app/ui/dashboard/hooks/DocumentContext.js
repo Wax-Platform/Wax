@@ -40,7 +40,7 @@ const useTemplates = currentDoc => {
   const [
     getUserTemplates,
     {
-      data: systemTemplatesData,
+      data: userTemplatesData,
       loading: systemTemplatesLoading,
       error: systemTemplatesError,
     },
@@ -52,13 +52,9 @@ const useTemplates = currentDoc => {
     },
   })
 
-  const [
-    getUserSnippets,
-    { data: userSnippetsData, loading: userSnippetsLoading },
-  ] = useLazyQuery(GET_USER_SNIPPETS, {
+  const [getUserSnippets] = useLazyQuery(GET_USER_SNIPPETS, {
     fetchPolicy: 'cache-and-network',
     onCompleted: data => {
-      console.log('getUserSnippets', data)
       setUserSnippets(data.getUserSnippets)
     },
   })
@@ -78,32 +74,15 @@ const useTemplates = currentDoc => {
     },
   })
   const [deleteTemplate] = useMutation(DELETE_TEMPLATE, { refetchQueries })
-  const [createTemplate] = useMutation(CREATE_TEMPLATE, { refetchQueries })
   const [fetchAndCreateTemplateFromUrl, { loading: fetchingTemplates }] =
     useMutation(FETCH_AND_CREATE_TEMPLATE_FROM_URL, { refetchQueries })
 
-  useEffect(() => {
-    getUserTemplates()
-    getUserSnippets()
-  }, [])
-
-  useEffect(() => {
-    if (!userSnippetsLoading && userSnippetsData?.getUserSnippets) {
-      setUserSnippets(userSnippetsData.getUserSnippets)
-    }
-  }, [JSON.stringify(userSnippetsData?.getUserSnippets), userSnippetsLoading])
-
-  useEffect(() => {
-    createOrUpdateStyleSheet(userSnippets)
-  }, [userSnippets])
-
   return {
-    systemTemplatesData,
+    userTemplatesData,
     systemTemplatesLoading,
     systemTemplatesError,
     updateTemplateCss,
     deleteTemplate,
-    createTemplate,
     fetchAndCreateTemplateFromUrl,
     fetchingTemplates,
     getUserTemplates,
@@ -141,7 +120,7 @@ export const DocumentContextProvider = ({ children }) => {
   const [selectedDocs, setSelectedDocs] = useState([])
   const [resources, setResources] = useState([])
   const rename = useObject({ start: RENAME_ITEM })
-  const clipboard = useObject({ start: CLIPBOARD_ITEM })
+  const clipboard = useObject({ start: CLIPBOARD_ITEM, onUpdate: console.log })
   const contextualMenu = useObject()
   const [templateToEdit, setTemplateToEdit] = useState(null)
 
@@ -207,6 +186,7 @@ export const DocumentContextProvider = ({ children }) => {
       setCurrentDoc({ ...doc })
       templatesGQL.getTemplate(templateId).then(({ data }) => {
         setCss(data.getTemplate.rawCss)
+        debounce(updatePreview, 2500)(true)
       })
 
       templateToEdit && setTemplateToEdit(null)
