@@ -1,6 +1,5 @@
 /* eslint-disable react/function-component-definition */
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
-import { useApolloClient } from '@apollo/client'
+import React, { useContext, useEffect, useState } from 'react'
 import {
   Route,
   Switch,
@@ -8,8 +7,6 @@ import {
   useLocation,
   useHistory,
 } from 'react-router-dom'
-import brushIcon from '../static/brush-icon.svg'
-import dropperIcon from '../static/dropper-icon.svg'
 import styled from 'styled-components'
 
 import {
@@ -20,7 +17,7 @@ import {
 } from '@coko/client'
 
 import GlobalStyles from './globalStyles'
-import { Header, VisuallyHiddenElement, Spin } from './ui/common'
+import { Header, VisuallyHiddenElement, Spin, ContextMenu } from './ui/common'
 
 import { YjsProvider } from './yjsProvider'
 
@@ -36,11 +33,28 @@ import {
 
 import { CURRENT_USER } from './graphql'
 import {
-  AiDesignerContext,
   AiDesignerProvider,
+  useAiDesignerContext,
 } from './ui/component-ai-assistant/hooks/AiDesignerContext'
-import { DocumentContextProvider } from './ui/dashboard/hooks/DocumentContext'
+import {
+  DocumentContextProvider,
+  useDocumentContext,
+} from './ui/dashboard/hooks/DocumentContext'
+import { ModalProvider } from './hooks/modalContext'
+import ContextModal from './ui/common/ContextModal'
+const StyledContextMenu = styled(ContextMenu)`
+  --svg-fill: var(--color-trois-opaque-2);
+  margin: 0;
 
+  li > button {
+    gap: 8px;
+    padding-block: 2px;
+
+    svg {
+      fill: var(--color-trois-opaque);
+    }
+  }
+`
 const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -122,7 +136,7 @@ const StyledPage = styled(Page)`
 
   > div {
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     overflow: hidden;
   }
 
@@ -139,7 +153,6 @@ const StyledSpin = styled(Spin)`
 
 const Loader = () => <StyledSpin spinning />
 
-// eslint-disable-next-line react/prop-types
 const SiteHeader = ({ enableLogin }) => {
   const headerLinks = {
     homepage: '/',
@@ -148,23 +161,16 @@ const SiteHeader = ({ enableLogin }) => {
 
   const history = useHistory()
 
-  const { currentUser, setCurrentUser } = useCurrentUser()
-  const client = useApolloClient()
+  const { currentUser } = useCurrentUser()
   const [currentPath, setCurrentPath] = useState(history.location.pathname)
 
   useEffect(() => {
+    if (!currentUser && history.location.pathname === '/') {
+      history.push('/login')
+    }
     const unlisten = history.listen(val => setCurrentPath(val.pathname))
-
     return unlisten
   }, [])
-
-  const logout = () => {
-    setCurrentUser(null)
-    client.cache.reset()
-
-    localStorage.removeItem('token')
-    history.push('/login')
-  }
 
   return currentUser || enableLogin === false ? (
     <Header
@@ -173,7 +179,6 @@ const SiteHeader = ({ enableLogin }) => {
       enableLogin={!!enableLogin}
       links={headerLinks}
       loggedin={!!currentUser}
-      onLogout={logout}
     />
   ) : null
 }
@@ -198,16 +203,28 @@ const Authenticated = ({ children }) => {
     </RequireAuth>
   )
 }
+
 const PageWrapper = props => {
-  const { setUserInteractions } = useContext(AiDesignerContext)
+  const { setUserInteractions } = useAiDesignerContext()
+  const { contextualMenu, setSelectedDocs } = useDocumentContext()
+
   useEffect(() => {
+    const hideContextMenu = ({ target }) => {
+      const { dataset } = target
+      !dataset.contextmenu && contextualMenu.update({ show: false })
+      !dataset.contextmenu && setSelectedDocs([])
+    }
+
     const keydownHandler = e => {
       setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
     }
+
     const scrollHandler = () => {
       document.querySelector('body').scrollTop = 0
       document.querySelector('html').scrollTop = 0
     }
+
+    window.addEventListener('click', hideContextMenu)
     window.addEventListener('keydown', keydownHandler)
     window.addEventListener('keyup', keydownHandler)
     window.addEventListener('scroll', scrollHandler)
@@ -216,6 +233,7 @@ const PageWrapper = props => {
       window.removeEventListener('keydown', keydownHandler)
       window.removeEventListener('keyup', keydownHandler)
       window.removeEventListener('scroll', scrollHandler)
+      window.removeEventListener('click', hideContextMenu)
     }
   }, [])
   return <StyledPage {...props} $height={`calc(100% - 82px)`} />
@@ -223,54 +241,58 @@ const PageWrapper = props => {
 
 const routes = enableLogin => (
   <AiDesignerProvider>
-    <Layout id="layout-root">
-      <GlobalStyles />
-      <DocumentContextProvider>
-        <YjsProvider enableLogin={enableLogin}>
-          <SiteHeader enableLogin={enableLogin} />
-          <PageWrapper fadeInPages={false} padPages={false}>
-            <Switch>
-              <Route component={Login} exact path="/login" />
-              <Route component={Signup} exact path="/signup" />
-              <Route
-                component={VerifyEmail}
-                exact
-                path="/email-verification/:token"
-              />
-              <Route
-                component={RequestPasswordReset}
-                exact
-                path="/request-password-reset"
-              />
-              <Route
-                component={ResetPassword}
-                exact
-                path="/password-reset/:token"
-              />
-              <Route
-                component={VerifyCheck}
-                exact
-                path="/ensure-verified-login"
-              />
-              <Route
-                exact
-                path={['/', '/:docIdentifier']}
-                render={() =>
-                  enableLogin ? (
-                    <Authenticated>
-                      <Dashboard showFilemanager enableLogin={enableLogin} />
-                    </Authenticated>
-                  ) : (
-                    <Dashboard />
-                  )
-                }
-              />
-              <Route component={() => <Redirect to="/login" />} path="*" />
-            </Switch>
-          </PageWrapper>
-        </YjsProvider>
-      </DocumentContextProvider>
-    </Layout>
+    <DocumentContextProvider>
+      <ModalProvider>
+        <Layout id="layout-root">
+          <GlobalStyles />
+          <YjsProvider enableLogin={enableLogin}>
+            <SiteHeader enableLogin={enableLogin} />
+            <PageWrapper fadeInPages={false} padPages={false}>
+              <Switch>
+                <Route component={Login} exact path="/login" />
+                <Route component={Signup} exact path="/signup" />
+                <Route
+                  component={VerifyEmail}
+                  exact
+                  path="/email-verification/:token"
+                />
+                <Route
+                  component={RequestPasswordReset}
+                  exact
+                  path="/request-password-reset"
+                />
+                <Route
+                  component={ResetPassword}
+                  exact
+                  path="/password-reset/:token"
+                />
+                <Route
+                  component={VerifyCheck}
+                  exact
+                  path="/ensure-verified-login"
+                />
+                <Route
+                  exact
+                  path={['/', '/:docIdentifier']}
+                  render={() =>
+                    enableLogin ? (
+                      <Authenticated>
+                        <Dashboard showFilemanager enableLogin={enableLogin} />
+                      </Authenticated>
+                    ) : (
+                      <Dashboard />
+                    )
+                  }
+                />
+                <Route render={() => <Redirect to="/login" />} path="*" />
+              </Switch>
+              <StyledContextMenu />
+            </PageWrapper>
+          </YjsProvider>
+          <ContextModal />
+        </Layout>
+      </ModalProvider>
+    </DocumentContextProvider>
   </AiDesignerProvider>
 )
 

@@ -30,7 +30,7 @@ const SignupPage = props => {
       errorMessage={error?.message}
       hasError={!!error}
       hasSuccess={!!data}
-      loading={loading}
+      loading={!!loading}
       onSubmit={signup}
       // userEmail
     />

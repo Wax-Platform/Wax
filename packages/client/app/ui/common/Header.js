@@ -1,28 +1,33 @@
-/* eslint-disable import/no-duplicates */
-
 /* stylelint-disable string-quotes, declaration-no-important */
-
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import { th } from '@coko/client'
-
+import styled, { css } from 'styled-components'
 import logoMobile from '../../../static/waxdesignerwhite.svg'
-import TeamPopup from './TeamPopup'
-import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
+import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import Toggle from '../component-ai-assistant/components/Toggle'
 import { DocumentContext } from '../dashboard/hooks/DocumentContext'
 import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
+import PathRender from '../dashboard/MainMenu/PathRender'
+import { objIf } from '../../shared/generalUtils'
+import {
+  RedoIcon,
+  RefreshIcon,
+  UndoIcon,
+} from '../component-ai-assistant/utils'
+import { PrinterOutlined, SaveOutlined } from '@ant-design/icons'
+import { TemplatesDropdown } from '../dashboard/MainMenu/TemplatesDropdown'
+import { debounce } from 'lodash'
 
 // #region styles
 const StyledHeader = styled.header`
   align-items: center;
-  background-color: ${th('colorBody')};
+  background: var(--color-trois-lightest-2);
   display: flex;
-  flex-flow: row wrap;
   height: var(--header-height);
   justify-content: space-between;
   padding: 0 10px 0 0;
+  position: relative;
+  z-index: 999;
 `
 
 const Logo = styled.img`
@@ -30,6 +35,7 @@ const Logo = styled.img`
   height: 100%;
   margin: 0;
   object-fit: contain;
+  padding-inline: 5px 12px;
 `
 
 const UserMenu = styled.div`
@@ -39,46 +45,42 @@ const UserMenu = styled.div`
   height: 100%;
   justify-content: space-between;
 
-  .anticon svg {
-    height: 25px;
-    width: 25px;
-  }
-
   button {
     background: none;
     border: none;
     cursor: pointer;
 
     img {
-      height: 25px;
+      height: 22px;
       object-fit: contain;
-      width: 25px;
+      width: 22px;
     }
   }
 
-  > :first-child {
+  > :last-child {
     align-items: center;
-    border-right: 1px solid #0004;
+    border-left: 1px solid #0001;
     display: flex;
     gap: 10px;
     line-height: 1;
     padding: 0.7rem 20px;
-    /* width: 100px; */
   }
 `
 const DocumentInfoArea = styled(FlexCol)`
+  border-left: 1px solid #0001;
   gap: 2px;
   height: 100%;
   line-height: 1;
-  padding: 0 15px;
+  padding: 0 20px;
 
   > p {
     color: #222;
-    font-size: 18px;
+    font-size: 15px;
     margin: 0;
   }
 
   > small {
+    font-size: 10px;
     text-decoration: none;
   }
 `
@@ -90,6 +92,35 @@ const EditDesignLabels = styled(CleanButton)`
   transform: scale(${p => (p.$active ? '1' : '0.9')});
   transform-origin: center;
   transition: all 0.3s;
+`
+
+const DesignerActions = styled(FlexRow)`
+  /* background: var(--color-trois-lightest); */
+  border-radius: 1rem;
+  bottom: -40px;
+  gap: 12px;
+  height: 30px;
+  justify-content: center;
+  max-width: ${p => (p.$designerOn ? '300px' : '0')};
+  opacity: ${p => (p.$designerOn ? '1' : '0')};
+  padding: 0 0.5rem;
+  pointer-events: ${p => (p.$designerOn ? 'all' : 'none')};
+  /* position: absolute; */
+  /* right: 40px; */
+  transition: all 0.3s;
+  z-index: 88;
+
+  button {
+    padding: 0;
+  }
+
+  svg {
+    fill: var(--color-trois-opaque);
+    height: 16px;
+    transform: ${p => (p.$designerOn ? 'scale(1)' : 'scale(0)')};
+    transition: all 0.3s;
+    width: 16px;
+  }
 `
 // #endregion styles
 
@@ -104,45 +135,112 @@ const Header = props => {
     enableLogin,
     ...rest
   } = props
-  const { designerOn, setDesignerOn, updateLayout, docId } =
-    useContext(AiDesignerContext)
-  const { currentDoc } = useContext(DocumentContext)
 
-  useEffect(() => {
-    currentDoc?.title && (document.title = `${currentDoc.title} - Wax`)
-  }, [docId, currentDoc?.title])
+  const {
+    designerOn,
+    setDesignerOn,
+    updateLayout,
+    layout,
+    previewRef,
+    updatePreview,
+    onHistory,
+    css,
+  } = useAiDesignerContext()
+
+  const { currentDoc } = useContext(DocumentContext)
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
     !designerOn
-      ? updateLayout({ preview: true, editor: false })
-      : updateLayout({ preview: false, editor: true })
+      ? updateLayout({
+          preview: true,
+          editor: false,
+        })
+      : updateLayout({
+          preview: false,
+          editor: true,
+          ...objIf(layout.userMenu, {
+            snippetsManager: false,
+            codeEditor: false,
+            files: true,
+          }),
+        })
+    updatePreview(true, css)
   }
+
   return (
-    <StyledHeader role="banner" {...rest}>
+    <StyledHeader
+      role="banner"
+      style={objIf(!currentDoc?.title, { justifyContent: 'flex-start' })}
+      {...rest}
+    >
       <FlexRow style={{ gap: '0', height: '100%' }}>
         <Logo src={logoMobile} alt="Wax platform"></Logo>
-        {docId && currentDoc?.title && (
+        {currentDoc?.title && (
           <DocumentInfoArea>
-            <small>Editing:</small>
+            <small>Document:</small>
             <p>{currentDoc?.title}</p>
           </DocumentInfoArea>
         )}
       </FlexRow>
-      <UserMenu $designerOn={designerOn}>
-        <FlexRow>
-          <EditDesignLabels $active={!designerOn} $activecolor="#222">
-            Edit
-          </EditDesignLabels>
-          <Toggle handleChange={toggleDesigner} checked={designerOn} />
-          <EditDesignLabels
-            $active={designerOn}
-            $activecolor="var(--color-trois)"
-          >
-            Design
-          </EditDesignLabels>
-        </FlexRow>
-      </UserMenu>
+      {currentDoc?.title && (
+        <UserMenu $designerOn={designerOn}>
+          <DesignerActions $designerOn={designerOn}>
+            <UndoIcon
+              onClick={() => onHistory.apply('undo')}
+              title="Undo (Ctrl + z)"
+            />
+            <RedoIcon
+              onClick={() => onHistory.apply('redo')}
+              title="Redo (Ctrl + y)"
+            />
+            <RefreshIcon
+              onClick={updatePreview}
+              title="Update preview"
+              type="button"
+            />
+            <PrinterOutlined
+              as="button"
+              onClick={() => {
+                const body = previewRef?.current?.contentDocument.body
+                console.log({
+                  body,
+                })
+                body && (body.style.transform = 'scale(1)')
+                body && (body.style.padding = '0')
+                const selected = body.querySelectorAll('.selected-id')
+                selected.forEach(el => el.classList.remove('selected-id'))
+
+                previewRef?.current?.contentWindow?.print()
+                if (body) {
+                  selected.forEach(el => el.classList.add('selected-id'))
+                  body.style.padding = '50px 0 50px 50px'
+                  layout.userMenu
+                    ? (body.style.transform = 'scale(0.8)')
+                    : (body.style.transform = 'scale(1)')
+                }
+              }}
+              title="Print"
+              type="button"
+            />
+          </DesignerActions>
+          <FlexRow>
+            <EditDesignLabels $active={!designerOn} $activecolor="#222">
+              Edit
+            </EditDesignLabels>
+            <Toggle
+              handleChange={() => toggleDesigner()}
+              checked={designerOn}
+            />
+            <EditDesignLabels
+              $active={designerOn}
+              $activecolor="var(--color-trois)"
+            >
+              Design
+            </EditDesignLabels>
+          </FlexRow>
+        </UserMenu>
+      )}
     </StyledHeader>
   )
 }

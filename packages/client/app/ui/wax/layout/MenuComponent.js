@@ -1,3 +1,4 @@
+/* stylelint-disable string-quotes */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-underscore-dangle */
 
@@ -9,6 +10,7 @@ import { WaxContext, ApplicationContext } from 'wax-prosemirror-core'
 import styled from 'styled-components'
 import BlockDropDownComponent from './BlockDropDownComponent'
 import { FlexRow } from '../../_styleds/common'
+import JitsiMeetLink from '../../component-ai-assistant/components/JitsiMeetLink'
 
 const Menu = styled(FlexRow)`
   background: var(--color-trois-lightest);
@@ -16,15 +18,20 @@ const Menu = styled(FlexRow)`
   font-family: ${th('fontInterface')};
   font-size: 14px;
   height: fit-content;
+  margin-top: 5px;
   opacity: ${p => (p.openMenu ? '1' : '0')};
   overflow: ${p => (p.openMenu ? 'visible' : 'hidden')};
-  padding: 7px 8px;
+  padding: 5px 8px;
   transition: all 0.2s linear;
-  width: 100%;
-  z-index: 9999;
+  width: 98%;
+  z-index: 99;
 
   > * {
     border-color: var(--color-trois-light) !important;
+  }
+
+  [aria-pressed='true'] {
+    background: var(--color-trois-opaque-3);
   }
 
   > div:last-child {
@@ -34,14 +41,21 @@ const Menu = styled(FlexRow)`
 `
 
 const MenuToolGroup = styled.div`
+  --toolbar-icons-color: var(--color-trois-opaque-dark);
+
   align-items: center;
-  border-right: 1px solid;
+  border-right: 1px solid #0001;
   display: flex;
   height: 30px;
   padding: 0 4px;
 
   button {
+    color: var(--toolbar-icons-color);
     margin: 0 5px;
+
+    svg {
+      fill: var(--toolbar-icons-color);
+    }
   }
 
   .Dropdown-menu {
@@ -99,7 +113,6 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
   // const Images = app.container.get('Images')
   const SpecialCharacters = app.container.get('SpecialCharacters')
   const Tables = app.container.get('Tables')
-  // const ExternalAPIContent = app.container.get('ExternalAPIContent')
   const FindAndReplaceTool = app.container.get('FindAndReplaceTool')
   const FullScreen = app.container.get('FullScreen')
 
@@ -157,12 +170,10 @@ const MenuComponent = forwardRef(({ open, fullScreen }, ref) => {
         <MenuToolGroup>
           {Tables._tools.map(tool => tool.renderTool(activeView))}
         </MenuToolGroup>
-        {/* <MenuToolGroup>
-          {ExternalAPIContent._tools.map(tool => tool.renderTool(activeView))}
-        </MenuToolGroup> */}
         {FindAndReplaceComponent}
+        <JitsiMeetLink />
       </FlexRow>
-      <MenuToolGroup>
+      <MenuToolGroup style={{ paddingLeft: '80px' }}>
         {FullScreen._tools.map(tool => tool.renderTool(activeView))}
       </MenuToolGroup>
       {/* {open && (

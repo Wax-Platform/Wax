@@ -7,18 +7,16 @@ import config from './config/config'
 import layout from './layout'
 import YjsContext from '../../yjsProvider'
 import { Result, Spin } from '../common'
-import { AiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
+import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import useDomObserver from '../component-ai-assistant/hooks/useDOMObserver'
-import { snippetsToCssText } from '../component-ai-assistant/utils'
 import { debounce } from 'lodash'
 import AiDesigner from '../../AiDesigner/AiDesigner'
 
-import useAssistant from '../component-ai-assistant/hooks/useAiDesigner'
-import { FlexRow } from '../_styleds/common'
-// import { findChildNodeByIdentifier } from '../dashboard/DocTreeManager/utils'
-import { useDocTree } from '../dashboard/hooks/useDocTree'
+import { FlexRow, StyledWindow } from '../_styleds/common'
+import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
+import Files from '../dashboard/MainMenu/FileBrowser'
 
-const SpinnerWrapper = styled(FlexRow)`
+export const SpinnerWrapper = styled(FlexRow)`
   backdrop-filter: blur(3px);
   background: #fff9;
   height: 100%;
@@ -36,6 +34,12 @@ const SpinnerWrapper = styled(FlexRow)`
   }
 `
 
+const FileBrowser = styled(Files)`
+  --container-size: 30dvw;
+  max-width: 100%;
+  width: 80%;
+`
+
 const renderImage = file => {
   const reader = new FileReader()
 
@@ -49,14 +53,13 @@ const renderImage = file => {
 
 const PmEditor = ({ docIdentifier, showFilemanager }) => {
   const { createYjsProvider, yjsProvider, ydoc } = useContext(YjsContext)
+  const { setDocId, getDoc, fetchingTemplates, userSnippets } =
+    useDocumentContext()
 
-  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings, setDocId } =
-    useContext(AiDesignerContext)
-  const { getAidMisc, aidMisc, getCssTemplate } = useAssistant()
-  const { docTree } = useDocTree()
+  const { setHtmlSrc, htmlSrc, setEditorContent, css, settings } =
+    useAiDesignerContext()
 
   const { displayStyles } = settings.editor
-  const { snippets } = settings.snippetsManager
 
   const editorRef = useRef(null)
   useDomObserver({
@@ -72,19 +75,19 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
 
   useEffect(() => {
     if (htmlSrc) {
-      AiDesigner.addToContext({ aidctx: 'aid-ctx-main' })
+      AiDesigner.addToContext({ id: 'aid-ctx-main' })
       AiDesigner.select('aid-ctx-main')
     }
   }, [htmlSrc])
 
   const [showSpinner, setShowSpinner] = useState(false)
-  const [WaxConfig, setWaxConfig] = useState(null)
+  const [WaxConfig, setWaxConfig] = useState(config())
   const { refElement } = usePrintArea({})
 
   useEffect(() => {
     const handleMessage = e => {
-      const aidctx = e.data.aidctx
-      AiDesigner.select(aidctx)
+      const id = e.data.id
+      AiDesigner.select(id)
     }
 
     window.addEventListener('message', handleMessage)
@@ -93,86 +96,69 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
       window.removeEventListener('message', handleMessage)
     }
   }, [])
-  useEffect(async () => {
+
+  useEffect(() => {
     if (docIdentifier) {
+      setDocId(docIdentifier)
       yjsProvider?.disconnect()
       setShowSpinner(true)
+      getDoc(docIdentifier)
 
-      await debounce(async () => {
+      debounce(() => {
         createYjsProvider(docIdentifier)
-        await getAidMisc({
-          variables: {
-            input: { docId: docIdentifier },
-          },
-        })
-        setDocId(docIdentifier)
         setShowSpinner(false)
-      }, 1000)()
+      }, 2000)()
     }
-    // docTree &&
-    //   console.log('NODE', findChildNodeByIdentifier(docTree, docIdentifier))
-  }, [docIdentifier, docTree])
+  }, [docIdentifier])
 
   useEffect(() => {
-    aidMisc &&
-      getCssTemplate({
-        variables: { docId: docIdentifier },
-      })
-  }, [aidMisc])
-
-  useEffect(() => {
-    if (yjsProvider) {
+    if (yjsProvider && ydoc && docIdentifier) {
       const configObj = config(yjsProvider, ydoc, docIdentifier)
       setWaxConfig(configObj)
     }
   }, [yjsProvider?.doc?.guid])
 
-  let identifier = docIdentifier
-
-  if (!docIdentifier) {
-    identifier = Array.from(Array(20), () =>
-      Math.floor(Math.random() * 36).toString(36),
-    ).join('')
-
-    history.push(`/${identifier}`, { replace: true })
-    setDocId(identifier)
-    return true
-  }
-
-  if (!yjsProvider || !ydoc || !WaxConfig || !docIdentifier) return null
-
   return (
     <>
       {displayStyles && <style id="aid-css-template">{css}</style>}
-      {snippets && displayStyles && (
+      {userSnippets && displayStyles && (
         <style id="aid-snippets">
-          {snippetsToCssText(
-            snippets,
-            '.ProseMirror[contenteditable] .aid-snip-',
-          )}
+          {userSnippets.map(s => s.classBody.join('\n'))}
         </style>
       )}
-
-      <Wax
-        config={WaxConfig}
-        fileUpload={file => renderImage(file)}
-        layout={layout}
-        onChange={value => {
-          debounce(setEditorContent, 250)(value)
+      <span
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          width: '100%',
+          opacity: showSpinner ? 0.4 : 1,
+          transition: 'all 0.5s',
         }}
-        // readonly={!contentEditable}
-        placeholder="Type Something ..."
-        ref={refElement}
-        scrollThreshold={50}
-        showFilemanager
-      />
+      >
+        <Wax
+          config={WaxConfig}
+          fileUpload={file => renderImage(file)}
+          layout={layout}
+          onChange={value => {
+            setEditorContent(value)
+          }}
+          // readonly={!contentEditable}
+          placeholder="Type Something ..."
+          ref={refElement}
+          scrollThreshold={50}
+          docIdentifier={docIdentifier}
+        />
+      </span>
       <SpinnerWrapper
-        showSpinner={showSpinner}
+        showSpinner={showSpinner || fetchingTemplates}
         showFilemanager={showFilemanager}
       >
         <Result
           icon={<Spin size={18} spinning />}
-          title="Loading your document"
+          title={
+            fetchingTemplates ? 'Fetching templates' : 'Loading your document'
+          }
         />
       </SpinnerWrapper>
     </>

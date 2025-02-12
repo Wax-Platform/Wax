@@ -16,7 +16,7 @@ exports.up = async knex => {
       table.timestamp('updated', { useTz: true })
     })
   } catch (e) {
-    logger.error('Doc: Initial: Migration failed!')
+    // logger.error('Doc: Initial: Migration failed!')
     throw new Error(e)
   }
 }

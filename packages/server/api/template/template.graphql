@@ -1,0 +1,50 @@
+type Template {
+  id: ID!
+  userId: ID
+  docId: ID
+  fileId: ID
+  displayName: String!
+  category: String!
+  meta: String
+  status: String!
+  rawCss: String
+  isForked: Boolean
+  imageUrl: String
+}
+
+type Snippet {
+  id: ID!
+  classBody: String!
+  className: String!
+  displayName: String!
+  description: String!
+  meta: String!
+}
+
+input CreateTemplateInput {
+  docId: ID
+  fileId: ID
+  displayName: String!
+  category: String
+  meta: String
+  status: String
+  rawCss: String
+  resourceType: String
+  parentFolderId: ID
+}
+
+extend type Query {
+  getTemplate(id: ID!): Template
+  getSystemTemplates: [Template]
+  getUserTemplates: [Template]
+  getDocumentTemplates: [Template]
+  getUserSnippets: [Snippet]
+}
+
+extend type Mutation {
+  createTemplate(input: CreateTemplateInput!): ID
+  updateTemplateCss(id: ID, rawCss: String, displayName: String): ID
+  renameTemplate(id: ID, displayName: String): ID
+  deleteTemplate(id: ID): ID
+  fetchAndCreateTemplateFromUrl(url: String): Boolean!
+}

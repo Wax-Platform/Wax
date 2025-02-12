@@ -1,0 +1,459 @@
+/* red color */
+.red-color {
+    color: red;
+}
+
+/* - */
+
+/* Default styles for images */
+.img-default {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* - */
+
+/* Styles the table to resemble an Excel spreadsheet with professional styling. */
+.excel-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.excel-table th, .excel-table td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+.excel-table th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+.excel-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.excel-table tr:hover {
+    background-color: #f1f1f1;
+}
+.excel-table td {
+    font-family: Arial, sans-serif;
+}
+.excel-table th {
+    font-family: 'Calibri', sans-serif;
+    font-weight: bold;
+}
+
+/* - */
+
+/* Makes the text flow around the images */
+.text-flow-around-image img, .text-flow-around-image figure, .text-flow-around-image picture, .text-flow-around-image svg {
+    float: left;
+    margin-right: 2ch;
+}
+.text-flow-around-image p {
+    text-align: justify;
+}
+
+/* - */
+
+/* scales the element */
+.scale {
+    transform: scale(1.1);
+}
+
+/* - */
+
+/* grayscale the element */
+.grayscale {
+    filter: grayscale(100%);
+}
+
+/* - */
+
+/* Distinctive styling for quoted text */
+.quoted-text {
+    font-style: italic;
+    font-size: 14px;
+    margin-left: 20px;
+    padding: 10px 15px;
+    border-left: 5px solid #ccc;
+}
+
+/* - */
+
+/* Standardized heading styles */
+.heading-styles h1 {
+    font-size: 32px;
+    margin-top: 30px;
+}
+.heading-styles h2 {
+    font-size: 28px;
+    margin-top: 25px;
+}
+.heading-styles h3 {
+    font-size: 24px;
+    margin-top: 20px;
+}
+.heading-styles h4 {
+    font-size: 20px;
+    margin-top: 15px;
+}
+.heading-styles h5 {
+    font-size: 18px;
+    margin-top: 10px;
+}
+.heading-styles h6 {
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+/* - */
+
+/* Subtle underline for headings */
+.subtle-heading-underline {
+    text-decoration: none;
+    border-bottom: 1px solid #000;
+    padding-bottom: 5px;
+}
+
+/* - */
+
+/* Styling for book titles */
+.book-title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* - */
+
+/* Styling for author names */
+.author-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* - */
+
+/* Styling for chapter titles */
+.chapter-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* - */
+
+/* Styling for section labels */
+.section-label {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* - */
+
+/* Highlighting emphasized words */
+.emphasize-word {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* - */
+
+/* General styling for magazine articles */
+.magazine-article {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* - */
+
+/* Styling for article paragraphs */
+.article-paragraph {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+/* - */
+
+/* Styling for academic paragraphs */
+.academic-paragraph {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+/* - */
+
+/* Highlighting phrases within paragraphs */
+.highlighted-phrase {
+    background-color: yellow;
+    font-weight: bold;
+    padding: 2px 5px;
+}
+
+/* - */
+
+/* Styling for cited references */
+.cited-reference {
+    font-style: italic;
+    font-size: 13px;
+    color: #666;
+}
+
+/* - */
+
+/* Styling for list items */
+.list-item {
+    margin-bottom: 5px;
+    padding-left: 20px;
+    font-size: 14px;
+}
+
+/* - */
+
+/* Styling for block quotes */
+.block-quote {
+    font-style: italic;
+    font-size: 18px;
+    margin-left: 20px;
+    padding: 10px 15px;
+    border-left: 5px solid #ccc;
+}
+
+/* - */
+
+/* Styling for small print or footnotes */
+.small-print {
+    font-size: 11px;
+    color: #888;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+/* - */
+
+/* Styling for legal text */
+.legal-text {
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+/* - */
+
+/* Styling for definition terms */
+.definition-term {
+    font-weight: bold;
+    font-size: 14px;
+    color: #0056b3;
+}
+
+/* - */
+
+/* Styling for example code blocks */
+.example-code {
+    background-color: #f5f5f5;
+    font-family: monospace;
+    padding: 10px;
+    overflow-x: auto;
+}
+
+/* - */
+
+/* Responsive image scaling */
+.responsive-image {
+    max-width: 100%;
+    height: auto;
+}
+
+/* - */
+
+/* Grid layout for image gallery */
+.image-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* - */
+
+/* Polaroid-style image effect */
+.polaroid-effect {
+    border: 10px solid white;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+}
+
+/* - */
+
+/* Background blur effect for images */
+.blur-background {
+    filter: blur(5px);
+}
+
+/* - */
+
+/* Hover animation for images */
+.hover-animation {
+    transition: transform 0.3s ease-in-out;
+}
+.hover-animation:hover {
+    transform: scale(1.05);
+}
+
+/* - */
+
+/* Rounded corners for images */
+.rounded-corners {
+    border-radius: 15px;
+}
+
+/* - */
+
+/* Drop shadow effect for images */
+.shadow-effect {
+    box-shadow: 10px 10px 5px grey;
+}
+
+/* - */
+
+/* Centering an image */
+.centered-image {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* - */
+
+/* Darken image on hover */
+.darken-on-hover:hover {
+    filter: brightness(50%);
+}
+
+/* - */
+
+/* Gradient border around images */
+.gradient-border {
+    border: 5px solid transparent;
+    border-image-slice: 1;
+    border-radius: 15px;
+}
+.gradient-border:after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    bottom: -5px;
+    right: -5px;
+    border: 5px solid transparent;
+    border-image-source: linear-gradient(to right, red, blue);
+    z-index: -1;
+}
+
+/* - */
+
+/* Text color gradients for headings */
+.gradient-heading {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-size: 36px;
+    line-height: 40px;
+}
+
+/* - */
+
+/* Adding shadows to text */
+.shadow-text {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* - */
+
+/* Responsive heading design */
+.responsive-headings {
+    font-size: clamp(1rem, 5vw, 1.5rem);
+}
+
+/* - */
+
+/* Multiple colored text shadows */
+.multi-shadows {
+    text-shadow: 2px 2px 4px #ff0000, 4px 4px 6px #00ff00, 6px 6px 8px #0000ff;
+}
+
+/* - */
+
+/* Uppercase text for headings */
+.uppercase-heading {
+    text-transform: uppercase;
+}
+
+/* - */
+
+/* Italic text for headings */
+.italic-heading {
+    font-style: italic;
+}
+
+/* - */
+
+/* Bold text for headings */
+.bold-heading {
+    font-weight: bold;
+}
+
+/* - */
+
+/* Underlined text for headings */
+.underlined-heading {
+    text-decoration: underline;
+}
+
+/* - */
+
+/* A snippet to style the ordered list like a restaurant menu, removing list markers and adding menu-like appearance. */
+.menu-style {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+.menu-style li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+.menu-style li:last-child {
+    border-bottom: none;
+}
+.menu-style p {
+    margin: 0;
+    padding: 5px 0;
+}
+.menu-style strong {
+    display: block;
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 5px;
+}
+.menu-style ol {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* - */
+
+/* This snippet styles the paragraph to look like an h1 element. */
+.paragraph-as-h1 {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 0.67em 0;
+    text-align: left;
+}

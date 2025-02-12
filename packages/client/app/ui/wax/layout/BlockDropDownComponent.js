@@ -6,88 +6,91 @@ import React, {
   useEffect,
   useRef,
   createRef,
-} from 'react';
-import { isEmpty } from 'lodash';
-import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
+} from 'react'
+import { isEmpty } from 'lodash'
+import styled from 'styled-components'
+import { useTranslation } from 'react-i18next'
 import {
   DocumentHelpers,
   WaxContext,
   ApplicationContext,
   Icon,
   useOnClickOutside,
-} from 'wax-prosemirror-core';
+} from 'wax-prosemirror-core'
 
 const Wrapper = styled.div`
-  opacity: ${props => (props.disabled ? '0.4' : '1')};
   display: flex;
-`;
+  opacity: ${props => (props.disabled ? '0.4' : '1')};
+`
 
 const ButtonWrapper = styled.div`
+  align-items: center;
   display: flex;
   justify-content: center;
-  align-items: center;
-`;
+`
 
 const DropDownButton = styled.button`
-  background: #fff;
+  background: #fff0;
   border: none;
   color: #000;
   cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
   display: flex;
-  width: 160px;
+  width: 130px;
 
   span {
     position: relative;
     top: 2px;
   }
-`;
+`
 
 const DropDownMenu = styled.div`
-  visibility: ${props => (props.isOpen ? 'visible' : 'hidden')};
-  background: #fff;
-  display: flex;
-  flex-direction: column;
+  background-color: var(--color-trois-lightest);
   border: 1px solid #ddd;
   border-radius: 0.25rem;
   box-shadow: 0 0.2rem 0.4rem rgb(0 0 0 / 10%);
+  color: var(--color-trois-opaque);
+  display: flex;
+  flex-direction: column;
   margin: 32px auto auto;
-  position: absolute;
-  width: 160px;
   max-height: 180px;
   overflow-y: auto;
+  position: absolute;
+  visibility: ${props => (props.isOpen ? 'visible' : 'hidden')};
+  width: 160px;
   z-index: 2;
 
   option {
+    color: var(--toolbar-icons-color);
     cursor: pointer;
     padding: 8px 10px;
   }
 
   option:focus,
   option:hover {
-    background: #f2f9fc;
-    outline: 2px solid #f2f9fc;
+    background: var(--color-trois-alpha);
   }
+
   option:disabled {
-    opacity: 0.3;
     cursor: not-allowed;
+    opacity: 0.3;
   }
-`;
+`
 
 const StyledIcon = styled(Icon)`
   height: 18px;
-  width: 18px;
   margin-left: auto;
-`;
+  pointer-events: none;
+  width: 18px;
+`
 
 const BlockDropDownComponent = ({ view, tools }) => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation()
 
   const translatedLabel = (translation, defaultLabel) => {
     return !isEmpty(i18n) && i18n.exists(translation)
       ? t(translation)
-      : defaultLabel;
-  };
+      : defaultLabel
+  }
 
   const dropDownOptions = [
     {
@@ -115,57 +118,57 @@ const BlockDropDownComponent = ({ view, tools }) => {
     //   value: '13',
     //   item: tools[13],
     // },
-  ];
+  ]
 
-  const context = useContext(WaxContext);
-  const { app } = useContext(ApplicationContext);
+  const context = useContext(WaxContext)
+  const { app } = useContext(ApplicationContext)
   const {
     activeView,
     activeViewId,
     pmViews: { main },
-  } = context;
-  const [label, setLabel] = useState(null);
-  const { state } = view;
+  } = context
+  const [label, setLabel] = useState(null)
+  const { state } = view
 
   /* Chapter Title */
   const titleNode = DocumentHelpers.findChildrenByType(
     state.doc,
     state.config.schema.nodes.title,
     true,
-  );
-  const titleConfig = app.config.get('config.TitleService');
+  )
+  const titleConfig = app.config.get('config.TitleService')
 
-  let chapterTitle = '';
-  if (titleNode[0]) chapterTitle = titleNode[0].node.textContent;
+  let chapterTitle = ''
+  if (titleNode[0]) chapterTitle = titleNode[0].node.textContent
 
   useEffect(() => {
     if (titleConfig) {
       if (titleNode[0]) {
-        titleConfig.updateTitle(titleNode[0].node.textContent);
+        titleConfig.updateTitle(titleNode[0].node.textContent)
       } else {
-        titleConfig.updateTitle('');
+        titleConfig.updateTitle('')
       }
     }
-  }, [chapterTitle]);
+  }, [chapterTitle])
 
-  const itemRefs = useRef([]);
-  const wrapperRef = useRef();
-  const [isOpen, setIsOpen] = useState(false);
+  const itemRefs = useRef([])
+  const wrapperRef = useRef()
+  const [isOpen, setIsOpen] = useState(false)
   const isEditable = main.props.editable(editable => {
-    return editable;
-  });
+    return editable
+  })
 
-  const isDisabled = !isEditable;
+  const isDisabled = !isEditable
 
-  useOnClickOutside(wrapperRef, () => setIsOpen(false));
-
-  useEffect(() => {
-    if (isDisabled) setIsOpen(false);
-  }, [isDisabled]);
+  useOnClickOutside(wrapperRef, () => setIsOpen(false))
 
   useEffect(() => {
-    setLabel(translatedLabel('Wax.BlockLevel.Block Level', 'Block Tools'));
-    let delayedSetLabel = () => true;
+    if (isDisabled) setIsOpen(false)
+  }, [isDisabled])
+
+  useEffect(() => {
+    setLabel(translatedLabel('Wax.BlockLevel.Block Level', 'Block Tools'))
+    let delayedSetLabel = () => true
     dropDownOptions.forEach(option => {
       if (option.item.active(main.state, activeViewId)) {
         delayedSetLabel = setTimeout(() => {
@@ -174,54 +177,50 @@ const BlockDropDownComponent = ({ view, tools }) => {
               `Wax.BlockLevel.${option.item.label}`,
               option.item.label,
             ),
-          );
-        });
+          )
+        })
       }
-    });
-    return () => clearTimeout(delayedSetLabel);
+    })
+    return () => clearTimeout(delayedSetLabel)
   }, [
     main.state.selection.$from.parent.type.name,
     t('Wax.BlockLevel.Paragraph'),
-  ]);
+  ])
 
-  const openCloseMenu = () => {
-    if (!isDisabled) setIsOpen(!isOpen);
-    if (isOpen)
-      setTimeout(() => {
-        activeView.focus();
-      });
-  };
+  const openCloseMenu = e => {
+    setIsOpen(!isOpen)
+  }
 
   const onKeyDown = (e, index) => {
-    e.preventDefault();
+    e.preventDefault()
     // arrow down
     if (e.keyCode === 40) {
       if (index === itemRefs.current.length - 1) {
-        itemRefs.current[0].current.focus();
+        itemRefs.current[0].current.focus()
       } else {
-        itemRefs.current[index + 1].current.focus();
+        itemRefs.current[index + 1].current.focus()
       }
     }
 
     // arrow up
     if (e.keyCode === 38) {
       if (index === 0) {
-        itemRefs.current[itemRefs.current.length - 1].current.focus();
+        itemRefs.current[itemRefs.current.length - 1].current.focus()
       } else {
-        itemRefs.current[index - 1].current.focus();
+        itemRefs.current[index - 1].current.focus()
       }
     }
 
     // enter
     if (e.keyCode === 13) {
-      itemRefs.current[index].current.click();
+      itemRefs.current[index].current.click()
     }
 
     // ESC
     if (e.keyCode === 27) {
-      setIsOpen(false);
+      setIsOpen(false)
     }
-  };
+  }
 
   const MultipleDropDown = useMemo(
     () => (
@@ -234,13 +233,13 @@ const BlockDropDownComponent = ({ view, tools }) => {
             disabled={isDisabled}
             onKeyDown={e => {
               if (e.keyCode === 40) {
-                itemRefs.current[0].current.focus();
+                itemRefs.current[0].current.focus()
               }
               if (e.keyCode === 27) {
-                setIsOpen(false);
+                setIsOpen(false)
               }
               if (e.keyCode === 13 || e.keyCode === 32) {
-                setIsOpen(true);
+                setIsOpen(true)
               }
             }}
             onMouseDown={openCloseMenu}
@@ -257,7 +256,7 @@ const BlockDropDownComponent = ({ view, tools }) => {
           role="menu"
         >
           {dropDownOptions.map((option, index) => {
-            itemRefs.current[index] = itemRefs.current[index] || createRef();
+            itemRefs.current[index] = itemRefs.current[index] || createRef()
             return (
               <option
                 disabled={
@@ -268,10 +267,10 @@ const BlockDropDownComponent = ({ view, tools }) => {
                   )
                 }
                 key={option.value}
-                onClick={() => {
-                  tools[option.value].run(main.state, main.dispatch);
+                onMouseDown={() => {
+                  tools[option.value].run(main.state, main.dispatch)
 
-                  openCloseMenu();
+                  openCloseMenu()
                 }}
                 onKeyDown={e => onKeyDown(e, index)}
                 ref={itemRefs.current[index]}
@@ -280,15 +279,15 @@ const BlockDropDownComponent = ({ view, tools }) => {
               >
                 {option.label}
               </option>
-            );
+            )
           })}
         </DropDownMenu>
       </Wrapper>
     ),
     [isDisabled, isOpen, label, t('Wax.BlockLevel.Paragraph')],
-  );
+  )
 
-  return MultipleDropDown;
-};
+  return MultipleDropDown
+}
 
-export default BlockDropDownComponent;
+export default BlockDropDownComponent

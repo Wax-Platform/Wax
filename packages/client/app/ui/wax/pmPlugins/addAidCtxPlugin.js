@@ -13,7 +13,7 @@ function addAidctxPlugin() {
           const { tr } = state
           const n = e.target.pmViewDesc.node
           const { attrs } = n || {}
-          const aidCtx = attrs?.dataset?.aidctx
+          const aidCtx = attrs?.dataset?.id
 
           const pos = view.posAtCoords({
             left: e.clientX,
@@ -43,8 +43,8 @@ function addAidctxPlugin() {
             }
 
             if (node && !node.isText) {
-              const aidctx = aidCtx || node.attrs?.dataset?.aidctx
-              AiDesigner.select(aidctx)
+              const id = aidCtx || node.attrs?.dataset?.id
+              AiDesigner.select(id)
             }
           }
 
@@ -57,19 +57,19 @@ function addAidctxPlugin() {
 
     //     newState.doc.descendants((node, pos) => {
     //       if (node.isText) return
-    //       let aidctx = node.attrs.dataset?.aidctx
-    //       if (!aidctx) {
-    //         aidctx = AiDesigner.idGen('')
+    //       let id = node.attrs.dataset?.id
+    //       if (!id) {
+    //         id = AiDesigner.idGen('')
 
     //         tr.setNodeMarkup(pos, null, {
     //           ...node.attrs,
     //           dataset: {
     //             ...node.attrs.dataset,
-    //             aidctx,
+    //             id,
     //           },
     //         })
-    //         if (aidctx && !AiDesigner.getBy({ aidctx })) {
-    //           AiDesigner.addToContext({ aidctx })
+    //         if (id && !AiDesigner.getBy({ id })) {
+    //           AiDesigner.addToContext({ id })
     //         }
     //       }
     //     })

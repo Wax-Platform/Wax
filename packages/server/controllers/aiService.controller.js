@@ -17,6 +17,7 @@ const models = {
     apiKey: OPENAI_API_KEY,
     completions: {
       'gpt-4o': 'https://api.openai.com/v1/chat/completions',
+      'o3-mini': 'https://api.openai.com/v1/chat/completions',
     },
     embeddings: {
       'text-embedding-3-small': 'https://api.openai.com/v1/embeddings',

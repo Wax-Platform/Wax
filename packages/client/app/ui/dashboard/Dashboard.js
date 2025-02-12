@@ -1,16 +1,20 @@
 import React, { useEffect } from 'react'
 import PmEditor from '../wax/PmEditor'
-import useLoadFirstDocument from '../_helpers/useLoadFirstDocument'
-import { useDocTree } from './hooks/useDocTree'
+import { useParams } from 'react-router-dom'
+import { useDocumentContext } from './hooks/DocumentContext'
+import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 
 const Dashboard = ({ showFilemanager, enableLogin }) => {
-  const { getDocTreeData } = useDocTree()
-
-  const docIdentifier = useLoadFirstDocument(getDocTreeData)
-
+  const { docIdentifier } = useParams()
+  const { selectedTemplate } = useDocumentContext()
+  const { setCss } = useAiDesignerContext()
   localStorage.removeItem('nextDocument')
 
-  if (!docIdentifier) return null
+  useEffect(() => {
+    if (selectedTemplate) {
+      setCss(selectedTemplate.rawCss)
+    }
+  }, [selectedTemplate?.rawCss])
 
   return (
     <PmEditor
@@ -20,9 +24,5 @@ const Dashboard = ({ showFilemanager, enableLogin }) => {
     />
   )
 }
-
-Dashboard.propTypes = {}
-
-Dashboard.defaultProps = {}
 
 export default Dashboard

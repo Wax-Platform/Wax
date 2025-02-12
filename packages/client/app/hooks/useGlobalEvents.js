@@ -1,8 +1,7 @@
+import { useEffect } from 'react'
 import { isFunction } from 'lodash'
 import { onEntries } from '../shared/generalUtils'
-import GlobalState from './GlobalState'
-
-const { useEffect } = require('react')
+import GlobalState from '../shared/GlobalState'
 
 /**
  * Custom hook to handle event listener addition for GlobalState.

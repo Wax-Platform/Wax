@@ -1,6 +1,6 @@
 const { modelTypes } = require('@coko/server')
 const UserModel = require('@coko/server/src/models/user/user.model')
-
+const ResourceTree = require('../resourceTree/resourceTree.model')
 const { stringNullable } = modelTypes
 
 class User extends UserModel {
@@ -13,6 +13,19 @@ class User extends UserModel {
         userName: stringNullable,
         displayName: stringNullable,
         color: stringNullable,
+      },
+    }
+  }
+
+  static get relationMappings() {
+    return {
+      resources: {
+        relation: UserModel.HasManyRelation,
+        modelClass: ResourceTree,
+        join: {
+          from: 'users.id',
+          to: 'resource_tree.userId',
+        },
       },
     }
   }

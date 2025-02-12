@@ -15,6 +15,7 @@ import '@fontsource/recursive/variable-full.css'
 
 export default createGlobalStyle`
   #root {
+    --button-shadow: -1px 1px 4px 0 #0001, inset 0 0 2px 0 #fff3;
     --color-yellow: #fbcd55;
     --color-yellow-dark: #a27400;
     --color-orange: #fe7b4d;
@@ -36,7 +37,7 @@ export default createGlobalStyle`
     --color-orange-alpha-2: #fe7b4d11;
     --color-green-alpha-2: #6fab6a11;
     --color-blue-alpha-2: #21799e11;
-    --scrollbar: #a34ba160;
+    --scrollbar: #a34ba11d;
 
     /* Coko colors */
 
@@ -46,12 +47,20 @@ export default createGlobalStyle`
     --color-purple: #612e61;
     --color-primary: #21b1acff;
     --color-primary-dark: #187f7cff;
+    --color-red: #ce4343;
     --color-secondary: #e177a2ff;
     --color-secondary-fade: #e0387a0d;
     --color-trois: #a34ba1;
+    --color-trois-opaque: #aa79aa;
+    --color-trois-opaque-2: #9386ad;
+    --color-trois-opaque-dark: #7c6f99;
+    --color-trois-opaque-3: #e6e2ed;
+    /* --color-trois-opaque: #936a93; */
     --color-trois-light: #d3afd2;
     --color-trois-lighter: #decfde;
     --color-trois-lightest: #f2eff5;
+    --color-trois-lightest-2: #fbf8fd;
+    --color-trois-lightest-3: #bc0bc205;
     --color-trois-dark: #6d336c;
     --color-trois-alpha: #a34ba129;
  

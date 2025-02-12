@@ -1,8 +1,7 @@
 /* eslint-disable camelcase */
-import { useContext, useEffect } from 'react'
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
-import { debounce, takeRight } from 'lodash'
-import { AiDesignerContext } from './AiDesignerContext'
+import { create, debounce, takeRight } from 'lodash'
+import { useAiDesignerContext } from './AiDesignerContext'
 import { GET_SETTINGS, UPDATE_SETTINGS } from '../queries/settings'
 import {
   CALL_AI_SERVICE,
@@ -15,6 +14,7 @@ import {
   AiDesignerSystem,
   addElement,
   callOn,
+  createOrUpdateStyleSheet,
   filterKeys,
   finishReasons,
   getNodes,
@@ -28,11 +28,8 @@ import {
   GET_FILES_FROM_DOCUMENT,
 } from '../queries/documentAndSections'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
-import {
-  GET_AID_MISC,
-  GET_AID_MISC_BY_ID,
-  GET_CSS,
-} from '../../../graphql/aiDesignerMisc'
+
+import { useDocumentContext } from '../../dashboard/hooks/DocumentContext'
 
 const voidElements = [
   'area',
@@ -53,35 +50,33 @@ const voidElements = [
 
 const useAssistant = () => {
   const {
-    setCss,
     htmlSrc,
     onHistory,
     history,
     setEditorContent,
     setUserPrompt,
-    addSnippet,
     editorContent,
     selectedCtx,
     setFeedback,
-    userPrompt,
+    // userPrompt,
     markedSnippet,
+    setMarkedSnippet,
     userImages,
     setUserImages,
     updatePreview,
     settings,
-    setSettings,
     css,
+    setCss,
     useRag,
     model,
-    docId,
-  } = useContext(AiDesignerContext)
+  } = useAiDesignerContext()
+
+  const { createResource, updateTemplateCss, getUserSnippets } =
+    useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
 
   const client = useApolloClient()
-  // useEffect(() => {
-  //   console.log('selected:', selectedCtx)
-  // }, [selectedCtx])
 
   const [getSettings] = useLazyQuery(GET_SETTINGS)
 
@@ -102,20 +97,70 @@ const useAssistant = () => {
       // eslint-disable-next-line camelcase
       const { message, finish_reason } = JSON.parse(aiService)
       const response = safeParse(message.content, 'default')
-      const isSingleNode = selectedCtx.aidctx !== 'aid-ctx-main'
+      const isSingleNode = selectedCtx.id !== 'aid-ctx-main'
 
       if (isSingleNode || response?.css) {
         onHistory.addRegistry('undo')
         history.current.source.redo = []
       }
-
       const actions = {
         css: val => {
-          getCssTemplate({ variables: { docId, css: val } })
+          const { toReplace = [], toAdd } = safeParse(val)
+          let clonedCss = css
+          toReplace.forEach(({ previous, newCss }) => {
+            clonedCss = clonedCss.replace(previous, newCss)
+          })
+          toAdd && (clonedCss += `\n${toAdd}`)
+          setCss(clonedCss)
+          debounce(() => updatePreview(true, clonedCss), 1000)()
+          AiDesigner.emit('updateCss', clonedCss)
         },
-        snippet: val => {
-          addSnippet(true, val)
-          updatePreview(true)
+        snippet: snippet => {
+          // console.log({ snippet, markedSnippet })
+          if (!['classBody', 'description'].every(k => snippet[k])) return
+
+          if (markedSnippet?.id) {
+            // console.log('updating snippet', snippet)
+            const rawCss = snippet.classBody
+            const meta = JSON.stringify({
+              className: markedSnippet.className,
+              description: snippet?.description,
+            })
+
+            updateTemplateCss({
+              variables: {
+                id: markedSnippet.id,
+                rawCss: rawCss,
+                meta,
+              },
+            })
+
+            setMarkedSnippet(prev => ({
+              ...prev,
+              classBody: rawCss,
+              description: snippet.description,
+            }))
+          } else {
+            // console.log('creating snippet', snippet)
+            createResource('snippet', {
+              resourceType: 'snippet',
+              extension: 'snip',
+              title: snippet?.displayName,
+              templateProps: JSON.stringify({
+                displayName: snippet?.displayName,
+                rawCss: snippet?.classBody,
+                meta: JSON.stringify({
+                  className: snippet.className,
+                  description: snippet.description,
+                }),
+                category: 'user-snippets',
+                status: 'private',
+              }),
+            })()
+
+            selectedCtx.snippets.add(`${snippet.className}`)
+            debounce(getUserSnippets, 2500)()
+          }
         },
         feedback: val => {
           selectedCtx.conversation.push({ role: 'assistant', content: val })
@@ -125,7 +170,7 @@ const useAssistant = () => {
           setEditorContent(
             parseContent(editorContent, dom => {
               const selectedElement = dom.querySelector(
-                `[data-aidctx="${selectedCtx.aidctx}"]`,
+                `[data-id="${selectedCtx.id}"]`,
               )
 
               selectedElement && (selectedElement.innerHTML = val)
@@ -135,9 +180,7 @@ const useAssistant = () => {
         insertHtml: val => {
           setEditorContent(
             parseContent(editorContent, doc => {
-              const node = doc.querySelector(
-                `[data-aidctx="${selectedCtx.aidctx}"]`,
-              )
+              const node = doc.querySelector(`[data-id="${selectedCtx.id}"]`)
 
               addElement(node, {
                 ...val,
@@ -181,8 +224,7 @@ const useAssistant = () => {
         callOn(action, actions, [response[action]])
         actionsApplied?.push(action)
       })
-
-      updatePreview(true)
+      // console.log({ response, actionsApplied })
     },
   })
 
@@ -204,27 +246,10 @@ const useAssistant = () => {
   const [ragSearchQuery, { loading: ragSearchLoading }] =
     useLazyQuery(RAG_SEARCH_QUERY)
 
-  const [getAidMisc, { data: aidMisc }] = useMutation(GET_AID_MISC, {
-    onCompleted: ({ getOrCreateAidMisc: { snippets, templates } }) => {
-      setSettings(prev => {
-        const temp = prev
-        temp.snippetsManager.snippets = snippets
-        return temp
-      })
-      console.log(templates)
-    },
-  })
-  const [getAidMiscById] = useLazyQuery(GET_AID_MISC_BY_ID)
-  const [getCssTemplate] = useLazyQuery(GET_CSS, {
-    onCompleted: async ({ getCssTemplate: { css } }) => {
-      setCss(css)
-      updatePreview(true)
-    },
-  })
-
   // #endregion GQL Hooks ----------------------------------------------------------------
 
   const handleSend = async e => {
+    const userPrompt = document.getElementById('user-prompt').value
     if (loading || userPrompt?.length < 2) return
     e?.preventDefault()
     setFeedback(userPrompt)
@@ -237,17 +262,12 @@ const useAssistant = () => {
     const clampedHistory =
       takeRight(selectedCtx.conversation, settings.chat.historyMax) || []
 
+    const ContextIsNotDocument = selectedCtx?.id !== 'aid-ctx-main'
     const systemPayload = {
       ctx: AiDesigner.selected,
       sheet: css,
-      selectors: getNodes(htmlSrc, '*', 'localName'),
-      providedText:
-        selectedCtx?.aidctx !== 'aid-ctx-main' && selectedCtx.node.innerHTML,
+      providedText: ContextIsNotDocument && selectedCtx.node.innerHTML,
       markedSnippet,
-      snippets:
-        selectedCtx?.aidctx !== 'aid-ctx-main' &&
-        settings.snippetsManager.snippets,
-      waxClass: '.ProseMirror[contenteditable]',
     }
 
     selectedCtx.conversation.push({ role: 'user', content: userPrompt })
@@ -278,7 +298,7 @@ const useAssistant = () => {
         model,
       },
     })
-    setUserPrompt('')
+    document.getElementById('user-prompt').value = ''
   }
 
   const updateImageUrl = async (imagekey, cb) =>
@@ -319,10 +339,6 @@ const useAssistant = () => {
     handleSend,
     updateImageUrl,
     handleImageUpload,
-    getAidMisc,
-    getAidMiscById,
-    aidMisc,
-    getCssTemplate,
   }
 
   return values

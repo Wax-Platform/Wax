@@ -14,9 +14,9 @@ export const insertImageAfterNode = imgAttrs => {
   const { state, dispatch } = view
   const { tr, doc, schema } = state
 
-  const { aidctx } = AiDesigner.selected
+  const { id } = AiDesigner.selected
 
-  const { pos } = findInPmDoc(doc, aidctx) || {}
+  const { pos } = findInPmDoc(doc, id) || {}
 
   const $pos = state.doc.resolve(pos)
   const imageNode = schema.nodes.image.create({
@@ -89,46 +89,61 @@ export const getAllDescendants = node => {
 export const findInPmDoc = (doc, ref) => {
   const found = []
   doc.descendants((node, pos) => {
-    if (node?.attrs?.dataset?.aidctx === ref) {
+    if (node?.attrs?.dataset?.id === ref) {
       found.push({ node, pos })
     }
   })
   return found
 }
-export const findInDom = aidctx =>
-  document.querySelector(`[data-aidctx="${aidctx}"]`)
+export const findInDom = id => document.querySelector(`[data-id="${id}"]`)
 
 export const addClass = (method, classNames, selected) => {
   if (!AiDesigner?.states?.view) return
 
   const { view } = AiDesigner.states
-  const { aidctx } = selected || {}
-  const domNode = findInDom(aidctx)
+  const { id } = selected || {}
+  const domNode = findInDom(id)
   const { tr, doc } = view.state
 
-  const [firstFound] = findInPmDoc(doc, aidctx) || []
-  const { node, pos } = firstFound
+  const node = getAllDescendants(view.docView).find(el =>
+    el?.nodeDOM?.dataset?.id?.includes(id),
+  )
+  const pos = node.posBefore
 
-  if (pos === null || !domNode) return
-  // const resolvedPos = doc.resolve(pos)
-  //   const pmNode = resolvedPos.node()
+  // console.log({ node, pos })
+  // console.log({ descendants: getAllDescendants(view.docView), doc, view })
+
+  // if (!Number(pos) || !domNode) return
+  // const resolvedPos =
+  // console.log({ resolvedPos })
+  const pmNode = doc.resolve(pos).node()
+  const safeNode = node.node || pmNode
+
+  console.log({ safeNode })
 
   const classes = isArray(classNames)
     ? classNames
     : classNames?.split(' ') ?? []
 
   const domClasses = SET(domNode?.className?.split(' ') || [])
+  classes.forEach(className => {
+    domClasses[method](className)
+  })
 
-  classes.forEach(domClasses[method]) // add, remove or toggle
   const updatedClasses = [...domClasses].join(' ')
 
   tr.setNodeMarkup(pos, null, {
-    ...node.attrs,
-    dataset: { aidctx },
+    ...safeNode.attrs,
+    dataset: { id },
     class: updatedClasses,
   })
 
   view.dispatch(tr)
 
-  AiDesigner.emit('snippets', updatedClasses, AiDesigner.selected)
+  AiDesigner.emit('snippets', {
+    updatedClasses,
+    selected: AiDesigner.selected.id,
+    classes,
+    method,
+  })
 }

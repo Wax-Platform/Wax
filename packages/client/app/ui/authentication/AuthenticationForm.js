@@ -73,7 +73,7 @@ const AuthenticationForm = props => {
       >
         {children}
 
-        <SubmitButton htmlType="submit" loading={loading} type="primary">
+        <SubmitButton htmlType="submit" loading={!!loading} type="primary">
           {submitButtonLabel}
         </SubmitButton>
       </Form>

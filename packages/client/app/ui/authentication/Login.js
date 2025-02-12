@@ -40,7 +40,7 @@ const Login = props => {
           alternativeActionLink="/signup"
           errorMessage={errorMessage}
           hasError={hasError}
-          loading={loading}
+          loading={!!loading}
           onSubmit={onSubmit}
           showForgotPassword
           submitButtonLabel="Log in"

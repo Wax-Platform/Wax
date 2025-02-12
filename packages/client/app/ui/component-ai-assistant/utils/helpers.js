@@ -12,7 +12,17 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
     <!DOCTYPE html>
     <html>
     <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <script src="https://unpkg.com/pagedjs@0.4.3/dist/paged.polyfill.js"></script>
+            <script>
+
+        window.PagedConfig || {
+		auto: true,
+    before: window.parent.postMessage({loaded:false}, '*'),
+		after: window.parent.postMessage({loaded:true}, '*'),
+	};
+
+      </script>
       <style>
         ${template}
         ${css.replace('#body', 'body') || ''}
@@ -20,37 +30,7 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
     </head>
     <body>
       ${htmlSrc}
-      <script>
-          window.addEventListener('click', (event) => {
-              const { target } = event;
-            if (!target.hasAttribute('data-aidctx')) event.preventDefault();
-              let aidctx = event.target.getAttribute('data-aidctx') || event.target.parentElement.getAttribute('data-aidctx');
-              if (event.target.contains(document.documentElement.querySelector('.pagedjs_page_content'))) {aidctx = 'aid-ctx-main'}
-              if (aidctx) {
-                document.documentElement.querySelector('.selected-aidctx')?.classList.remove('selected-aidctx')
-                aidctx !== 'aid-ctx-main' && document.documentElement.querySelector('[data-aidctx="' + aidctx + '"]').classList.add('selected-aidctx')
-                window.parent.postMessage({ aidctx }, '*')
-              };
-          });
-        document.addEventListener("DOMContentLoaded", () => {
-          const scopeIsReady = document.getElementById("css-assistant-scope")
 
-          try {
-            scopeIsReady && PagedPolyfill.preview(scopeIsReady);
-          }
-          catch (e) { 
-            window.parent.console.log(e)
-          }
-
-          setTimeout(() => document.documentElement.scrollTo(0, ${scrollPos}), 200)
-        });
-
-          document.addEventListener("scroll", () => {
-            if(document.documentElement.scrollTop < 10) {
-              document.documentElement.scrollTo(0, 10)
-            }
-          })
-      </script>
     </body>
     </html>
 `
@@ -150,10 +130,7 @@ export const setImagesDefaultStyles = node => {
 // #region SNIPPETS
 export const getNodes = (src, selector, prop) =>
   [...src.querySelectorAll(selector)]?.map(el => el[prop] ?? el)
-export const snippetsToCssText = (
-  snippets,
-  prefix = 'div#assistant-ctx .aid-snip-',
-) =>
+export const snippetsToCssText = (snippets, prefix = 'div#assistant-ctx ') =>
   snippets
     .map(({ className, description, classBody }) =>
       className
@@ -169,7 +146,7 @@ export const snippetsToCssText = (
 
 export const getSnippetsByNode = (node, snippets) => {
   if (!node) return
-  const classList = [...node.classList].map(c => c.replace('aid-snip-', ''))
+  const classList = [...node.classList].map(c => c)
 
   const snips = snippets
     .map(s => classList.includes(s.className) && s)
@@ -299,10 +276,7 @@ export const handleImgElementSelection = async ({
   return src
 }
 
-export const formatDate = dateString => {
-  const date = new Date(dateString).toLocaleString()
-  return date
-}
+export const formatDate = date => new Date(date).toLocaleString()
 
 export const ansi = color => {
   const colors = {
@@ -332,4 +306,22 @@ export const safeParse = (str, fallbackKey) => {
   } catch (e) {
     return { [fallbackKey]: str }
   }
+}
+
+export const getPreviewIframe = () =>
+  document.querySelector('#pagedjs-preview-iframe')
+export const getSnippetsStyleTag = () =>
+  getPreviewIframe()?.contentDocument?.body?.querySelector('#snippets')
+
+export const createOrUpdateStyleSheet = content => {
+  if (!content || !getPreviewIframe()) return
+  const cssContent = content.map(snippet => snippet.classBody).join('\n')
+  if (getSnippetsStyleTag()) {
+    getSnippetsStyleTag().textContent = cssContent
+    return
+  }
+  const style = document.createElement('style')
+  style.id = 'snippets'
+  style.textContent = cssContent
+  getPreviewIframe()?.contentDocument?.body?.appendChild(style)
 }

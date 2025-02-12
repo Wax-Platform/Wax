@@ -1,26 +1,74 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
-import React, { createContext, useMemo, useRef, useState } from 'react'
-import { isString, merge, takeRight } from 'lodash'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import { isString, takeRight } from 'lodash'
 import {
-  setInlineStyle,
   SendIcon,
   SettingsIcon,
   DeleteIcon,
   UndoIcon,
   RedoIcon,
   RefreshIcon,
-  newSnippet,
-  saveToLs,
   onEntries,
-  cssTemplate1,
-  snippetsToCssText,
   srcdoc,
   parseContent,
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
-import { UPDATE_SNIPPETS } from '../../../graphql/aiDesignerMisc'
-import { useMutation } from '@apollo/client'
+
+const CSS_SELECTED_ID_EXCEPT = userMenu => /* css */ `      
+
+body, html {
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    padding: 50px 0 50px 50px;
+    transform: scale(${userMenu ? 0.8 : 1});
+    transform-origin: top left;
+    transition: transform 0.3s;
+}
+
+.pagedjs_page {
+    background: #fff;
+    box-shadow: 0 0 8px #0004;
+
+    * {
+      transition: all 0.8s;
+      outline: 2px dashed #0000;
+      outline-offset: 12px;
+    }
+}
+      
+.selected-id {
+    outline: 1px dashed #a34ba1;
+    outline-offset: 8px;
+}
+
+::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #a34ba11d;
+    border-radius: 5px;
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #fff0;
+    padding: 5px;
+}
+`
 
 const defaultSettings = {
   gui: {
@@ -81,7 +129,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [css, setCss] = useState('')
   const [previewSource, setPreviewSource] = useState('')
   const [editorContent, setEditorContent] = useState('')
-  const [markedSnippet, setMarkedSnippet] = useState('')
+  const [markedSnippet, setMarkedSnippet] = useState({})
 
   const [feedback, setFeedback] = useState('')
 
@@ -92,7 +140,6 @@ export const AiDesignerProvider = ({ children }) => {
   const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
-  const [docId, setDocId] = useState('')
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -107,6 +154,11 @@ export const AiDesignerProvider = ({ children }) => {
     chat: false,
     input: true,
     settings: false,
+    files: true,
+    teams: false,
+    userMenu: true,
+    codeEditor: false,
+    snippetsManager: false,
   })
 
   const [tools, setTools] = useState({
@@ -124,33 +176,28 @@ export const AiDesignerProvider = ({ children }) => {
   })
 
   const updateLayout = updateObjectState(setLayout)
-
   const mutateSettings = updateObjectStateFromKey(setSettings)
-
   const updateTools = updateObjectStateFromKey(setTools)
 
   const getCtxNode = (dom = document) =>
-    dom.querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
+    dom.querySelector(`[data-id="${selectedCtx.id}"]`)
 
   const onSelect = ctx => {
-    ctx.aidctx && setSelectedCtx(ctx)
+    ctx.id && setSelectedCtx(ctx)
 
-    markedSnippet && setMarkedSnippet('')
+    markedSnippet && setMarkedSnippet({})
     showSnippets && setShowSnippets(false)
-    if (ctx.aidctx === 'aid-ctx-main') return
-
-    // TODO: this should be moved to a separate function
-    // const node = ctx.node
-    // tools.dropper.active && updateTools('brush', { data: node.className })
-    // tools.brush.active &&
-    //   tools.brush.data &&
-    //   AiDesigner.snippets.toggle(tools.brush.data)
+    if (ctx.id === 'aid-ctx-main') return
   }
-  const [updateSnippets] = useMutation(UPDATE_SNIPPETS)
 
   AiDesigner.on('select', onSelect)
-  AiDesigner.on('addtocontext', console.log)
-  AiDesigner.on('snippets', updatePreview)
+  // AiDesigner.on('addtocontext', console.log)
+  AiDesigner.on('snippets', ev => {
+    const { classes, selected, method } = ev
+    const body = previewRef?.current?.contentDocument?.body
+    const elements = body.querySelectorAll(`[data-id="${selected}"]`)
+    elements.forEach(element => element.classList[method](...classes))
+  })
   // #endregion HOOKS ----------------------------------------------------------------
 
   // #region CONTEXT ----------------------------------------------------------------
@@ -170,41 +217,6 @@ export const AiDesignerProvider = ({ children }) => {
   // #endregion CONTEXT -------------------------------------------------------------
 
   // #region HELPERS -----------------------------------------------------------------
-
-  const updateSelectionBoxPosition = (yOffset = 10, xOffset = 10) => {
-    if (!settings.editor.enableSelection && !selectionBoxRef?.current) return
-    if (selectedCtx.aidctx === 'aid-ctx-main' || !designerOn) {
-      selectionBoxRef.current.style.opacity = 0
-      return
-    }
-    const { top, left, height, width } =
-      selectedCtx.node?.getBoundingClientRect() ?? {}
-
-    if (!left && !top) return
-
-    const parent = selectionBoxRef?.current?.parentNode
-    const { left: pLeft, top: pTop } = parent.getBoundingClientRect()
-
-    setInlineStyle(selectionBoxRef.current, {
-      opacity: 1,
-      left: `${Math.floor(parent.scrollLeft + left - pLeft - xOffset)}px`,
-      top: `${Math.floor(parent.scrollTop + top - pTop - yOffset)}px`,
-      width: `${width + xOffset * 2}px`,
-      height: `${height + yOffset * 2}px`,
-      zIndex: '9',
-    })
-  }
-
-  const saveSession = () => {
-    saveToLs(
-      {
-        settings,
-        css,
-        content: htmlSrc.innerHtml,
-      },
-      'storedsession',
-    )
-  }
 
   const onHistory = {
     addRegistry: (
@@ -235,77 +247,53 @@ export const AiDesignerProvider = ({ children }) => {
         content: editorContent,
       })
 
-      setEditorContent(lastRegistry.content)
       setCss(lastRegistry.css)
+      // updatePreview(true, lastRegistry.css)
     },
   }
 
-  const updatePreview = manualUpdate => {
+  const updatePreview = (manualUpdate, providedCss = css) => {
     const previewDoc = previewRef?.current?.contentDocument?.documentElement
-    css &&
+    const canUpdate =
+      providedCss &&
       htmlSrc?.outerHTML &&
-      (settings.preview.livePreview || manualUpdate) &&
-      setPreviewSource(
-        srcdoc(
-          parseContent(
-            editorContainerRef?.current?.innerHTML,
-            doc =>
-              !!selectedCtx?.node &&
-              doc
-                .querySelector(`[data-aidctx="${selectedCtx.aidctx}"]`)
-                ?.classList?.add('selected-aidctx'),
-          ),
-          css.replaceAll(
-            '.ProseMirror[contenteditable]',
-            '.pagedjs_page_content',
-          ),
-          cssTemplate1.replaceAll(
-            '.ProseMirror[contenteditable]',
-            '.pagedjs_page_content',
-          ) +
-            snippetsToCssText(
-              settings.snippetsManager.snippets,
-              '.pagedjs_page_content .aid-snip-',
-            ),
-          previewDoc?.scrollTop ?? 0,
-        ),
+      (settings.preview.livePreview || manualUpdate)
+
+    if (canUpdate) {
+      console.log('updatePreview')
+
+      const content = parseContent(
+        editorContainerRef?.current?.querySelector(
+          '.ProseMirror[contenteditable]',
+        ).innerHTML,
+        doc => {
+          !!selectedCtx?.node &&
+            doc
+              .querySelector(`[data-id="${selectedCtx.id}"]`)
+              ?.classList?.add('selected-id')
+          doc.querySelectorAll('.ProseMirror-widget').forEach(el => {
+            el.remove()
+          })
+        },
       )
+      const cssTemplate =
+        providedCss.replaceAll(
+          '.ProseMirror[contenteditable]',
+          '.pagedjs_page_content',
+        ) + CSS_SELECTED_ID_EXCEPT(layout.userMenu)
+
+      const scrollPos = previewDoc?.scrollTop ?? 0
+
+      setPreviewSource(srcdoc(content, cssTemplate, '', scrollPos))
+    }
 
     // updateCtxNodes()
   }
+  const callUpdatePreview = useCallback(updatePreview, [css, editorContent])
 
   // #endregion HELPERS -----------------------------------------------------------------
 
   // #region SNIPPETS -------------------------------------------------------------------
-  const addSnippet = (add, snippet) => {
-    const { snippets, createNewSnippetVersions, markNewSnippet } =
-      settings.snippetsManager
-    const snippetToAdd = !createNewSnippetVersions
-      ? snippet
-      : newSnippet(
-          snippet,
-          snippets.map(s => s.className),
-        )
-
-    const foundIndex = snippets.findIndex(
-      s => s.className === snippetToAdd.className,
-    )
-
-    let finalOutput = [...snippets]
-    foundIndex >= 0
-      ? (finalOutput[foundIndex] = snippetToAdd)
-      : (finalOutput = [...finalOutput, snippetToAdd])
-
-    setSettings(prev => {
-      const temp = prev
-      temp.snippetsManager.snippets = finalOutput
-      return temp
-    })
-    updateSnippets({ variables: { snippets: finalOutput } })
-
-    add && selectedCtx.snippets.add(`aid-snip-${snippetToAdd.className}`)
-    markNewSnippet && !markedSnippet && setMarkedSnippet(snippetToAdd.className)
-  }
 
   const removeSnippet = snippetName => {
     const updatedSnippets = settings.snippetsManager.snippets
@@ -318,53 +306,6 @@ export const AiDesignerProvider = ({ children }) => {
     isString(snippetName)
       ? removeSnip(snippetName)
       : Array.isArray(snippetName) && snippetName.forEach(removeSnip)
-
-    setSettings(prev => {
-      return merge(
-        {},
-        { ...prev },
-        { snippetsManager: { snippets: updatedSnippets } },
-      )
-    })
-    updateSnippets({ variables: { snippets: updatedSnippets } })
-  }
-
-  const updateSnippetDescription = (snippetName, description) => {
-    const { snippets } = settings.snippetsManager
-    snippets[snippetName].description = description
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-  }
-
-  const updateSnippetBody = (snippetName, body) => {
-    const { snippets } = settings.snippetsManager
-    const index = snippets.findIndex(s => s.className === snippetName)
-    snippets[index].classBody = body
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-  }
-
-  const updateSnippetName = (snippetName, name) => {
-    const { snippets } = settings.snippetsManager
-
-    const foundSnippet =
-      snippets[snippets.findIndex(s => s.className === snippetName)]
-
-    snippets[snippets.findIndex(s => s.className === snippetName)].className =
-      name
-    setSettings(prev => {
-      return merge({}, { ...prev }, { snippetsManager: { snippets } })
-    })
-    document
-      .querySelectorAll(`.aid-snip-${foundSnippet.className}`)
-      .forEach(el => {
-        el.classList.replace(
-          `aid-snip-${foundSnippet.className}`,
-          `aid-snip-${name}`,
-        )
-      })
   }
 
   // #endregion SNIPPETS -------------------------------------------------------------------
@@ -404,27 +345,20 @@ export const AiDesignerProvider = ({ children }) => {
         editorContent,
         selectionBoxRef,
         setEditorContent,
-        updateSelectionBoxPosition,
         deleteLastMessage,
         onHistory,
         settings,
         setSettings,
         // TODO: memoize in a new object
-        addSnippet,
         removeSnippet,
         markedSnippet,
         setMarkedSnippet,
-        updateSnippetDescription,
-        updateSnippetBody,
-        updateSnippetName,
-        saveSession,
-
         editorContainerRef,
 
         previewRef,
         previewSource,
         setPreviewSource,
-        updatePreview,
+        updatePreview: callUpdatePreview,
         mutateSettings,
         getCtxNode,
         updateTools,
@@ -439,8 +373,6 @@ export const AiDesignerProvider = ({ children }) => {
         setDesignerOn,
         userInteractions,
         setUserInteractions,
-        docId,
-        setDocId,
       }}
     >
       {children}
@@ -473,3 +405,5 @@ function updateObjectState(stateDispatcher) {
     })
   }
 }
+
+export const useAiDesignerContext = () => useContext(AiDesignerContext)

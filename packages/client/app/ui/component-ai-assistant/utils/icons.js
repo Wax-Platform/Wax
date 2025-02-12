@@ -148,7 +148,7 @@ Q 12.55 19.45 12.55 20.05 12.55 20.65 12.15 21.1 11.7 21.5 11.1 21.55 10.5 21.55
   )
 }
 
-const SendIcon = props => {
+export const SendIcon = props => {
   const { svgProps } = props
   return (
     <ButtonWrapper type="button" {...props}>
@@ -183,7 +183,7 @@ L 5.65 14.6 15.4 9.4 5.65 4.2 6.65 8.9 9.25 9.4 6.65 9.9 Z"
   )
 }
 
-const SettingsIcon = props => {
+export const SettingsIcon = props => {
   const { svgProps } = props
   return (
     <ButtonWrapper type="button" {...props}>
@@ -334,7 +334,7 @@ Q 20.346096801757813 16.53054351806641 18.467457580566407 18.35370788574219 16.6
   )
 }
 
-const DeleteIcon = props => {
+export const DeleteIcon = props => {
   const { svgProps } = props
   return (
     <ButtonWrapper type="button" {...props}>
@@ -565,7 +565,7 @@ Q -2.4794921875 16.7 3.1 16.7 8.66171875 16.7 12.6 12.725 Z"
   )
 }
 
-const UndoIcon = props => {
+export const UndoIcon = props => {
   const { svgProps } = props
   return (
     <ButtonWrapper type="button" {...props}>
@@ -660,7 +660,7 @@ Q 358.65 257.15 360.05 262.25 347.2970703125 234.1748046875 322.45 215.25"
   )
 }
 
-const RedoIcon = props => {
+export const RedoIcon = props => {
   const { svgProps } = props
   return (
     <ButtonWrapper type="button" {...props}>
@@ -755,16 +755,17 @@ Q 358.65 257.15 360.05 262.25 347.2970703125 234.1748046875 322.45 215.25"
   )
 }
 
-const RefreshIcon = props => {
+export const RefreshIcon = props => {
   const { svgProps } = props
   return (
     <ButtonWrapper type="button" {...props}>
       <svg
-        height="28px"
+        height="25px"
         preserveAspectRatio="none"
         version="1.1"
         viewBox="0 0 28 28"
-        width="28px"
+        width="25px"
+        style={{ transform: 'translateY(2px)' }}
         x="0px"
         xmlns="http://www.w3.org/2000/svg"
         y="0px"
@@ -778,7 +779,7 @@ M 330 144.2
 Q 354.7 163.55 360.45 172.9 354.1 150.95 336.55 133.4 328.35 125.2 319.45 118.8 292.2 99.2 258.1 96.1 251.65 95.5 245 95.5 191.35 95.5 153.4 133.4 133.1 153.75 123.7 178.6
 L 155.5 178.6
 Q 162.5 165.35 173.9 153.9 203.35 124.5 249.25 120.7 295.1 116.9 330 144.2 Z"
-              fill="var(--color-trois)"
+              fill="var(--color-trois-opaque)"
               stroke="none"
             />
           </g>
@@ -839,5 +840,3 @@ Q 142.2 169.85 114.5 144.8 Z"
     </ButtonWrapper>
   )
 }
-
-export { SendIcon, SettingsIcon, DeleteIcon, UndoIcon, RedoIcon, RefreshIcon }
