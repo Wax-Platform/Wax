@@ -58,7 +58,7 @@ export default createGlobalStyle`
     /* --color-trois-opaque: #936a93; */
     --color-trois-light: #d3afd2;
     --color-trois-lighter: #decfde;
-    --color-trois-lightest: #f5eff3;
+    --color-trois-lightest: #f5eff3; // before: #f2eff5
     --color-trois-lightest-2: #fbf8fd;
     --color-trois-lightest-3: #bc0bc205;
     --color-trois-dark: #6d336c;

@@ -53,10 +53,6 @@ extend type Mutation {
   shareResource(resourceId: ID!, userId: ID!): Resource!
   unshareResource(resourceId: ID!, userId: ID!): Resource!
   addToFavorites(resourceId: ID!): Resource
-  pasteResources(
-    parentId: ID!
-    resourceIds: [ID!]!
-    copy: Boolean!
-  ): [Resource]!
+  pasteResources(parentId: ID!, resourceIds: [ID!]!, action: String!): Boolean!
   reorderChildren(parentId: ID!, newChildrenIds: [ID!]!): Boolean!
 }

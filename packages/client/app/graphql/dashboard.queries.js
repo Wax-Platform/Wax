@@ -145,15 +145,13 @@ export const PASTE_RESOURCES = gql`
   mutation pasteResources(
     $parentId: ID!
     $resourceIds: [ID!]!
-    $copy: Boolean!
+    $action: String!
   ) {
     pasteResources(
       parentId: $parentId
       resourceIds: $resourceIds
-      copy: $copy
-    ) {
-      id
-    }
+      action: $action
+    )
   }
 `
 
