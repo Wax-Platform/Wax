@@ -101,7 +101,6 @@ class Doc extends BaseModel {
       state = Y.encodeStateAsUpdate(doc),
       templateId = null,
     } = payload
-    logger.info('Creating template for user:', userId)
 
     const createdDoc = await Doc.query(trx)
       .insert({

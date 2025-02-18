@@ -15,8 +15,10 @@ import {
 
 import { useEffect, useState, useMemo } from 'react'
 import { useCurrentUser } from '@coko/client'
+import { safeCall } from '../../../shared/generalUtils'
 
-export const useResourceTree = () => {
+export const useResourceTree = props => {
+  const { onFolderOpen } = props || {}
   const { currentUser } = useCurrentUser()
   const [path, setCurrentPath] = useState('')
   const [folder, setCurrentFolder] = useState({})
@@ -32,6 +34,7 @@ export const useResourceTree = () => {
     {
       fetchPolicy: 'cache-first',
       skip: !currentUser?.id || loading,
+      onCompleted: data => safeCall(onFolderOpen)(data.openFolder),
     },
   )
 

@@ -18,11 +18,6 @@ export const USER_FIELDS = gql`
       email
       isVerified
     }
-
-    documents {
-      id
-      identifier
-    }
   }
 `
 
@@ -111,4 +106,13 @@ export const UPDATE_PASSWORD = gql`
   mutation UpdatePassword($input: UpdatePasswordInput!) {
     updatePassword(input: $input)
   }
+`
+
+export const GET_USER = gql`
+  query GetUser($id: ID!) {
+    getUser(id: $id) {
+      ...UserFields
+    }
+  }
+  ${USER_FIELDS}
 `

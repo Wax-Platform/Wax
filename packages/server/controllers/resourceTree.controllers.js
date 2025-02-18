@@ -1,4 +1,4 @@
-const { logger } = require('@coko/server')
+const { logger, useTransaction } = require('@coko/server')
 
 const createIdentifier = () => {
   return Array.from(Array(20), () =>
@@ -108,15 +108,23 @@ const addToFavorites = async (_, { resourceId }, ctx) => {
   return resource
 }
 
-const pasteResources = async (_, { parentId, resourceIds, copy }, ctx) => {
+const pasteResources = async (_, { parentId, resourceIds, action }, ctx) => {
   const ResourceTree = require('../models/resourceTree/resourceTree.model')
-  const resources = await ResourceTree.pasteResources(
-    parentId,
-    resourceIds,
-    copy,
-    ctx.user,
-  )
-  return resources
+  return useTransaction(async trx => {
+    try {
+      await ResourceTree.pasteResources({
+        newParentId: parentId,
+        ids: resourceIds,
+        action,
+        userId: ctx.user,
+        options: { trx },
+      })
+      return true
+    } catch (error) {
+      logger.error('Error in pasteResources', error)
+      return false
+    }
+  })
 }
 
 const reorderChildren = async (_, { parentId, newChildrenIds }, ctx) => {

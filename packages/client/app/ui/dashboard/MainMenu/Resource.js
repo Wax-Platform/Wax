@@ -16,6 +16,9 @@ import {
   PictureFilled,
   FontSizeOutlined,
   FileTextFilled,
+  PictureOutlined,
+  StarOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
@@ -27,7 +30,7 @@ import {
   switchOn,
 } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
-import templateIcon from '../../../../static/template-icon.svg'
+import templateIcon from '../../../../static/template-icon-2.svg'
 
 export const ListContainer = styled.div`
   --icon-size: 16px;
@@ -53,7 +56,6 @@ export const ListContainer = styled.div`
   gap: 8px;
   height: 35px;
   min-height: 35px;
-  /* opacity: ${p => (p.$ghost ? '0.5' : '1')}; */
   padding: 2px 18px;
   position: relative;
   transform: ${props => (props.isDragging ? 'scale(1.01)' : 'scale(1)')};
@@ -130,6 +132,7 @@ export const IconTitleContainer = styled.div`
   gap: var(--icon-title-gap);
   justify-content: space-between;
   min-height: var(--icon-title-min-height);
+  opacity: ${p => (p.$ghost ? '0.5' : '1')};
 
   .anticon {
     height: 100%;
@@ -145,6 +148,7 @@ export const IconTitleContainer = styled.div`
     svg {
       fill: var(--svg-fill);
       font-size: var(--icon-size);
+      stroke-width: 0;
     }
   }
 `
@@ -204,7 +208,7 @@ const NORMAL_MENU_OPTIONS = [
   '-',
   'copy',
   'cut',
-  // 'paste',
+  'paste',
   'delete',
   '-',
   'add to favorites',
@@ -219,7 +223,7 @@ const TEMPLATE_MENU_OPTIONS = [
   '-',
   'copy',
   'cut',
-  // 'paste',
+  'paste',
   'delete',
   '-',
   'info',
@@ -295,7 +299,8 @@ const Resource = props => {
     contextualMenu,
     addToFavs,
     setTemplateToEdit,
-    // clipboard,
+    clipboard,
+    graphQL: { pasteResources },
   } = useDocumentContext()
 
   const { isRoot, isFolder, isSystem } = typeFlags(resourceType)
@@ -305,6 +310,9 @@ const Resource = props => {
   const currentDocIsDescendant = currentDoc?.path?.includes(id)
   const allowDnD =
     (!isSystem && !isActive && !currentDocIsDescendant) || reorderMode.state
+  const canPaste =
+    isFolder &&
+    (clipboard.state.cut?.items?.length || clipboard.state.copy?.items?.length)
 
   const openResource = useCallback(
     resource => {
@@ -321,20 +329,25 @@ const Resource = props => {
     },
     [contextualMenu.state?.show, userInteractions.ctrl, openResource, resource],
   )
-  // const handleCutCopy = useCallback(
-  //   action => {
-  //     clipboard.update({
-  //       [action]: { items: [id], parent: resource.parentId },
-  //     })
-  //   },
-  //   [clipboard.state, id],
-  // )
+  const handleCutCopy = useCallback(
+    action => {
+      clipboard.clear()
+      console.log({ selectedDocs })
+      clipboard.update({
+        [action]: {
+          items: [id, ...selectedDocs.filter(dId => dId !== id)],
+          parent: resource.parentId,
+        },
+      })
+    },
+    [clipboard.state, id, resource, selectedDocs],
+  )
 
   const handleContextMenuOpen = useCallback(
     e => {
       e.preventDefault()
       e.stopPropagation()
-      selectedDocs?.length <= 1 && setSelectedDocs([id])
+      !selectedDocs.includes(id) && setSelectedDocs(p => [...p, id])
 
       const avaiableActions = {
         default: true,
@@ -343,6 +356,7 @@ const Resource = props => {
         copy: !isRoot && !isSystem,
         cut: !isRoot && !isSystem && !isActive && !currentDocIsDescendant,
         delete: !isRoot && !isActive && !currentDocIsDescendant && !isSystem,
+        paste: canPaste,
         'add to favorites': !isRoot && !isSystem,
         share: !isRoot && !isSystem,
       }
@@ -352,6 +366,20 @@ const Resource = props => {
         delete: () => confirmDelete(resource),
         rename: () => rename.update({ id, title }),
         'add to favorites': () => addToFavs(id),
+        copy: () => handleCutCopy('copy'),
+        cut: () => handleCutCopy('cut'),
+        paste: () => {
+          const [action] = Object.keys(clipboard.state)
+          console.log({ action })
+          pasteResources({
+            variables: {
+              parentId: id,
+              resourceIds: clipboard.state[action].items,
+              action,
+            },
+          })
+          clipboard.reset()
+        },
         default: () => {},
       }
 
@@ -381,12 +409,14 @@ const Resource = props => {
       isRoot,
       isSystem,
       isActive,
-      // clipboard.state,
       openResource,
       confirmDelete,
       contextualMenu,
       setSelectedDocs,
       currentDocIsDescendant,
+      canPaste,
+      pasteResources,
+      selectedDocs,
     ],
   )
 
@@ -447,6 +477,14 @@ const Resource = props => {
   const iconColor = switchOn(resourceType, ICON_COLORS)
   const Container = switchOn(view, VIEW_BASED_CONTAINERS)
 
+  const onCutClipboard = clipboard.state.cut?.items?.includes(id)
+
+  useEffect(() => {
+    const clip = clipboard.state.cut?.items?.includes(id)
+
+    console.log({ onCutClipboard: clip })
+  }, [clipboard.state])
+
   return (
     <Container
       $selected={isSelected}
@@ -472,7 +510,7 @@ const Resource = props => {
       }
       {...rest}
     >
-      <IconTitleContainer data-contextmenu>
+      <IconTitleContainer data-contextmenu $ghost={onCutClipboard}>
         <FlexRow>
           <ResourceIcon data-contextmenu />
         </FlexRow>

@@ -1,6 +1,5 @@
 extend type User {
   color: String
-  documents: [Doc]
 }
 
 input UserProfileInput {
@@ -15,6 +14,10 @@ extend type LoginResult {
 
 extend input UsersQueryParams {
   search: String
+}
+
+extend type Query {
+  getUser(id: ID!): User!
 }
 
 extend type Mutation {

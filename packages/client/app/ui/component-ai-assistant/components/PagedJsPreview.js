@@ -5,8 +5,6 @@ import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { debounce, isBoolean, set } from 'lodash'
 import { Result, Spin } from 'antd'
-import { useDocumentContext } from '../../dashboard/hooks/DocumentContext'
-import { createOrUpdateStyleSheet, getPreviewIframe } from '../utils'
 
 const SpinnerWrapper = styled.div`
   align-items: center;
@@ -68,7 +66,6 @@ const PreviewIframe = styled.iframe`
 
 export const PagedJsPreview = props => {
   const { previewRef, previewSource } = useAiDesignerContext()
-  const { userSnippets } = useDocumentContext()
   const [srcDoc, setSrcDoc] = useState('')
 
   useEffect(() => {
@@ -78,7 +75,6 @@ export const PagedJsPreview = props => {
         const spinner = document.querySelector('[data-spinner]')
         const setSpinner = () => set(spinner, 'dataset.spinner', !loaded)
         loaded ? debounce(setSpinner, 2000)() : setSpinner()
-        createOrUpdateStyleSheet(userSnippets)
       }
       AiDesigner.select(id)
     }

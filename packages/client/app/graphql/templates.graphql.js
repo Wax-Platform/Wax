@@ -32,12 +32,6 @@ export const GET_TEMPLATE = gql`
   }
 `
 
-export const CREATE_TEMPLATE = gql`
-  mutation CreateTemplate($input: CreateTemplateInput!) {
-    createTemplate(input: $input)
-  }
-`
-
 export const UPDATE_TEMPLATE_CSS = gql`
   mutation UpdateTemplateCss($id: ID!, $rawCss: String!, $displayName: String) {
     updateTemplateCss(id: $id, rawCss: $rawCss, displayName: $displayName)
@@ -50,11 +44,6 @@ export const DELETE_TEMPLATE = gql`
   }
 `
 
-export const RENAME_TEMPLATE = gql`
-  mutation RenameTemplate($id: ID!, $displayName: String!) {
-    renameTemplate(id: $id, displayName: $displayName)
-  }
-`
 export const FETCH_AND_CREATE_TEMPLATE_FROM_URL = gql`
   mutation FetchAndCreateTemplateFromUrl($url: String!) {
     fetchAndCreateTemplateFromUrl(url: $url)
@@ -70,5 +59,11 @@ export const GET_USER_SNIPPETS = gql`
       description
       meta
     }
+  }
+`
+
+export const CHECK_IF_USER_TEMPLATES_EXIST = gql`
+  mutation CheckIfUserTemplatesExist {
+    checkIfUserTemplatesExist
   }
 `

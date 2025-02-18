@@ -163,7 +163,7 @@ class ResourceTree extends BaseModel {
     const destination = await this.getResource(newParentId, { trx })
 
     if (!['dir', 'sys'].includes(destination.resourceType)) {
-      // logger.info('New parent is not a folder')
+      logger.info('New parent is not a folder')
       return this.openFolder(source.id, 'id', userId)
     }
 
@@ -181,7 +181,6 @@ class ResourceTree extends BaseModel {
     await this.query(trx).patch({ title: safeName }).findById(id)
 
     await this.query(trx).patch({ parentId: newParentId }).findById(id)
-    // logger.info(`Resource ${id} moved to ${newParentId}`)
     await this.query(trx)
       .patch({ children: source.children })
       .findById(source.id)
@@ -718,7 +717,7 @@ class ResourceTree extends BaseModel {
   static async moveResources({ ids, newParentId }, options = {}) {
     const { trx } = options
     return Promise.all(
-      ids.map(id => this.moveResource({ id, newParentId }, { trx })),
+      ids.map(async id => this.moveResource({ id, newParentId }, { trx })),
     )
   }
 
@@ -814,21 +813,43 @@ class ResourceTree extends BaseModel {
     }
   }
 
-  static async pasteResources({ ids, newParentId, action }, options = {}) {
+  static async pasteResources({
+    ids,
+    newParentId,
+    action,
+    userId,
+    options = {},
+  }) {
     const { trx } = options
+    logger.info(`Pasting resources ${ids} to ${newParentId}`)
     return Promise.all(
-      ids.map(id => {
-        if (action === 'copy') {
-          return this.copyResource({ id, newParentId }, { trx })
+      ids.map(async id => {
+        try {
+          logger.info(`Processing resource ${id}`)
+          if (action === 'copy') {
+            const result = await ResourceTree.copyResource(
+              { id, newParentId },
+              { trx },
+            )
+            logger.info(`Copied resource ${id}`)
+            return result
+          }
+          const result = await ResourceTree.moveResource(
+            { id, newParentId, userId },
+            { trx },
+          )
+          logger.info(`Moved resource ${id}`)
+          return result
+        } catch (error) {
+          logger.error(`Error processing resource ${id}: ${error.message}`)
+          throw error
         }
-        return this.moveResource({ id, newParentId }, { trx })
       }),
     )
   }
 
   static async copyResource({ id, newParentId }, options = {}) {
     const Doc = require('../doc/doc.model')
-
     const { trx } = options
     const resource = await this.getResource(id, { trx })
 
@@ -839,7 +860,7 @@ class ResourceTree extends BaseModel {
     const parent = await this.getResource(newParentId, { trx })
     const newResource = await this.createResource(
       {
-        title: resource.title,
+        title: `${resource.title} (copy)`,
         resourceType: resource.resourceType,
         parentId: newParentId,
         userId: resource.userId,
@@ -855,12 +876,43 @@ class ResourceTree extends BaseModel {
         delta: doc.delta,
         state: doc.state,
         identifier,
-        userId: doc.userId,
+        userId: resource.userId,
       })
 
       await this.query(trx).patch({ docId: newDoc.id }).findById(newResource.id)
+    }
 
-      return newResource
+    if (
+      resource.resourceType === 'template' ||
+      resource.resourceType === 'snippet'
+    ) {
+      const Template = require('../template/template.model')
+      const template = await Template.query(trx).findOne({
+        id: resource.templateId,
+      })
+      const newTemplate = await Template.query(trx).insert({
+        ...template,
+        userId: resource.userId,
+        displayName: `${template.displayName} (copy)`,
+      })
+
+      await this.query(trx)
+        .patch({ templateId: newTemplate.id })
+        .findById(newResource.id)
+    }
+
+    if (resource.resourceType === 'dir') {
+      const children = await this.getChildren(resource.children, { trx })
+      const childrenIds = children.map(child => child.id)
+
+      await Promise.all(
+        childrenIds.map(childId =>
+          this.copyResource(
+            { id: childId, newParentId: newResource.id },
+            { trx },
+          ),
+        ),
+      )
     }
 
     parent.children.push(newResource.id)

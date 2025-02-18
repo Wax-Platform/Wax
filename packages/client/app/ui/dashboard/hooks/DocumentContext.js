@@ -7,13 +7,12 @@ import React, {
 } from 'react'
 import { useResourceTree } from './useResourceTree'
 import { useHistory } from 'react-router-dom'
-import { useObject } from '../../../hooks/dataTypeHooks'
+import { useObject, useString } from '../../../hooks/dataTypeHooks'
 import { useLazyQuery, useMutation } from '@apollo/client'
-import { GET_DOC, UPDATE_DOCUMENT_TEMPLATE } from '../../../graphql'
+import { GET_DOC, GET_USER, UPDATE_DOCUMENT_TEMPLATE } from '../../../graphql'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import {
-  CREATE_TEMPLATE,
   DELETE_TEMPLATE,
   FETCH_AND_CREATE_TEMPLATE_FROM_URL,
   GET_TEMPLATE,
@@ -21,7 +20,6 @@ import {
   GET_USER_TEMPLATES,
   UPDATE_TEMPLATE_CSS,
 } from '../../../graphql/templates.graphql'
-import { createOrUpdateStyleSheet } from '../../component-ai-assistant/utils'
 import { debounce } from 'lodash'
 
 const useTemplates = currentDoc => {
@@ -40,7 +38,7 @@ const useTemplates = currentDoc => {
   const [
     getUserTemplates,
     {
-      data: systemTemplatesData,
+      data: userTemplatesData,
       loading: systemTemplatesLoading,
       error: systemTemplatesError,
     },
@@ -52,13 +50,9 @@ const useTemplates = currentDoc => {
     },
   })
 
-  const [
-    getUserSnippets,
-    { data: userSnippetsData, loading: userSnippetsLoading },
-  ] = useLazyQuery(GET_USER_SNIPPETS, {
+  const [getUserSnippets] = useLazyQuery(GET_USER_SNIPPETS, {
     fetchPolicy: 'cache-and-network',
     onCompleted: data => {
-      console.log('getUserSnippets', data)
       setUserSnippets(data.getUserSnippets)
     },
   })
@@ -78,32 +72,15 @@ const useTemplates = currentDoc => {
     },
   })
   const [deleteTemplate] = useMutation(DELETE_TEMPLATE, { refetchQueries })
-  const [createTemplate] = useMutation(CREATE_TEMPLATE, { refetchQueries })
   const [fetchAndCreateTemplateFromUrl, { loading: fetchingTemplates }] =
     useMutation(FETCH_AND_CREATE_TEMPLATE_FROM_URL, { refetchQueries })
 
-  useEffect(() => {
-    getUserTemplates()
-    getUserSnippets()
-  }, [])
-
-  useEffect(() => {
-    if (!userSnippetsLoading && userSnippetsData?.getUserSnippets) {
-      setUserSnippets(userSnippetsData.getUserSnippets)
-    }
-  }, [JSON.stringify(userSnippetsData?.getUserSnippets), userSnippetsLoading])
-
-  useEffect(() => {
-    createOrUpdateStyleSheet(userSnippets)
-  }, [userSnippets])
-
   return {
-    systemTemplatesData,
+    userTemplatesData,
     systemTemplatesLoading,
     systemTemplatesError,
     updateTemplateCss,
     deleteTemplate,
-    createTemplate,
     fetchAndCreateTemplateFromUrl,
     fetchingTemplates,
     getUserTemplates,
@@ -141,12 +118,45 @@ export const DocumentContextProvider = ({ children }) => {
   const [selectedDocs, setSelectedDocs] = useState([])
   const [resources, setResources] = useState([])
   const rename = useObject({ start: RENAME_ITEM })
-  const clipboard = useObject({ start: CLIPBOARD_ITEM })
+  const clipboard = useObject({ start: CLIPBOARD_ITEM, onUpdate: console.log })
   const contextualMenu = useObject()
   const [templateToEdit, setTemplateToEdit] = useState(null)
+  const [getUser] = useLazyQuery(GET_USER, {
+    fetchPolicy: 'cache-and-network',
+  })
+
+  const documentOwner = useString({
+    onUpdate: docOwnerId => {
+      if (docOwnerId) {
+        let ownerUser = {}
+        getUser({ variables: { id: docOwnerId } }).then(({ data }) => {
+          const user = data.getUser
+          history.push(`/`, { replace: true })
+          setCurrentDoc(null)
+          document.title = `Documents of ${user.displayName}`
+          ownerUser = user
+
+          graphQL.openFolder({
+            variables: { id: docOwnerId, resourceType: 'user' },
+          })
+
+          alert(
+            `You do not have access to this document, can request access to: \n\t- ${user.displayName} \n\t- ${user.defaultIdentity.email}`,
+          )
+          documentOwner.clear()
+        })
+      }
+    },
+  })
 
   const { setCss, updatePreview } = useAiDesignerContext()
-  const { currentFolder, currentPath, ...graphQL } = useResourceTree()
+  const { currentFolder, currentPath, ...graphQL } = useResourceTree({
+    onFolderOpen: ({ requestAccessTo }) => {
+      if (requestAccessTo) {
+        documentOwner.set(requestAccessTo)
+      }
+    },
+  })
   const templatesGQL = useTemplates(currentDoc)
 
   const [getDocument, { loading: docLoading }] = useLazyQuery(GET_DOC, {
@@ -155,9 +165,11 @@ export const DocumentContextProvider = ({ children }) => {
       const doc = data.getDocument
       document.title = doc.title
       setCurrentDoc(doc)
+
       graphQL.openFolder({
         variables: { id: doc.identifier, resourceType: 'doc' },
       })
+
       templatesGQL.getTemplate(doc.templateId).then(({ data }) => {
         setCss(data.getTemplate.rawCss)
         debounce(updatePreview, 2000)(true, data.getTemplate.rawCss)
@@ -207,6 +219,7 @@ export const DocumentContextProvider = ({ children }) => {
       setCurrentDoc({ ...doc })
       templatesGQL.getTemplate(templateId).then(({ data }) => {
         setCss(data.getTemplate.rawCss)
+        debounce(updatePreview, 2500)(true)
       })
 
       templateToEdit && setTemplateToEdit(null)

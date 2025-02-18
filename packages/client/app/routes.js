@@ -135,7 +135,9 @@ const StyledPage = styled(Page)`
   height: calc(100dvh);
 
   > div {
+    align-items: center;
     display: flex;
+    justify-content: center;
     /* flex-direction: column; */
     overflow: hidden;
   }
@@ -236,6 +238,7 @@ const PageWrapper = props => {
       window.removeEventListener('click', hideContextMenu)
     }
   }, [])
+
   return <StyledPage {...props} $height={`calc(100% - 82px)`} />
 }
 
@@ -287,9 +290,9 @@ const routes = enableLogin => (
                 <Route render={() => <Redirect to="/login" />} path="*" />
               </Switch>
               <StyledContextMenu />
+              <ContextModal />
             </PageWrapper>
           </YjsProvider>
-          <ContextModal />
         </Layout>
       </ModalProvider>
     </DocumentContextProvider>

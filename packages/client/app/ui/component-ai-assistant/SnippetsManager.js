@@ -298,14 +298,17 @@ export const SnippetsManager = () => {
   const { userSnippets, updateTemplateCss, deleteTemplate, getUserSnippets } =
     useDocumentContext()
 
+  const [pinnedSnippets, setPinnedSnippets] = useState([])
+  const [snippets, setSnippets] = useState([])
+
   useEffect(() => {
-    userSnippets && createOrUpdateStyleSheet(userSnippets)
+    getUserSnippets()
   }, [])
 
-  const [pinnedSnippets, setPinnedSnippets] = useState([])
-  const [snippets, setSnippets] = useState(
-    userSnippets.filter(snip => !pinnedSnippets.includes(snip)),
-  )
+  useEffect(() => {
+    userSnippets && createOrUpdateStyleSheet(userSnippets)
+    setSnippets(userSnippets.filter(snip => !pinnedSnippets.includes(snip)))
+  }, [JSON.stringify(userSnippets)])
 
   useEffect(() => {
     selectedCtx?.node &&

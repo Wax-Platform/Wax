@@ -1,8 +1,10 @@
+const { logger, pubsubManager } = require('@coko/server')
 const {
   getDisplayName,
   updateUserProfile,
   getDocuments,
 } = require('../../controllers/user.controllers')
+const { User } = require('../../models')
 
 const displayNameResolver = async user => {
   return getDisplayName(user)
@@ -39,6 +41,13 @@ module.exports = {
 
       return arrayColor[Math.floor(Math.random() * arrayColor.length)]
     },
-    documents: documentsResolver,
+  },
+  Query: {
+    getUser: async (_, { id }, ctx) => {
+      const user = await User.query().findById(id)
+      logger.info('getUser', { user })
+      pubsubManager
+      return user
+    },
   },
 }
