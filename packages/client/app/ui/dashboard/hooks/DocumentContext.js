@@ -21,6 +21,7 @@ import {
   UPDATE_TEMPLATE_CSS,
 } from '../../../graphql/templates.graphql'
 import { debounce } from 'lodash'
+import { callOn } from '../../component-ai-assistant/utils'
 
 const useTemplates = currentDoc => {
   const [masterTemplateId, setMasterTemplateId] = useState(null)
@@ -121,6 +122,7 @@ export const DocumentContextProvider = ({ children }) => {
   const clipboard = useObject({ start: CLIPBOARD_ITEM, onUpdate: console.log })
   const contextualMenu = useObject()
   const [templateToEdit, setTemplateToEdit] = useState(null)
+  const [imgViewId, setImgViewUrl] = useState(null)
   const [getUser] = useLazyQuery(GET_USER, {
     fetchPolicy: 'cache-and-network',
   })
@@ -207,28 +209,34 @@ export const DocumentContextProvider = ({ children }) => {
 
   const openResource = resource => {
     if (!resource || graphQL.loadingFolder) return
-    const { id, resourceType } = resource
-    const variables = { id, resourceType }
+    const { resourceType } = resource
 
-    if (resourceType === 'doc') {
-      const { doc } = resource
-      const { identifier, templateId, title } = doc
-      history.push(`/${identifier}`, { replace: true })
-      document.title = title
+    const actionHandlers = {
+      doc: ({ doc }) => {
+        const { identifier, templateId, title } = doc
+        history.push(`/${identifier}`, { replace: true })
+        document.title = title
 
-      setCurrentDoc({ ...doc })
-      templatesGQL.getTemplate(templateId).then(({ data }) => {
-        setCss(data.getTemplate.rawCss)
-        debounce(updatePreview, 2500)(true)
-      })
+        setCurrentDoc({ ...doc })
+        templatesGQL.getTemplate(templateId).then(({ data }) => {
+          setCss(data.getTemplate.rawCss)
+          debounce(updatePreview, 2500)(true)
+        })
 
-      templateToEdit && setTemplateToEdit(null)
-      return
+        templateToEdit && setTemplateToEdit(null)
+        return
+      },
+      template: ({ templateId }) => setTemplateToEdit(templateId),
+      snippet: ({ templateId }) => setTemplateToEdit(templateId),
+      image: ({ img }) => setImgViewUrl(img),
+      default: ({ id }) => {
+        const variables = { id, resourceType }
+        setSelectedDocs([])
+        graphQL.openFolder({ variables, fetchPolicy: 'cache-and-network' })
+      },
     }
 
-    setSelectedDocs([])
-    console.log('openFolder', { resource })
-    graphQL.openFolder({ variables, fetchPolicy: 'cache-and-network' })
+    callOn(resourceType, actionHandlers, [resource])
   }
 
   const createResource = (resourceType, additionalProperties = {}) => {

@@ -18,6 +18,7 @@ import {
   useCreateFolder,
   useCreateSnippet,
 } from '../../component-ai-assistant/SnippetsManager'
+import { useLayout } from '../../../hooks/LayoutContext'
 
 const MAX_PATH_LEVEL = 4
 
@@ -85,7 +86,7 @@ const createFolderIsChecker = folder => extension =>
 const CANT_CREATE = ['Templates', 'Favorites', 'Shared', 'Snippets']
 
 const PathRender = props => {
-  const { layout } = useAiDesignerContext()
+  const { userMenuOpen } = useLayout()
   const { currentPath, graphQL, currentFolder } = useDocumentContext()
   const handleCreateSnippet = useCreateSnippet()
   const handleCreateDoc = useCreateDoc()
@@ -130,7 +131,7 @@ const PathRender = props => {
 
   return (
     <PathRenderWrapper {...props}>
-      <Container $hiding={!layout.userMenu}>
+      <Container $hiding={!userMenuOpen}>
         <Each of={lastPaths} as={pathRender} if={pathLevel} />
       </Container>
       <Actions>

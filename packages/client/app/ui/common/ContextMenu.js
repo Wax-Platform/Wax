@@ -90,7 +90,7 @@ export const MenuButton = styled(CleanButton)`
   }
 `
 
-const SubMenu = styled(Menu)`
+export const SubMenu = styled(Menu)`
   left: calc(100% + 1px);
   top: 0;
 `

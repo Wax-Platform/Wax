@@ -15,6 +15,7 @@ import {
   TeamButton,
   CodeEditorButton,
   TemplateManagerButton,
+  ImageBuilderButton,
 } from '../../menu/menuOptions'
 import FileBrowser from './FileBrowser'
 import ChatHistory from '../../component-ai-assistant/ChatHistory'
@@ -30,6 +31,8 @@ import {
 import { htmlTagNames } from '../../component-ai-assistant/utils'
 import { SaveOutlined } from '@ant-design/icons'
 import { TemplatesDropdown } from './TemplatesDropdown'
+import { ImageBuilder, ImageBuilderHeader } from './ImageBuilder'
+import { useLayout } from '../../../hooks/LayoutContext'
 
 const Menu = styled.nav`
   align-items: center;
@@ -48,15 +51,15 @@ const Menu = styled.nav`
 `
 
 const Content = styled.div`
-  --border-color: ${({ layout }) =>
-    layout.chat && layout.userMenu ? 'var(--color-trois-alpha)' : '#fff0'};
+  --border-color: ${({ chat }) =>
+    chat ? 'var(--color-trois-alpha)' : '#fff0'};
   background: #fff0;
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-width: ${({ layout }) => (!layout.userMenu ? '0' : '27dvw')};
-  opacity: ${({ layout }) => (!layout.userMenu ? '0.5' : '1')};
+  max-width: ${({ isOn }) => (!isOn ? '0' : '27dvw')};
+  opacity: ${({ isOn }) => (!isOn ? '0.5' : '1')};
   overflow: hidden;
   position: relative;
   transition: all 0.3s;
@@ -131,14 +134,8 @@ const CodeEditorHeaderRow = styled(FlexRow)`
 `
 
 const MainMenu = ({ enableLogin }) => {
-  const {
-    layout,
-    previewRef,
-    css,
-    selectedCtx,
-    userInteractions,
-    updatePreview,
-  } = useAiDesignerContext()
+  const { previewRef, css, selectedCtx, userInteractions, updatePreview } =
+    useAiDesignerContext()
 
   const {
     resourcesInFolder = [],
@@ -146,11 +143,15 @@ const MainMenu = ({ enableLogin }) => {
     updateTemplateCss,
   } = useDocumentContext()
 
-  const { team, chat, codeEditor, files, snippetsManager } = layout
+  const { userMenu, userMenuOpen } = useLayout()
+
+  const { team, chat, templateManager, files, snippetsManager, images } =
+    userMenu.state
 
   const menuLabel = chat ? 'Chat' : team ? 'Team' : null
 
   useEffect(() => {
+    console.log({ userMenuOpen })
     const body = previewRef?.current?.contentDocument.body
     console.log({
       body,
@@ -158,22 +159,23 @@ const MainMenu = ({ enableLogin }) => {
 
     if (body) {
       body.style.transformOrigin = 'top center'
-      layout.userMenu
+      userMenuOpen
         ? (body.style.transform = 'scale(0.80) translateX(-10%)')
         : (body.style.transform = 'scale(1)')
     }
-  }, [layout.userMenu, css])
+  }, [userMenuOpen, css])
 
   return (
     <Fragment>
       <Menu>
         <FileManagerButton />
         <TeamButton />
-        {/* <ChatButton /> */}
+        <ChatButton />
         <CodeEditorButton />
         <TemplateManagerButton />
+        <ImageBuilderButton />
       </Menu>
-      <Content layout={layout}>
+      <Content {...{ ...userMenu.state, isOn: userMenuOpen }}>
         <Header $files={files}>
           {menuLabel && <MenuLabel>{menuLabel}</MenuLabel>}
           {files && (
@@ -202,7 +204,7 @@ const MainMenu = ({ enableLogin }) => {
               </FilesInfoFixed>
             </FlexCol>
           )}
-          {codeEditor && (
+          {templateManager && (
             <FlexCol style={{ width: '100%' }}>
               <CodeEditorHeaderRow>
                 <MenuLabel>Template Manager</MenuLabel>
@@ -226,16 +228,27 @@ const MainMenu = ({ enableLogin }) => {
               </FilesInfoFixed>
             </FlexCol>
           )}
+          {images && (
+            <FlexCol style={{ width: '100%' }}>
+              <CodeEditorHeaderRow></CodeEditorHeaderRow>
+              <FilesInfoFixed>
+                <ImageBuilderHeader />
+              </FilesInfoFixed>
+            </FlexCol>
+          )}
         </Header>
         <ContentScrollWrapper id="user-menu-scroller">
           {files && <FileBrowser />}
           {team && <TeamPopup enableLogin={enableLogin} />}
-          {/* {chat && <ChatHistory />} */}
+          {chat && <ChatHistory />}
           {snippetsManager && <SnippetsManager />}
-          {codeEditor && <CodeEditor />}
+          {templateManager && <CodeEditor />}
+          {images && <ImageBuilder />}
         </ContentScrollWrapper>
         <Footer>
-          {(chat || codeEditor || snippetsManager) && <PromptBox />}
+          {(chat || templateManager || snippetsManager || images) && (
+            <PromptBox />
+          )}
         </Footer>
       </Content>
     </Fragment>

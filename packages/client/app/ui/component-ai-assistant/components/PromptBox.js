@@ -8,8 +8,7 @@ import useAssistant from '../hooks/useAiDesigner'
 import styled from 'styled-components'
 import PromptsInput from '../PromptsInput'
 import { DownOutlined, PictureOutlined } from '@ant-design/icons'
-import { ModelsList, htmlTagNames } from '../utils'
-import Toolbar from './Toolbar'
+import { ModelsList } from '../utils'
 
 const Dropdown = styled.div`
   background: var(--color-trois-lightest-2);
@@ -285,7 +284,6 @@ const RelativeContainer = styled.div`
 `
 export const PromptBox = props => {
   const {
-    layout,
     settings,
     onHistory,
     // useRag,
@@ -298,16 +296,11 @@ export const PromptBox = props => {
     ragSearchLoading,
     dalleLoading,
     handleSend,
-    // handleImageUpload,
+    handleImageUpload,
   } = useAssistant()
 
   return (
-    <AbsoluteContainer
-      $bothEditors={layout.preview && layout.editor}
-      $showChat={layout.chat}
-      $show={designerOn}
-      {...props}
-    >
+    <AbsoluteContainer {...props}>
       <PromptBoxWrapper>
         <Assistant
           loading={loading || ragSearchLoading || dalleLoading}
@@ -322,7 +315,7 @@ export const PromptBox = props => {
           }}
         >
           <ModelsDropdown />
-          {/* <span style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ display: 'flex', alignItems: 'center' }}>
             <input
               accept=".png,.jpg,.webp,.gif,.jpeg"
               id="add-file-to-prompt"
@@ -338,7 +331,7 @@ export const PromptBox = props => {
             >
               <PictureOutlined style={{ color: 'var(--color-trois)' }} />
             </label>
-          </span> */}
+          </span>
         </span>
       </PromptBoxWrapper>
     </AbsoluteContainer>

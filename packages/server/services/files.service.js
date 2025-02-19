@@ -43,7 +43,15 @@ const uploadFileToS3 = async (fileContents, s3Key) => {
   return uploadedImage[0].key
 }
 
-const insertFileRecord = async (trx, name, key, mimetype, extension, size) => {
+const insertFileRecord = async ({
+  name,
+  key,
+  mimetype,
+  extension,
+  size,
+  options,
+}) => {
+  const { trx } = options
   const { File } = require('@coko/server')
   return File.query(trx).insert({
     name,
@@ -75,14 +83,14 @@ const uploadCssFile = async (
     const s3Key = `${s3BaseKey}/${fileName}`
     const storedObjectKey = await uploadFileToS3(cssFileContents, s3Key)
 
-    const cssFile = await insertFileRecord(
-      trx,
-      fileName,
-      storedObjectKey,
-      'text/css',
-      'css',
-      Buffer.byteLength(cssFileContents),
-    )
+    const cssFile = await insertFileRecord({
+      name: fileName,
+      key: storedObjectKey,
+      mimetype: 'text/css',
+      extension: 'css',
+      size: Buffer.byteLength(cssFileContents),
+      options: { trx },
+    })
 
     const template = await Template.query(trx).insert({
       fileId: cssFile.id,
@@ -157,14 +165,14 @@ const uploadFontFile = async (trx, fontFolder, fileName, s3BaseKey) => {
     const storedObjectKey = await uploadFileToS3(fontFileContents, s3Key)
 
     // Store the font file reference using the File model
-    const fontFile = await insertFileRecord(
-      trx,
-      fileName,
-      storedObjectKey,
+    const fontFile = await insertFileRecord({
+      name: fileName,
+      key: storedObjectKey,
       mimetype,
       extension,
-      Buffer.byteLength(fontFileContents),
-    )
+      size: Buffer.byteLength(fontFileContents),
+      options: { trx },
+    })
 
     return { storedObjectKey, id: fontFile.id }
   }
@@ -289,4 +297,7 @@ module.exports = {
   execute,
   fetchAndStoreTemplate,
   fetchAndStoreAllTemplates,
+  uploadCssFile,
+  uploadFileToS3,
+  insertFileRecord,
 }

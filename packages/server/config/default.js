@@ -25,7 +25,6 @@ module.exports = {
     useGraphQLServer: true,
     useJobQueue: false,
     serveClient: false,
-    useFileStorage: false,
     graphiql: true,
     emailVerificationTokenExpiry: {
       amount: 24,

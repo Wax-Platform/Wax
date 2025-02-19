@@ -21,8 +21,73 @@ import {
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
+import { TemplateManagerButton } from '../../menu/menuOptions'
+import { useLayout } from '../../../hooks/LayoutContext'
 
-const CSS_SELECTED_ID_EXCEPT = userMenu => /* css */ `      
+export const IMG_GEN_PARAMS = {
+  type: [
+    '3D',
+    '2D',
+    'Sketch',
+    'Illustration',
+    'Cartoon',
+    'Realistic',
+    'Abstract',
+  ],
+  style: [
+    'Realism',
+    'Impressionism',
+    'Surrealism',
+    'Abstract',
+    'Pop Art',
+    'Photorealism',
+    'Black and White Photography',
+    'Sepia Photography',
+    'Street Photography',
+    'Portrait Photography',
+    'Landscape Photography',
+    'Macro Photography',
+    'Fashion Photography',
+    'Documentary Photography',
+    'Fine Art Photography',
+  ],
+  colors: [
+    'Sepia',
+    'Black and White',
+    'Vibrant',
+    'Muted',
+    'Pastel',
+    'Monochrome',
+    'Warm',
+    'Cool',
+  ],
+  media: [
+    'DSLR Camera, 24MP',
+    'Mirrorless Camera, 20MP',
+    'Point and Shoot Camera, 16MP',
+    'Medium Format Camera, 50MP',
+    'Large Format Camera, 100MP',
+    'Film Camera, 35mm',
+    'Polaroid Camera, Instant Film',
+    'Smartphone Camera, 12MP',
+    'Oil Painting',
+    'Watercolor',
+    'Acrylic Painting',
+    'Charcoal Drawing',
+    'Pencil Sketch',
+    'Digital Art',
+    '3D Render',
+  ],
+}
+
+const DEFAULT_IMG_GEN_PARAMS = {
+  type: '2D',
+  style: 'Realism',
+  colors: 'Vibrant',
+  media: 'DSLR Camera, 24MP',
+}
+
+const generateAppCss = userMenu => /* css */ `      
 
 body, html {
     width: 100%;
@@ -31,10 +96,14 @@ body, html {
 }
 
 body {
-    padding: 50px 0 50px 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
     transform: scale(${userMenu ? 0.8 : 1});
     transform-origin: top left;
     transition: transform 0.3s;
+    width: 100%;
 }
 
 .pagedjs_page {
@@ -46,6 +115,15 @@ body {
       outline: 2px dashed #0000;
       outline-offset: 12px;
     }
+}
+
+.pagedjs_pages {
+  padding: 0;
+}
+
+.pagedjs_area {
+  padding-right: 0;
+  padding-left: 0;
 }
       
 .selected-id {
@@ -113,6 +191,8 @@ export const AiDesignerContext = createContext()
 // eslint-disable-next-line react/prop-types
 export const AiDesignerProvider = ({ children }) => {
   // #region HOOKS ----------------------------------------------------------------
+  const { userMenuOpen } = useLayout()
+
   const history = useRef({
     prompts: { active: true, index: 0 },
     source: { redo: [], undo: [], limit: { undo: 20, redo: 20 } },
@@ -140,6 +220,7 @@ export const AiDesignerProvider = ({ children }) => {
   const [showSnippets, setShowSnippets] = useState(false)
   const [userPrompt, setUserPrompt] = useState('')
   const [designerOn, setDesignerOn] = useState(false)
+  const [imgGenParams, setImgGenParams] = useState(DEFAULT_IMG_GEN_PARAMS)
 
   // const [userInput, setUserInput] = useState({
   //   text: [''],
@@ -147,19 +228,6 @@ export const AiDesignerProvider = ({ children }) => {
   //   useRag: false,
   //   model: ['openAi', 'gpt-4o', 'GPT-4o'],
   // })
-
-  const [layout, setLayout] = useState({
-    preview: false,
-    editor: true,
-    chat: false,
-    input: true,
-    settings: false,
-    files: true,
-    teams: false,
-    userMenu: true,
-    codeEditor: false,
-    snippetsManager: false,
-  })
 
   const [tools, setTools] = useState({
     dropper: { active: false, data: '' },
@@ -175,7 +243,6 @@ export const AiDesignerProvider = ({ children }) => {
     alt: false,
   })
 
-  const updateLayout = updateObjectState(setLayout)
   const mutateSettings = updateObjectStateFromKey(setSettings)
   const updateTools = updateObjectStateFromKey(setTools)
 
@@ -280,7 +347,7 @@ export const AiDesignerProvider = ({ children }) => {
         providedCss.replaceAll(
           '.ProseMirror[contenteditable]',
           '.pagedjs_page_content',
-        ) + CSS_SELECTED_ID_EXCEPT(layout.userMenu)
+        ) + generateAppCss(userMenuOpen)
 
       const scrollPos = previewDoc?.scrollTop ?? 0
 
@@ -339,8 +406,6 @@ export const AiDesignerProvider = ({ children }) => {
         ...ctx,
         ...chatGpt,
         promptRef,
-        layout,
-        updateLayout,
         clearHistory,
         editorContent,
         selectionBoxRef,
@@ -373,6 +438,8 @@ export const AiDesignerProvider = ({ children }) => {
         setDesignerOn,
         userInteractions,
         setUserInteractions,
+        imgGenParams,
+        setImgGenParams,
       }}
     >
       {children}

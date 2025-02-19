@@ -1,3 +1,4 @@
+const { logger, File, fileStorage } = require('@coko/server')
 const {
   renameResource,
   deleteResource,
@@ -55,6 +56,14 @@ module.exports = {
 
       const childResources = await ResourceTree.getChildren(children)
       return childResources
+    },
+    img: async resource => {
+      if (resource.resourceType !== 'image') return null
+      const file = await File.query().findOne({ id: resource.fileId })
+      if (!file) return null
+      logger.info('file', file)
+      const url = await fileStorage.getURL(file.storedObjects[0].key)
+      return url
     },
   },
   Query: {

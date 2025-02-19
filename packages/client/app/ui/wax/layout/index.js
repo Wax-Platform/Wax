@@ -15,18 +15,15 @@ import MainMenu from '../../dashboard/MainMenu/MainMenu'
 import 'wax-table-service/dist/index.css'
 import 'wax-prosemirror-core/dist/index.css'
 import 'wax-prosemirror-services/dist/index.css'
-import PromptBox from '../../component-ai-assistant/components/PromptBox'
-import {
-  AiDesignerContext,
-  useAiDesignerContext,
-} from '../../component-ai-assistant/hooks/AiDesignerContext'
+import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import useAssistant from '../../component-ai-assistant/hooks/useAiDesigner'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { PagedJsPreview } from '../../component-ai-assistant/components/PagedJsPreview'
 import { setInlineStyle } from '../../component-ai-assistant/utils'
-import { StyledWindow, WindowHeading } from '../../_styleds/common'
+import { StyledWindow } from '../../_styleds/common'
 import { FullCodeEditor } from '../../component-ai-assistant/components/FullCodeEditor'
 import { useDocumentContext } from '../../dashboard/hooks/DocumentContext'
+import { useLayout } from '../../../hooks/LayoutContext'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -225,9 +222,7 @@ const Layout = ({ docIdentifier, ...props }) => {
   const { sharedUsers, yjsCurrentUser } = useContext(YjsContext)
   const {
     editorContainerRef,
-    layout,
     updatePreview,
-    updateLayout,
     css,
     designerOn,
     onHistory,
@@ -235,6 +230,7 @@ const Layout = ({ docIdentifier, ...props }) => {
   } = useAiDesignerContext()
 
   const { templateToEdit } = useDocumentContext()
+  const { userMenu, editors, userMenuOpen } = useLayout()
 
   const { loading } = useAssistant()
   const { enableLogin } = props
@@ -244,17 +240,18 @@ const Layout = ({ docIdentifier, ...props }) => {
   useEffect(() => {
     onHistory.addRegistry('undo')
   }, [css])
+  useEffect(() => {
+    !!editors.state.preview && updatePreview(true)
+    !editors.state.preview &&
+      !editors.state.wax &&
+      editors.update({ wax: true })
+  }, [editors.state.preview])
 
   useEffect(() => {
-    !!layout.preview && updatePreview()
-    !layout.preview && !layout.editor && updateLayout({ editor: true })
-  }, [layout.preview])
-
-  useEffect(() => {
-    if (!layout.editor) {
-      !layout.preview && updateLayout({ preview: true })
+    if (!editors.state.editor) {
+      !editors.state.preview && editors.update({ preview: true })
     }
-  }, [layout.editor])
+  }, [editors.state.wax])
 
   useEffect(() => {
     const pages = previewRef?.current?.contentDocument?.documentElement
@@ -263,12 +260,12 @@ const Layout = ({ docIdentifier, ...props }) => {
         transition: `transform 0.2s`,
         transformOrigin: 'top left',
         transform: `scale(${
-          designerOn && layout.chat && layout.editor ? '0.8' : '1'
+          designerOn && userMenu.state.chat && editors.state.wax ? '0.8' : '1'
         }) translateX(${
-          designerOn && layout.chat && layout.editor ? '4%' : '0'
+          designerOn && userMenu.state.chat && editors.state.wax ? '4%' : '0'
         })`,
       })
-  }, [layout.chat, layout.editor, updatePreview])
+  }, [userMenu.state.chat, editors.state.wax, updatePreview])
 
   useEffect(() => {
     if (main?.docView) {
@@ -325,7 +322,7 @@ const Layout = ({ docIdentifier, ...props }) => {
     }
   }
 
-  const showEditor = layout.editor && !templateToEdit && docIdentifier
+  const showEditor = editors.state.wax && !templateToEdit && docIdentifier
 
   return (
     <ThemeProvider theme={theme}>
@@ -355,20 +352,14 @@ const Layout = ({ docIdentifier, ...props }) => {
               $loading={!!loading}
               ref={editorContainerRef}
             >
-              <EditorContainer
-                $both={!!layout.preview && !!layout.editor}
-                $all={!!layout.preview && !!layout.editor && !!layout.userMenu}
-              >
+              <EditorContainer>
                 {docIdentifier && <WaxView {...props} />}
               </EditorContainer>
-              {!layout.userMenu &&
-                !layout.preview &&
-                !templateToEdit &&
-                layout.editor && (
-                  <CommentsContainer $show>
-                    <RightArea area="main" users={users} />
-                  </CommentsContainer>
-                )}
+              {!userMenuOpen && !editors.state.wax && !templateToEdit && (
+                <CommentsContainer $show>
+                  <RightArea area="main" users={users} />
+                </CommentsContainer>
+              )}
             </WaxSurfaceScroll>
             <WaxBottomRightInfo>
               <InfoContainer id="info-container">

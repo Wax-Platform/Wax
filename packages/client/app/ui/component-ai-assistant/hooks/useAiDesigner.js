@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
-import { create, debounce, takeRight } from 'lodash'
+import { clone, create, debounce, takeRight } from 'lodash'
 import { useAiDesignerContext } from './AiDesignerContext'
 import { GET_SETTINGS, UPDATE_SETTINGS } from '../queries/settings'
 import {
@@ -103,6 +103,7 @@ const useAssistant = () => {
         onHistory.addRegistry('undo')
         history.current.source.redo = []
       }
+
       const actions = {
         css: val => {
           const { toReplace = [], toAdd } = safeParse(val)
@@ -162,10 +163,7 @@ const useAssistant = () => {
             debounce(getUserSnippets, 2500)()
           }
         },
-        feedback: val => {
-          selectedCtx.conversation.push({ role: 'assistant', content: val })
-          setFeedback(val)
-        },
+
         content: val => {
           setEditorContent(
             parseContent(editorContent, dom => {
@@ -194,15 +192,20 @@ const useAssistant = () => {
           await generateImages({
             variables: { input: val },
           }).then(({ data: { generateImages: aiImages } }) => {
-            isSingleNode &&
-              AiDesigner.insertImage({
-                src: aiImages.s3url,
-                'data-imagekey': aiImages.imageKey,
-              })
-            client.refetchQueries({
-              include: [GET_IMAGES_URL],
+            if (!response.feedback) return
+            const feedbackWithImage = `${response.feedback}\n\n![Generated Image](${aiImages.s3url})`
+
+            selectedCtx.conversation.push({
+              role: 'assistant',
+              content: feedbackWithImage,
             })
+
+            setFeedback(feedbackWithImage)
           })
+        },
+        feedback: val => {
+          selectedCtx.conversation.push({ role: 'assistant', content: val })
+          setFeedback(val)
         },
         default: () => {
           const feedback =
@@ -221,7 +224,11 @@ const useAssistant = () => {
       const actionsApplied = []
 
       actionsToApply?.forEach(action => {
-        callOn(action, actions, [response[action]])
+        const clonedActions = { ...actions }
+        if (actionsToApply.includes('callDallE') && action === 'feedback') {
+          clonedActions.feedback = v => {}
+        }
+        callOn(action, clonedActions, [response[action]])
         actionsApplied?.push(action)
       })
       // console.log({ response, actionsApplied })
@@ -266,7 +273,7 @@ const useAssistant = () => {
     const systemPayload = {
       ctx: AiDesigner.selected,
       sheet: css,
-      providedText: ContextIsNotDocument && selectedCtx.node.innerHTML,
+      providedText: ContextIsNotDocument && selectedCtx?.node?.innerHTML,
       markedSnippet,
     }
 

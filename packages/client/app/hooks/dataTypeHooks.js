@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
-import { isArray, isObject, mergeWith } from 'lodash'
-import { isNonNullObject, safeCall } from '../shared/generalUtils'
+import { capitalize, isArray, isBoolean, isObject, mergeWith } from 'lodash'
+import {
+  isNonNullObject,
+  onEntries,
+  onKeys,
+  safeCall,
+} from '../shared/generalUtils'
+
+const { values, keys } = Object
 
 /**
  * @typedef {Object} UseBoolReturn
@@ -392,4 +399,87 @@ export const useArray = (startState = [], options = {}) => {
   }, [onClear])
 
   return { state: array, set, add, remove, update, reset, clear }
+}
+/**
+ * Custom hook to manage an object with boolean values.
+ *
+ * @param {Object} [options={}] - Options for callbacks and initial state.
+ * @param {Object} [options.start={}] - Initial state.
+ * @param {Function} [options.onFieldUpdate] - Callback when a field is updated.
+ * @param {Function} [options.onUpdate] - Callback when the object is updated.
+ * @param {Function} [options.onClear] - Callback when the object is cleared.
+ * @returns {UseFlagsReturn} - State and actions to manipulate the flags state.
+ */
+export const useFlags = (options = {}) => {
+  const { onUpdate, onClear, config = {}, start = {} } = options
+  const [flags, setFlags] = useState(start)
+
+  const set = useCallback(
+    state => {
+      const prev = flags
+      isObject(state) && setFlags(state)
+      safeCall(onUpdate)(state, prev)
+    },
+    [onUpdate, flags],
+  )
+
+  const update = useCallback(
+    updates => {
+      if (!isNonNullObject(updates)) return
+      const { __others, ...newFlags } = { ...updates, ...config }
+      const updatedFlags = { ...newFlags }
+      const updatedFlagsKeys = keys(updatedFlags)
+      console.log({ updates })
+
+      const setOthers = () => {
+        if (!isBoolean(__others)) return null
+        onKeys(flags, key => {
+          !updatedFlagsKeys.includes(key) && (updatedFlags[key] = __others)
+        })
+      }
+
+      onEntries(newFlags, (key, value) => {
+        updatedFlags[key] = !!value
+        safeCall(options[`on${capitalize(key)}Update`])(!!value)
+      })
+      safeCall(onUpdate)(updatedFlags)
+
+      setOthers()
+
+      setFlags(prev => ({ ...prev, ...updatedFlags }))
+    },
+    [options],
+  )
+
+  const reset = useCallback(() => {
+    setFlags(start)
+    safeCall(onUpdate)(start)
+  }, [start, onUpdate])
+
+  const clear = useCallback(() => {
+    setFlags(prev => {
+      safeCall(onClear)(prev)
+      return {}
+    })
+  }, [onClear])
+
+  const toggle = useCallback(
+    key => {
+      setFlags(prev => {
+        const newValue = { ...prev, [key]: !prev[key] }
+        safeCall(onUpdate)(newValue, prev)
+        return newValue
+      })
+    },
+    [onUpdate],
+  )
+
+  return {
+    state: flags,
+    set,
+    update,
+    reset,
+    clear,
+    toggle,
+  }
 }

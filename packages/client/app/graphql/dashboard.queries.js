@@ -43,6 +43,7 @@ export const OPEN_FOLDER = gql`
             path
             title
           }
+          img
           extension
           templateId
           resourceType

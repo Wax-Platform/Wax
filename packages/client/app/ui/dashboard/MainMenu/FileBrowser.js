@@ -25,6 +25,7 @@ import {
   useCreateFolder,
   useCreateSnippet,
 } from '../../component-ai-assistant/SnippetsManager'
+import { useLayout } from '../../../hooks/LayoutContext'
 
 const FilesWrapper = styled.div`
   --container-size: 26.5dvw;
@@ -79,7 +80,6 @@ const Loader = styled.p`
 `
 
 const Files = props => {
-  const { layout } = useAiDesignerContext()
   const {
     graphQL,
     resourcesInFolder = [],
@@ -88,6 +88,9 @@ const Files = props => {
     currentFolder,
     setResources,
   } = useDocumentContext()
+
+  const { userMenuOpen } = useLayout()
+
   const { handleCreateTemplate } = useCreateTemplate()
   const handleCreateSnippet = useCreateSnippet()
   const handleCreateDoc = useCreateDoc()
@@ -166,7 +169,7 @@ const Files = props => {
 
   return (
     <FilesWrapper
-      expand={layout.userMenu}
+      expand={userMenuOpen}
       onClick={() => contextualMenu.update({ show: false })}
       onContextMenu={e => {
         e.preventDefault()
@@ -194,7 +197,6 @@ const Files = props => {
           ],
         })
       }}
-      $showRightBorder={layout.chat}
       onScroll={() => contextualMenu.update({ show: false })}
       {...props}
     >

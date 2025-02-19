@@ -31,6 +31,7 @@ import {
 } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
 import templateIcon from '../../../../static/template-icon-2.svg'
+import AiDesigner from '../../../AiDesigner/AiDesigner'
 
 export const ListContainer = styled.div`
   --icon-size: 16px;
@@ -136,6 +137,7 @@ export const IconTitleContainer = styled.div`
 
   .anticon {
     height: 100%;
+    pointer-events: none;
   }
 
   button {
@@ -148,6 +150,7 @@ export const IconTitleContainer = styled.div`
     svg {
       fill: var(--svg-fill);
       font-size: var(--icon-size);
+      pointer-events: none;
       stroke-width: 0;
     }
   }
@@ -229,9 +232,13 @@ const TEMPLATE_MENU_OPTIONS = [
   'info',
 ]
 
-const TemplateIcon = styled.img.attrs({ src: templateIcon })`
+const StyledImage = styled.img`
   height: var(--icon-size);
   object-fit: cover;
+  width: var(--icon-size);
+`
+
+const TemplateIcon = styled(StyledImage).attrs({ src: templateIcon })`
   width: calc(var(--icon-size) * 1.2);
 `
 
@@ -285,8 +292,8 @@ const Resource = props => {
     onResourceDrop,
     ...rest
   } = props
-  const { id, title, resourceType, doc = {}, templateId } = resource || {}
-  const { userInteractions } = useAiDesignerContext()
+  const { id, title, resourceType, doc = {}, templateId, img } = resource || {}
+  const { userInteractions, selectedCtx } = useAiDesignerContext()
 
   const {
     openResource: open,
@@ -314,14 +321,7 @@ const Resource = props => {
     isFolder &&
     (clipboard.state.cut?.items?.length || clipboard.state.copy?.items?.length)
 
-  const openResource = useCallback(
-    resource => {
-      const { resourceType, templateId } = resource
-      const isTemplate = ['template', 'snippet'].includes(resourceType)
-      return isTemplate ? setTemplateToEdit(templateId) : open(resource)
-    },
-    [open, setTemplateToEdit, resource, isActive],
-  )
+  const openResource = useCallback(open, [open])
   const handleOpen = useCallback(
     e => {
       e.preventDefault()
@@ -469,17 +469,21 @@ const Resource = props => {
     e.preventDefault()
   }, [])
 
-  const ResourceIcon = switchOn(title, {
+  const iconSearch = isSystem ? title : resourceType
+
+  const ResourceIcon = switchOn(iconSearch, {
     ...objIf(isSystem, SYSTEM_FOLDER_ICONS_MAP),
+    image: () => <StyledImage src={img}></StyledImage>,
     default: isFolder ? FolderIcon : FileIcon,
   })
 
-  const iconColor = switchOn(resourceType, ICON_COLORS)
+  const svgFill = switchOn(resourceType, ICON_COLORS)
   const Container = switchOn(view, VIEW_BASED_CONTAINERS)
 
   const onCutClipboard = clipboard.state.cut?.items?.includes(id)
 
   useEffect(() => {
+    console.log(selectedCtx?.conversation)
     const clip = clipboard.state.cut?.items?.includes(id)
 
     console.log({ onCutClipboard: clip })
@@ -493,7 +497,7 @@ const Resource = props => {
       $folder={isFolder}
       data-contextmenu
       style={{
-        '--svg-fill': iconColor,
+        '--svg-fill': svgFill,
         opacity: isActive && templateId ? 0.5 : 1,
       }}
       onClick={handleSelection}
@@ -512,7 +516,7 @@ const Resource = props => {
     >
       <IconTitleContainer data-contextmenu $ghost={onCutClipboard}>
         <FlexRow>
-          <ResourceIcon data-contextmenu />
+          <ResourceIcon data-contextmenu style={{ pointerEvents: 'none' }} />
         </FlexRow>
         <TitleLabel $selected={isSelected}>
           {rename.state.id === id ? (

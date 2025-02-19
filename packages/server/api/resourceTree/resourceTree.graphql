@@ -9,6 +9,7 @@ type Resource {
   templateId: ID
   extension: String
   identifier: String
+  img: String
 }
 
 type NewResource {

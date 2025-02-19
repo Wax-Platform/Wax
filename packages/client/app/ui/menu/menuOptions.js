@@ -1,18 +1,17 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import {
   FolderOutlined,
   FolderOpenOutlined,
   TeamOutlined,
-  CodeOutlined,
   ScissorOutlined,
+  FileImageOutlined,
 } from '@ant-design/icons'
 import styled from 'styled-components'
 import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
 import { CleanButton } from '../_styleds/common'
 import chatIcon from '../../../static/chat-icon2.svg'
 import templateIcon from '../../../static/template-icon-2.svg'
-import AiDesigner from '../../AiDesigner/AiDesigner'
-import { getPreviewIframe } from '../component-ai-assistant/utils'
+import { useLayout } from '../../hooks/LayoutContext'
 
 const Button = styled(CleanButton)`
   --shadow: ${p => (p.$expanded ? '#0001' : '#0000')};
@@ -22,6 +21,9 @@ const Button = styled(CleanButton)`
   border-radius: 50%;
   box-shadow: none;
   height: fit-content;
+  max-height: ${p => (p.$hide ? 0 : '100%')};
+  max-width: ${p => (p.$hide ? 0 : '80%')};
+  opacity: ${p => (p.$hide ? 0 : 1)};
   text-decoration: none;
   transition: all 0.2s;
   width: 80%;
@@ -45,27 +47,20 @@ const Button = styled(CleanButton)`
     background-color: var(--color-trois-lightest);
   }
 `
-const toggleLayout = (...keys) => ({
-  team: keys.includes('team'),
-  chat: keys.includes('chat'),
-  files: keys.includes('files'),
-  snippetsManager: keys.includes('snippetsManager'),
-  codeEditor: keys.includes('codeEditor'),
-  userMenu: !keys.includes('userMenu'),
-})
 
 export const FileManagerButton = () => {
-  const { layout, updateLayout } = useAiDesignerContext()
-  const action = layout.files && layout.userMenu && 'userMenu'
-  const newLayout = toggleLayout('files', action)
+  const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
 
   return (
     <Button
-      $expanded={layout.userMenu && layout.files}
-      onClick={() => updateLayout(newLayout)}
+      onClick={() => {
+        !userMenuOpen && showUserMenu()
+        userMenu.state.files ? hideUserMenu() : userMenu.update({ files: true })
+      }}
+      $expanded={userMenu.state.files}
       title="Show / Hide Filemanager"
     >
-      {!layout.files || !layout.userMenu ? (
+      {!userMenu.state.files ? (
         <FolderOutlined style={{ fontSize: '32px' }} />
       ) : (
         <FolderOpenOutlined style={{ fontSize: '32px' }} />
@@ -75,14 +70,15 @@ export const FileManagerButton = () => {
 }
 
 export const TeamButton = () => {
-  const { layout, updateLayout } = useAiDesignerContext()
-  const action = layout.team && layout.userMenu && 'userMenu'
-  const newLayout = toggleLayout('team', action)
+  const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
 
   return (
     <Button
-      onClick={() => updateLayout(newLayout)}
-      $expanded={layout.userMenu && layout.team}
+      onClick={() => {
+        !userMenuOpen && showUserMenu()
+        userMenu.state.team ? hideUserMenu() : userMenu.update({ team: true })
+      }}
+      $expanded={userMenu.state.team}
       title="Team"
     >
       <TeamOutlined />
@@ -91,81 +87,98 @@ export const TeamButton = () => {
 }
 
 export const ChatButton = () => {
-  const { layout, updateLayout, designerOn } = useAiDesignerContext()
-  const action = layout.chat && layout.userMenu && 'userMenu'
-  const newLayout = toggleLayout('chat', action)
+  const { designerOn } = useAiDesignerContext()
+  const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
 
   return (
-    designerOn && (
-      <Button
-        $expanded={layout.userMenu && layout.chat}
-        onClick={() => updateLayout(newLayout)}
-      >
-        <img src={chatIcon} alt="Chat" />
-      </Button>
-    )
+    <Button
+      $hide={!designerOn}
+      onClick={() => {
+        !userMenuOpen && showUserMenu()
+        userMenu.state.chat ? hideUserMenu() : userMenu.update({ chat: true })
+      }}
+      $expanded={userMenu.state.chat}
+      title="Chat"
+    >
+      <img src={chatIcon} alt="Chat" />
+    </Button>
   )
 }
 
 export const CodeEditorButton = () => {
-  const { layout, updateLayout, designerOn } = useAiDesignerContext()
-  const action = layout.codeEditor && layout.userMenu && 'userMenu'
-  const newLayout = toggleLayout('codeEditor', action)
+  const { designerOn } = useAiDesignerContext()
+  const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
 
   return (
-    designerOn && (
-      <Button
-        onClick={() => {
-          updateLayout(newLayout)
-
-          if (AiDesigner.selected?.id !== 'aid-ctx-main') {
-            AiDesigner.select('aid-ctx-main')
-            getPreviewIframe()
-              ?.contentDocument.querySelector('.selected-id')
-              ?.classList.remove('selected-id')
-          }
-        }}
-        $expanded={layout.userMenu && layout.codeEditor}
-        title="Template Editor"
-      >
-        <img src={templateIcon} alt="Code Editor" />
-      </Button>
-    )
+    <Button
+      $hide={!designerOn}
+      onClick={() => {
+        !userMenuOpen && showUserMenu()
+        userMenu.state.templateManager
+          ? hideUserMenu()
+          : userMenu.update({ templateManager: true })
+      }}
+      $expanded={userMenu.state.templateManager}
+      title="Template Editor"
+    >
+      <img src={templateIcon} alt="Code Editor" />
+    </Button>
   )
 }
 
 export const TemplateManagerButton = () => {
-  const { layout, updateLayout, designerOn } = useAiDesignerContext()
-  const action = layout.snippetsManager && layout.userMenu && 'userMenu'
-  const newLayout = toggleLayout('snippetsManager', action)
+  const { designerOn } = useAiDesignerContext()
+  const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
 
   return (
-    designerOn && (
-      <Button
-        onClick={() => updateLayout(newLayout)}
-        $expanded={layout.userMenu && layout.snippetsManager}
-        title="Snippets Manager"
-      >
-        <ScissorOutlined />
-      </Button>
-    )
+    <Button
+      $hide={!designerOn}
+      onClick={() => {
+        !userMenuOpen && showUserMenu()
+        userMenu.state.snippetsManager
+          ? hideUserMenu()
+          : userMenu.update({ snippetsManager: true })
+      }}
+      $expanded={userMenu.state.snippetsManager}
+      title="Snippets Manager"
+    >
+      <ScissorOutlined />
+    </Button>
   )
 }
 
 export const SnippetsButton = () => {
-  const { layout, updateLayout, designerOn } = useAiDesignerContext()
-  const action = layout.snippets && layout.userMenu && 'userMenu'
-  const newLayout = toggleLayout('snippets', action)
+  const { designerOn } = useAiDesignerContext()
+  const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
 
   return (
-    designerOn && (
-      <Button
-        onClick={() => updateLayout(newLayout)}
-        $expanded={layout.userMenu && layout.snippets}
-        title="Snippets"
-      >
-        <ScissorOutlined />
-      </Button>
-    )
+    <Button
+      $hide={!designerOn}
+      onClick={() => userMenu.update({ snippets: !userMenu.state.snippets })}
+      $expanded={userMenu.state.snippets}
+      title="Snippets"
+    >
+      <ScissorOutlined />
+    </Button>
+  )
+}
+
+export const ImageBuilderButton = () => {
+  const { designerOn } = useAiDesignerContext()
+  const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
+
+  return (
+    <Button
+      onClick={() => {
+        !userMenuOpen && showUserMenu()
+        userMenu.state.images
+          ? hideUserMenu()
+          : userMenu.update({ images: true })
+      }}
+      $expanded={userMenu.state.images}
+      title="Image Builder"
+    >
+      <FileImageOutlined />
+    </Button>
   )
 }

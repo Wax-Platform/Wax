@@ -200,7 +200,7 @@ const getImageStreamFromURL = async url => {
     const passThroughStream = new stream.PassThrough()
 
     passThroughStream.end(buffer)
-    return { stream: passThroughStream, base64 }
+    return { stream: passThroughStream, base64, buffer }
   } catch (error) {
     logger.error('Error fetching image:', error)
     return ''

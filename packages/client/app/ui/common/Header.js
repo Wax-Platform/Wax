@@ -17,6 +17,7 @@ import {
 import { PrinterOutlined, SaveOutlined } from '@ant-design/icons'
 import { TemplatesDropdown } from '../dashboard/MainMenu/TemplatesDropdown'
 import { debounce } from 'lodash'
+import { useLayout } from '../../hooks/LayoutContext'
 
 // #region styles
 const StyledHeader = styled.header`
@@ -139,32 +140,20 @@ const Header = props => {
   const {
     designerOn,
     setDesignerOn,
-    updateLayout,
-    layout,
     previewRef,
     updatePreview,
     onHistory,
     css,
   } = useAiDesignerContext()
 
+  const { userMenu, editors } = useLayout()
+
   const { currentDoc } = useContext(DocumentContext)
 
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
-    !designerOn
-      ? updateLayout({
-          preview: true,
-          editor: false,
-        })
-      : updateLayout({
-          preview: false,
-          editor: true,
-          ...objIf(layout.userMenu, {
-            snippetsManager: false,
-            codeEditor: false,
-            files: true,
-          }),
-        })
+    editors.update({ preview: !designerOn, wax: designerOn })
+    designerOn && userMenu.update({ files: true })
     updatePreview(true, css)
   }
 
@@ -208,14 +197,16 @@ const Header = props => {
                 })
                 body && (body.style.transform = 'scale(1)')
                 body && (body.style.padding = '0')
+                body.querySelector('.pagedjs_pages').style.padding = '0'
+
                 const selected = body.querySelectorAll('.selected-id')
                 selected.forEach(el => el.classList.remove('selected-id'))
 
                 previewRef?.current?.contentWindow?.print()
                 if (body) {
                   selected.forEach(el => el.classList.add('selected-id'))
-                  body.style.padding = '50px 0 50px 50px'
-                  layout.userMenu
+                  body.querySelector('.pagedjs_pages').style.padding = ''
+                  userMenuOpen
                     ? (body.style.transform = 'scale(0.8)')
                     : (body.style.transform = 'scale(1)')
                 }

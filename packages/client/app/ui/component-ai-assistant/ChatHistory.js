@@ -110,6 +110,11 @@ const MessageContainer = styled.div`
     color: var(--color-trois);
   }
 
+  img {
+    object-fit: contain;
+    width: 100%;
+  }
+
   ul,
   ol {
     font-size: 0;
@@ -237,7 +242,7 @@ const NoMessages = styled.span`
 `
 
 const ChatHistory = ({ nomessages, className, ...props }) => {
-  const { selectedCtx, feedback, deleteLastMessage, settings, layout } =
+  const { selectedCtx, feedback, deleteLastMessage, settings } =
     useAiDesignerContext()
   const { currentUser } = useCurrentUser()
   const [clipboardText, setClipboardText] = useState('')
@@ -280,82 +285,76 @@ const ChatHistory = ({ nomessages, className, ...props }) => {
   return (
     <Root className={className}>
       <ChatHistoryContainer ref={threadRef} {...props}>
-        {layout.chat && (
-          <Each
-            if={selectedCtx?.conversation?.length > 0}
-            of={selectedCtx?.conversation}
-            as={({ role, content }, i) => {
-              const forgotten =
-                i <
-                selectedCtx.conversation.length - settings.chat.historyMax - 1
+        <Each
+          if={selectedCtx?.conversation?.length > 0}
+          of={selectedCtx?.conversation}
+          as={({ role, content }, i) => {
+            const forgotten =
+              i < selectedCtx.conversation.length - settings.chat.historyMax - 1
 
-              const messageid = `${role}-${i}`
+            const messageid = `${role}-${i}`
 
-              const copyText = async () => {
-                if (!document?.getElementById(messageid)) return
-                copyTextContent(document?.getElementById(messageid))
-                const newCbTxt = await getClipboardText()
-                setClipboardText(newCbTxt)
-              }
-
-              return (
-                <>
-                  <link href={prismcss} rel="stylesheet" />
-                  <MessageContainer forgotten={forgotten} hasBorder={i !== 0}>
-                    <MessageHeader>
-                      {role === 'user' ? (
-                        <span>
-                          <UserImage
-                            alt="user-profile"
-                            src={currentUser?.profilePicture ?? userSmall}
-                            bgColor={currentUser?.color ?? 'var(--color-trois)'}
-                          />
-                          <strong>@{currentUser?.displayName}</strong>
-                        </span>
-                      ) : (
-                        <span>
-                          <AIImage alt="" src={logoSmall} />
-                          <strong>AI Design Studio</strong>
-                        </span>
-                      )}
-                      <MessageActions>
-                        <CopyContainer>
-                          {document.getElementById(messageid)?.textContent ===
-                            clipboardText && <small>copied!!</small>}
-                          <CopyOutlined
-                            onClick={copyText}
-                            title="Copy message"
-                          />
-                        </CopyContainer>
-                        {i === selectedCtx.conversation.length - 1 && (
-                          <DeleteOutlined
-                            onClick={deleteLastMessage}
-                            title="Remove from history (not undoable)"
-                          />
-                        )}
-                        {forgotten && <small>- forgotten -</small>}
-                      </MessageActions>
-                    </MessageHeader>
-
-                    <MessageContent id={messageid}>
-                      <ReactMarkdown>{content}</ReactMarkdown>
-                    </MessageContent>
-                  </MessageContainer>
-                </>
-              )
-            }}
-            fallback={
-              <NoMessages>
-                {nomessages ||
-                  `Make your first prompt related to ${
-                    selectedCtx?.tagName
-                      ? `this ${htmlTagNames[selectedCtx?.tagName]}`
-                      : 'the Document'
-                  }`}
-              </NoMessages>
+            const copyText = async () => {
+              if (!document?.getElementById(messageid)) return
+              copyTextContent(document?.getElementById(messageid))
+              const newCbTxt = await getClipboardText()
+              setClipboardText(newCbTxt)
             }
-          />
-        )}
+
+            return (
+              <>
+                <link href={prismcss} rel="stylesheet" />
+                <MessageContainer forgotten={forgotten} hasBorder={i !== 0}>
+                  <MessageHeader>
+                    {role === 'user' ? (
+                      <span>
+                        <UserImage
+                          alt="user-profile"
+                          src={currentUser?.profilePicture ?? userSmall}
+                          bgColor={currentUser?.color ?? 'var(--color-trois)'}
+                        />
+                        <strong>@{currentUser?.displayName}</strong>
+                      </span>
+                    ) : (
+                      <span>
+                        <AIImage alt="" src={logoSmall} />
+                        <strong>AI Design Studio</strong>
+                      </span>
+                    )}
+                    <MessageActions>
+                      <CopyContainer>
+                        {document.getElementById(messageid)?.textContent ===
+                          clipboardText && <small>copied!!</small>}
+                        <CopyOutlined onClick={copyText} title="Copy message" />
+                      </CopyContainer>
+                      {i === selectedCtx.conversation.length - 1 && (
+                        <DeleteOutlined
+                          onClick={deleteLastMessage}
+                          title="Remove from history (not undoable)"
+                        />
+                      )}
+                      {forgotten && <small>- forgotten -</small>}
+                    </MessageActions>
+                  </MessageHeader>
+
+                  <MessageContent id={messageid}>
+                    <ReactMarkdown>{content}</ReactMarkdown>
+                  </MessageContent>
+                </MessageContainer>
+              </>
+            )
+          }}
+          fallback={
+            <NoMessages>
+              {nomessages ||
+                `Make your first prompt related to ${
+                  selectedCtx?.tagName
+                    ? `this ${htmlTagNames[selectedCtx?.tagName]}`
+                    : 'the Document'
+                }`}
+            </NoMessages>
+          }
+        />
       </ChatHistoryContainer>
     </Root>
   )

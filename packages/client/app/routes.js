@@ -42,6 +42,7 @@ import {
 } from './ui/dashboard/hooks/DocumentContext'
 import { ModalProvider } from './hooks/modalContext'
 import ContextModal from './ui/common/ContextModal'
+import { LayoutProvider } from './hooks/LayoutContext'
 const StyledContextMenu = styled(ContextMenu)`
   --svg-fill: var(--color-trois-opaque-2);
   margin: 0;
@@ -243,60 +244,65 @@ const PageWrapper = props => {
 }
 
 const routes = enableLogin => (
-  <AiDesignerProvider>
-    <DocumentContextProvider>
-      <ModalProvider>
-        <Layout id="layout-root">
-          <GlobalStyles />
-          <YjsProvider enableLogin={enableLogin}>
-            <SiteHeader enableLogin={enableLogin} />
-            <PageWrapper fadeInPages={false} padPages={false}>
-              <Switch>
-                <Route component={Login} exact path="/login" />
-                <Route component={Signup} exact path="/signup" />
-                <Route
-                  component={VerifyEmail}
-                  exact
-                  path="/email-verification/:token"
-                />
-                <Route
-                  component={RequestPasswordReset}
-                  exact
-                  path="/request-password-reset"
-                />
-                <Route
-                  component={ResetPassword}
-                  exact
-                  path="/password-reset/:token"
-                />
-                <Route
-                  component={VerifyCheck}
-                  exact
-                  path="/ensure-verified-login"
-                />
-                <Route
-                  exact
-                  path={['/', '/:docIdentifier']}
-                  render={() =>
-                    enableLogin ? (
-                      <Authenticated>
-                        <Dashboard showFilemanager enableLogin={enableLogin} />
-                      </Authenticated>
-                    ) : (
-                      <Dashboard />
-                    )
-                  }
-                />
-                <Route render={() => <Redirect to="/login" />} path="*" />
-              </Switch>
-              <StyledContextMenu />
-              <ContextModal />
-            </PageWrapper>
-          </YjsProvider>
-        </Layout>
-      </ModalProvider>
-    </DocumentContextProvider>
-  </AiDesignerProvider>
+  <LayoutProvider>
+    <AiDesignerProvider>
+      <DocumentContextProvider>
+        <ModalProvider>
+          <Layout id="layout-root">
+            <GlobalStyles />
+            <YjsProvider enableLogin={enableLogin}>
+              <SiteHeader enableLogin={enableLogin} />
+              <PageWrapper fadeInPages={false} padPages={false}>
+                <Switch>
+                  <Route component={Login} exact path="/login" />
+                  <Route component={Signup} exact path="/signup" />
+                  <Route
+                    component={VerifyEmail}
+                    exact
+                    path="/email-verification/:token"
+                  />
+                  <Route
+                    component={RequestPasswordReset}
+                    exact
+                    path="/request-password-reset"
+                  />
+                  <Route
+                    component={ResetPassword}
+                    exact
+                    path="/password-reset/:token"
+                  />
+                  <Route
+                    component={VerifyCheck}
+                    exact
+                    path="/ensure-verified-login"
+                  />
+                  <Route
+                    exact
+                    path={['/', '/:docIdentifier']}
+                    render={() =>
+                      enableLogin ? (
+                        <Authenticated>
+                          <Dashboard
+                            showFilemanager
+                            enableLogin={enableLogin}
+                          />
+                        </Authenticated>
+                      ) : (
+                        <Dashboard />
+                      )
+                    }
+                  />
+                  <Route render={() => <Redirect to="/login" />} path="*" />
+                </Switch>
+                <StyledContextMenu />
+                <ContextModal />
+              </PageWrapper>
+            </YjsProvider>
+          </Layout>
+        </ModalProvider>
+      </DocumentContextProvider>
+    </AiDesignerProvider>
+  </LayoutProvider>
 )
 
 export default enableLogin => {

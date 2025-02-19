@@ -317,12 +317,13 @@ export const AiDesignerSystem = ({
   markedSnippet,
 }) => {
   const isSE = ctx?.id !== 'aid-ctx-main'
+  const imagesOnly = ctx?.id === 'images'
 
   const context = generatedContext(isSE, sheet, providedText)
 
   const { role, task } = isSE ? taskAndRoleDefsSE(ctx.tagName) : taskAndRoleDefs
 
-  const snippet = isSE ? snippetShape(ctx, markedSnippet) : {}
+  const snippet = isSE && !imagesOnly ? snippetShape(ctx, markedSnippet) : {}
 
   const shape = {
     feedback: feedBackDescription(providedText, isSE),

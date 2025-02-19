@@ -7,9 +7,18 @@ const {
 const { Team, TeamMember, User } = require('@pubsweet/models')
 const { idNullable, stringNullable, arrayOfIds, string } = modelTypes
 const config = require('config')
+const { callOn } = require('../../utilities/utils')
 
 const AUTHOR_TEAM = config.teams.nonGlobal.author
-const RESOURCE_TYPES = ['doc', 'dir', 'root', 'sys', 'template', 'snippet']
+const RESOURCE_TYPES = [
+  'doc',
+  'dir',
+  'root',
+  'sys',
+  'template',
+  'snippet',
+  'image',
+]
 const EXTENSIONS = ['doc', 'img', 'snip', 'css', 'template', 'book']
 const TEAM_OBJECT_TYPE = 'resource'
 const TYPES_TO_EXCLUDE_FROM_TEAM = ['sys', 'root']
@@ -74,6 +83,7 @@ class ResourceTree extends BaseModel {
         userId: idNullable,
         docId: idNullable,
         templateId: idNullable,
+        fileId: idNullable,
         resourceType: { type: string },
         extension: { type: string, enum: EXTENSIONS, nullable: true },
         title: stringNullable,
@@ -85,11 +95,28 @@ class ResourceTree extends BaseModel {
 
   static getSystemFoldersIds(userId, options = {}) {
     const { trx } = options
-    return this.query(trx).where({ userId, resourceType: 'sys' }).select('id')
+    return this.query(trx).where({ userId, resourceType: 'sys' })
+  }
+
+  static getUserSysFolder(userId, folderName, options = {}) {
+    const { trx } = options
+    return this.query(trx).where({
+      userId,
+      resourceType: 'sys',
+      title: folderName,
+    })
   }
 
   static async createResource(
-    { title, resourceType, parentId, userId, extension, templateId = null },
+    {
+      title,
+      resourceType,
+      parentId,
+      userId,
+      extension,
+      templateId = null,
+      fileId = null,
+    },
     options = {},
   ) {
     const { trx } = options
@@ -111,6 +138,7 @@ class ResourceTree extends BaseModel {
         userId,
         extension,
         templateId,
+        fileId,
       })
 
       logger.info('resource created')
@@ -494,6 +522,7 @@ class ResourceTree extends BaseModel {
   }
 
   static async getParentOrRoot(id, userId, options = {}, fallback) {
+    logger.info(`Fallback: ${fallback}`)
     const { trx } = options
     if (id) {
       const resource = await this.getResource(id, { trx })
@@ -535,11 +564,17 @@ class ResourceTree extends BaseModel {
         try {
           const isTemplate = resourceType === 'template'
           const isSnippet = resourceType === 'snippet'
+
           const isTemplateResource = isTemplate || isSnippet
-          const fallback = isTemplateResource && {
+          const fallback = {
             userId,
             resourceType: 'sys',
-            title: isSnippet ? 'My Snippets' : 'My Templates',
+            title: callOn(resourceType, {
+              default: () => 'Documents',
+              template: () => 'My Templates',
+              snippet: () => 'My Snippets',
+              image: () => 'Images',
+            }),
           }
 
           const parent = await ResourceTree.getParentOrRoot(
@@ -548,6 +583,8 @@ class ResourceTree extends BaseModel {
             { tr },
             fallback,
           )
+
+          logger.info(`Parent: ${parent.title}`)
 
           const safeTitle = await ResourceTree.getSafeName(
             {
@@ -752,6 +789,16 @@ class ResourceTree extends BaseModel {
       }
 
       await Team.addMember(team.id, userId, { trx })
+      const invitedMemberSharedFolder = await ResourceTree.findSystemFolder(
+        'Shared',
+        userId,
+        { trx },
+      )
+      invitedMemberSharedFolder.children.unshift(resourceId)
+      await ResourceTree.query(trx)
+        .patch({ children: invitedMemberSharedFolder.children })
+        .findById(invitedMemberSharedFolder.id)
+
       return resource
     } catch (e) {
       // logger.info(e)
