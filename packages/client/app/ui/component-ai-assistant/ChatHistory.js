@@ -36,7 +36,7 @@ const Root = styled.div`
   height: fit-content;
   justify-content: space-between;
   overflow: hidden;
-  padding: 0 0 12px;
+  padding: 25px 12px;
   position: relative;
   transition: all;
   width: 100%;
@@ -51,7 +51,7 @@ const ChatHistoryContainer = styled.div`
   flex-direction: column;
   min-width: 25dvh;
   overflow: auto;
-  padding: 0 25px 25px;
+  padding: 25px;
   position: relative;
   scroll-behavior: smooth;
   scrollbar-color: #0002;

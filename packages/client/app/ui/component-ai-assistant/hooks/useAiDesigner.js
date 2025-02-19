@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
-import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
-import { clone, create, debounce, takeRight } from 'lodash'
+import { useLazyQuery, useMutation } from '@apollo/client'
+import { debounce, takeRight } from 'lodash'
 import { useAiDesignerContext } from './AiDesignerContext'
 import { GET_SETTINGS, UPDATE_SETTINGS } from '../queries/settings'
 import {
@@ -14,10 +14,9 @@ import {
   AiDesignerSystem,
   addElement,
   callOn,
-  createOrUpdateStyleSheet,
   filterKeys,
   finishReasons,
-  getNodes,
+  mapEntries,
   parseContent,
   safeParse,
 } from '../utils'
@@ -69,14 +68,13 @@ const useAssistant = () => {
     setCss,
     useRag,
     model,
+    imgGenParams,
   } = useAiDesignerContext()
 
   const { createResource, updateTemplateCss, getUserSnippets } =
     useDocumentContext()
 
   // #region GQL Hooks ----------------------------------------------------------------
-
-  const client = useApolloClient()
 
   const [getSettings] = useLazyQuery(GET_SETTINGS)
 
@@ -189,8 +187,13 @@ const useAssistant = () => {
           )
         },
         callDallE: async val => {
+          const params = mapEntries(imgGenParams, (k, v) => `${k}: ${v}`).join(
+            '\n',
+          )
+
+          console.log(val + `\n${params}`)
           await generateImages({
-            variables: { input: val },
+            variables: { input: val + `\n${params}` },
           }).then(({ data: { generateImages: aiImages } }) => {
             if (!response.feedback) return
             const feedbackWithImage = `${response.feedback}\n\n![Generated Image](${aiImages.s3url})`

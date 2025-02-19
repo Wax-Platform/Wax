@@ -24,6 +24,7 @@ const Button = styled(CleanButton)`
   max-height: ${p => (p.$hide ? 0 : '100%')};
   max-width: ${p => (p.$hide ? 0 : '80%')};
   opacity: ${p => (p.$hide ? 0 : 1)};
+  pointer-events: ${p => (p.$hide ? 'none' : 'auto')};
   text-decoration: none;
   transition: all 0.2s;
   width: 80%;
