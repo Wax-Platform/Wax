@@ -18,7 +18,6 @@ import {
   onEntries,
   srcdoc,
   parseContent,
-  getPreviewIframe,
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
@@ -254,10 +253,7 @@ export const AiDesignerProvider = ({ children }) => {
 
     markedSnippet && setMarkedSnippet({})
     showSnippets && setShowSnippets(false)
-    if (ctx.id === 'aid-ctx-main' || ctx.id === 'images') {
-      const iframeNode = getCtxNode(getPreviewIframe().contentDocument.body)
-      iframeNode?.classList.remove('selected-id')
-    }
+    if (ctx.id === 'aid-ctx-main') return
   }
 
   AiDesigner.on('select', onSelect)

@@ -5,7 +5,6 @@ import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { debounce, isBoolean, set } from 'lodash'
 import { Result, Spin } from 'antd'
-import { useLayout } from '../../../hooks/LayoutContext'
 
 const SpinnerWrapper = styled.div`
   align-items: center;
@@ -67,7 +66,6 @@ const PreviewIframe = styled.iframe`
 
 export const PagedJsPreview = props => {
   const { previewRef, previewSource } = useAiDesignerContext()
-  const { userMenu } = useLayout()
   const [srcDoc, setSrcDoc] = useState('')
 
   useEffect(() => {
@@ -78,14 +76,14 @@ export const PagedJsPreview = props => {
         const setSpinner = () => set(spinner, 'dataset.spinner', !loaded)
         loaded ? debounce(setSpinner, 2000)() : setSpinner()
       }
-      userMenu?.state?.snippetsManager && AiDesigner.select(id)
+      AiDesigner.select(id)
     }
     window.addEventListener('message', handleMessage)
 
     return () => {
       window.removeEventListener('message', handleMessage)
     }
-  }, [userMenu.state])
+  }, [])
 
   useEffect(() => {
     const previewDocument = previewRef?.current?.contentDocument
@@ -93,18 +91,14 @@ export const PagedJsPreview = props => {
 
     if (!previewDocument || !previewWindow) return
 
-    const handleClick = selectNodeOnPreview(
-      previewDocument,
-      previewWindow,
-      userMenu.state.snippetsManager,
-    )
+    const handleClick = selectNodeOnPreview(previewDocument, previewWindow)
 
     previewWindow.addEventListener('mousedown', handleClick)
 
     return () => {
       previewWindow.removeEventListener('mousedown', handleClick)
     }
-  }, [previewRef?.current?.contentDocument, userMenu?.state?.snippetsManager])
+  }, [previewRef?.current?.contentDocument])
 
   useEffect(() => {
     debounce(() => setSrcDoc(previewSource), 1000)()
@@ -129,14 +123,9 @@ export const PagedJsPreview = props => {
   )
 }
 
-export function selectNodeOnPreview(
-  previewDocument,
-  previewWindow,
-  enableSelection,
-) {
+export function selectNodeOnPreview(previewDocument, previewWindow) {
   return e => {
     e.stopPropagation()
-    if (!enableSelection) return
     const { target } = e
     if (!target.hasAttribute('data-id')) e.preventDefault()
     let id =
