@@ -39,7 +39,7 @@ const generateImagesResolver = async (
     { forceObjectKeyValue: `dallE${hashedFilename}.png` },
   )
 
-  const uploadedImageKey = uploadedImage[0].key
+  const uploadedImageKey = uploadedImage[0].key?.replace('.png', '_small.png')
   const s3url = await fileStorage.getURL(uploadedImageKey)
   logger.info(s3url)
 

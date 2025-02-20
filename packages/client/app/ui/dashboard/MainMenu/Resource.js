@@ -451,7 +451,12 @@ const Resource = props => {
 
   const handleDragStart = useCallback(
     e => {
-      e.dataTransfer.setData('text/plain', JSON.stringify(resource))
+      if (img?.medium) {
+        const image = document.createElement('img')
+        image.src = img.medium
+        e.dataTransfer.setDragImage(image, 0, 0)
+        e.dataTransfer.setData('text/html', image.outerHTML)
+      } else e.dataTransfer.setData('text/plain', JSON.stringify(resource))
     },
     [resource],
   )
@@ -475,10 +480,10 @@ const Resource = props => {
     () =>
       switchOn(iconSearch, {
         ...objIf(isSystem, SYSTEM_FOLDER_ICONS_MAP),
-        image: () => <StyledImage src={img?.small}></StyledImage>,
+        image: StyledImage,
         default: isFolder ? FolderIcon : FileIcon,
       }),
-    [iconSearch, img, isFolder, isSystem],
+    [iconSearch],
   )
 
   const svgFill = switchOn(resourceType, ICON_COLORS)
@@ -520,7 +525,11 @@ const Resource = props => {
     >
       <IconTitleContainer data-contextmenu $ghost={onCutClipboard}>
         <FlexRow>
-          <ResourceIcon data-contextmenu style={{ pointerEvents: 'none' }} />
+          <ResourceIcon
+            src={img?.small ?? null}
+            data-contextmenu
+            style={{ pointerEvents: 'none' }}
+          />
         </FlexRow>
         <TitleLabel $selected={isSelected}>
           {rename.state.id === id ? (

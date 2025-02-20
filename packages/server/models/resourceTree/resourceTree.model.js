@@ -4,6 +4,7 @@ const {
   logger,
   useTransaction,
   fileStorage,
+  File,
 } = require('@coko/server')
 const { Team, TeamMember, User } = require('@pubsweet/models')
 const { Readable } = require('stream')
@@ -674,7 +675,7 @@ class ResourceTree extends BaseModel {
             return resourceTree
           }
 
-          if (isImage) {
+          if (isImage && base64) {
             const buffer = Buffer.from(
               base64.replace(/^data:image\/\w+;base64,/, ''),
               'base64',
@@ -730,6 +731,7 @@ class ResourceTree extends BaseModel {
 
     const docIds = []
     const resourceTemplateIds = []
+    const fileIds = []
 
     const collectIds = async (nodeId, ids = []) => {
       const node = await ResourceTree.query(trx).findById(nodeId)
@@ -746,6 +748,10 @@ class ResourceTree extends BaseModel {
         resourceTemplateIds.push(node.templateId)
       }
 
+      if (node?.fileId) {
+        fileIds.push(node.fileId)
+      }
+
       return [...new Set(ids)]
     }
 
@@ -760,7 +766,6 @@ class ResourceTree extends BaseModel {
         .delete()
 
       if (resourceTemplateIds.length) {
-        // Delete resources in resource_tree that reference the templates
         await ResourceTree.query(trx)
           .delete()
           .whereIn('templateId', resourceTemplateIds)
@@ -772,9 +777,21 @@ class ResourceTree extends BaseModel {
       if (docIds.length) {
         await Doc.query(trx).delete().whereIn('id', docIds)
       }
+
       await ResourceTree.query(trx).delete().whereIn('id', ids)
 
-      // Now delete the templates
+      if (fileIds.length) {
+        const files = await File.query(trx).whereIn('id', fileIds)
+        const storedObjects = files.map(file => file.storedObjects)
+        const keys = storedObjects.reduce((acc, so) => {
+          acc.push(so[0].key)
+          return acc
+        }, [])
+
+        await fileStorage.deleteFiles(keys)
+        await File.query(trx).delete().whereIn('id', fileIds)
+      }
+
       if (resourceTemplateIds.length) {
         await Template.query(trx).delete().whereIn('id', resourceTemplateIds)
       }
