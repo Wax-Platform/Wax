@@ -9,7 +9,14 @@ type Resource {
   templateId: ID
   extension: String
   identifier: String
-  img: String
+  img: ResourceImage
+}
+
+type ResourceImage {
+  small: String
+  medium: String
+  full: String
+  normal: String
 }
 
 type NewResource {
@@ -47,6 +54,7 @@ extend type Mutation {
     extension: String
     title: String
     templateProps: String # JSON string of template props
+    base64: String
   ): NewResource!
   deleteResource(id: ID!): FolderIdResponse!
   renameResource(id: ID!, title: String!): FolderIdResponse!

@@ -43,14 +43,18 @@ export const OPEN_FOLDER = gql`
             path
             title
           }
-          img
+          img {
+            small
+            medium
+            full
+            normal
+          }
           extension
           templateId
           resourceType
         }
         resourceType
         extension
-        templateId
       }
       requestAccessTo
     }
@@ -64,6 +68,7 @@ export const ADD_RESOURCE = gql`
     $extension: String
     $templateProps: String
     $title: String
+    $base64: String
   ) {
     addResource(
       id: $id
@@ -71,6 +76,7 @@ export const ADD_RESOURCE = gql`
       extension: $extension
       templateProps: $templateProps
       title: $title
+      base64: $base64
     ) {
       id
       identifier

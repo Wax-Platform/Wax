@@ -22,6 +22,7 @@ import {
 } from '../../../graphql/templates.graphql'
 import { debounce } from 'lodash'
 import { callOn } from '../../component-ai-assistant/utils'
+import { useModalContext } from '../../../hooks/modalContext'
 
 const useTemplates = currentDoc => {
   const [masterTemplateId, setMasterTemplateId] = useState(null)
@@ -114,6 +115,7 @@ const CLIPBOARD_ITEM = { cut: COPY_CUT_ITEM, copy: COPY_CUT_ITEM }
 
 export const DocumentContextProvider = ({ children }) => {
   const history = useHistory()
+  const { modalState } = useModalContext()
   const [docId, setDocId] = useState(null)
   const [currentDoc, setCurrentDoc] = useState(null)
   const [selectedDocs, setSelectedDocs] = useState([])
@@ -159,6 +161,7 @@ export const DocumentContextProvider = ({ children }) => {
       }
     },
   })
+
   const templatesGQL = useTemplates(currentDoc)
 
   const [getDocument, { loading: docLoading }] = useLazyQuery(GET_DOC, {
@@ -228,7 +231,28 @@ export const DocumentContextProvider = ({ children }) => {
       },
       template: ({ templateId }) => setTemplateToEdit(templateId),
       snippet: ({ templateId }) => setTemplateToEdit(templateId),
-      image: ({ img }) => setImgViewUrl(img),
+      image: ({ img }) => {
+        modalState.update({
+          show: true,
+          title: resource.title,
+          items: [
+            {
+              label: '',
+              component: (
+                <img
+                  src={img.medium}
+                  alt={resource.title}
+                  style={{
+                    width: '100%',
+                    height: '40dvh',
+                    objectFit: 'contain',
+                  }}
+                />
+              ),
+            },
+          ],
+        })
+      },
       default: ({ id }) => {
         const variables = { id, resourceType }
         setSelectedDocs([])

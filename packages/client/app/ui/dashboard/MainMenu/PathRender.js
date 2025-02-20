@@ -19,6 +19,7 @@ import {
   useCreateSnippet,
 } from '../../component-ai-assistant/SnippetsManager'
 import { useLayout } from '../../../hooks/LayoutContext'
+import { FileUploadContainer } from './ImageBuilder'
 
 const MAX_PATH_LEVEL = 4
 
@@ -149,6 +150,9 @@ const PathRender = props => {
             )}
             <CleanButton onClick={handleCreateFolder}>
               <FolderAddOutlined style={{ fontSize: '18px' }} />
+            </CleanButton>
+            <CleanButton>
+              <FileUploadContainer />
             </CleanButton>
           </>
         )}

@@ -3,12 +3,15 @@ const {
   BaseModel,
   logger,
   useTransaction,
+  fileStorage,
 } = require('@coko/server')
 const { Team, TeamMember, User } = require('@pubsweet/models')
-const { idNullable, stringNullable, arrayOfIds, string } = modelTypes
+const { Readable } = require('stream')
 const config = require('config')
 const { callOn } = require('../../utilities/utils')
+const { insertFileRecord } = require('../../services/files.service')
 
+const { idNullable, stringNullable, arrayOfIds, string } = modelTypes
 const AUTHOR_TEAM = config.teams.nonGlobal.author
 const RESOURCE_TYPES = [
   'doc',
@@ -553,6 +556,7 @@ class ResourceTree extends BaseModel {
       // state,
       userId,
       templateProps = '{}',
+      base64,
       ...rest
     },
     options = {},
@@ -564,6 +568,7 @@ class ResourceTree extends BaseModel {
         try {
           const isTemplate = resourceType === 'template'
           const isSnippet = resourceType === 'snippet'
+          const isImage = resourceType === 'image'
 
           const isTemplateResource = isTemplate || isSnippet
           const fallback = {
@@ -616,12 +621,7 @@ class ResourceTree extends BaseModel {
 
           if (resourceType === 'doc') {
             const Doc = require('../doc/doc.model')
-            const doc = await Doc.createDoc({
-              // delta,
-              // state,
-              identifier,
-              userId,
-            })
+            const doc = await Doc.createDoc({ identifier, userId })
 
             const resourceTree = await ResourceTree.query(tr)
               .patch({ docId: doc.id })
@@ -668,6 +668,41 @@ class ResourceTree extends BaseModel {
 
             const resourceTree = await ResourceTree.query(tr)
               .patch({ templateId: template.id })
+              .findOne({ id: insertedResource.id })
+              .returning('*')
+
+            return resourceTree
+          }
+
+          if (isImage) {
+            const buffer = Buffer.from(
+              base64.replace(/^data:image\/\w+;base64,/, ''),
+              'base64',
+            )
+
+            const stream = new Readable()
+            stream.push(buffer)
+            stream.push(null)
+
+            const uploadedImage = await fileStorage.upload(
+              stream,
+              insertedResource.title,
+              { forceObjectKeyValue: insertedResource.title },
+            )
+
+            const uploadedImageKey = uploadedImage[0].key
+
+            const file = await insertFileRecord({
+              name: insertedResource.title,
+              key: uploadedImageKey,
+              mimetype: 'image/png',
+              extension: 'png',
+              size: Buffer.byteLength(buffer),
+              options: { trx: tr },
+            })
+
+            const resourceTree = await ResourceTree.query(tr)
+              .patch({ fileId: file.id })
               .findOne({ id: insertedResource.id })
               .returning('*')
 

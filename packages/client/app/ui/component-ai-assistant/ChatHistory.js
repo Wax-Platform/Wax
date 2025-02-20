@@ -11,10 +11,10 @@ import Prism from 'prismjs'
 import prismcss from '../../../static/prism.css'
 import { useAiDesignerContext } from './hooks/AiDesignerContext'
 import { copyTextContent, htmlTagNames } from './utils'
-import logoSmall from '../../../static/AI Design Studio-Icon.svg'
+import logoSmall from '../../../static/wax-icon.svg'
 import userSmall from '../../../static/user-icon.svg'
-import PromptBox from './components/PromptBox'
 import Each from './utils/Each'
+import { FlexRow } from '../_styleds/common'
 
 const chatFadeIn = keyframes`
   0% {
@@ -36,7 +36,7 @@ const Root = styled.div`
   height: fit-content;
   justify-content: space-between;
   overflow: hidden;
-  padding: 25px 12px;
+  padding: 0 12px;
   position: relative;
   transition: all;
   width: 100%;
@@ -84,14 +84,13 @@ const ChatHistoryContainer = styled.div`
 
 const MessageContainer = styled.div`
   animation: ${chatFadeIn} 0.5s;
-  border-top: ${({ hasBorder }) => (hasBorder ? '1px solid #0002' : 'none')};
+  border-bottom: 1px solid var(--color-trois-alpha);
   color: #555;
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  margin: 0;
   opacity: ${p => (p.forgotten ? 0.5 : 1)};
-  padding: 10px;
-  padding-top: ${({ hasBorder }) => (hasBorder ? '18px' : '0')};
+  padding: 20px 10px;
 
   * {
     padding: 0;
@@ -158,44 +157,20 @@ const MessageHeader = styled.div`
   display: flex;
   gap: var(--message-header-gap);
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 16px 0;
   width: 100%;
+
+  > div,
+  > span {
+    gap: 4px;
+  }
 
   svg {
     animation: ${fadeIn} 0.5s;
   }
 
-  > span {
-    display: flex;
-    gap: var(--message-header-gap);
-
-    > strong {
-      color: #0009;
-      padding-left: 4px;
-    }
-  }
-
-  span > img,
-  span > span {
-    align-items: center;
-    border-radius: 50%;
-    display: flex;
-    height: var(--profile-picture-size);
-    justify-content: center;
-    object-fit: contain;
-    width: var(--profile-picture-size);
-  }
-
-  span {
-    line-height: 1;
-
-    img {
-      margin-top: -5px;
-    }
-  }
-
-  span > span {
-    font-size: 12px;
+  strong {
+    color: var(--color-trois-opaque-2);
   }
 `
 
@@ -205,20 +180,19 @@ const MessageContent = styled.div`
   flex-direction: column;
   gap: 8px;
   margin: 0;
-  padding: 0 15px;
+  padding: 4px 15px;
 
   p {
     margin: 0;
   }
 `
 
-const UserImage = styled.img`
+const Avatar = styled.img`
+  --w-h: var(--profile-picture-size, 25px);
   background: ${({ bgColor }) => bgColor};
-`
-
-const AIImage = styled.img`
-  border-radius: 0 !important;
-  margin-top: -10px;
+  border-radius: 50%;
+  height: var(--w-h);
+  width: var(--w-h) !important;
 `
 
 const MessageActions = styled.span`
@@ -307,19 +281,24 @@ const ChatHistory = ({ nomessages, className, ...props }) => {
                 <MessageContainer forgotten={forgotten} hasBorder={i !== 0}>
                   <MessageHeader>
                     {role === 'user' ? (
-                      <span>
-                        <UserImage
+                      <FlexRow>
+                        <Avatar
                           alt="user-profile"
                           src={currentUser?.profilePicture ?? userSmall}
                           bgColor={currentUser?.color ?? 'var(--color-trois)'}
                         />
                         <strong>@{currentUser?.displayName}</strong>
-                      </span>
+                      </FlexRow>
                     ) : (
-                      <span>
-                        <AIImage alt="" src={logoSmall} />
-                        <strong>AI Design Studio</strong>
-                      </span>
+                      <FlexRow>
+                        <Avatar
+                          alt=""
+                          style={{ objectPosition: '-2px 1px' }}
+                          src={logoSmall}
+                          bgColor="var(--color-trois)"
+                        />
+                        <strong>@Wax AI</strong>
+                      </FlexRow>
                     )}
                     <MessageActions>
                       <CopyContainer>

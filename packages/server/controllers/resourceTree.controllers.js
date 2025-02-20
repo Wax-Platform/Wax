@@ -13,7 +13,7 @@ const openFolder = async (_, { id, resourceType = 'dir' }, ctx) => {
 
 const addResource = async (
   _,
-  { id, resourceType, extension, templateProps, title },
+  { id, resourceType, extension, templateProps, title, base64 },
   ctx,
 ) => {
   const ResourceTree = require('../models/resourceTree/resourceTree.model')
@@ -41,6 +41,7 @@ const addResource = async (
       extension,
       title,
       userId: ctx.user,
+      base64,
     })
 
     return {

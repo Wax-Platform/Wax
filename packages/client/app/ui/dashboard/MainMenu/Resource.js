@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useCallback } from 'react'
+import React, { Fragment, useEffect, useCallback, useMemo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import {
   FileOutlined,
@@ -471,11 +471,15 @@ const Resource = props => {
 
   const iconSearch = isSystem ? title : resourceType
 
-  const ResourceIcon = switchOn(iconSearch, {
-    ...objIf(isSystem, SYSTEM_FOLDER_ICONS_MAP),
-    image: () => <StyledImage src={img}></StyledImage>,
-    default: isFolder ? FolderIcon : FileIcon,
-  })
+  const ResourceIcon = useMemo(
+    () =>
+      switchOn(iconSearch, {
+        ...objIf(isSystem, SYSTEM_FOLDER_ICONS_MAP),
+        image: () => <StyledImage src={img?.small}></StyledImage>,
+        default: isFolder ? FolderIcon : FileIcon,
+      }),
+    [iconSearch, img, isFolder, isSystem],
+  )
 
   const svgFill = switchOn(resourceType, ICON_COLORS)
   const Container = switchOn(view, VIEW_BASED_CONTAINERS)

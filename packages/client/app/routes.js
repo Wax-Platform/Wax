@@ -245,9 +245,9 @@ const PageWrapper = props => {
 
 const routes = enableLogin => (
   <LayoutProvider>
-    <AiDesignerProvider>
-      <DocumentContextProvider>
-        <ModalProvider>
+    <ModalProvider>
+      <AiDesignerProvider>
+        <DocumentContextProvider>
           <Layout id="layout-root">
             <GlobalStyles />
             <YjsProvider enableLogin={enableLogin}>
@@ -299,9 +299,9 @@ const routes = enableLogin => (
               </PageWrapper>
             </YjsProvider>
           </Layout>
-        </ModalProvider>
-      </DocumentContextProvider>
-    </AiDesignerProvider>
+        </DocumentContextProvider>
+      </AiDesignerProvider>
+    </ModalProvider>
   </LayoutProvider>
 )
 

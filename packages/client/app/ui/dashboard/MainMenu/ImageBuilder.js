@@ -11,6 +11,8 @@ import { Menu, MenuItem, MenuButton, SubMenu } from '../../common/ContextMenu'
 import { safeCall } from '../../../shared/generalUtils'
 import { useBool } from '../../../hooks/dataTypeHooks'
 import ChatHistory from '../../component-ai-assistant/ChatHistory'
+import { useDocumentContext } from '../hooks/DocumentContext'
+import { CloudUploadOutlined } from '@ant-design/icons'
 
 const Grid = styled.div`
   display: grid;
@@ -37,6 +39,61 @@ const StyledMenuButton = styled(MenuButton)`
   padding: 5px 10px;
   width: 100%;
 `
+
+const HiddenInput = styled.input`
+  display: none;
+`
+
+const StyledLabel = styled.label`
+  cursor: pointer;
+  display: flex;
+`
+
+const FileUpload = ({ onFileSelect }) => {
+  const handleFileChange = event => {
+    const file = event.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64 = reader.result
+        const title = file.name
+        onFileSelect({ base64, title })
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  return (
+    <div>
+      <HiddenInput
+        type="file"
+        id="file-upload"
+        onChange={handleFileChange}
+        accept="image/*"
+      />
+      <StyledLabel htmlFor="file-upload" title="Upload file">
+        <CloudUploadOutlined style={{ fontSize: '16px' }} />
+      </StyledLabel>
+    </div>
+  )
+}
+
+export const FileUploadContainer = () => {
+  const { graphQL, currentFolder } = useDocumentContext()
+  const handleFileSelect = ({ base64, title }) => {
+    graphQL.addResource({
+      variables: {
+        id: currentFolder?.id,
+        base64,
+        title,
+        resourceType: 'image',
+        extension: 'img',
+      },
+    })
+  }
+
+  return <FileUpload onFileSelect={handleFileSelect} accept="image/*" />
+}
 
 const DropdownButton = ({ label, items }) => {
   const [showMenu, setShowMenu] = useState(false)

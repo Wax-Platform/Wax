@@ -61,9 +61,29 @@ module.exports = {
       if (resource.resourceType !== 'image') return null
       const file = await File.query().findOne({ id: resource.fileId })
       if (!file) return null
-      logger.info('file', file)
-      const url = await fileStorage.getURL(file.storedObjects[0].key)
-      return url
+      const key = file.storedObjects[0].key
+      const normal = await fileStorage.getURL(key)
+      const sizes = ['small', 'medium', 'full']
+      const keys = sizes.reduce((acc, size) => {
+        acc[size] = key.replace('.png', `_${size}.png`)
+        return acc
+      }, {})
+
+      const urls = await Promise.all(
+        Object.entries(keys).map(async ([size, key]) => {
+          const url = await fileStorage.getURL(key)
+          return { [size]: url }
+        }),
+      )
+
+      const urlsObject = urls.reduce((acc, url) => {
+        return { ...acc, ...url }
+      }, {})
+
+      return {
+        normal,
+        ...urlsObject,
+      }
     },
   },
   Query: {
