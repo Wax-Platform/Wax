@@ -8,7 +8,7 @@ import { onEntries, safeCall } from './utils'
 
 // const lngDetector = new LanguageDetect()
 
-export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
+export const srcdoc = (htmlSrc, css, scrollPos) => /* html */ `
     <!DOCTYPE html>
     <html>
     <head>
@@ -24,7 +24,6 @@ export const srcdoc = (htmlSrc, css, template, scrollPos) => /* html */ `
 
       </script>
       <style>
-        ${template}
         ${css.replace('#body', 'body') || ''}
       </style>
     </head>

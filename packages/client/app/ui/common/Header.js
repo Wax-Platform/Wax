@@ -153,7 +153,11 @@ const Header = props => {
   const toggleDesigner = () => {
     setDesignerOn(!designerOn)
     editors.update({ preview: !designerOn, wax: designerOn })
-    designerOn && userMenu.update({ files: true })
+    designerOn &&
+      (userMenu.state.chat ||
+        userMenu.state.templateManager ||
+        userMenu.state.snippetsManager) &&
+      userMenu.update({ files: true })
     updatePreview(true, css)
   }
 

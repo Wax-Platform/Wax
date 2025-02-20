@@ -241,14 +241,13 @@ const Layout = ({ docIdentifier, ...props }) => {
     onHistory.addRegistry('undo')
   }, [css])
   useEffect(() => {
-    !!editors.state.preview && updatePreview(true)
-    !editors.state.preview &&
-      !editors.state.wax &&
-      editors.update({ wax: true })
+    !!editors.state.preview
+      ? updatePreview(true)
+      : !editors.state.wax && editors.update({ wax: true })
   }, [editors.state.preview])
 
   useEffect(() => {
-    if (!editors.state.editor) {
+    if (!editors.state.wax) {
       !editors.state.preview && editors.update({ preview: true })
     }
   }, [editors.state.wax])

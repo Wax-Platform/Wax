@@ -187,6 +187,7 @@ const defaultSettings = {
 
 export const AiDesignerContext = createContext()
 
+const PM_SELECTOR = '.ProseMirror[contenteditable]'
 // eslint-disable-next-line react/prop-types
 export const AiDesignerProvider = ({ children }) => {
   // #region HOOKS ----------------------------------------------------------------
@@ -333,24 +334,19 @@ export const AiDesignerProvider = ({ children }) => {
           '.ProseMirror[contenteditable]',
         ).innerHTML,
         doc => {
-          !!selectedCtx?.node &&
-            doc
-              .querySelector(`[data-id="${selectedCtx.id}"]`)
-              ?.classList?.add('selected-id')
+          !!selectedCtx?.node && getCtxNode(doc)?.classList?.add('selected-id')
           doc.querySelectorAll('.ProseMirror-widget').forEach(el => {
             el.remove()
           })
         },
       )
-      const cssTemplate =
-        providedCss.replaceAll(
-          '.ProseMirror[contenteditable]',
-          '.pagedjs_page_content',
-        ) + generateAppCss(userMenuOpen)
+      const cssTemplate = providedCss
+        .replaceAll(PM_SELECTOR, '.pagedjs_page_content')
+        .concat(generateAppCss(userMenuOpen))
 
       const scrollPos = previewDoc?.scrollTop ?? 0
 
-      setPreviewSource(srcdoc(content, cssTemplate, '', scrollPos))
+      setPreviewSource(srcdoc(content, cssTemplate, scrollPos))
     }
 
     // updateCtxNodes()
@@ -358,23 +354,6 @@ export const AiDesignerProvider = ({ children }) => {
   const callUpdatePreview = useCallback(updatePreview, [css, editorContent])
 
   // #endregion HELPERS -----------------------------------------------------------------
-
-  // #region SNIPPETS -------------------------------------------------------------------
-
-  const removeSnippet = snippetName => {
-    const updatedSnippets = settings.snippetsManager.snippets
-
-    const removeSnip = name => {
-      const index = updatedSnippets.findIndex(s => s.className === name)
-      updatedSnippets.splice(index, 1)
-    }
-
-    isString(snippetName)
-      ? removeSnip(snippetName)
-      : Array.isArray(snippetName) && snippetName.forEach(removeSnip)
-  }
-
-  // #endregion SNIPPETS -------------------------------------------------------------------
 
   const ctx = useMemo(() => {
     return {
@@ -414,7 +393,6 @@ export const AiDesignerProvider = ({ children }) => {
         settings,
         setSettings,
         // TODO: memoize in a new object
-        removeSnippet,
         markedSnippet,
         setMarkedSnippet,
         editorContainerRef,
