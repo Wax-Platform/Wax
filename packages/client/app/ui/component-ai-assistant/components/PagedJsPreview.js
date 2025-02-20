@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { debounce, isBoolean, set } from 'lodash'
 import { Result, Spin } from 'antd'
+import { useLayout } from '../../../hooks/LayoutContext'
 
 const SpinnerWrapper = styled.div`
   align-items: center;
@@ -66,6 +67,7 @@ const PreviewIframe = styled.iframe`
 
 export const PagedJsPreview = props => {
   const { previewRef, previewSource } = useAiDesignerContext()
+  const { userMenu } = useLayout()
   const [srcDoc, setSrcDoc] = useState('')
 
   useEffect(() => {
@@ -76,14 +78,14 @@ export const PagedJsPreview = props => {
         const setSpinner = () => set(spinner, 'dataset.spinner', !loaded)
         loaded ? debounce(setSpinner, 2000)() : setSpinner()
       }
-      AiDesigner.select(id)
+      userMenu?.state?.snippetsManager && AiDesigner.select(id)
     }
     window.addEventListener('message', handleMessage)
 
     return () => {
       window.removeEventListener('message', handleMessage)
     }
-  }, [])
+  }, [userMenu.state])
 
   useEffect(() => {
     const previewDocument = previewRef?.current?.contentDocument
@@ -91,14 +93,18 @@ export const PagedJsPreview = props => {
 
     if (!previewDocument || !previewWindow) return
 
-    const handleClick = selectNodeOnPreview(previewDocument, previewWindow)
+    const handleClick = selectNodeOnPreview(
+      previewDocument,
+      previewWindow,
+      userMenu.state.snippetsManager,
+    )
 
     previewWindow.addEventListener('mousedown', handleClick)
 
     return () => {
       previewWindow.removeEventListener('mousedown', handleClick)
     }
-  }, [previewRef?.current?.contentDocument])
+  }, [previewRef?.current?.contentDocument, userMenu?.state?.snippetsManager])
 
   useEffect(() => {
     debounce(() => setSrcDoc(previewSource), 1000)()
@@ -123,9 +129,14 @@ export const PagedJsPreview = props => {
   )
 }
 
-export function selectNodeOnPreview(previewDocument, previewWindow) {
+export function selectNodeOnPreview(
+  previewDocument,
+  previewWindow,
+  enableSelection,
+) {
   return e => {
     e.stopPropagation()
+    if (!enableSelection) return
     const { target } = e
     if (!target.hasAttribute('data-id')) e.preventDefault()
     let id =

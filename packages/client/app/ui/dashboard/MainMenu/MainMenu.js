@@ -151,11 +151,7 @@ const MainMenu = ({ enableLogin }) => {
   const menuLabel = chat ? 'Chat' : team ? 'Team' : null
 
   useEffect(() => {
-    console.log({ userMenuOpen })
     const body = previewRef?.current?.contentDocument.body
-    console.log({
-      body,
-    })
 
     if (body) {
       body.style.transformOrigin = 'top center'

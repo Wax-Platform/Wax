@@ -18,10 +18,10 @@ import {
   onEntries,
   srcdoc,
   parseContent,
+  getPreviewIframe,
 } from '../utils'
 import AiDesigner from '../../../AiDesigner/AiDesigner'
 import { snippets } from '../utils/snippets'
-import { TemplateManagerButton } from '../../menu/menuOptions'
 import { useLayout } from '../../../hooks/LayoutContext'
 
 export const IMG_GEN_PARAMS = {
@@ -254,7 +254,10 @@ export const AiDesignerProvider = ({ children }) => {
 
     markedSnippet && setMarkedSnippet({})
     showSnippets && setShowSnippets(false)
-    if (ctx.id === 'aid-ctx-main') return
+    if (ctx.id === 'aid-ctx-main' || ctx.id === 'images') {
+      const iframeNode = getCtxNode(getPreviewIframe().contentDocument.body)
+      iframeNode?.classList.remove('selected-id')
+    }
   }
 
   AiDesigner.on('select', onSelect)
