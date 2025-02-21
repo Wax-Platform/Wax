@@ -17,6 +17,7 @@ input EmbeddingOptions {
 type DallEImage {
   s3url: String
   imageKey: String
+  alt: String
 }
 
 type ImageData {
@@ -57,7 +58,7 @@ extend type Query {
     resultsOnly: Boolean
   ): String!
 
-  generateImages(input: String!, format: String): DallEImage!
+  generateImages(input: String!, format: String, alt: String): DallEImage!
 
   getImageUrl(imagekey: String!): String!
 

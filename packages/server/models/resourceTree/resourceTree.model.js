@@ -4,7 +4,7 @@ const {
   logger,
   useTransaction,
   fileStorage,
-  File,
+  deleteFiles,
 } = require('@coko/server')
 const { Team, TeamMember, User } = require('@pubsweet/models')
 const { Readable } = require('stream')
@@ -781,15 +781,7 @@ class ResourceTree extends BaseModel {
       await ResourceTree.query(trx).delete().whereIn('id', ids)
 
       if (fileIds.length) {
-        const files = await File.query(trx).whereIn('id', fileIds)
-        const storedObjects = files.map(file => file.storedObjects)
-        const keys = storedObjects.reduce((acc, so) => {
-          acc.push(so[0].key)
-          return acc
-        }, [])
-
-        await fileStorage.deleteFiles(keys)
-        await File.query(trx).delete().whereIn('id', fileIds)
+        await deleteFiles(fileIds, true, { trx })
       }
 
       if (resourceTemplateIds.length) {

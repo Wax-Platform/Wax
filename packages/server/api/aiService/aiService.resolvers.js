@@ -19,7 +19,7 @@ const ragSearchResolver = async (_, vars) => {
 
 const generateImagesResolver = async (
   _,
-  { input, format, store = true },
+  { input, format, store = true, alt = '' },
   ctx,
 ) => {
   const ResourceTree = require('../../models/resourceTree/resourceTree.model')
@@ -44,6 +44,7 @@ const generateImagesResolver = async (
   logger.info(s3url)
 
   const file = await insertFileRecord({
+    alt,
     name: `dallE${hashedFilename}.png`,
     key: uploadedImageKey,
     mimetype: 'image/png',

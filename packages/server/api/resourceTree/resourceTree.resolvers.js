@@ -59,11 +59,15 @@ module.exports = {
     },
     img: async resource => {
       if (resource.resourceType !== 'image') return null
+
       const file = await File.query().findOne({ id: resource.fileId })
+
       if (!file) return null
+
       const key = file.storedObjects[0].key
       const normal = await fileStorage.getURL(key)
       const sizes = ['small', 'medium', 'full']
+
       const keys = sizes.reduce((acc, size) => {
         acc[size] = key.replace('.png', `_${size}.png`)
         return acc
@@ -81,6 +85,8 @@ module.exports = {
       }, {})
 
       return {
+        key,
+        alt: file?.alt || '',
         normal,
         ...urlsObject,
       }
