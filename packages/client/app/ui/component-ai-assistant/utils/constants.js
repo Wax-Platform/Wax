@@ -308,7 +308,15 @@ const generatedContext = (isSingleElement, sheet, providedText) => {
 `
 }
 
-const callDallEDescription = `If 'user' requests to create a image, it must be the description of the image to give to dall-e, otherwise omit this property(not present in the response).`
+const callDallEDescription = () => {
+  const shape = {
+    description: `The description of the image to give to dall-e, same description user used, or you can improve it makes sense to do it, but be cautios with this, only fix typos or misspellings from the original description.`,
+    alt: `The alt text for the image, it must be a short description of the image, if user didn't specify a alt text, you must provide one.`,
+  }
+  return `If 'user' requests to create a image: A object with the following shape(otherwise omit this property(not present in the response).:
+  ${JSON.stringify(shape)}
+  `
+}
 
 export const AiDesignerSystem = ({
   ctx,
@@ -327,7 +335,7 @@ export const AiDesignerSystem = ({
 
   const shape = {
     feedback: feedBackDescription(providedText, isSE),
-    callDallE: callDallEDescription,
+    callDallE: callDallEDescription(),
     ...objIf(
       isSE,
       {

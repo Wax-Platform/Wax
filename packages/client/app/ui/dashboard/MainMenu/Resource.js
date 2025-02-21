@@ -452,10 +452,10 @@ const Resource = props => {
   const handleDragStart = useCallback(
     e => {
       if (img?.medium) {
-        const image = document.createElement('img')
-        image.src = img.medium
-        e.dataTransfer.setDragImage(image, 0, 0)
-        e.dataTransfer.setData('text/html', image.outerHTML)
+        const figure = document.createElement('figure')
+        figure.innerHTML = `<img src="${img.medium}" alt="${img.alt}"/><figcaption>${img?.alt}</figcaption>`
+        e.dataTransfer.setDragImage(figure, 0, 0)
+        e.dataTransfer.setData('text/html', figure.outerHTML)
       } else e.dataTransfer.setData('text/plain', JSON.stringify(resource))
     },
     [resource],

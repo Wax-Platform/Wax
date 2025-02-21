@@ -186,17 +186,17 @@ const useAssistant = () => {
             }),
           )
         },
-        callDallE: async val => {
+        callDallE: async ({ description, alt }) => {
           const params = mapEntries(imgGenParams, (k, v) => `${k}: ${v}`).join(
             '\n',
           )
 
-          console.log(val + `\n${params}`)
+          console.log(description + `\n${params}`)
           await generateImages({
-            variables: { input: val + `\n${params}` },
+            variables: { input: description + `\n${params}`, alt }, // add alt text
           }).then(({ data: { generateImages: aiImages } }) => {
             if (!response.feedback) return
-            const feedbackWithImage = `${response.feedback}\n\n![Generated Image](${aiImages.s3url})`
+            const feedbackWithImage = `${response.feedback}\n\n![${alt}](${aiImages.s3url})`
 
             selectedCtx.conversation.push({
               role: 'assistant',

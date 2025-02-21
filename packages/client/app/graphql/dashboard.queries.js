@@ -44,6 +44,8 @@ export const OPEN_FOLDER = gql`
             title
           }
           img {
+            alt
+            key
             small
             medium
             full

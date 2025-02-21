@@ -36,10 +36,11 @@ export const RAG_SEARCH_QUERY = gql`
   }
 `
 export const GENERATE_IMAGES = gql`
-  query GenerateImages($input: String!, $format: String) {
-    generateImages(input: $input, format: $format) {
+  query GenerateImages($input: String!, $format: String, $alt: String) {
+    generateImages(input: $input, format: $format, alt: $alt) {
       s3url
       imageKey
+      alt
     }
   }
 `

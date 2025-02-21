@@ -317,7 +317,29 @@ const ChatHistory = ({ nomessages, className, ...props }) => {
                   </MessageHeader>
 
                   <MessageContent id={messageid}>
-                    <ReactMarkdown>{content}</ReactMarkdown>
+                    <ReactMarkdown
+                      components={{
+                        img: ({ src, alt }) => (
+                          <img
+                            draggable
+                            onDragStart={e => {
+                              const figure = document.createElement('figure')
+                              figure.innerHTML = `<img src="${src}" alt="${alt}"/><figcaption>${alt}</figcaption>`
+                              e.dataTransfer.setDragImage(figure, 0, 0)
+                              e.dataTransfer.setData(
+                                'text/html',
+                                figure.outerHTML,
+                              )
+                            }}
+                            src={src}
+                            alt={alt}
+                            style={{ objectFit: 'contain', width: '100%' }}
+                          />
+                        ),
+                      }}
+                    >
+                      {content}
+                    </ReactMarkdown>
                   </MessageContent>
                 </MessageContainer>
               </>
