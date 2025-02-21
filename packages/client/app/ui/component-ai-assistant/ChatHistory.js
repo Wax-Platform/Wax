@@ -1,7 +1,7 @@
 /* stylelint-disable string-quotes */
 /* stylelint-disable declaration-no-important */
 /* stylelint-disable no-descending-specificity */
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, memo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { fadeIn, useCurrentUser } from '@coko/client'
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons'
@@ -56,7 +56,6 @@ const ChatHistoryContainer = styled.div`
   scroll-behavior: smooth;
   scrollbar-color: #0002;
   transition: width 0.5s;
-  user-select: none;
   white-space: pre-line;
   width: 100%;
 
@@ -214,7 +213,41 @@ const NoMessages = styled.span`
   padding: 10px;
   text-align: center;
 `
+const DraggableImage = memo(({ src, alt }) => (
+  <img
+    tabIndex={1}
+    draggable
+    onMouseDown={e => e.stopPropagation()}
+    onClick={e => e.stopPropagation()}
+    onDragStart={e => {
+      const figure = document.createElement('figure')
+      figure.style.position = 'absolute'
+      figure.style.top = '-9999px'
+      figure.style.left = '-9999px'
+      figure.innerHTML = `<img src="${src}" alt="${alt}"/><figcaption>${alt}</figcaption>`
+      document.body.appendChild(figure)
+      e.dataTransfer.setDragImage(figure, 0, 0)
+      e.dataTransfer.setData('text/html', figure.outerHTML)
 
+      setTimeout(() => {
+        document.body.removeChild(figure)
+      }, 0)
+    }}
+    src={src}
+    alt={alt}
+    style={{ objectFit: 'contain', width: '100%' }}
+  />
+))
+
+const MemoizedReactMarkdown = memo(({ content }) => (
+  <ReactMarkdown
+    components={{
+      img: ({ src, alt }) => <DraggableImage src={src} alt={alt} />,
+    }}
+  >
+    {content}
+  </ReactMarkdown>
+))
 const ChatHistory = ({ nomessages, className, ...props }) => {
   const { selectedCtx, feedback, deleteLastMessage, settings } =
     useAiDesignerContext()
@@ -317,29 +350,7 @@ const ChatHistory = ({ nomessages, className, ...props }) => {
                   </MessageHeader>
 
                   <MessageContent id={messageid}>
-                    <ReactMarkdown
-                      components={{
-                        img: ({ src, alt }) => (
-                          <img
-                            draggable
-                            onDragStart={e => {
-                              const figure = document.createElement('figure')
-                              figure.innerHTML = `<img src="${src}" alt="${alt}"/><figcaption>${alt}</figcaption>`
-                              e.dataTransfer.setDragImage(figure, 0, 0)
-                              e.dataTransfer.setData(
-                                'text/html',
-                                figure.outerHTML,
-                              )
-                            }}
-                            src={src}
-                            alt={alt}
-                            style={{ objectFit: 'contain', width: '100%' }}
-                          />
-                        ),
-                      }}
-                    >
-                      {content}
-                    </ReactMarkdown>
+                    <MemoizedReactMarkdown content={content} />
                   </MessageContent>
                 </MessageContainer>
               </>
