@@ -153,7 +153,6 @@ const DropdownButton = ({ label, items }) => {
             borderRadius: '0 0 8px 8px',
             maxHeight: '200px',
             overflowY: 'auto',
-            f,
           }}
         >
           <Each
