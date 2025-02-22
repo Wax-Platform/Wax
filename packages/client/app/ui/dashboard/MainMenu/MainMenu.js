@@ -72,8 +72,10 @@ const Header = styled(WindowHeading)`
   /* flex-direction: column; */
   gap: 15px;
   height: fit-content;
+  line-height: unset;
   max-height: 100%;
-  padding: ${({ $files }) => ($files ? '20px 5px 0' : '25px 5px 0')};
+  min-height: unset;
+  padding: 20px 0 0;
   width: 100%;
 `
 const MenuLabel = styled.p`
@@ -106,7 +108,8 @@ const FilesInfoFixed = styled.div`
     fill: var(--color-trois-opaque);
   }
 `
-const ContentScrollWrapper = styled.div`
+const ContentScrollWrapper = styled(FlexRow)`
+  align-items: flex-start;
   height: 100%;
   overflow: auto;
   width: 100%;
@@ -205,6 +208,7 @@ const MainMenu = ({ enableLogin }) => {
               <CodeEditorHeaderRow>
                 <MenuLabel>Template Manager</MenuLabel>
                 <FlexRow style={{ gap: '10px' }}>
+                  <ChatButton />
                   <CleanButton
                     onClick={() => {
                       updateTemplateCss({
@@ -213,7 +217,6 @@ const MainMenu = ({ enableLogin }) => {
                       updatePreview(true, css)
                     }}
                   >
-                    <ChatButton />
                     <SaveOutlined />
                   </CleanButton>
                 </FlexRow>
