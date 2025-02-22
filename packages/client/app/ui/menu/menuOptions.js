@@ -5,6 +5,7 @@ import {
   TeamOutlined,
   ScissorOutlined,
   FileImageOutlined,
+  CodeOutlined,
 } from '@ant-design/icons'
 import styled from 'styled-components'
 import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
@@ -49,6 +50,17 @@ const Button = styled(CleanButton)`
   }
 `
 
+const ButtonSmall = styled(Button)`
+  svg {
+    height: 16px;
+    width: 16px;
+  }
+
+  img {
+    height: 16px;
+  }
+`
+
 export const FileManagerButton = () => {
   const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
 
@@ -88,21 +100,14 @@ export const TeamButton = () => {
 }
 
 export const ChatButton = () => {
-  const { designerOn } = useAiDesignerContext()
-  const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
+  const { userMenu } = useLayout()
+  const { chat, templateManager } = userMenu.state
+  const update = chat ? { templateManager: true } : { chat: true }
 
   return (
-    <Button
-      $hide={!designerOn}
-      onClick={() => {
-        !userMenuOpen && showUserMenu()
-        userMenu.state.chat ? hideUserMenu() : userMenu.update({ chat: true })
-      }}
-      $expanded={userMenu.state.chat}
-      title="Chat"
-    >
-      <img src={chatIcon} alt="Chat" />
-    </Button>
+    <ButtonSmall onClick={() => userMenu.update(update)} title="Chat">
+      {templateManager ? <img src={chatIcon} alt="Chat" /> : <CodeOutlined />}
+    </ButtonSmall>
   )
 }
 
@@ -119,7 +124,7 @@ export const CodeEditorButton = () => {
           ? hideUserMenu()
           : userMenu.update({ templateManager: true })
       }}
-      $expanded={userMenu.state.templateManager}
+      $expanded={userMenu.state.templateManager || userMenu.state.chat}
       title="Template Editor"
     >
       <img src={templateIcon} alt="Code Editor" />
@@ -170,6 +175,7 @@ export const ImageBuilderButton = () => {
 
   return (
     <Button
+      $hide={designerOn}
       onClick={() => {
         !userMenuOpen && showUserMenu()
         userMenu.state.images

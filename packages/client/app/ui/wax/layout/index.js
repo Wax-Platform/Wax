@@ -24,6 +24,8 @@ import { StyledWindow } from '../../_styleds/common'
 import { FullCodeEditor } from '../../component-ai-assistant/components/FullCodeEditor'
 import { useDocumentContext } from '../../dashboard/hooks/DocumentContext'
 import { useLayout } from '../../../hooks/LayoutContext'
+import { SpinnerWrapper } from '../PmEditor'
+import { Result, Spin } from '../../common'
 
 const Wrapper = styled.div`
   --pm-editor-width: 90%;
@@ -213,7 +215,12 @@ const BottomRightInfo = ComponentPlugin('BottomRightInfo')
 const RightArea = ComponentPlugin('rightArea')
 
 /* eslint-disable-next-line react/prop-types */
-const Layout = ({ docIdentifier, ...props }) => {
+const Layout = ({
+  docIdentifier,
+  showSpinner,
+  fetchingTemplates,
+  ...props
+}) => {
   const context = useContext(WaxContext)
   const {
     options,
@@ -346,6 +353,16 @@ const Layout = ({ docIdentifier, ...props }) => {
             <MainMenu enableLogin={enableLogin} />
           </FileManagerWrapper>
           <EditorWrapper $show={showEditor}>
+            <SpinnerWrapper showSpinner={showSpinner || fetchingTemplates}>
+              <Result
+                icon={<Spin size={18} spinning />}
+                title={
+                  fetchingTemplates
+                    ? 'Fetching templates'
+                    : 'Loading your document'
+                }
+              />
+            </SpinnerWrapper>
             <WaxSurfaceScroll
               id="wax-surface-scroll"
               $loading={!!loading}

@@ -69,6 +69,7 @@ const Content = styled.div`
 
 const Header = styled(WindowHeading)`
   background: #fff0;
+  /* flex-direction: column; */
   gap: 15px;
   height: fit-content;
   max-height: 100%;
@@ -148,7 +149,7 @@ const MainMenu = ({ enableLogin }) => {
   const { team, chat, templateManager, files, snippetsManager, images } =
     userMenu.state
 
-  const menuLabel = chat ? 'Chat' : team ? 'Team' : null
+  const menuLabel = team ? 'Team' : null
 
   useEffect(() => {
     const body = previewRef?.current?.contentDocument.body
@@ -166,10 +167,9 @@ const MainMenu = ({ enableLogin }) => {
       <Menu>
         <FileManagerButton />
         <TeamButton />
-        <ChatButton />
+        <ImageBuilderButton />
         <CodeEditorButton />
         <TemplateManagerButton />
-        <ImageBuilderButton />
       </Menu>
       <Content {...{ ...userMenu.state, isOn: userMenuOpen }}>
         <Header $files={files}>
@@ -200,7 +200,7 @@ const MainMenu = ({ enableLogin }) => {
               </FilesInfoFixed>
             </FlexCol>
           )}
-          {templateManager && (
+          {(templateManager || chat) && (
             <FlexCol style={{ width: '100%' }}>
               <CodeEditorHeaderRow>
                 <MenuLabel>Template Manager</MenuLabel>
@@ -213,6 +213,7 @@ const MainMenu = ({ enableLogin }) => {
                       updatePreview(true, css)
                     }}
                   >
+                    <ChatButton />
                     <SaveOutlined />
                   </CleanButton>
                 </FlexRow>
@@ -226,7 +227,6 @@ const MainMenu = ({ enableLogin }) => {
           )}
           {images && (
             <FlexCol style={{ width: '100%' }}>
-              <CodeEditorHeaderRow></CodeEditorHeaderRow>
               <FilesInfoFixed>
                 <ImageBuilderHeader />
               </FilesInfoFixed>

@@ -132,14 +132,15 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
           flexDirection: 'column',
           height: '100%',
           width: '100%',
-          opacity: showSpinner ? 0.4 : 1,
           transition: 'all 0.5s',
         }}
       >
         <Wax
           config={WaxConfig}
+          showSpinner={showSpinner}
           fileUpload={file => renderImage(file)}
           layout={layout}
+          fetchTemplates={fetchingTemplates}
           onChange={value => {
             setEditorContent(value)
           }}
@@ -150,17 +151,6 @@ const PmEditor = ({ docIdentifier, showFilemanager }) => {
           docIdentifier={docIdentifier}
         />
       </span>
-      <SpinnerWrapper
-        showSpinner={showSpinner || fetchingTemplates}
-        showFilemanager={showFilemanager}
-      >
-        <Result
-          icon={<Spin size={18} spinning />}
-          title={
-            fetchingTemplates ? 'Fetching templates' : 'Loading your document'
-          }
-        />
-      </SpinnerWrapper>
     </>
   )
 }

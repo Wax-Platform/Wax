@@ -147,3 +147,35 @@ export const addClass = (method, classNames, selected) => {
     method,
   })
 }
+
+export const updateImageUrls = async getUrlsFromKey => {
+  const { view } = AiDesigner.states
+  const { state, dispatch } = view
+  const { doc, tr } = state
+
+  const imageNodes = []
+  doc.descendants((node, pos) => {
+    if (node.type.name === 'image' && node.attrs.s3Key) {
+      imageNodes.push({ node, pos })
+    }
+  })
+
+  const s3Keys = imageNodes.map(({ node }) => node.attrs.s3Key)
+  const urlMapping = await getUrlsFromKey(s3Keys)
+
+  imageNodes.forEach(({ node, pos }) => {
+    const s3Key = node.attrs.s3key
+    const newUrl = urlMapping[s3Key]
+
+    if (newUrl) {
+      const newAttrs = {
+        ...node.attrs,
+        src: newUrl,
+      }
+      tr.setNodeMarkup(pos, null, newAttrs)
+    }
+  })
+
+  // Dispatch the transaction to update the document
+  dispatch(tr)
+}
