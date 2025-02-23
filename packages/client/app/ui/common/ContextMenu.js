@@ -68,7 +68,7 @@ export const MenuItem = styled.li`
   position: relative;
 
   &:hover {
-    background-color: #0001;
+    background-color: var(--color-trois-alpha-2);
   }
 `
 export const MenuButton = styled(CleanButton)`

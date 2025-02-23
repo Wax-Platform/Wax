@@ -12,17 +12,13 @@ import {
   CopyFilled,
   StarFilled,
   BookFilled,
-  FolderViewOutlined,
   PictureFilled,
   FontSizeOutlined,
   FileTextFilled,
-  PictureOutlined,
-  StarOutlined,
-  FileTextOutlined,
 } from '@ant-design/icons'
 import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
-import { CleanButton, FlexRow } from '../../_styleds/common'
+import { FlexRow } from '../../_styleds/common'
 import {
   callOn,
   objIf,
@@ -305,7 +301,6 @@ const Resource = props => {
     currentDoc,
     contextualMenu,
     addToFavs,
-    setTemplateToEdit,
     clipboard,
     graphQL: { pasteResources },
   } = useDocumentContext()

@@ -31,9 +31,9 @@ const Root = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
-  height: 100%;
+  height: fit-content;
   opacity: 1;
-  padding: 12px 12px 24px;
+  padding: 12px;
   width: 100%;
 `
 

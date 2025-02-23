@@ -146,7 +146,7 @@ const Header = props => {
     css,
   } = useAiDesignerContext()
 
-  const { userMenu, editors } = useLayout()
+  const { userMenu, editors, userMenuOpen } = useLayout()
 
   const { currentDoc } = useContext(DocumentContext)
 
@@ -158,6 +158,7 @@ const Header = props => {
         userMenu.state.templateManager ||
         userMenu.state.snippetsManager) &&
       userMenu.update({ files: true })
+    !designerOn && userMenu.state.images && userMenu.update({ chat: true })
     updatePreview(true, css)
   }
 

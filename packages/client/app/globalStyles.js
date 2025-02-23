@@ -63,6 +63,7 @@ export default createGlobalStyle`
     --color-trois-lightest-3: #bc0bc205;
     --color-trois-dark: #6d336c;
     --color-trois-alpha: #a34ba129;
+    --color-trois-alpha-2: #904ba310;
  
     /* layout */
 
@@ -77,6 +78,21 @@ export default createGlobalStyle`
     box-sizing: border-box;
     overflow: hidden;
   }
+
+  /* body[data-theme='dark'] {
+    --color-trois: #a34ba1;
+    --color-trois-opaque: #7c6f99;
+    --color-trois-opaque-2: #e6e2ed;
+    --color-trois-opaque-dark: #aa79aa;
+    --color-trois-opaque-3: #decfde;
+    --color-trois-light: #6d336c;
+    --color-trois-lighter: #bc0bc205;
+    --color-trois-lightest: #a34ba129;
+    --color-trois-lightest-2: #1d181d;
+    --color-trois-lightest-3: #7c6f99;
+    --color-trois-dark: #d3afd2;
+    --color-trois-alpha: #f5eff319;
+  } */
 
   * :not(div#assistant-ctx, .ProseMirror) {
     box-sizing: inherit;

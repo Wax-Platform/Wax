@@ -20,8 +20,8 @@ export const UPDATE_DOCUMENT_TEMPLATE = gql`
 `
 
 export const OPEN_FOLDER = gql`
-  query OpenFolder($id: ID, $resourceType: String) {
-    openFolder(id: $id, resourceType: $resourceType) {
+  query OpenFolder($id: ID, $resourceType: String, $sysFolder: String) {
+    openFolder(id: $id, resourceType: $resourceType, sysFolder: $sysFolder) {
       path {
         title
         id

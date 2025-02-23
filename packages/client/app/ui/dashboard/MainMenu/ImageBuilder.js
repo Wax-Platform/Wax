@@ -15,13 +15,6 @@ import { useDocumentContext } from '../hooks/DocumentContext'
 import { CloudUploadOutlined } from '@ant-design/icons'
 import { debounce } from 'lodash'
 
-const Grid = styled.div`
-  display: grid;
-  gap: 0;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-`
-
 const DropdownButtonContainer = styled(FlexRow)`
   color: var(--color-trois-opaque);
   gap: 5px;
@@ -37,8 +30,14 @@ const StyledMenuButton = styled(MenuButton)`
   display: flex;
   font-size: 12px !important;
   gap: 5px;
-  padding: 5px 10px;
+  padding: 5px;
   width: 100%;
+
+  img {
+    height: 14px;
+    object-fit: contain;
+    width: 14px;
+  }
 `
 
 const HiddenInput = styled.input`
@@ -101,7 +100,7 @@ const INIT_FLAGS = {
   transitioning: false,
 }
 
-const DropdownButton = ({ label, items }) => {
+export const DropdownButton = ({ label, items, className }) => {
   const menuFlags = useFlags({
     start: INIT_FLAGS,
     onMenuUpdate: m =>
@@ -129,7 +128,7 @@ const DropdownButton = ({ label, items }) => {
   const shouldAnimate = visible && animating
 
   return (
-    <DropdownButtonContainer>
+    <DropdownButtonContainer className={className}>
       <MenuButton
         data-dropdown
         style={{
@@ -148,11 +147,15 @@ const DropdownButton = ({ label, items }) => {
           visible={menu}
           shouldAnimate={shouldAnimate}
           style={{
+            paddingBlock: 0,
             marginTop: '25px',
             width: '100%',
             borderRadius: '0 0 8px 8px',
             maxHeight: '200px',
             overflowY: 'auto',
+            right: 0,
+            left: 'unset',
+            zIndex: 999999,
           }}
         >
           <Each
@@ -167,7 +170,7 @@ const DropdownButton = ({ label, items }) => {
 }
 
 const OptionRender = item => {
-  const { action, label, disabled, items, ...props } = item
+  const { action, label, disabled, items, component, ...props } = item
   const submenu = useBool({ start: false })
 
   const handleAction = e => {
@@ -194,7 +197,7 @@ const OptionRender = item => {
           {...props}
         >
           <StyledMenuButton $disabled={disabled} onClick={handleAction}>
-            <span>{label}</span>
+            {component || <span>{label}</span>}
           </StyledMenuButton>
           {/* {items && (
         <SubMenu data-contextmenu visible={submenu.state}>

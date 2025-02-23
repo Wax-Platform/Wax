@@ -1,17 +1,24 @@
 /* stylelint-disable no-descending-specificity */
 import React, { useContext } from 'react'
 import styled from 'styled-components'
+import templateIcon from '../../../../static/template-icon.svg'
+
 import { CleanButton, FlexRow } from '../../_styleds/common'
 import {
   ArrowLeftOutlined,
+  FileOutlined,
+  FileTextFilled,
   FolderAddOutlined,
+  FolderOpenOutlined,
+  PictureFilled,
   PlusCircleOutlined,
+  ShareAltOutlined,
+  StarFilled,
 } from '@ant-design/icons'
 import { useDocumentContext } from '../hooks/DocumentContext'
 import Each from '../../component-ai-assistant/utils/Each'
 import { takeRight } from 'lodash'
-import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
-import { typeFlags } from './utils/resourcesUtils'
+import { labelRender, typeFlags } from './utils/resourcesUtils'
 import { TemplateManagerHeader } from '../../component-ai-assistant/components/CodeEditor'
 import {
   useCreateDoc,
@@ -19,7 +26,8 @@ import {
   useCreateSnippet,
 } from '../../component-ai-assistant/SnippetsManager'
 import { useLayout } from '../../../hooks/LayoutContext'
-import { FileUploadContainer } from './ImageBuilder'
+import DropdownButton, { FileUploadContainer } from './ImageBuilder'
+import { arrIf, mapEntries } from '../../../shared/generalUtils'
 
 const MAX_PATH_LEVEL = 4
 
@@ -38,10 +46,6 @@ const PathRenderWrapper = styled.div`
   button {
     color: var(--color-trois-opaque-2);
 
-    &:hover {
-      background-color: #0001;
-    }
-
     svg {
       fill: var(--color-trois-opaque);
     }
@@ -53,6 +57,7 @@ const PathButton = styled(CleanButton)`
   padding: 2px 0;
   transition: all 0.2s;
 `
+
 const Container = styled.div`
   align-items: center;
   background: var(--color-trois-lightest);
@@ -70,16 +75,33 @@ export const Actions = styled(FlexRow)`
   border-radius: 1.5rem;
   color: var(--color-trois-opaque-2);
   gap: 8px;
-  padding: 7px 10px;
-
-  &:hover {
-    background-color: #0001;
-  }
+  padding: 4px 10px;
 
   svg {
     fill: var(--color-trois-opaque);
   }
 `
+const GoToButton = styled(DropdownButton)`
+  button {
+    padding-inline: 2px;
+  }
+`
+const StyledImage = styled.img`
+  height: var(--icon-size);
+  object-fit: cover;
+  width: var(--icon-size);
+`
+
+const TemplateIcon = styled(StyledImage).attrs({ src: templateIcon })`
+  width: calc(var(--icon-size) * 1.2);
+`
+const SYSTEM_FOLDER_ICONS_MAP = {
+  Images: <PictureFilled />,
+  Documents: <FileTextFilled />,
+  Templates: <TemplateIcon />,
+  Shared: <ShareAltOutlined />,
+  Favorites: <StarFilled />,
+}
 
 const createFolderIsChecker = folder => extension =>
   folder?.extension === extension
@@ -88,7 +110,8 @@ const CANT_CREATE = ['Templates', 'Favorites', 'Shared', 'Snippets']
 
 const PathRender = props => {
   const { userMenuOpen } = useLayout()
-  const { currentPath, graphQL, currentFolder } = useDocumentContext()
+  const { currentPath, graphQL, currentFolder, currentDoc } =
+    useDocumentContext()
   const handleCreateSnippet = useCreateSnippet()
   const handleCreateDoc = useCreateDoc()
   const handleCreateFolder = useCreateFolder()
@@ -130,6 +153,20 @@ const PathRender = props => {
     openFolder({ variables: { id } })
   }
 
+  const dpdwnItems = [
+    ...arrIf(currentDoc?.identifier, {
+      action: () =>
+        openFolder({
+          variables: { id: currentDoc.identifier, resourceType: 'doc' },
+        }),
+      component: labelRender(<FileOutlined />, `../${currentDoc?.title}`),
+    }),
+    ...mapEntries(SYSTEM_FOLDER_ICONS_MAP, (k, v) => ({
+      action: () => openFolder({ variables: { sysFolder: k } }),
+      component: labelRender(v, k),
+    })),
+  ]
+
   return (
     <PathRenderWrapper {...props}>
       <Container $hiding={!userMenuOpen}>
@@ -161,6 +198,16 @@ const PathRender = props => {
         )}
         <CleanButton $disabled={pathLevel === 1} onClick={goBack}>
           <ArrowLeftOutlined />
+        </CleanButton>
+        <CleanButton>
+          <GoToButton
+            label={
+              <FolderOpenOutlined
+                style={{ fill: 'var(--color-trois-opaque)', fontSize: '16px' }}
+              />
+            }
+            items={dpdwnItems}
+          />
         </CleanButton>
       </Actions>
     </PathRenderWrapper>

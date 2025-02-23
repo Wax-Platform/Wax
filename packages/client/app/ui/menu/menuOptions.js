@@ -27,7 +27,7 @@ const Button = styled(CleanButton)`
   opacity: ${p => (p.$hide ? 0 : 1)};
   pointer-events: ${p => (p.$hide ? 'none' : 'auto')};
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.5s;
   width: 80%;
 
   svg {
@@ -115,16 +115,16 @@ export const CodeEditorButton = () => {
   const { designerOn } = useAiDesignerContext()
   const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
 
+  const isExpanded = userMenu.state.templateManager || userMenu.state.chat
+  const handleClick = () => {
+    !userMenuOpen && showUserMenu()
+    isExpanded ? hideUserMenu() : userMenu.update({ chat: true })
+  }
   return (
     <Button
       $hide={!designerOn}
-      onClick={() => {
-        !userMenuOpen && showUserMenu()
-        userMenu.state.templateManager
-          ? hideUserMenu()
-          : userMenu.update({ templateManager: true })
-      }}
-      $expanded={userMenu.state.templateManager || userMenu.state.chat}
+      onClick={handleClick}
+      $expanded={isExpanded}
       title="Template Editor"
     >
       <img src={templateIcon} alt="Code Editor" />

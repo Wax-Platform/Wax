@@ -50,8 +50,9 @@ const ChatHistoryContainer = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 25dvh;
+  min-width: calc(var(--content-window-w) - 50px);
   overflow: auto;
-  padding: 25px;
+  padding: 0 25px;
   position: relative;
   scroll-behavior: smooth;
   scrollbar-color: #0002;
@@ -84,9 +85,10 @@ const ChatHistoryContainer = styled.div`
 const MessageContainer = styled.div`
   animation: ${chatFadeIn} 0.5s;
   border-bottom: 1px solid var(--color-trois-alpha);
-  color: #555;
+  color: #6b6679;
   display: flex;
   flex-direction: column;
+  font-size: 13px;
   margin: 0;
   opacity: ${p => (p.forgotten ? 0.5 : 1)};
   padding: 20px 10px;
@@ -154,9 +156,10 @@ const MessageContainer = styled.div`
 const MessageHeader = styled.div`
   align-items: center;
   display: flex;
+  font-size: 14px;
   gap: var(--message-header-gap);
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 8px 0;
   width: 100%;
 
   > div,
@@ -170,6 +173,7 @@ const MessageHeader = styled.div`
 
   strong {
     color: var(--color-trois-opaque-2);
+    font-size: 16px;
   }
 `
 
@@ -178,8 +182,9 @@ const MessageContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 0;
+  margin: auto;
   padding: 4px 15px;
+  width: calc(100% - 24px);
 
   p {
     margin: 0;

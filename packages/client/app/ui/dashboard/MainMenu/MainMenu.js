@@ -28,11 +28,17 @@ import {
   SnippetManagerHeader,
   SnippetsManager,
 } from '../../component-ai-assistant/SnippetsManager'
-import { htmlTagNames } from '../../component-ai-assistant/utils'
-import { SaveOutlined } from '@ant-design/icons'
+import { htmlTagNames, SettingsIcon } from '../../component-ai-assistant/utils'
+import {
+  CodeOutlined,
+  MessageOutlined,
+  SaveOutlined,
+  ToolOutlined,
+} from '@ant-design/icons'
 import { TemplatesDropdown } from './TemplatesDropdown'
 import { ImageBuilder, ImageBuilderHeader } from './ImageBuilder'
 import { useLayout } from '../../../hooks/LayoutContext'
+import { useBool } from '../../../hooks/dataTypeHooks'
 
 const Menu = styled.nav`
   align-items: center;
@@ -51,10 +57,8 @@ const Menu = styled.nav`
 `
 
 const Content = styled.div`
-  --border-color: ${({ chat }) =>
-    chat ? 'var(--color-trois-alpha)' : '#fff0'};
+  --content-window-w: 27dvw;
   background: #fff0;
-  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -63,12 +67,14 @@ const Content = styled.div`
   overflow: hidden;
   position: relative;
   transition: all 0.3s;
-  width: 27dvw;
+  width: var(--content-window-w);
   z-index: 999;
 `
 
 const Header = styled(WindowHeading)`
   background: #fff0;
+  border-bottom: 1px solid var(--color-trois-lightest);
+
   /* flex-direction: column; */
   gap: 15px;
   height: fit-content;
@@ -77,29 +83,48 @@ const Header = styled(WindowHeading)`
   min-height: unset;
   padding: 20px 0 0;
   width: 100%;
+  z-index: 9999;
 `
-const MenuLabel = styled.p`
+const MenuLabel = styled(CleanButton)`
+  align-items: center;
   background: var(--color-trois-lightest);
   border-radius: 1.5rem;
   box-shadow: var(--button-shadow);
   color: var(--color-trois-opaque) !important;
+  display: flex;
   font-size: 14px;
   font-weight: 200;
+  gap: 5px;
+  justify-content: center;
   letter-spacing: 1px;
   margin: 0 0 10px 8px;
-  padding: 6px 12px;
+  opacity: ${({ $inactive }) => ($inactive ? '0.8' : '1')};
+  padding: 6px 16px 6px 12px;
+  transform: ${({ $inactive }) => ($inactive ? 'scale(0.95)' : 'scale(1)')};
+  transition: all 0.3s;
+
+  span {
+    transform: ${({ $inactive }) => ($inactive ? 'scale(0.9)' : 'scale(1)')};
+    transition: all 0.3s;
+  }
 `
 
-const FilesInfoFixed = styled.div`
+const SecondHeaderRow = styled.div`
+  align-items: baseline;
   background: var(--color-trois-lightest-2);
   border-bottom: 3px solid var(--color-trois-lightest);
-  border-top: 1px solid var(--color-trois-lightest);
+  border-width: ${({ $hide }) => (!$hide ? '0px 0 3px' : '0')};
   color: var(--color-trois-opaque-2);
   display: flex;
   font-size: 11px;
   font-weight: 100;
   justify-content: space-between;
-  padding: 8px 15px;
+  max-height: ${({ $hide }) => ($hide ? '0' : '500px')};
+  padding: 5px 15px;
+  padding-block: ${({ $hide }) => ($hide ? '0' : '5px')};
+  transform: scaleY(${({ $hide }) => ($hide ? '0' : '1')});
+  transform-origin: top;
+  transition: all 0.3s;
   user-select: none;
   width: 100%;
   z-index: 9999;
@@ -121,13 +146,12 @@ const Footer = styled(FlexRow)`
   justify-content: center;
 `
 
-const CodeEditorHeaderRow = styled(FlexRow)`
+const FirstHeaderRow = styled(FlexRow)`
   align-items: center;
   justify-content: space-between;
   width: 100%;
 
   button {
-    font-size: 18px;
     padding: 8px 10px;
 
     svg {
@@ -137,16 +161,27 @@ const CodeEditorHeaderRow = styled(FlexRow)`
   }
 `
 
+const ImagesHeader = () => {
+  const hide = useBool({ start: true })
+  return (
+    <FlexCol style={{ width: '100%' }}>
+      <FirstHeaderRow>
+        <MenuLabel>Images</MenuLabel>
+        <CleanButton>
+          <ToolOutlined onClick={hide.toggle} style={{ fontSize: '16px' }} />
+        </CleanButton>
+      </FirstHeaderRow>
+      <SecondHeaderRow $hide={hide.state}>
+        <ImageBuilderHeader />
+      </SecondHeaderRow>
+    </FlexCol>
+  )
+}
 const MainMenu = ({ enableLogin }) => {
-  const { previewRef, css, selectedCtx, userInteractions, updatePreview } =
+  const { previewRef, css, selectedCtx, userInteractions } =
     useAiDesignerContext()
 
-  const {
-    resourcesInFolder = [],
-    currentDoc,
-    updateTemplateCss,
-  } = useDocumentContext()
-
+  const { resourcesInFolder = [] } = useDocumentContext()
   const { userMenu, userMenuOpen } = useLayout()
 
   const { team, chat, templateManager, files, snippetsManager, images } =
@@ -174,67 +209,36 @@ const MainMenu = ({ enableLogin }) => {
         <CodeEditorButton />
         <TemplateManagerButton />
       </Menu>
-      <Content {...{ ...userMenu.state, isOn: userMenuOpen }}>
+      <Content isOn={userMenuOpen}>
         <Header $files={files}>
           {menuLabel && <MenuLabel>{menuLabel}</MenuLabel>}
           {files && (
             <FlexCol style={{ width: '100%' }}>
               <PathRender />
-              <hr style={{ height: '8px', margin: 0 }} />
-              <FilesInfoFixed>
+              <SecondHeaderRow>
                 <span>{resourcesInFolder?.length} resource(s)</span>
                 <span>(Right click to open context menu)</span>
-              </FilesInfoFixed>
+              </SecondHeaderRow>
             </FlexCol>
           )}
           {snippetsManager && (
             <FlexCol style={{ width: '100%' }}>
-              <CodeEditorHeaderRow style={{ gap: '10px', width: '100%' }}>
+              <FirstHeaderRow style={{ gap: '10px', width: '100%' }}>
                 <MenuLabel>Snippets Manager</MenuLabel>
                 <SnippetManagerHeader />
-              </CodeEditorHeaderRow>
-              <FilesInfoFixed>
+              </FirstHeaderRow>
+              <SecondHeaderRow>
                 <span>
                   {userInteractions.ctrl && htmlTagNames[selectedCtx.tagName]
                     ? `All ${htmlTagNames[selectedCtx.tagName]}s`
                     : `${htmlTagNames[selectedCtx.tagName] || 'Document'}`}
                 </span>
                 <span>Select an element to apply a snippet</span>
-              </FilesInfoFixed>
+              </SecondHeaderRow>
             </FlexCol>
           )}
-          {(templateManager || chat) && (
-            <FlexCol style={{ width: '100%' }}>
-              <CodeEditorHeaderRow>
-                <MenuLabel>Template Manager</MenuLabel>
-                <FlexRow style={{ gap: '10px' }}>
-                  <ChatButton />
-                  <CleanButton
-                    onClick={() => {
-                      updateTemplateCss({
-                        variables: { rawCss: css, id: currentDoc.templateId },
-                      })
-                      updatePreview(true, css)
-                    }}
-                  >
-                    <SaveOutlined />
-                  </CleanButton>
-                </FlexRow>
-              </CodeEditorHeaderRow>
-
-              <FilesInfoFixed>
-                <span>Editing document template</span>
-                <TemplatesDropdown $show />
-              </FilesInfoFixed>
-            </FlexCol>
-          )}
-          {images && (
-            <FlexCol style={{ width: '100%' }}>
-              <FilesInfoFixed>
-                <ImageBuilderHeader />
-              </FilesInfoFixed>
-            </FlexCol>
-          )}
+          {(templateManager || chat) && <TemplateManagerHeader />}
+          {images && <ImagesHeader />}
         </Header>
         <ContentScrollWrapper id="user-menu-scroller">
           {files && <FileBrowser />}
@@ -255,3 +259,51 @@ const MainMenu = ({ enableLogin }) => {
 }
 
 export default MainMenu
+
+const TabLabel = styled.span`
+  padding-right: 4px;
+`
+const TemplateManagerHeader = () => {
+  const { userMenu } = useLayout()
+  const { css, updatePreview } = useAiDesignerContext()
+  const { currentDoc, updateTemplateCss } = useDocumentContext()
+
+  return (
+    <FlexCol style={{ width: '100%' }}>
+      <FirstHeaderRow>
+        <FlexRow>
+          <MenuLabel
+            $inactive={!userMenu.state.chat}
+            onClick={() => userMenu.update({ chat: true })}
+          >
+            <MessageOutlined style={{ pointerEvents: 'none' }} />
+            <TabLabel>Chat</TabLabel>
+          </MenuLabel>
+          <MenuLabel
+            $inactive={!userMenu.state.templateManager}
+            onClick={() => userMenu.update({ templateManager: true })}
+          >
+            <CodeOutlined />
+            <TabLabel>Code</TabLabel>
+          </MenuLabel>
+        </FlexRow>
+        <FlexRow style={{ gap: '10px' }}>
+          <CleanButton
+            onClick={() => {
+              updateTemplateCss({
+                variables: { rawCss: css, id: currentDoc.templateId },
+              })
+              updatePreview(true, css)
+            }}
+          >
+            <SaveOutlined style={{ fontSize: '18px' }} />
+          </CleanButton>
+        </FlexRow>
+      </FirstHeaderRow>
+      <SecondHeaderRow>
+        <span>Editing document template</span>
+        <TemplatesDropdown $show />
+      </SecondHeaderRow>
+    </FlexCol>
+  )
+}

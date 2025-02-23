@@ -33,6 +33,10 @@ export const LayoutProvider = ({ children }) => {
       if (!v) return
       AiDesigner.select('aid-ctx-main')
     },
+    onChatUpdate: v => {
+      if (!v) return
+      AiDesigner.select('aid-ctx-main')
+    },
     config: { __others: false },
   })
 
