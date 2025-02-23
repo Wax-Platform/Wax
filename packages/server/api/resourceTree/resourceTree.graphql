@@ -44,7 +44,11 @@ type FolderIdResponse {
 }
 
 extend type Query {
-  openFolder(id: ID, resourceType: String): CurrentFolderAndPath
+  openFolder(
+    id: ID
+    resourceType: String
+    sysFolder: String
+  ): CurrentFolderAndPath
   getDocPath(id: ID!): [ID]
 }
 

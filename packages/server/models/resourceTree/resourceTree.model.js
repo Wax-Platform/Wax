@@ -292,9 +292,11 @@ class ResourceTree extends BaseModel {
 
           fallbackFolder = fallbackFolder || rootFolder
 
+          const fbFolderPath = await ResourceTree.buildPath(folder.id, { trx })
+
           return {
-            path: [{ title: fallbackFolder.title, id: fallbackFolder.id }],
-            currentFolder: { ...fallbackFolder, children: [] },
+            path: fbFolderPath,
+            currentFolder: fallbackFolder,
             requestAccessTo: null,
           }
         } else {

@@ -6,8 +6,11 @@ const createIdentifier = () => {
   ).join('')
 }
 
-const openFolder = async (_, { id, resourceType = 'dir' }, ctx) => {
+const openFolder = async (_, { id, resourceType = 'dir', sysFolder }, ctx) => {
   const ResourceTree = require('../models/resourceTree/resourceTree.model')
+  if (sysFolder) {
+    return ResourceTree.openFolder(null, resourceType, ctx.user, sysFolder)
+  }
   return ResourceTree.openFolder(id, resourceType, ctx.user)
 }
 
