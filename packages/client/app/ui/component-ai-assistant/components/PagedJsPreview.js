@@ -50,7 +50,7 @@ const StyledWindow = styled.div`
     );
     content: '';
     display: flex;
-    height: 60px;
+    height: 20px;
     position: absolute;
     top: 0;
     width: 100%;

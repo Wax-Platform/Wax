@@ -211,7 +211,7 @@ const MainMenu = ({ enableLogin }) => {
           {team && (
             <FirstHeaderRow>
               <MenuLabel>Collaborators</MenuLabel>
-              <TeamManagerActions />
+              {/* <TeamManagerActions /> */}
             </FirstHeaderRow>
           )}
           {files && (
