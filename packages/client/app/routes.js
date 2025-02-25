@@ -42,7 +42,7 @@ import {
 } from './ui/dashboard/hooks/DocumentContext'
 import { ModalProvider } from './hooks/modalContext'
 import ContextModal from './ui/common/ContextModal'
-import { LayoutProvider } from './hooks/LayoutContext'
+import { LayoutProvider, useLayout } from './hooks/LayoutContext'
 const StyledContextMenu = styled(ContextMenu)`
   --svg-fill: var(--color-trois-opaque-2);
   margin: 0;
@@ -133,7 +133,15 @@ const Layout = props => {
 }
 
 const StyledPage = styled(Page)`
+  --color-trois-lightest-2: ${p => (p.pagelessMode ? '#fff' : '#fbf8fd')};
+  --pm-editor-shadow: ${p =>
+    !p.pagelessMode ? '0 0 12px #0003' : '0 0 0 #0000'};
+  --pm-editor-padding: ${p => (!p.pagelessMode ? '10%' : '0')};
   height: calc(100dvh);
+
+  * {
+    transition: background 0.3s;
+  }
 
   > div {
     align-items: center;
@@ -165,6 +173,7 @@ const SiteHeader = ({ enableLogin }) => {
   const history = useHistory()
 
   const { currentUser } = useCurrentUser()
+  const { pagelessMode } = useLayout()
   const [currentPath, setCurrentPath] = useState(history.location.pathname)
 
   useEffect(() => {
@@ -177,6 +186,7 @@ const SiteHeader = ({ enableLogin }) => {
 
   return currentUser || enableLogin === false ? (
     <Header
+      pagelessMode={!!pagelessMode.state}
       currentPath={currentPath}
       displayName={currentUser?.displayName}
       enableLogin={!!enableLogin}
@@ -210,6 +220,7 @@ const Authenticated = ({ children }) => {
 const PageWrapper = props => {
   const { setUserInteractions } = useAiDesignerContext()
   const { contextualMenu, setSelectedDocs } = useDocumentContext()
+  const { pagelessMode } = useLayout()
 
   useEffect(() => {
     const hideContextMenu = ({ target }) => {
@@ -244,7 +255,13 @@ const PageWrapper = props => {
     }
   }, [])
 
-  return <StyledPage {...props} $height={`calc(100% - 82px)`} />
+  return (
+    <StyledPage
+      {...props}
+      $height={`calc(100% - 82px)`}
+      pagelessMode={pagelessMode.state}
+    />
+  )
 }
 
 const routes = enableLogin => (

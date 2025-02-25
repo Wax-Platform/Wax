@@ -11,13 +11,12 @@ export default css`
     --slnt: 1;
     --crsv: 0.7;
     background: var(--color-background, #fff);
-    box-shadow: 0 0 12px #0003;
     font-family: '${th('fontContent')}';
     font-size: 0.95em;
     font-variation-settings: 'MONO' var(--mono), 'CASL' var(--casl),
       'slnt' var(--slnt), 'CSRV' var(--crsv);
     font-weight: 400;
-    padding: 3em 10ch;
+    padding: var(--pm-editor-padding);
 
     p {
       font-size: 1.05em;

@@ -6,6 +6,7 @@ const LayoutContext = createContext()
 
 export const LayoutProvider = ({ children }) => {
   const showUserMenu = useBool({ start: true })
+  const pagelessMode = useBool({ start: false })
 
   const editors = useFlags({
     start: { wax: true, preview: false, code: false, images: false },
@@ -48,6 +49,7 @@ export const LayoutProvider = ({ children }) => {
         showUserMenu: showUserMenu.on,
         hideUserMenu: showUserMenu.off,
         userMenuOpen: showUserMenu.state,
+        pagelessMode: pagelessMode,
       }}
     >
       {children}

@@ -90,13 +90,13 @@ const EditorContainer = styled.div`
   width: 1200px;
 
   .ProseMirror {
-    box-shadow: 0 0 8px #ecedf1;
+    box-shadow: var(--pm-editor-shadow);
     height: fit-content;
     max-width: 100%;
     min-height: 150dvh;
-    padding: 10% !important;
+    padding: var(--pm-editor-padding) !important;
     transform-origin: top center;
-    transition: transform 0.2s;
+    transition: transform 0.2s, padding 0.2s, box-shadow 0.2s;
     width: 1200px;
   }
 

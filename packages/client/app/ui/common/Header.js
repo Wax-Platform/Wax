@@ -14,20 +14,23 @@ import {
   RefreshIcon,
   UndoIcon,
 } from '../component-ai-assistant/utils'
-import { PrinterOutlined, SaveOutlined } from '@ant-design/icons'
-import { TemplatesDropdown } from '../dashboard/MainMenu/TemplatesDropdown'
-import { debounce } from 'lodash'
+import { PrinterOutlined } from '@ant-design/icons'
 import { useLayout } from '../../hooks/LayoutContext'
 
 // #region styles
 const StyledHeader = styled.header`
   align-items: center;
-  background: var(--color-trois-lightest-2);
+  background: linear-gradient(
+    to bottom,
+    var(--color-trois-lightest-2) 60%,
+    ${p => (p.pagelessMode ? '#fff' : 'var(--color-trois-lightest-2)')} 100%
+  );
   display: flex;
   height: var(--header-height);
   justify-content: space-between;
   padding: 0 10px 0 0;
   position: relative;
+  transition: all 0.3s;
   z-index: 999;
 `
 
@@ -96,7 +99,6 @@ const EditDesignLabels = styled(CleanButton)`
 `
 
 const DesignerActions = styled(FlexRow)`
-  /* background: var(--color-trois-lightest); */
   border-radius: 1rem;
   bottom: -40px;
   gap: 12px;
@@ -106,8 +108,6 @@ const DesignerActions = styled(FlexRow)`
   opacity: ${p => (p.$designerOn ? '1' : '0')};
   padding: 0 0.5rem;
   pointer-events: ${p => (p.$designerOn ? 'all' : 'none')};
-  /* position: absolute; */
-  /* right: 40px; */
   transition: all 0.3s;
   z-index: 88;
 
@@ -146,7 +146,7 @@ const Header = props => {
     css,
   } = useAiDesignerContext()
 
-  const { userMenu, editors, userMenuOpen } = useLayout()
+  const { userMenu, editors, userMenuOpen, pagelessMode } = useLayout()
 
   const { currentDoc } = useContext(DocumentContext)
 
