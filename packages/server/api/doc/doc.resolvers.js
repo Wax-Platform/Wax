@@ -65,6 +65,15 @@ module.exports = {
 
       return path
     },
+    sharedWith: async (doc, _, ctx) => {
+      const ResourceTree = require('../../models/resourceTree/resourceTree.model')
+
+      const resource = await ResourceTree.query().findOne({ docId: doc.id })
+      const userId = ctx.user
+      const sharedWith = await ResourceTree.getSharedWith(resource.id)
+      const users = await User.query().whereIn('id', sharedWith)
+      return users.filter(user => user.id !== userId)
+    },
   },
   Mutation: {
     updateDocumentTemplate: async (_, { id, templateId }) => {

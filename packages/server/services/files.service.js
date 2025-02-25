@@ -51,12 +51,14 @@ const insertFileRecord = async ({
   size,
   options,
   alt = '',
+  caption = '',
 }) => {
   const { trx } = options
   const { File } = require('@coko/server')
   return File.query(trx).insert({
     name,
     alt,
+    caption,
     storedObjects: [
       {
         type: 'original',

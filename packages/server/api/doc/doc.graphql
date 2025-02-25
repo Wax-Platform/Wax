@@ -6,6 +6,14 @@ type Doc {
   resourceId: ID
   templateId: ID
   path: [ID]
+  sharedWith: [User]
+}
+
+type SharedWith {
+  id: ID!
+  displayName: String
+  email: String
+  color: String
 }
 
 extend type Query {

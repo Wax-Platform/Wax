@@ -1,4 +1,5 @@
 const { logger, useTransaction } = require('@coko/server')
+const { Identity } = require('@coko/server/src/models')
 
 const createIdentifier = () => {
   return Array.from(Array(20), () =>
@@ -86,11 +87,19 @@ const moveResource = async (_, { id, newParentId }, ctx) => {
   return { folderId: id }
 }
 
-const shareResource = async (_, { resourceId, userId }, ctx) => {
+const shareResource = async (_, { resourceId, inviteeEmail }, ctx) => {
   const ResourceTree = require('../models/resourceTree/resourceTree.model')
+  const User = require('../models/user/user.model')
+  const users = await User.query()
+  const identities = await Identity.query().whereIn(
+    'userId',
+    users.map(u => u.id),
+  )
+  const invitedUser = identities.find(user => user?.email === inviteeEmail)
+  const inviteeId = invitedUser?.userId
   const resource = await ResourceTree.shareResource(
     resourceId,
-    userId,
+    inviteeId,
     ctx.user,
   )
   return resource
@@ -103,7 +112,7 @@ const unshareResource = async (_, { resourceId, userId }, ctx) => {
     userId,
     ctx.user,
   )
-  return resource
+  return true
 }
 
 const addToFavorites = async (_, { resourceId }, ctx) => {

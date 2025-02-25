@@ -6,11 +6,12 @@ const {
   fileStorage,
   deleteFiles,
 } = require('@coko/server')
-const { Team, TeamMember, User } = require('@pubsweet/models')
+const { TeamMember, User } = require('@pubsweet/models')
 const { Readable } = require('stream')
 const config = require('config')
 const { callOn } = require('../../utilities/utils')
 const { insertFileRecord } = require('../../services/files.service')
+const { Team } = require('@coko/server/src/models')
 
 const { idNullable, stringNullable, arrayOfIds, string } = modelTypes
 const AUTHOR_TEAM = config.teams.nonGlobal.author
@@ -155,7 +156,7 @@ class ResourceTree extends BaseModel {
           displayName: AUTHOR_TEAM.displayName,
         })
 
-        await Team.addMember(authorTeam.id, userId, { trx })
+        await Team.addMember(authorTeam.id, userId)
       }
 
       return insertedResource
@@ -818,8 +819,9 @@ class ResourceTree extends BaseModel {
     return path
   }
 
-  static async shareResource(resourceId, userId, options = {}) {
+  static async shareResource(resourceId, inviteeId, options = {}) {
     const { trx } = options
+
     try {
       const resource = await ResourceTree.query(trx).findById(resourceId)
       if (!resource) {
@@ -834,10 +836,10 @@ class ResourceTree extends BaseModel {
         throw new Error('Team not found')
       }
 
-      await Team.addMember(team.id, userId, { trx })
+      await Team.addMember(team.id, inviteeId)
       const invitedMemberSharedFolder = await ResourceTree.findSystemFolder(
         'Shared',
-        userId,
+        inviteeId,
         { trx },
       )
       invitedMemberSharedFolder.children.unshift(resourceId)
@@ -845,9 +847,9 @@ class ResourceTree extends BaseModel {
         .patch({ children: invitedMemberSharedFolder.children })
         .findById(invitedMemberSharedFolder.id)
 
-      return resource
+      return true
     } catch (e) {
-      // logger.info(e)
+      return false
     }
   }
 
@@ -868,10 +870,43 @@ class ResourceTree extends BaseModel {
       }
 
       await Team.removeMember(team.id, userId, { trx })
-      return resource
+
+      const sharedFolder = await ResourceTree.findSystemFolder(
+        'Shared',
+        userId,
+        {
+          trx,
+        },
+      )
+
+      sharedFolder.children = sharedFolder.children.filter(
+        child => child !== resourceId,
+      )
+
+      await ResourceTree.query(trx)
+        .patch({ children: sharedFolder.children })
+        .findById(sharedFolder.id)
+
+      return true
     } catch (e) {
-      // logger.info(e)
+      logger.info(e)
+      return false
     }
+  }
+
+  static async getSharedWith(resourceId, options = {}) {
+    const { trx } = options
+    const team = await Team.query(trx)
+      .where({ objectId: resourceId, objectType: TEAM_OBJECT_TYPE })
+      .first()
+
+    if (!team) {
+      return []
+    }
+
+    const members = await TeamMember.query(trx).where({ teamId: team.id })
+    const membersIds = members.map(member => member.userId)
+    return membersIds
   }
 
   static async addToFavorites(resourceId, userId, options = {}) {
@@ -987,6 +1022,7 @@ class ResourceTree extends BaseModel {
         ...template,
         userId: resource.userId,
         displayName: `${template.displayName} (copy)`,
+        id: undefined,
       })
 
       await this.query(trx)

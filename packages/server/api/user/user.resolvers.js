@@ -14,10 +14,6 @@ const updateUserProfileResolver = async (_, { input }, ctx) => {
   return updateUserProfile(ctx.user, input)
 }
 
-const documentsResolver = async user => {
-  return getDocuments(user)
-}
-
 module.exports = {
   Mutation: {
     updateUserProfile: updateUserProfileResolver,
@@ -46,7 +42,6 @@ module.exports = {
     getUser: async (_, { id }, ctx) => {
       const user = await User.query().findById(id)
       logger.info('getUser', { user })
-      pubsubManager
       return user
     },
   },

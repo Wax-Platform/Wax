@@ -50,6 +50,7 @@ extend type Query {
     sysFolder: String
   ): CurrentFolderAndPath
   getDocPath(id: ID!): [ID]
+  getSharedWith: [User]
 }
 
 extend type Mutation {
@@ -65,8 +66,8 @@ extend type Mutation {
   deleteResource(id: ID!): FolderIdResponse!
   renameResource(id: ID!, title: String!): FolderIdResponse!
   moveResource(id: ID!, newParentId: ID): FolderIdResponse!
-  shareResource(resourceId: ID!, userId: ID!): Resource!
-  unshareResource(resourceId: ID!, userId: ID!): Resource!
+  shareResource(resourceId: ID!, inviteeEmail: String!): Boolean!
+  unshareResource(resourceId: ID!, userId: ID!): Boolean!
   addToFavorites(resourceId: ID!): Resource
   pasteResources(parentId: ID!, resourceIds: [ID!]!, action: String!): Boolean!
   reorderChildren(parentId: ID!, newChildrenIds: [ID!]!): Boolean!
