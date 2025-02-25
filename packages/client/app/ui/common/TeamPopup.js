@@ -1,101 +1,92 @@
 /* stylelint-disable declaration-no-important */
-/* stylelint-disable no-descending-specificity */
-
 import React, { useState, useContext } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { BlockPicker } from 'react-color'
-import { th, useCurrentUser } from '@coko/client'
+import { useCurrentUser } from '@coko/client'
 import YjsContext from '../../yjsProvider'
-import Button from './Button'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
 import { useApolloClient } from '@apollo/client'
-
-const StyledButton = styled(Button)`
-  background: none;
-  border: none;
-  color: ${th('colorText')};
-  display: inline-block;
-  font-size: inherit;
-  font-weight: 700;
-  line-height: 1.25;
-  overflow-x: hidden;
-  padding: 10px 0;
-  transition: none;
-
-  &:hover,
-  &:focus {
-    span {
-      color: ${th('colorText')};
-
-      &::after {
-        transform: translateX(0);
-      }
-    }
-  }
-
-  @media screen and (min-width: ${th('mediaQueries.large')}) {
-    line-height: 1.5;
-    padding: 0;
-
-    span::after {
-      background-color: ${th('colorText')};
-    }
-  }
-`
+import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
+import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
+import {
+  CheckOutlined,
+  DeleteFilled,
+  MailFilled,
+  PoweroffOutlined,
+  ShareAltOutlined,
+} from '@ant-design/icons'
+import { UserAvatar } from '../component-ai-assistant/ChatHistory'
 
 const TeamWrapper = styled.div`
+  --profile-picture-size: 18px;
   padding: 0 20px;
+  width: 100%;
   z-index: 3;
-`
 
-const Popup = styled.div`
-  height: fit-content;
-  padding: 0 20px;
-  padding: 10px;
-  top: 40px;
-`
+  h3 {
+    color: var(--color-trois-opaque-2);
+    font-size: 15px;
+    margin: 0 0 8px;
+  }
 
-const MyUser = styled.div`
-  align-items: center;
-  color: var(--color-trois-dark);
-  display: flex;
-  font-weight: 700;
+  * {
+    font-size: 14px;
+  }
 `
 
 const OtherUsers = styled.div`
+  width: 100%;
+
   ul {
-    direction: ltr;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
     padding-left: 0;
+    width: 100%;
   }
 
   ul > li {
+    align-items: center;
     display: flex;
+    gap: 10px;
+    justify-content: space-between;
     margin-bottom: 5px;
-  }
+    width: 100%;
 
-  ul > li > span {
-    padding-left: 10px;
+    svg {
+      fill: var(--color-trois-opaque);
+    }
   }
+`
+const Block = styled(FlexCol)`
+  border-bottom: 1px solid #0001;
+  padding: 16px 12px;
+  width: 100%;
 `
 
 const ColoredCircle = styled.div`
   background-color: ${p => p.color};
-  border: 1px solid #0001;
-  border-radius: 50%;
-  height: ${p => p.size};
+  border-radius: 3px;
+  box-shadow: inset 0 0 5px var(--color-trois-lightest-2);
+  height: 18px;
   min-width: ${p => p.size};
-  width: ${p => p.size};
+  width: 100%;
 `
 
 const UsernameText = styled.input`
   background: none;
   border: none;
   border-bottom: 1px solid #0003;
+  display: flex;
   height: 20px;
-  margin-left: 10px;
-  margin-right: 10px;
-  width: 200px;
+  margin-left: 0;
+  width: 100%;
+
+  &:focus {
+    border-bottom: 1px solid var(--color-trois-opaque-2);
+    outline: none;
+  }
 `
 
 const ColorBlock = styled.div`
@@ -107,28 +98,72 @@ const StyledBlockPicker = styled(BlockPicker)`
   top: calc(100% + 20px);
 `
 
-const TeamPopup = () => {
-  const client = useApolloClient()
+const FlexRowCenter = styled(FlexRow)`
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+`
 
-  const [openColorPicker, toggleColorPicker] = useState(false)
-  const history = useHistory()
+const FlexRowCenterFitContent = styled(FlexRow)`
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+`
+
+const FlexRowCenterGap = styled(FlexRow)`
+  gap: 10px;
+`
+
+const Label = styled.span`
+  min-width: 124px;
+  padding-left: 10px;
+  white-space: nowrap;
+`
+
+export const TeamManagerActions = () => {
   const { setCurrentUser } = useCurrentUser()
+  const client = useApolloClient()
+  const history = useHistory()
   const logout = () => {
     setCurrentUser(null)
     client.cache.reset()
-
     localStorage.removeItem('token')
     history.push('/login')
   }
+  return (
+    <CleanButton data-testid="logout-btn" onClick={logout} title="Logout">
+      <PoweroffOutlined style={{ fontSize: '18px' }} />
+    </CleanButton>
+  )
+}
 
-  const { sharedUsers, updateLocalUser, yjsCurrentUser } =
-    useContext(YjsContext)
+const TeamPopup = () => {
+  const {
+    currentDoc,
+    graphQL: { unshareResource, shareResource },
+  } = useDocumentContext()
+  const [openColorPicker, toggleColorPicker] = useState(false)
+  const { currentUser } = useCurrentUser()
+  const { updateLocalUser, yjsCurrentUser } = useContext(YjsContext)
 
+  const canUnshare = currentUser?.id === currentDoc?.owner.id
+
+  const handleUnshare = userId => {
+    unshareResource({
+      variables: {
+        resourceId: currentDoc.resourceId,
+        userId,
+      },
+    })
+  }
+
+  const sharedWith = currentDoc?.sharedWith || []
   return (
     <TeamWrapper>
-      <Popup>
-        <MyUser>
-          <p>Name:</p>
+      <Block style={{ gap: '5px' }}>
+        <h3 style={{ margin: 0 }}>Your Profile:</h3>
+        <FlexRowCenter>
+          <Label>Name to display:</Label>
           <UsernameText
             onChange={current => {
               updateLocalUser({
@@ -139,10 +174,12 @@ const TeamPopup = () => {
             type="text"
             value={yjsCurrentUser.displayName}
           />
+        </FlexRowCenter>
+        <FlexRowCenter>
+          <Label>Color to display:</Label>
           <ColoredCircle
             color={yjsCurrentUser.color}
             onClick={() => toggleColorPicker(!openColorPicker)}
-            size="20px"
           />
           {openColorPicker && (
             <ColorBlock>
@@ -157,23 +194,79 @@ const TeamPopup = () => {
               />
             </ColorBlock>
           )}
-        </MyUser>
-        <StyledButton data-testid="logout-btn" onClick={logout}>
-          Logout
-        </StyledButton>
+        </FlexRowCenter>
+        {canUnshare && (
+          <FlexRowCenter>
+            <Label>
+              <ShareAltOutlined style={{ fontSize: '14px' }} /> Share with:
+            </Label>
+            <UsernameText
+              type="email"
+              placeholder="Enter user email"
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  shareResource({
+                    variables: {
+                      resourceId: currentDoc.resourceId,
+                      inviteeEmail: e.target.value,
+                    },
+                  })
+                  e.target.value = ''
+                }
+              }}
+            />
+            <CleanButton
+              onClick={() => {
+                const email = document.querySelector(
+                  'input[type="email"]',
+                ).value
+                shareResource({
+                  variables: {
+                    resourceId: currentDoc.resourceId,
+                    inviteeEmail: email,
+                  },
+                })
+              }}
+            >
+              <CheckOutlined
+                style={{ fontSize: '16px', color: 'var(--color-trois-opaque)' }}
+              />
+            </CleanButton>
+          </FlexRowCenter>
+        )}
+      </Block>
+      <Block>
+        <h3>Owner:</h3>
+        <FlexRowCenterFitContent>
+          <UserAvatar bgColor={currentDoc.owner.color} />
+          <span>{currentDoc.owner.displayName}</span>
+        </FlexRowCenterFitContent>
+      </Block>
+      <Block>
+        <h3>Shared with:</h3>
         <OtherUsers>
           <ul>
-            {sharedUsers
-              .filter(([id, { user }]) => user.id !== yjsCurrentUser.id)
-              .map(([id, { user }]) => (
-                <li key={user.id}>
-                  <ColoredCircle color={user.color} size="35px" />{' '}
-                  <span>{user.displayName}</span>{' '}
-                </li>
-              ))}
+            {sharedWith.map(user => (
+              <li key={user.id}>
+                <FlexRowCenterFitContent>
+                  <UserAvatar bgColor={user.color} />
+                  <span>{user.displayName}</span>
+                </FlexRowCenterFitContent>
+                <FlexRowCenterGap>
+                  <a href={`mailto:${user.defaultIdentity.email}`}>
+                    <MailFilled style={{ fontSize: '16px' }} />
+                  </a>
+                  {canUnshare && (
+                    <CleanButton onClick={() => handleUnshare(user.id)}>
+                      <DeleteFilled style={{ fontSize: '16px' }} />
+                    </CleanButton>
+                  )}
+                </FlexRowCenterGap>
+              </li>
+            ))}
           </ul>
         </OtherUsers>
-      </Popup>
+      </Block>
     </TeamWrapper>
   )
 }

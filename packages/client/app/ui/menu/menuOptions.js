@@ -13,6 +13,7 @@ import { CleanButton } from '../_styleds/common'
 import chatIcon from '../../../static/chat-icon2.svg'
 import templateIcon from '../../../static/template-icon-2.svg'
 import { useLayout } from '../../hooks/LayoutContext'
+import { useDocumentContext } from '../dashboard/hooks/DocumentContext'
 
 const Button = styled(CleanButton)`
   --shadow: ${p => (p.$expanded ? '#0001' : '#0000')};
@@ -84,9 +85,11 @@ export const FileManagerButton = () => {
 
 export const TeamButton = () => {
   const { userMenu, hideUserMenu, showUserMenu, userMenuOpen } = useLayout()
+  const { currentDoc } = useDocumentContext()
 
   return (
     <Button
+      $hide={!currentDoc?.id}
       onClick={() => {
         !userMenuOpen && showUserMenu()
         userMenu.state.team ? hideUserMenu() : userMenu.update({ team: true })

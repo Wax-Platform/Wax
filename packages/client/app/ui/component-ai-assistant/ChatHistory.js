@@ -218,6 +218,9 @@ const NoMessages = styled.span`
   padding: 10px;
   text-align: center;
 `
+
+export const UserAvatar = styled(Avatar).attrs({ src: userSmall })``
+
 const DraggableImage = memo(({ src, alt }) => (
   <img
     tabIndex={1}

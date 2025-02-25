@@ -75,15 +75,23 @@ export const Actions = styled(FlexRow)`
   border-radius: 1.5rem;
   color: var(--color-trois-opaque-2);
   gap: 8px;
-  padding: 4px 10px;
+  padding: 6px 10px;
 
   svg {
     fill: var(--color-trois-opaque);
+    transition: all 0.2s;
+
+    &:hover {
+      transform: scale(1.05) translateY(-2px);
+    }
   }
 `
 const GoToButton = styled(DropdownButton)`
-  button {
-    padding-inline: 2px;
+  > button {
+    border-left: 1px solid var(--color-trois-alpha);
+    margin-inline: 2px 0;
+    padding-block: 0;
+    padding-inline: 10px 0;
   }
 `
 const StyledImage = styled.img`
@@ -196,18 +204,16 @@ const PathRender = props => {
         {(folderIs('template') || currentFolder?.extension === 'template') && (
           <TemplateManagerHeader />
         )}
+        <GoToButton
+          label={
+            <FolderOpenOutlined
+              style={{ fill: 'var(--color-trois-opaque)', fontSize: '16px' }}
+            />
+          }
+          items={dpdwnItems}
+        />
         <CleanButton $disabled={pathLevel === 1} onClick={goBack}>
           <ArrowLeftOutlined />
-        </CleanButton>
-        <CleanButton>
-          <GoToButton
-            label={
-              <FolderOpenOutlined
-                style={{ fill: 'var(--color-trois-opaque)', fontSize: '16px' }}
-              />
-            }
-            items={dpdwnItems}
-          />
         </CleanButton>
       </Actions>
     </PathRenderWrapper>

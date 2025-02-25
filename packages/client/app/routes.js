@@ -219,7 +219,11 @@ const PageWrapper = props => {
     }
 
     const keydownHandler = e => {
-      setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
+      setUserInteractions(prev => ({
+        ...prev,
+        ctrl: e.ctrlKey,
+        shift: e.shiftKey,
+      }))
     }
 
     const scrollHandler = () => {

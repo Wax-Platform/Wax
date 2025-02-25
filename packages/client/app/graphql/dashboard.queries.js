@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { USER_FIELDS } from './user.queries'
 
 export const GET_DOC = gql`
   query GetDocument($identifier: String!) {
@@ -9,8 +10,15 @@ export const GET_DOC = gql`
       resourceId
       templateId
       path
+      owner {
+        ...UserFields
+      }
+      sharedWith {
+        ...UserFields
+      }
     }
   }
+  ${USER_FIELDS}
 `
 
 export const UPDATE_DOCUMENT_TEMPLATE = gql`
@@ -38,9 +46,16 @@ export const OPEN_FOLDER = gql`
           parentId
           doc {
             id
+            owner {
+              ...UserFields
+            }
+            resourceId
             identifier
             templateId
             path
+            sharedWith {
+              ...UserFields
+            }
             title
           }
           img {
@@ -61,6 +76,7 @@ export const OPEN_FOLDER = gql`
       requestAccessTo
     }
   }
+  ${USER_FIELDS}
 `
 
 export const ADD_RESOURCE = gql`
@@ -119,26 +135,14 @@ export const GET_DOC_PATH = gql`
 `
 
 export const SHARE_RESOURCE = gql`
-  mutation shareResource($resourceId: ID!, $userId: ID!) {
-    shareResource(resourceId: $resourceId, userId: $userId) {
-      id
-      title
-      key
-      parentId
-      resourceType
-    }
+  mutation shareResource($resourceId: ID!, $inviteeEmail: String!) {
+    shareResource(resourceId: $resourceId, inviteeEmail: $inviteeEmail)
   }
 `
 
 export const UNSHARE_RESOURCE = gql`
   mutation unshareResource($resourceId: ID!, $userId: ID!) {
-    unshareResource(resourceId: $resourceId, userId: $userId) {
-      id
-      title
-      key
-      parentId
-      resourceType
-    }
+    unshareResource(resourceId: $resourceId, userId: $userId)
   }
 `
 

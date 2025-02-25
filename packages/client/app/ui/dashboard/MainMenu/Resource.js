@@ -1,5 +1,5 @@
-import React, { Fragment, useEffect, useCallback, useMemo } from 'react'
-import styled, { keyframes } from 'styled-components'
+import React, { useCallback, useMemo } from 'react'
+import styled from 'styled-components'
 import {
   FileOutlined,
   FolderFilled,
@@ -27,7 +27,7 @@ import {
 } from '../../../shared/generalUtils'
 import { labelRender, typeFlags } from './utils/resourcesUtils'
 import templateIcon from '../../../../static/template-icon-2.svg'
-import AiDesigner from '../../../AiDesigner/AiDesigner'
+import { useModalContext } from '../../../hooks/modalContext'
 
 export const ListContainer = styled.div`
   --icon-size: 16px;
@@ -289,7 +289,7 @@ const Resource = props => {
     ...rest
   } = props
   const { id, title, resourceType, doc = {}, templateId, img } = resource || {}
-  const { userInteractions, selectedCtx } = useAiDesignerContext()
+  const { userInteractions } = useAiDesignerContext()
 
   const {
     openResource: open,
@@ -302,8 +302,9 @@ const Resource = props => {
     contextualMenu,
     addToFavs,
     clipboard,
-    graphQL: { pasteResources },
+    graphQL: { pasteResources, shareResource },
   } = useDocumentContext()
+  const { modalState } = useModalContext()
 
   const { isRoot, isFolder, isSystem } = typeFlags(resourceType)
   const isSelected = selectedDocs.includes(id)
@@ -336,6 +337,13 @@ const Resource = props => {
       })
     },
     [clipboard.state, id, resource, selectedDocs],
+  )
+
+  const share = useCallback(
+    inviteeEmail => {
+      shareResource({ variables: { resourceId: id, inviteeEmail } })
+    },
+    [id],
   )
 
   const handleContextMenuOpen = useCallback(
@@ -375,6 +383,29 @@ const Resource = props => {
           })
           clipboard.reset()
         },
+        share: () =>
+          modalState.update({
+            show: true,
+            title: 'Share resource',
+            items: [
+              {
+                label: 'Invitee email',
+                component: (
+                  <input
+                    type="email"
+                    placeholder="Enter invitee email"
+                    data-field-id="share"
+                  />
+                ),
+              },
+            ],
+            onSubmit: () => {
+              const inviteeEmail = document.querySelector(
+                '[data-field-id="share"]',
+              ).value
+              share(inviteeEmail)
+            },
+          }),
         default: () => {},
       }
 
@@ -486,16 +517,18 @@ const Resource = props => {
 
   const onCutClipboard = clipboard.state.cut?.items?.includes(id)
 
-  useEffect(() => {
-    console.log(selectedCtx?.conversation)
-    const clip = clipboard.state.cut?.items?.includes(id)
+  // useEffect(() => {
+  //   console.log(selectedCtx?.conversation)
+  //   const clip = clipboard.state.cut?.items?.includes(id)
 
-    console.log({ onCutClipboard: clip })
-  }, [clipboard.state])
+  //   console.log({ onCutClipboard: clip })
+  // }, [clipboard.state])
 
   return (
     <Container
+      $disablePointerEvents={userInteractions.shift}
       $selected={isSelected}
+      data-resource-id={id}
       $reorder={reorderMode.state}
       $active={isActive || currentDocIsDescendant}
       $folder={isFolder}

@@ -121,10 +121,9 @@ export const DocumentContextProvider = ({ children }) => {
   const [selectedDocs, setSelectedDocs] = useState([])
   const [resources, setResources] = useState([])
   const rename = useObject({ start: RENAME_ITEM })
-  const clipboard = useObject({ start: CLIPBOARD_ITEM, onUpdate: console.log })
+  const clipboard = useObject({ start: CLIPBOARD_ITEM })
   const contextualMenu = useObject()
   const [templateToEdit, setTemplateToEdit] = useState(null)
-  const [imgViewId, setImgViewUrl] = useState(null)
   const [getUser] = useLazyQuery(GET_USER, {
     fetchPolicy: 'cache-and-network',
   })

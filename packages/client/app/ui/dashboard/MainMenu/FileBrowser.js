@@ -1,9 +1,14 @@
 /* stylelint-disable string-quotes */
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable declaration-no-important */
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import styled from 'styled-components'
-import { useAiDesignerContext } from '../../component-ai-assistant/hooks/AiDesignerContext'
 import { useDocumentContext } from '../hooks/DocumentContext'
 import Resource from './Resource'
 import ConfirmDelete from '../../modals/ConfirmDelete'
@@ -26,6 +31,7 @@ import {
   useCreateSnippet,
 } from '../../component-ai-assistant/SnippetsManager'
 import { useLayout } from '../../../hooks/LayoutContext'
+import { FileSelectionBox } from './FileSelectionBox'
 
 const FilesWrapper = styled.div`
   --container-size: 26.5dvw;
@@ -47,6 +53,10 @@ const FilesWrapper = styled.div`
   transition: all 0.3s;
   width: calc(var(--container-size) + 6px);
   z-index: 999;
+
+  &:focus {
+    outline: none;
+  }
 `
 
 const GridView = styled.div`
@@ -90,6 +100,7 @@ const Files = props => {
   } = useDocumentContext()
 
   const { userMenuOpen } = useLayout()
+  const containerRef = useRef(null)
 
   const { handleCreateTemplate } = useCreateTemplate()
   const handleCreateSnippet = useCreateSnippet()
@@ -101,7 +112,7 @@ const Files = props => {
     graphQL ?? {}
   const [resourceToDelete, setResourceToDelete] = useState(null)
   const reorderMode = useBool({ start: false })
-  const [dragging, setDragging] = useState(false)
+  const isDragging = useBool({ start: false })
 
   const fileExplorerView = useString({ start: 'grid' })
   const gridSize = useNumber({ start: 5 })
@@ -111,7 +122,7 @@ const Files = props => {
 
   const onDragStart = (e, index) => {
     draggedItemRef.current = index
-    setDragging(true)
+    isDragging.on()
     const img = new Image()
     img.src =
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/axp9WkAAAAASUVORK5CYII='
@@ -130,7 +141,7 @@ const Files = props => {
   }
 
   const onDragEnd = () => {
-    setDragging(false)
+    isDragging.off()
     draggedItemRef.current = null
     dragOverItemRef.current = null
     reorderChildren({
@@ -157,7 +168,7 @@ const Files = props => {
       onResourceDrop={onResourceDrop}
       resource={resource}
       confirmDelete={setResourceToDelete}
-      isDragging={dragging && draggedItemRef.current === i}
+      isDragging={isDragging.state && draggedItemRef.current === i}
       index={i}
       {...objIf(reorderMode.state, {
         onDragStart: e => onDragStart(e, i),
@@ -167,39 +178,46 @@ const Files = props => {
     />
   )
 
+  const handleContextMenu = e => {
+    e.preventDefault()
+    contextualMenu.update({
+      show: true,
+      x: e.clientX,
+      y: e.clientY,
+      items: [
+        ...generateContextMenuItems({
+          fileExplorerView,
+          reorderMode,
+          currentFolder,
+          handleCreateDoc,
+          handleCreateFolder,
+          handleCreateTemplate,
+          handleCreateSnippet,
+        }),
+        {
+          label: 'Grid size',
+          items: Array.from({ length: 10 }, (_, i) => i + 1).map(i => ({
+            label: `${i + 1}x`,
+            action: () => gridSize.set(i + 1),
+          })),
+        },
+      ],
+    })
+  }
+
   return (
     <FilesWrapper
+      tabIndex={0}
+      ref={containerRef}
       expand={userMenuOpen}
-      onClick={() => contextualMenu.update({ show: false })}
-      onContextMenu={e => {
-        e.preventDefault()
-        contextualMenu.update({
-          show: true,
-          x: e.clientX,
-          y: e.clientY,
-          items: [
-            ...generateContextMenuItems({
-              fileExplorerView,
-              reorderMode,
-              currentFolder,
-              handleCreateDoc,
-              handleCreateFolder,
-              handleCreateTemplate,
-              handleCreateSnippet,
-            }),
-            {
-              label: 'Grid size',
-              items: Array.from({ length: 10 }, (_, i) => i + 1).map(i => ({
-                label: `${i + 1}x`,
-                action: () => gridSize.set(i + 1),
-              })),
-            },
-          ],
-        })
+      onClick={e => {
+        contextualMenu.state.show && contextualMenu.update({ show: false })
       }}
+      onContextMenu={handleContextMenu}
       onScroll={() => contextualMenu.update({ show: false })}
       {...props}
     >
+      <FileSelectionBox containerRef={containerRef} />
       <SpinnerWrapper
         style={{ background: '#fff0' }}
         showSpinner={loadingFolder}
@@ -207,7 +225,6 @@ const Files = props => {
         <Loader>Loading resource...</Loader>
       </SpinnerWrapper>
       <FileDisplayView>
-        {/* {!isTemplatesFolder ? ( */}
         <Each
           of={resources}
           as={resourceRender}

@@ -10,7 +10,6 @@ import {
   WindowHeading,
 } from '../../_styleds/common'
 import {
-  ChatButton,
   FileManagerButton,
   TeamButton,
   CodeEditorButton,
@@ -19,7 +18,7 @@ import {
 } from '../../menu/menuOptions'
 import FileBrowser from './FileBrowser'
 import ChatHistory from '../../component-ai-assistant/ChatHistory'
-import TeamPopup from '../../common/TeamPopup'
+import TeamPopup, { TeamManagerActions } from '../../common/TeamPopup'
 import PathRender from './PathRender'
 import { useDocumentContext } from '../hooks/DocumentContext'
 import { CodeEditor } from '../../component-ai-assistant/components/CodeEditor'
@@ -152,7 +151,7 @@ const FirstHeaderRow = styled(FlexRow)`
   width: 100%;
 
   button {
-    padding: 8px 10px;
+    padding: 6px 10px;
 
     svg {
       fill: var(--color-trois-opaque);
@@ -187,8 +186,6 @@ const MainMenu = ({ enableLogin }) => {
   const { team, chat, templateManager, files, snippetsManager, images } =
     userMenu.state
 
-  const menuLabel = team ? 'Team' : null
-
   useEffect(() => {
     const body = previewRef?.current?.contentDocument.body
 
@@ -211,7 +208,12 @@ const MainMenu = ({ enableLogin }) => {
       </Menu>
       <Content isOn={userMenuOpen}>
         <Header $files={files}>
-          {menuLabel && <MenuLabel>{menuLabel}</MenuLabel>}
+          {team && (
+            <FirstHeaderRow>
+              <MenuLabel>Collaborators</MenuLabel>
+              <TeamManagerActions />
+            </FirstHeaderRow>
+          )}
           {files && (
             <FlexCol style={{ width: '100%' }}>
               <PathRender />
