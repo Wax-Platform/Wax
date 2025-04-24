@@ -8,7 +8,7 @@
 const isFunction = cb => typeof cb === 'function'
 
 /**
- * Safely calls the provided callback if it's a function, otherwise returns the fallback function.
+ * Safely returns the provided callback if it's a function, otherwise returns the fallback function.
  *
  * @param {function} cb - The callback to call if it's a function.
  * @param {function} fb - The fallback function to return if the callback is not a function.
@@ -19,7 +19,7 @@ const safeCall = (cb, fb) =>
   isFunction(cb) ? cb : isFunction(fb) ? fb : () => {}
 
 /**
- * Returns the function specified by the key in the options object if it's a function, otherwise returns the fallback function.
+ * Calls the function specified by the key in the options object if it's a function, otherwise returns the fallback function.
  *
  * @param {string} key - A string to check if matches a key from the options object.
  * @param {{}} options - The options object containing (or not) the function to return.
@@ -36,43 +36,26 @@ const safeCall = (cb, fb) =>
  *
  * // returns 8
  *
- *  const data = '3' // define the data as a string
- *
- *  callOn(typeof data, {
- *    number: (n) => data + n,
- *    string: (n) => console.log(`${n} is a string!`)
- *    default: (n) => console.log(`no key matching to handle ${n}`)
- *  }, [5])
- *
- * // show in console: `3 is a string!`
- *
- *  const data = [] // define the data as anything else
- *
- *  callOn(typeof data, {
- *    number: (n) => data + n,
- *    string: (n) => console.log(`${n} is a string!`)
- *    default: (n) => console.log(`no key matching to handle ${n}`)
- *  },[5])
- *
- * // show in console: `no key matching to handle 5`
  */
 
 const callOn = (key, options, params = []) =>
   safeCall(options[key], options.default || (() => null))(...params)
 
-const safeId = (prefix, existingIds) => {
-  let proposedId = 1
+const safeKey = async (key, existingKeys) => {
+  if (!existingKeys.find(id => id.includes(key))) return key
+  let prefix = 1
+  const newKey = () => `${key}(${prefix})`
 
-  while (existingIds.includes(`${prefix}(${proposedId})`)) {
-    proposedId = Number(proposedId + 1)
+  while (existingKeys.find(id => id.includes(newKey()))) {
+    prefix = Number(prefix + 1)
   }
 
-  return `${prefix}(${proposedId})`
+  return `${key}(${prefix})`
 }
 
 module.exports = {
   callOn,
   safeCall,
   isFunction,
-  safeId,
+  safeKey,
 }

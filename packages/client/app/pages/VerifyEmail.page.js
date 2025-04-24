@@ -2,15 +2,17 @@ import React from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { useMutation } from '@apollo/client'
 
-import { VerifyEmail } from 'ui'
-import { RESEND_VERIFICATION_EMAIL, VERIFY_EMAIL } from '../graphql'
+import { VerifyEmail } from '../ui'
+import {
+  HANDLE_INVITATION,
+  REQUEST_VERIFICATION_EMAIL,
+  VERIFY_EMAIL,
+} from '../graphql'
 
-const VerifyEmailPage = props => {
+const VerifyEmailPage = () => {
   const { token } = useParams()
   const history = useHistory()
-
-  const sharedDocument = localStorage.getItem('nextDocument') || '/'
-  const redirectToLogin = () => history.push(`/login?next=${sharedDocument}`)
+  const redirectToLogin = () => history.push('/login')
   const loaderDelay = 2000
 
   // add a small delay on purpose to keep ui transitions smooth
@@ -27,15 +29,20 @@ const VerifyEmailPage = props => {
     },
   ] = useMutation(VERIFY_EMAIL, { variables: { token } })
 
+  const [handleInvitation] = useMutation(HANDLE_INVITATION, {
+    variables: { token },
+  })
+
   const [
     resendVerificationEmailMutation,
     { data: resendData, loading: resending },
-  ] = useMutation(RESEND_VERIFICATION_EMAIL, { variables: { token } })
+  ] = useMutation(REQUEST_VERIFICATION_EMAIL, { variables: { token } })
 
   if (!verifyCalled) {
     verifyEmailMutation().catch(e => {})
     setVerifyingLoader(true)
     setTimeout(() => setVerifyingLoader(false), loaderDelay)
+    handleInvitation().catch(e => {})
   }
 
   const resendVerificationEmail = () => {
@@ -66,9 +73,5 @@ const VerifyEmailPage = props => {
     />
   )
 }
-
-VerifyEmailPage.propTypes = {}
-
-VerifyEmailPage.defaultProps = {}
 
 export default VerifyEmailPage

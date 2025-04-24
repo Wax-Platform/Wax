@@ -4,10 +4,10 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { debounce } from 'lodash'
-
 import { Form as AntForm } from 'antd'
 import { grid, th } from '@coko/client'
 
+import { useTranslation } from 'react-i18next'
 import UIRibbon from './Ribbon'
 
 const FormWrapper = styled.div`
@@ -73,6 +73,8 @@ const Form = props => {
     ...rest
   } = props
 
+  const { t } = useTranslation()
+
   const showRibbon = !!submissionStatus && !!ribbonMessage
   const [internalForm] = AntForm.useForm()
   const form = propsForm || internalForm
@@ -82,24 +84,14 @@ const Form = props => {
 
   const handleValuesChange = (changedValues, allValues) => {
     if (autoSave && onAutoSave) runAutoSave()
-    onValuesChange && onValuesChange()
+    onValuesChange && onValuesChange(changedValues, allValues)
   }
 
   const FeedbackElement = showRibbon && (
-    <FeedbackComponent
-      data-testid="feedback-element"
-      role="status"
-      status={submissionStatus}
-    >
-      {ribbonMessage}
+    <FeedbackComponent role="alert" status={submissionStatus}>
+      {t(ribbonMessage.replace(/ /g, '_').toLowerCase())}
     </FeedbackComponent>
   )
-
-  // const FeedbackElement = (
-  //   <FeedbackComponent hide={!showRibbon} status={submissionStatus}>
-  //     {ribbonMessage}
-  //   </FeedbackComponent>
-  // )
 
   // if form validation fails, scroll to first error field (if applicable) and focus
   const focusErrorField = errorFields => {
@@ -166,7 +158,6 @@ const Form = props => {
       {ribbonPosition === 'top' && FeedbackElement}
 
       <AntForm
-        data-testid="form-content"
         form={form}
         onFinishFailed={handleFinishFailed}
         onValuesChange={handleValuesChange}
@@ -213,6 +204,7 @@ Form.Item = FormItem
 Form.List = AntForm.List
 Form.ErrorList = AntForm.ErrorList
 Form.useForm = AntForm.useForm
+Form.useWatch = AntForm.useWatch
 Form.Provider = AntForm.FormProvider
 
 // Form.create = () => {

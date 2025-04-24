@@ -1,0 +1,1867 @@
+{
+  "_translationInfo": {
+    "instructions": "Only translate text in 'value' fields. Do not modify any other fields."
+  },
+  "pages": {
+    "admin": {
+      "title": {
+        "type": "title",
+        "value": "Admin"
+      },
+      "aiIntegration": {
+        "heading": {
+          "type": "heading",
+          "value": "AI integration"
+        },
+        "supplier": {
+          "type": "switch(label)",
+          "value": "AI supplier integration"
+        },
+        "apiKey": {
+          "type": "input(label)",
+          "value": "API key",
+          "placeholder": {
+            "type": "input(placeholder)",
+            "value": "Insert your OpenAI key"
+          },
+          "error": {
+            "noValue": {
+              "type": "error",
+              "value": "You need to provide a key"
+            }
+          }
+        },
+        "updateKey": {
+          "type": "button",
+          "value": "Update Key",
+          "error": {
+            "type": "error",
+            "value": "API key is invalid"
+          },
+          "success": {
+            "type": "message",
+            "value": "API key updated"
+          }
+        }
+      },
+      "publishing": {
+        "heading": {
+          "type": "heading",
+          "value": "Publishing"
+        }
+      },
+      "downloads": {
+        "heading": {
+          "type": "heading",
+          "value": "Downloads"
+        },
+        "pdf": {
+          "type": "switch(label)",
+          "value": "PDF"
+        },
+        "epub": {
+          "type": "switch(label)",
+          "value": "EPUB"
+        }
+      },
+      "integrations": {
+        "heading": {
+          "type": "heading",
+          "value": "Integrations"
+        },
+        "flax": {
+          "type": "switch(label)",
+          "value": "Publish online with Flax",
+          "explanation": {
+            "type": "switch(detail)",
+            "value": "Allow book owners to include the following downloads when publishing online:"
+          },
+          "downloadOptions": {
+            "pdf": {
+              "type": "switch(label)",
+              "value": "PDF"
+            },
+            "epub": {
+              "type": "switch(label)",
+              "value": "EPUB"
+            }
+          },
+          "customize": {
+            "info": {
+              "value": "Allow inserting custom HTML as header and footer for published books:"
+            },
+            "label": {
+              "value": "Custom HTML (experimental)"
+            }
+          }
+        },
+        "lulu": {
+          "type": "switch(label)",
+          "value": "Print-on-demand with Lulu",
+          "details": {
+            "type": "title",
+            "value": "Lulu integration details",
+            "baseApiUrl": {
+              "type": "label",
+              "value": "Lulu Base API URL"
+            },
+            "loginUrl": {
+              "type": "label",
+              "value": "Login URL"
+            },
+            "redirectUri": {
+              "type": "label",
+              "value": "Redirect URL"
+            },
+            "projectBaseUrl": {
+              "type": "label",
+              "value": "Project URL"
+            },
+            "tokenUrl": {
+              "type": "label",
+              "value": "Token URL"
+            },
+            "clientId": {
+              "type": "label",
+              "value": "Client ID"
+            }
+          },
+          "updateConfig": {
+            "update": {
+              "type": "button",
+              "value": "Update Lulu config"
+            },
+            "success": {
+              "type": "message",
+              "value": "Lulu config updated"
+            },
+            "error": {
+              "type": "message",
+              "value": "Error updating lulu config"
+            }
+          }
+        }
+      },
+      "availableLanguages": {
+        "heading": {
+          "type": "heading",
+          "value": "Available languages"
+        },
+        "english": {
+          "type": "label",
+          "value": "English"
+        },
+        "state": {
+          "enabled": {
+            "type": "message",
+            "value": "enabled"
+          },
+          "disabled": {
+            "type": "message",
+            "value": "disabled"
+          }
+        },
+        "enabled": {
+          "type": "switch(label)",
+          "value": "Enabled",
+          "explanation": {
+            "type": "switch(detail)",
+            "value": "Disabled languages will not show in the language switcher."
+          }
+        },
+        "standardised": {
+          "type": "switch(label)",
+          "value": "Use standardised version",
+          "explanation": {
+            "type": "switch(detail)",
+            "value": "See the Contributor's Guide to contribute translations for the standardised version. If you turn off the standardised version, you can upload customised translation strings."
+          }
+        },
+        "customised": {
+          "languageLabel": {
+            "type": "input(label)",
+            "value": "Label",
+            "explanation": {
+              "type": "input(detail)",
+              "value": "The name of the language that will appear in the language selection dropdown."
+            },
+            "error": {
+              "noValue": {
+                "type": "error",
+                "value": "Language label is required"
+              }
+            }
+          },
+          "flagCode": {
+            "type": "input(label)",
+            "value": "Flag code",
+            "explanation": {
+              "type": "input(detail)",
+              "value": "The code to display the country flag in the language dropdown. See <ref>this list</ref> for reference."
+            },
+            "error": {
+              "noValue": {
+                "type": "error",
+                "value": "Flag code is required"
+              }
+            }
+          },
+          "uploadInstructions": {
+            "type": "detail",
+            "value": "Upload a new translations file:"
+          }
+        },
+        "actions": {
+          "downloadStrings": {
+            "type": "link(text)",
+            "value": "Download translation strings for this language"
+          },
+          "update": {
+            "type": "button",
+            "value": "Update"
+          },
+          "remove": {
+            "type": "button",
+            "value": "Remove"
+          },
+          "addNew": {
+            "type": "button",
+            "value": "Add New Language"
+          },
+          "save": {
+            "type": "button",
+            "value": "Save New Language"
+          }
+        }
+      },
+      "termsAndConditions": {
+        "heading": {
+          "type": "heading",
+          "value": "Terms and conditions"
+        },
+        "explanation": {
+          "type": "detail",
+          "value": "Provide the terms and conditions that users must agree to on sign up."
+        },
+        "update": {
+          "type": "button",
+          "value": "Update Terms and Conditions",
+          "error": {
+            "type": "error",
+            "value": "Terms and conditions update failed"
+          },
+          "success": {
+            "type": "message",
+            "value": "Terms and conditions updated successfully"
+          }
+        }
+      }
+    },
+    "aiBookDesigner": {
+      "chat": {
+        "title": {
+          "type": "title",
+          "value": "Coko AI Book Designer"
+        },
+        "bubble": {
+          "type": "text",
+          "value": "AI"
+        },
+        "welcome": {
+          "type": "detail",
+          "value": [
+            "Hello there!",
+            "I'm here to help with your book's design.",
+            "You can also ask questions about the current design.",
+            "For example: What is the page size of the book?",
+            "Here are some suggestions to get started:",
+            "Change the page size to 5 x 8 inches",
+            "Change the title font to sans serif",
+            "Make all the headings blue"
+          ]
+        },
+        "prompt": {
+          "type": "input(placeholder)",
+          "value": "Type your book design instruction or question here ...",
+          "errors": {
+            "noValue": {
+              "type": "error",
+              "value": "Please, tell me what you want to do."
+            }
+          }
+        },
+        "notifications": {
+          "loading": {
+            "message": {
+              "type": "info",
+              "value": "Just give me a few seconds."
+            }
+          },
+          "error": {
+            "message": {
+              "type": "error",
+              "value": "There was an error generating the response. Please try again in a few seconds."
+            }
+          },
+          "clarification": {
+            "message": {
+              "type": "info",
+              "value": "Please provide more details or clarify your request so I can assist you with the book's design."
+            }
+          }
+        }
+      },
+      "sections": {
+        "chatHistory": {
+          "heading": {
+            "type": "heading",
+            "value": "Chat history"
+          },
+          "select": {
+            "type": "select(label)",
+            "value": "Chat history"
+          },
+          "empty_book": {
+            "type": "message",
+            "value": "Make your first prompt related to the Book"
+          },
+          "empty": {
+            "type": "message",
+            "value": "Make your first prompt related to this"
+          }
+        },
+        "content": {
+          "heading": {
+            "type": "heading",
+            "value": "Content selection for: "
+          },
+          "select": {
+            "type": "select(label)",
+            "value": "Content"
+          },
+          "selection": {
+            "type": "label",
+            "value": "Selection",
+            "book": {
+              "value": "book"
+            }
+          }
+        },
+        "bookPreview": {
+          "heading": {
+            "type": "heading",
+            "value": "Book preview"
+          },
+          "select": {
+            "type": "select(label)",
+            "value": "Book preview"
+          }
+        },
+        "livePreview": {
+          "select": {
+            "type": "select(label)",
+            "value": "Live preview"
+          }
+        },
+        "actions": {
+          "updatePreview": {
+            "type": "button",
+            "value": "Update Preview"
+          },
+          "print": {
+            "type": "button",
+            "value": "Print"
+          }
+        }
+      }
+    },
+    "common": {
+      "actions": {
+        "cancel": {
+          "type": "button",
+          "value": "Cancel"
+        },
+        "save": {
+          "type": "button",
+          "value": "Save"
+        },
+        "continue": {
+          "type": "button",
+          "value": "Continue"
+        },
+        "ok": {
+          "type": "button",
+          "value": "OK"
+        },
+        "download": {
+          "type": "button",
+          "value": "Download"
+        },
+        "remove": {
+          "type": "button",
+          "value": "Remove"
+        }
+      },
+      "form": {
+        "email": {
+          "type": "input(label)",
+          "value": "Email",
+          "placeholder": {
+            "type": "input(placeholder)",
+            "value": "Enter your email address"
+          },
+          "errors": {
+            "noValue": {
+              "type": "error",
+              "value": "Email is required"
+            },
+            "invalidEmail": {
+              "type": "error",
+              "value": "This is not a valid email address"
+            }
+          }
+        },
+        "password": {
+          "type": "input(label)",
+          "value": "Password",
+          "placeholder": {
+            "type": "input(placeholder)",
+            "value": "Enter your password"
+          },
+          "errors": {
+            "noValue": {
+              "type": "error",
+              "value": "Password is required"
+            },
+            "tooShort": {
+              "type": "error",
+              "value": "Password should not be shorter than 8 characters"
+            },
+            "invalidCredentials": {
+              "type": "error",
+              "value": "Invalid credentials"
+            }
+          }
+        },
+        "confirmPassword": {
+          "type": "input(label)",
+          "value": "Confirm password",
+          "placeholder": {
+            "type": "input(placeholder)",
+            "value": "Enter your password again"
+          },
+          "errors": {
+            "noValue": {
+              "type": "error",
+              "value": "Please confirm your password"
+            },
+            "noMatch": {
+              "type": "error",
+              "value": "The two passwords that you entered do not match"
+            }
+          }
+        }
+      },
+      "header": {
+        "menu": {
+          "type": "menu",
+          "options": {
+            "dashboard": {
+              "type": "link(text)",
+              "value": "Dashboard"
+            },
+            "backToBook": {
+              "type": "link(text)",
+              "value": "Back to Editor"
+            },
+            "previewAndPublish": {
+              "type": "link(text)",
+              "value": "Preview and Publish"
+            },
+            "share": {
+              "type": "action",
+              "value": "Share"
+            },
+            "knowledgeBase": {
+              "type": "link(text)",
+              "value": "Knowledge Base"
+            },
+            "aiBookDesigner": {
+              "type": "link(text)",
+              "value": "AI Book Designer (Beta)"
+            },
+            "bookSettings": {
+              "type": "action",
+              "value": "Book Settings"
+            },
+            "admin": {
+              "type": "link(text)",
+              "value": "Admin"
+            },
+            "logout": {
+              "type": "action",
+              "value": "Log Out"
+            }
+          }
+        },
+        "shareModal": {
+          "title": {
+            "type": "title",
+            "value": "Share"
+          },
+          "info": {
+            "type": "tooltip",
+            "value": "The book owner has full access. Collaborators with edit access can edit content and create publishing profiles. Collaborators with view access can view content and publishing profiles."
+          },
+          "emailInput": {
+            "type": "input(placeholder)",
+            "value": "Enter email addresses, separated by commas"
+          },
+          "permissions": {
+            "type": "select",
+            "options": {
+              "view": {
+                "value": "Can view"
+              },
+              "edit": {
+                "value": "Can edit"
+              },
+              "owner": {
+                "value": "Owner"
+              },
+              "remove": {
+                "value": "Remove"
+              }
+            }
+          },
+          "actions": {
+            "share": {
+              "type": "button",
+              "value": "Share"
+            }
+          }
+        },
+        "bookSettingsModal": {
+          "title": {
+            "type": "title",
+            "value": "Book Settings"
+          },
+          "aiWriting": {
+            "promptUse": {
+              "type": "switch(label)",
+              "value": "AI writing prompt use",
+              "enable": {
+                "type": "switch(label)",
+                "value": "Enable AI writing prompt use"
+              },
+              "detail": {
+                "type": "switch(detail)",
+                "value": "Users with edit access to this book can use the AI Book Designer."
+              }
+            },
+            "freeText": {
+              "type": "switch(label)",
+              "value": "Free-text writing prompts"
+            },
+            "customPrompts": {
+              "type": "switch(label)",
+              "value": "Customise AI writing prompts",
+              "input": {
+                "type": "input(placeholder)",
+                "value": "Add prompt",
+                "errors": {
+                  "noValue": {
+                    "type": "error",
+                    "value": "Please input a prompt"
+                  }
+                }
+              },
+              "actions": {
+                "add": {
+                  "type": "button",
+                  "value": "Add Prompt"
+                }
+              }
+            }
+          },
+          "customTagsBlock": {
+            "input": {
+              "type": "input(placeholder)",
+              "value": "Type a custom block tag",
+              "errors": {
+                "noValue": {
+                  "type": "error",
+                  "value": "Please input a custom block tag"
+                }
+              }
+            },
+            "actions": {
+              "add": {
+                "type": "button",
+                "value": "Add block tag"
+              }
+            }
+          },
+          "customTagsInline": {
+            "input": {
+              "type": "input(placeholder)",
+              "value": "Type a custom inline tag",
+              "errors": {
+                "noValue": {
+                  "type": "error",
+                  "value": "Please input a custom inline tag"
+                }
+              }
+            },
+            "actions": {
+              "add": {
+                "type": "button",
+                "value": "Add inline tag"
+              }
+            }
+          },
+          "aiDesigner": {
+            "type": "switch(label)",
+            "value": "AI Book Designer (Beta)",
+            "detail": {
+              "type": "switch(detail)",
+              "value": "Users with edit access to this book can use AI writing prompts."
+            }
+          },
+          "knowledgeBase": {
+            "type": "switch(label)",
+            "value": "Knowledge Base",
+            "detail": {
+              "type": "switch(detail)",
+              "value": "Users with edit access to this book can create and query a knowledge base. Requires AI writing prompts and free-text prompts to be on."
+            }
+          },
+          "configurableEditor": {
+            "type": "switch(label)",
+            "value": "Configure Editor Tools",
+            "detail": {
+              "type": "switch(detail)",
+              "value": "Users with edit access to this book can alter the tools supported by the editor."
+            }
+          }
+        }
+      },
+      "notifications": {
+        "unauthorized": {
+          "title": {
+            "type": "title",
+            "value": "Unauthorised action"
+          },
+          "messages": {
+            "noPermission": {
+              "type": "info",
+              "value": "You don't have permission to access this book. Select 'OK' to be redirected to your Dashboard."
+            },
+            "editingConflict": {
+              "type": "warning",
+              "value": "You can't delete a chapter that is currently being edited by another collaborator."
+            },
+            "generalPermission": {
+              "type": "error",
+              "value": "You don't have permissions to perform this action. Please contact the book owner."
+            }
+          }
+        },
+        "permissionsChange": {
+          "title": {
+            "type": "title",
+            "value": "Permissions Change"
+          },
+          "message": {
+            "type": "info",
+            "value": "A change of your permissions just occurred. Your new permissions will be updated in the background."
+          }
+        },
+        "error": {
+          "title": {
+            "type": "title",
+            "value": "Error"
+          },
+          "messages": {
+            "general": {
+              "type": "error",
+              "value": "Something went wrong. You will be redirected back to your dashboard. Please contact your Administrator."
+            },
+            "bookRequest": {
+              "type": "error",
+              "value": "There is something wrong with the book you have requested. You will be redirected back to your Dashboard."
+            },
+            "bookDeleted": {
+              "type": "error",
+              "value": "This book has been deleted by the owner. Select 'OK' to be redirected to your Dashboard."
+            }
+          }
+        },
+        "aiRateLimit": {
+          "title": {
+            "type": "title",
+            "value": "Rate Limit Exceeded"
+          },
+          "messages": {
+            "limit": {
+              "type": "warning",
+              "value": "It looks like you've made too many requests in a short period. We have usage limits to ensure service reliability. Please wait for a few minutes before trying again. If you're repeatedly getting this message, please contact your admin."
+            }
+          }
+        },
+        "aiKey": {
+          "type": "error",
+          "value": "Access key is missing or invalid"
+        },
+        "externalImages": {
+          "type": "warning",
+          "value": "Pasting external images is not supported. Please upload an image file by selecting the image icon in the toolbar."
+        }
+      }
+    },
+    "dash": {
+      "title": {
+        "type": "title",
+        "value": "Your Books"
+      },
+      "empty": {
+        "type": "message",
+        "value": "You don’t have any books yet"
+      },
+      "book": {
+        "untitled": {
+          "type": "message",
+          "value": "Untitled"
+        },
+        "menu": {
+          "type": "menu",
+          "options": {
+            "manageMetadata": {
+              "type": "link(text)",
+              "value": "Manage cover and metadata"
+            },
+            "delete": {
+              "type": "action",
+              "value": "Delete book"
+            }
+          }
+        }
+      },
+      "actions": {
+        "newBook": {
+          "type": "button",
+          "value": "New Book"
+        }
+      }
+    },
+    "knowledgeBase": {
+      "title": {
+        "type": "title",
+        "value": "Knowledge Base"
+      },
+      "actions": {
+        "addFiles": {
+          "type": "button",
+          "value": "Add Files"
+        },
+        "uploadAll": {
+          "type": "button",
+          "value": "Upload All"
+        },
+        "deleteSelected": {
+          "type": "button",
+          "value": "Delete"
+        }
+      },
+      "files": {
+        "select": {
+          "type": "select(label)",
+          "value": "Select all"
+        },
+        "status": {
+          "pending": {
+            "type": "message",
+            "value": "(pending)"
+          },
+          "uploading": {
+            "type": "message",
+            "value": "Uploading"
+          }
+        },
+        "actions": {
+          "upload": {
+            "type": "button",
+            "value": "Upload"
+          },
+          "delete": {
+            "type": "button",
+            "value": "Delete"
+          }
+        },
+        "uploadZone": {
+          "type": "placeholder",
+          "value": "Drag and drop your documents here"
+        }
+      }
+    },
+    "login": {
+      "title": {
+        "type": "title",
+        "value": "Login"
+      },
+      "actions": {
+        "login": {
+          "type": "button",
+          "value": "Log In"
+        }
+      },
+      "links": {
+        "forgotPassword": {
+          "type": "link(text)",
+          "value": "Forgot your password?"
+        },
+        "signup": {
+          "type": "link(text)",
+          "value": "Do you want to sign up instead?"
+        }
+      }
+    },
+    "newBook": {
+      "sections": {
+        "write": {
+          "heading": {
+            "type": "heading",
+            "value": "Write from scratch"
+          },
+          "description": {
+            "type": "detail",
+            "value": "Start your first document with a blank slate using the built-in Editor"
+          },
+          "action": {
+            "type": "button",
+            "value": "Start Writing"
+          }
+        },
+        "upload": {
+          "heading": {
+            "type": "heading",
+            "value": "Upload your files"
+          },
+          "description": {
+            "type": "detail",
+            "value": "Start your book with .docx files"
+          },
+          "action": {
+            "type": "button",
+            "value": "Select Files"
+          }
+        }
+      },
+      "titlePage": {
+        "input": {
+          "type": "input(placeholder)",
+          "value": "Book title"
+        },
+        "description": {
+          "type": "detail",
+          "value": "Don't overthink it, you can change your title at any time."
+        }
+      },
+      "importPage": {
+        "title": {
+          "type": "heading",
+          "value": "Import"
+        },
+        "info": {
+          "type": "message",
+          "value": "Files supported:",
+          "details": {
+            "type": "message",
+            "value": "Each file you upload will be a separate chapter in your book. You can reorder chapters and import more chapters later."
+          }
+        },
+        "dropArea": {
+          "type": "button",
+          "value": "Drag and drop files, or <1>browse</1>"
+        }
+      }
+    },
+    "passwordReset": {
+      "title": {
+        "type": "title",
+        "value": "Request Password Reset"
+      },
+      "description": {
+        "type": "detail",
+        "value": "Please enter the email address connected to your account."
+      },
+      "actions": {
+        "send": {
+          "type": "button",
+          "value": "Send"
+        }
+      },
+      "links": {
+        "login": {
+          "type": "link(text)",
+          "value": "Return to login form"
+        }
+      },
+      "success": {
+        "type": "message",
+        "value": "Request successful",
+        "details": {
+          "type": "message",
+          "value": "An email has been sent to <1>{{userEmail}}</1> containing further instructions."
+        }
+      }
+    },
+    "previewAndPublish": {
+      "sections": {
+        "tabs": {
+          "newPreview": {
+            "title": {
+              "type": "title",
+              "value": "New Preview"
+            },
+            "actions": {
+              "save": {
+                "type": "button",
+                "value": "Save Publishing Profile"
+              }
+            }
+          },
+          "publishingProfiles": {
+            "title": {
+              "type": "title",
+              "value": "Publishing Profiles"
+            },
+            "profile": {
+              "select": {
+                "type": "select(label)",
+                "value": "Choose a profile"
+              },
+              "actions": {
+                "update": {
+                  "type": "button",
+                  "value": "Update",
+                  "status": {
+                    "error": {
+                      "value": "Something went wrong while trying to save this profile."
+                    },
+                    "success": {
+                      "value": "Profile saved."
+                    }
+                  }
+                },
+                "delete": {
+                  "type": "button",
+                  "value": "Delete",
+                  "status": {
+                    "error": {
+                      "value": "Something went wrong while trying to delete this profile."
+                    },
+                    "success": {
+                      "value": "Profile has been deleted."
+                    }
+                  }
+                }
+              },
+              "information": {
+                "heading": {
+                  "type": "heading",
+                  "value": "Profile information:"
+                },
+                "lastUpdated": {
+                  "type": "label",
+                  "value": "Last updated:"
+                },
+                "name": {
+                  "type": "label",
+                  "value": "Name:"
+                },
+                "changes": {
+                  "value": "You have unsaved changes"
+                }
+              },
+              "rename": {
+                "type": "title",
+                "value": "Edit profile name"
+              }
+            },
+            "lulu": {
+              "heading": {
+                "type": "heading",
+                "value": "Lulu integration:"
+              },
+              "actions": {
+                "connect": {
+                  "type": "button",
+                  "value": "Connect to Lulu"
+                },
+                "upload": {
+                  "type": "button",
+                  "value": "Upload to Lulu"
+                },
+                "sync": {
+                  "type": "button",
+                  "value": "Sync with Lulu"
+                },
+                "openProject": {
+                  "type": "button",
+                  "value": "Open Lulu Project"
+                }
+              },
+              "status": {
+                "project": {
+                  "type": "label",
+                  "value": "Project ID:"
+                },
+                "syncTime": {
+                  "type": "label",
+                  "value": "Last synced:"
+                },
+                "states": {
+                  "notSynced": {
+                    "type": "message",
+                    "value": "Not synced with Lulu"
+                  },
+                  "notUploaded": {
+                    "type": "message",
+                    "value": "Not uploaded to Lulu"
+                  },
+                  "synced": {
+                    "type": "message",
+                    "value": "Synced with Lulu"
+                  }
+                }
+              }
+            },
+            "flax": {
+              "heading": {
+                "type": "heading",
+                "value": "Flax integration:"
+              },
+              "status": {
+                "published": {
+                  "yes": {
+                    "type": "message",
+                    "value": "Last published:"
+                  },
+                  "no": {
+                    "type": "message",
+                    "value": "Not published yet"
+                  },
+                  "profile": {
+                    "type": "message",
+                    "value": "Published with profile:"
+                  }
+                }
+              },
+              "actions": {
+                "publish": {
+                  "type": "button",
+                  "value": "Publish Online"
+                },
+                "publishAgain": {
+                  "type": "button",
+                  "value": "Publish Again"
+                },
+                "open": {
+                  "type": "button",
+                  "value": "Open Published Book"
+                }
+              }
+            },
+            "publishModal": {
+              "title": {
+                "type": "title",
+                "value": "Publish Online"
+              },
+              "content_1": {
+                "value": "Your book will be published at a unique URL. You can update and republish it any time."
+              },
+              "content_2": {
+                "value": "Publishing may take a few minutes. Once complete, the book will open in a new browser tab."
+              },
+              "missingPDF": {
+                "value": "You need to select a PDF profile if you want to include a PDF in your website."
+              },
+              "missingEPUB": {
+                "value": "You need to select an EPUB profile if you want to include an EPUB in your website."
+              },
+              "includesPDF": {
+                "value": "Includes PDF download"
+              },
+              "includesEPUB": {
+                "value": "Includes EPUB download"
+              },
+              "warning": {
+                "value": "Careful: Publishing again will overwrite the previously published book."
+              },
+              "template": {
+                "value": "Selected template"
+              },
+              "actions": {
+                "publish": {
+                  "value": "Publish",
+                  "loading": {
+                    "value": "Publishing"
+                  }
+                }
+              }
+            }
+          },
+          "collapse": {
+            "type": "button",
+            "value": "Collapse"
+          }
+        },
+        "format": {
+          "select": {
+            "type": "select(label)",
+            "value": "Format:"
+          },
+          "options": {
+            "pdf": {
+              "value": "PDF"
+            },
+            "epub": {
+              "value": "EPUB"
+            },
+            "web": {
+              "value": "Web"
+            }
+          },
+          "epub": {
+            "alert": {
+              "title": {
+                "type": "title",
+                "value": "There Is No Preview for EPUBs."
+              },
+              "detail": {
+                "type": "detail",
+                "value": "Please download your EPUB and preview it in your reader of choice."
+              }
+            }
+          },
+          "webDownload": {
+            "description": {
+              "type": "select(detail)",
+              "value": "Include the following downloads in your website:"
+            },
+            "options": {
+              "pdf": {
+                "type": "select(label)",
+                "value": "PDF",
+                "selectProfile": {
+                  "value": "Choose the PDF profile you want to include:"
+                },
+                "noProfileAvailable": {
+                  "value": "You don't have any saved PDF profiles. First create one on the New Preview tab."
+                }
+              },
+              "epub": {
+                "type": "select(label)",
+                "value": "EPUB",
+                "selectProfile": {
+                  "value": "Choose the EPUB profile you want to include:"
+                },
+                "noProfileAvailable": {
+                  "value": "You don't have any saved EPUB profile. First create one on the New Preview tab."
+                }
+              }
+            }
+          }
+        },
+        "isbn": {
+          "select": {
+            "type": "select(label)",
+            "value": "ISBN",
+            "placeholder": {
+              "value": "No ISBN selected"
+            }
+          }
+        },
+        "templates": {
+          "select": {
+            "type": "select(label)",
+            "value": "Templates:"
+          },
+          "empty": {
+            "type": "label",
+            "value": "No templates available"
+          }
+        },
+        "pdfSize": {
+          "select": {
+            "type": "select(label)",
+            "value": "Size:"
+          },
+          "options": {
+            "digest": {
+              "value": "Digest: %{dimensions}"
+            },
+            "usTrade": {
+              "value": "US Trade: %{dimensions}"
+            },
+            "usLetter": {
+              "value": "US Letter: %{dimensions}"
+            }
+          }
+        },
+        "frontMatter": {
+          "select": {
+            "type": "select(label)",
+            "value": "Front matter:",
+            "placeholder": {
+              "value": "Please select"
+            }
+          },
+          "options": {
+            "cover": {
+              "value": "Cover"
+            },
+            "titlePage": {
+              "value": "Title page"
+            },
+            "copyrightPage": {
+              "value": "Copyright page"
+            },
+            "tableOfContents": {
+              "value": "Table of contents"
+            }
+          }
+        },
+        "flaxCustomization": {
+          "add": {
+            "type": "button",
+            "value": "Add custom header & footer"
+          },
+          "edit": {
+            "type": "button",
+            "value": "Edit custom header & footer"
+          },
+          "modal": {
+            "title": {
+              "value": "Flax template customisation"
+            },
+            "customHeader": {
+              "value": "Custom header",
+              "placeholder": {
+                "value": "HTML that will appear on top of the web page"
+              }
+            },
+            "customFooter": {
+              "value": "Custom footer",
+              "placeholder": {
+                "value": "HTML that will appear on bottom of the web page"
+              }
+            },
+            "submit": {
+              "type": "button",
+              "value": "Apply changes"
+            }
+          }
+        },
+        "notifications": {
+          "previewFailed": {
+            "title": {
+              "type": "title",
+              "value": "Preview Failed"
+            },
+            "messages": {
+              "401": {
+                "type": "error",
+                "value": "Error 401: There was a problem authenticating with the Flax microservice. Please contact your administrator."
+              },
+              "500": {
+                "type": "error",
+                "value": "Error 500: There was an error generating your preview. Please contact your administrator."
+              },
+              "501": {
+                "type": "error",
+                "value": "Error 501: We're having trouble connecting to the preview service. Please check your internet connection and try again. If the problem persists, contact your administrator."
+              },
+              "502": {
+                "type": "error",
+                "value": "Error 502: Our preview service is currently down for maintenance. Please check back later or contact your administrator if the issue persists."
+              },
+              "504": {
+                "type": "error",
+                "value": "Error 504: The preview is taking longer than expected. Please wait a moment and try again. If the problem persists, contact your administrator."
+              }
+            }
+          },
+          "publishingFailed": {
+            "title": {
+              "type": "title",
+              "value": "Publishing Failed"
+            },
+            "messages": {
+              "401": {
+                "type": "error",
+                "value": "Error 401: There was a problem authenticating with the Flax microservice. Please contact your administrator."
+              },
+              "500": {
+                "type": "error",
+                "value": "Error 500: There was an error publishing your book. Please contact your administrator."
+              },
+              "501": {
+                "type": "error",
+                "value": "Error 501: We couldn't publish your book. Please check your internet connection or try again later. If the problem persists, contact your administrator."
+              },
+              "502": {
+                "type": "error",
+                "value": "Error 502: Something went wrong on our end while publishing your book. Please try again in a few minutes. If the problem persists, contact your administrator."
+              },
+              "504": {
+                "type": "error",
+                "value": "Error 504: The publishing process is taking longer than usual. Please give it another try in a moment. If the problem persists, contact your administrator."
+              }
+            }
+          }
+        }
+      }
+    },
+    "producer": {
+      "header": {
+        "menu": {
+          "type": "menu",
+          "options": {
+            "previewAndPublish": {
+              "type": "link(text)",
+              "value": "Preview and Publish"
+            },
+            "share": {
+              "type": "action",
+              "value": "Share"
+            },
+            "knowledgeBase": {
+              "type": "link(text)",
+              "value": "Knowledge Base"
+            },
+            "aiBookDesigner": {
+              "type": "link(text)",
+              "value": "AI Book Designer (Beta)"
+            },
+            "bookSettings": {
+              "type": "action",
+              "value": "Book Settings"
+            }
+          }
+        }
+      },
+      "untitledBook": {
+        "type": "placeholder",
+        "value": "Untitled Book"
+      },
+      "bookMetadataTab": {
+        "title": {
+          "type": "title",
+          "value": "Book Metadata"
+        },
+        "introduction": {
+          "type": "detail",
+          "value": "This information will be used for optional front matter pages. View these pages in the book's preview."
+        },
+        "sections": {
+          "coverPage": {
+            "heading": {
+              "type": "heading",
+              "value": "Cover page"
+            },
+            "upload": {
+              "instructions": {
+                "type": "detail",
+                "value": "Upload cover image"
+              },
+              "button": {
+                "type": "button",
+                "value": "Upload"
+              }
+            },
+            "altText": {
+              "type": "input(label)",
+              "value": "Alt text for cover image"
+            }
+          },
+          "titlePage": {
+            "heading": {
+              "type": "heading",
+              "value": "Title page"
+            },
+            "title": {
+              "type": "input(label)",
+              "value": "Title",
+              "errors": {
+                "noValue": {
+                  "type": "error",
+                  "value": "Title is required"
+                }
+              }
+            },
+            "subtitle": {
+              "type": "input(label)",
+              "value": "Subtitle",
+              "placeholder": {
+                "type": "input(placeholder)",
+                "value": "Optional"
+              }
+            },
+            "authors": {
+              "type": "input(label)",
+              "value": "Authors",
+              "placeholder": {
+                "type": "input(placeholder)",
+                "value": "John, Smith"
+              }
+            }
+          },
+          "copyrightPage": {
+            "heading": {
+              "type": "heading",
+              "value": "Copyright page"
+            },
+            "isbnList": {
+              "type": "label",
+              "value": "ISBN List",
+              "isbnLabel": {
+                "type": "label",
+                "value": "ISBN label",
+                "placeholder": {
+                  "type": "input(placeholder)",
+                  "value": "Label"
+                },
+                "errors": {
+                  "noValue": {
+                    "type": "error",
+                    "value": "Label is required (for multiple ISBNs)"
+                  },
+                  "invalid": {
+                    "type": "error",
+                    "value": "Label contains only spaces"
+                  }
+                }
+              },
+              "isbn": {
+                "type": "input(placeholder)",
+                "value": "The registered 13-digit ISBN"
+              },
+              "errors": {
+                "noValue": {
+                  "type": "error",
+                  "value": "ISBN is required"
+                },
+                "invalid": {
+                  "type": "error",
+                  "value": "ISBN is invalid"
+                }
+              },
+              "addButton": {
+                "type": "button",
+                "value": "Add another ISBN"
+              },
+              "addButton_first": {
+                "type": "button",
+                "value": "Add ISBN"
+              }
+            },
+            "pageContent": {
+              "top": {
+                "type": "input(label)",
+                "value": "Top of the page",
+                "placeholder": {
+                  "type": "input(placeholder)",
+                  "value": "Optional - Provide additional description that will appear on the top of the Copyright page"
+                }
+              },
+              "bottom": {
+                "type": "input(label)",
+                "value": "Bottom of the page",
+                "placeholder": {
+                  "type": "input(placeholder)",
+                  "value": "Optional - Provide additional description that will appear on the bottom of the Copyright page"
+                }
+              }
+            },
+            "license": {
+              "type": "select(label)",
+              "value": "Copyright license"
+            },
+            "options": {
+              "allRightsReserved": {
+                "value": "All Rights Reserved - Standard Copyright License",
+                "detail": {
+                  "type": "option(detail)",
+                  "value": "All Rights Reserved licensing. Your work cannot be distributed, remixed, or otherwise used without your express consent."
+                }
+              },
+              "creativeCommons": {
+                "value": "Some Rights Reserved - Creative Commons (CC BY)",
+                "detail": {
+                  "type": "option(detail)",
+                  "value": "Some rights are reserved, based on the specific Creative Commons Licensing you select."
+                },
+                "link": {
+                  "type": "link",
+                  "value": "What is Creative Commons?"
+                },
+                "restrictions": {
+                  "nonCommercial": {
+                    "type": "select(label)",
+                    "value": "NonCommercial (NC)"
+                  },
+                  "shareAlike": {
+                    "type": "select(label)",
+                    "value": "ShareAlike (SA)"
+                  },
+                  "noDerivatives": {
+                    "type": "select(label)",
+                    "value": "NoDerivatives (ND)"
+                  }
+                }
+              },
+              "publicDomain": {
+                "value": "No Rights Reserved - Public Domain",
+                "detail": {
+                  "type": "option(detail)",
+                  "value": "No rights are reserved and the work is freely available for anyone to use, distribute, and alter in any way."
+                },
+                "cc0": {
+                  "value": "Creative Commons Zero (CC 0)",
+                  "details": {
+                    "value": "You waive any copyright and release of your work to the public domain. Use only if you are the copyright holder or have permission from the copyright holder to release the work."
+                  }
+                },
+                "noCc": {
+                  "value": "No Known Copyright (Public Domain)",
+                  "details": {
+                    "value": "No rights are reserved and the work is freely available for anyone to use, distribute, and alter in any way."
+                  }
+                }
+              }
+            },
+            "copyrightHolder": {
+              "type": "input(label)",
+              "value": "Copyright holder name",
+              "errors": {
+                "noValue": {
+                  "type": "error",
+                  "value": "Copyright holder name is required"
+                }
+              }
+            },
+            "copyrightYear": {
+              "type": "input(label)",
+              "value": "Copyright year",
+              "errors": {
+                "noValue": {
+                  "type": "error",
+                  "value": "Copyright year is required"
+                }
+              }
+            }
+          }
+        }
+      },
+      "bookBodySidebar": {
+        "title": {
+          "type": "title",
+          "value": "Book Body"
+        },
+        "actions": {
+          "upload": {
+            "type": "button",
+            "value": "Upload a chapter"
+          },
+          "create": {
+            "type": "button",
+            "value": "Create a chapter"
+          }
+        },
+        "chapter": {
+          "new": {
+            "type": "placeholder",
+            "value": "Untitled chapter"
+          },
+          "processing": {
+            "type": "placeholder",
+            "value": "Processing"
+          },
+          "menu": {
+            "type": "menu",
+            "options": {
+              "convertToPart": {
+                "type": "action",
+                "value": "Convert to part"
+              },
+              "convertToChapter": {
+                "type": "action",
+                "value": "Convert to chapter"
+              },
+              "delete": {
+                "type": "action",
+                "value": "Delete"
+              }
+            }
+          }
+        },
+        "part": {
+          "new": {
+            "type": "placeholder",
+            "value": "Drag and drop chapters inside this part"
+          }
+        }
+      },
+      "editor": {
+        "noChapterSelected": {
+          "type": "message",
+          "value": "Create or select a chapter on the left to start writing."
+        }
+      }
+    },
+    "signup": {
+      "title": {
+        "type": "title",
+        "value": "Sign Up"
+      },
+      "form": {
+        "givenName": {
+          "type": "input(label)",
+          "value": "Given name",
+          "placeholder": {
+            "type": "input(placeholder)",
+            "value": "Enter your first name"
+          },
+          "errors": {
+            "noValue": {
+              "type": "error",
+              "value": "Given name is required"
+            }
+          }
+        },
+        "surname": {
+          "type": "input(label)",
+          "value": "Surname",
+          "placeholder": {
+            "type": "input(placeholder)",
+            "value": "Enter your last name"
+          },
+          "errors": {
+            "noValue": {
+              "type": "error",
+              "value": "Surname is required"
+            }
+          }
+        },
+        "terms": {
+          "type": "select(label)",
+          "value": "I agree to the terms and conditions",
+          "link": {
+            "type": "link(text)",
+            "value": "Read the terms and conditions"
+          },
+          "modal": {
+            "title": {
+              "type": "title",
+              "value": "Usage Terms and Conditions"
+            },
+            "action": {
+              "type": "button",
+              "value": "Agree"
+            }
+          },
+          "errors": {
+            "noValue": {
+              "type": "error",
+              "value": "You need to agree to the terms and conditions"
+            }
+          }
+        }
+      },
+      "actions": {
+        "signup": {
+          "type": "button",
+          "value": "Sign Up"
+        }
+      },
+      "success": {
+        "type": "message",
+        "value": "Signup successful",
+        "details": {
+          "value": "We've sent you a verification email. Click on the link in the email to activate your account."
+        }
+      },
+      "errors": {
+        "usernameExists": {
+          "type": "error",
+          "value": "Username already exists."
+        },
+        "emailExists": {
+          "type": "error",
+          "value": "A user with this email already exists."
+        },
+        "generic": {
+          "type": "error",
+          "value": "An error occurred. Please try again or contact the administrator."
+        }
+      },
+      "links": {
+        "login": {
+          "type": "link(text)",
+          "value": "Do you want to log in instead?"
+        }
+      }
+    },
+    "templateManager": {
+      "title": {
+        "type": "header",
+        "value": "Template manager"
+      },
+      "actions": {
+        "add": {
+          "type": "button",
+          "value": "+ Add Template"
+        },
+        "disable": {
+          "type": "button",
+          "value": "Disable"
+        },
+        "delete": {
+          "type": "button",
+          "value": "Delete template",
+          "blocked": {
+            "value": "This template cannot be deleted."
+          }
+        },
+        "enable": {
+          "type": "button",
+          "value": "Enable"
+        },
+        "refresh": {
+          "type": "button",
+          "value": "Refresh"
+        }
+      },
+      "table": {
+        "name": {
+          "type": "label",
+          "value": "Name"
+        },
+        "lastUpdated": {
+          "type": "label",
+          "value": "Last updated"
+        },
+        "actions": {
+          "type": "label",
+          "value": "Actions"
+        },
+        "row": {
+          "disabled": {
+            "type": "label",
+            "value": "(disabled)"
+          }
+        }
+      },
+      "details": {
+        "name": {
+          "type": "label",
+          "value": "Name:"
+        },
+        "author": {
+          "type": "label",
+          "value": "Author:"
+        },
+        "url": {
+          "type": "label",
+          "value": "Url:"
+        },
+        "formats": {
+          "type": "label",
+          "value": "Available formats:",
+          "pdf": {
+            "value": "PDF (pagedjs)"
+          },
+          "epub": {
+            "value": "EPUB"
+          },
+          "web": {
+            "value": "Web"
+          }
+        }
+      },
+      "modals": {
+        "new": {
+          "title": {
+            "type": "title",
+            "value": "Add new template"
+          },
+          "info0": {
+            "value": "Your template needs to live in git repository. It must have:"
+          },
+          "info1": {
+            "value": "a <0>template.json</0> file in the root that describes the template files"
+          },
+          "info2": {
+            "value": "a <0>dist</0> folder, contaning a <0>css</0> folder for the stylesheets, a <0>fonts</0> folder for the fonts and a thumbnail image."
+          },
+          "info3": {
+            "value": "<0>See this template</0> as an example"
+          },
+          "input": {
+            "label": {
+              "value": "Template URL"
+            },
+            "placeholder": {
+              "value": "Git URL of your template's repository"
+            },
+            "errors": {
+              "empty": {
+                "value": "This field is required"
+              },
+              "invalid": {
+                "value": "The git url you provided is invalid"
+              }
+            }
+          }
+        },
+        "disable": {
+          "title": {
+            "type": "title",
+            "value": "Disable template"
+          },
+          "body": {
+            "value": "Are you sure you want to disable the <0>{{templateName}}</0> template? The template will not be available for users in the Preview & Publish page."
+          }
+        },
+        "delete": {
+          "title": {
+            "type": "title",
+            "value": "Delete template"
+          },
+          "body": {
+            "value": "Are you sure you want to delete the <0>{{templateName}}</0> template?"
+          }
+        },
+        "error": {
+          "title": {
+            "value": "Error"
+          },
+          "cloning": {
+            "value": "There was a problem cloning the repository from the url you provided."
+          },
+          "emptyFiles": {
+            "value": "Your template contains files that are empty."
+          },
+          "missingStylesheet": {
+            "value": "A stylesheet referenced in template.json does not exist. Please make sure you are referencing the correct files."
+          },
+          "missingThumbnail": {
+            "value": "The thumbnail file referenced in template.json does not exist. Please fix the reference and try again."
+          }
+        }
+      }
+    }
+  }
+}

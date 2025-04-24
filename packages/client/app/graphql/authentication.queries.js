@@ -1,16 +1,40 @@
 import { gql } from '@apollo/client'
-import { USER_FIELDS } from './user.queries'
 
-export const EMAIL_LOGIN = gql`
-  mutation Login($input: LoginInput!) {
-    login(input: $input) {
+export const LOGIN = gql`
+  mutation KetidaLogin($input: LoginInput!) {
+    ketidaLogin(input: $input) {
       user {
-        ...UserFields
+        id
+        displayName
+        username
+        teams {
+          id
+          role
+          objectId
+          global
+          members {
+            id
+            user {
+              id
+            }
+            status
+          }
+        }
+        isActive
+        defaultIdentity {
+          id
+          isVerified
+        }
+        identities {
+          id
+          provider
+          hasValidRefreshToken
+        }
       }
       token
+      code
     }
   }
-  ${USER_FIELDS}
 `
 
 export const SIGNUP = gql`
@@ -25,15 +49,9 @@ export const VERIFY_EMAIL = gql`
   }
 `
 
-export const RESEND_VERIFICATION_EMAIL = gql`
-  mutation ResendVerificationEmail($token: String!) {
-    resendVerificationEmail(token: $token)
-  }
-`
-
-export const RESEND_VERIFICATION_EMAIL_AFTER_LOGIN = gql`
-  mutation ResendVerificationEmailAfterLogin {
-    resendVerificationEmailAfterLogin
+export const REQUEST_VERIFICATION_EMAIL = gql`
+  mutation KetidaRequestVerificationEmail($email: String!) {
+    ketidaRequestVerificationEmail(email: $email)
   }
 `
 

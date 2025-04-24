@@ -1,20 +1,30 @@
-FROM cokoapps/base:18-latest
+FROM postgres:14
+
+RUN apt-get update && apt-get install -y \
+    postgresql-14-pgvector \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ./scripts/init-pgboss.sql /docker-entrypoint-initdb.d/init-pgboss.sql
+
+FROM node:18.18.2-bullseye
 
 RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk-headless && \
+    apt-get install -y openjdk-11-jdk && \
     apt-get install -y ca-certificates-java && \
-    apt-get install -y git && \
     apt-get clean && \
     update-ca-certificates -f;
 
-# Set JAVA_HOME environment variable
+
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y ranger vim python netcat imagemagick potrace ghostscript
+
+RUN sed -i.bak 's/rights="none" pattern="PS"/rights="read | write" pattern="PS"/g' /etc/ImageMagick-6/policy.xml
+RUN sed -i.bak 's/rights="none" pattern="EPS"/rights="read | write" pattern="EPS"/g' /etc/ImageMagick-6/policy.xml
+
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 
-RUN apt-get update \ 
-    && apt-get upgrade -y \
-    && apt-get install -y ranger vim
-
-WORKDIR /home/node/wax
+WORKDIR /home/node/server
 
 COPY package.json .
 COPY yarn.lock .
@@ -22,7 +32,7 @@ COPY yarn.lock .
 RUN chown -R node:node .
 USER node
 
-RUN yarn install --frozen-lockfile
 RUN yarn cache clean
+RUN yarn install --frozen-lockfile --production=false
 
 COPY --chown=node:node . .

@@ -1,66 +1,63 @@
 import React from 'react'
-import { useLocation, Redirect } from 'react-router-dom'
+import { useLocation, Redirect, useHistory } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useMutation } from '@apollo/client'
 import { useCurrentUser } from '@coko/client'
 
-import { Login } from 'ui'
-import { EMAIL_LOGIN } from '../graphql'
+import { Login } from '../ui'
+import { LOGIN } from '../graphql'
 
 const LoginPage = () => {
   const { search } = useLocation()
+  const { setCurrentUser } = useCurrentUser()
+  const history = useHistory()
+  const { t } = useTranslation(null, { keyPrefix: 'pages.common' })
 
-  const { currentUser, setCurrentUser } = useCurrentUser()
-
-  const [emailLoginMutation, { data, loading, error }] =
-    useMutation(EMAIL_LOGIN)
+  const [loginMutation, { data, loading, error }] = useMutation(LOGIN)
 
   const redirectUrl = new URLSearchParams(search).get('next') || '/'
-
-  localStorage.setItem('nextDocument', redirectUrl)
 
   const login = formData => {
     const mutationData = {
       variables: {
-        input: { ...formData, email: formData.email.toLowerCase() },
+        input: formData,
       },
     }
-    console.log('mutationData', mutationData)
-    emailLoginMutation(mutationData).catch(e => console.error(e))
+
+    loginMutation(mutationData).catch(e => console.error(e))
   }
 
-  if (currentUser) return <Redirect to={redirectUrl} />
+  const existingToken = localStorage.getItem('token')
+  if (existingToken) return <Redirect to={redirectUrl} />
 
-  let errorMessage = 'Something went wrong!'
+  let errorMessage = t('notifications.error.messages.general')
 
   if (error?.message.includes('username or password'))
-    errorMessage = 'Invalid credentials'
+    errorMessage = t('form.password.errors.invalidCredentials')
 
   if (data) {
-    const token = data.login?.token
+    const token = data.ketidaLogin?.token
 
-    setCurrentUser(data.login?.user)
+    setCurrentUser(data.ketidaLogin?.user)
 
     if (token) {
       localStorage.setItem('token', token)
       return <Redirect to={redirectUrl} />
     }
 
-    console.error('No token returned from mutation!')
+    if (data.ketidaLogin?.code === 100) {
+      history.push('/unverified-user/')
+    }
   }
 
   return (
     <Login
       errorMessage={errorMessage}
       hasError={!!error}
-      loading={!!loading}
+      loading={loading}
       onSubmit={login}
-      showEmailOption
     />
   )
 }
-
-LoginPage.propTypes = {}
-
-LoginPage.defaultProps = {}
 
 export default LoginPage

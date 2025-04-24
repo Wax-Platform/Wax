@@ -66,17 +66,17 @@ const AboutModal = () => {
         maskClosable
         onCancel={handleCancel}
         open={open}
-        title="About Wax"
+        title="About CokoDocs"
         width="720px"
       >
         <CenteredLogo />
         <p>
           <a
-            href="https://gitlab.coko.foundation/wax/wax"
+            href="https://gitlab.coko.foundation/cokodocs/cokodocs"
             rel="noreferrer"
             target="_blank"
           >
-            Wax
+            CokoDocs
           </a>{' '}
           is a project of{' '}
           <a href="https://coko.foundation/" rel="noreferrer" target="_blank">
@@ -86,7 +86,7 @@ const AboutModal = () => {
         </p>
         <p>
           Coko develops publishing platforms. If you would like to contribute to
-          Wax, or <br />
+          CokoDocs, or <br />
           want us to build you a platform then drop us a line: <br />
           <a
             href="mailto:adam@coko.foundation"
@@ -99,7 +99,7 @@ const AboutModal = () => {
           <br />
         </p>
         <p>
-          All Wax code is open source. Built with:
+          All CokoDocs code is open source. Built with:
           <br />
           <a
             href="https://gitlab.coko.foundation/cokoapps/server"
@@ -117,7 +117,7 @@ const AboutModal = () => {
             YJS
           </a>
         </p>
-        <p>Wax is currently in beta.</p>
+        <p>CokoDocs is currently in beta.</p>
         <CenteredCokoLogo />
       </StyledModal>
     </>

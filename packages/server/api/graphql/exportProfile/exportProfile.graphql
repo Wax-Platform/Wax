@@ -1,0 +1,143 @@
+type IncludedComponents {
+  toc: Boolean!
+  copyright: Boolean!
+  titlePage: Boolean!
+  cover: Boolean
+}
+
+input IncludedComponentsInput {
+  toc: Boolean!
+  copyright: Boolean!
+  titlePage: Boolean!
+  cover: Boolean
+}
+
+enum Format {
+  epub
+  pdf
+  web
+}
+
+type ProviderInfo {
+  providerLabel: String!
+  externalProjectId: ID!
+  bookMetadataHash: String
+  bookContentHash: String
+  templateHash: String
+  fileHash: String
+  lastSync: Date
+  inSync: Boolean
+}
+
+input ProviderInfoInput {
+  providerLabel: String
+  externalProjectId: ID
+  bookMetadataHash: String
+  bookContentHash: String
+  templateHash: String
+  lastSync: Date
+}
+
+type ExportProfileResponse {
+  result: [ExportProfile!]!
+  totalCount: Int
+}
+
+type DownloadableAssets {
+  pdf: Boolean
+  epub: Boolean
+  pdfProfileId: ID
+  epubProfileId: ID
+}
+
+input DownloadableAssetsInput {
+  pdf: Boolean
+  epub: Boolean
+  pdfProfileId: ID
+  epubProfileId: ID
+}
+
+type RunningBlocks {
+  customHeader: String
+  customFooter: String
+}
+
+input RunningBlocksInput {
+  customHeader: String
+  customFooter: String
+}
+
+type ExportProfile {
+  id: ID!
+  updated: Date
+  bookId: ID!
+  displayName: String!
+  templateId: ID!
+  includedComponents: IncludedComponents!
+  format: Format!
+  trimSize: String
+  providerInfo: [ProviderInfo!]!
+  isbn: String
+  downloadableAssets: DownloadableAssets
+  runningBlocks: RunningBlocks
+}
+
+input ExportProfileInput {
+  id: ID
+  displayName: String
+  templateId: ID
+  bookId: ID!
+  includedComponents: IncludedComponentsInput
+  format: Format!
+  trimSize: String
+  providerInfo: [ProviderInfoInput]
+  isbn: String
+  includePdf: Boolean
+  includeEpub: Boolean
+}
+
+input CreateExportProfileInput {
+  displayName: String!
+  templateId: ID!
+  bookId: ID!
+  includedComponents: IncludedComponentsInput!
+  format: Format!
+  trimSize: String
+  providerInfo: [ProviderInfoInput]
+  isbn: String
+  downloadableAssets: DownloadableAssetsInput
+  runningBlocks: RunningBlocksInput
+}
+
+input UpdateExportProfileInput {
+  displayName: String
+  templateId: ID
+  includedComponents: IncludedComponentsInput
+  format: Format
+  trimSize: String
+  providerInfo: [ProviderInfoInput]
+  isbn: String
+  downloadableAssets: DownloadableAssetsInput
+  runningBlocks: RunningBlocksInput
+}
+
+extend type Query {
+  getExportProfile(id: ID!): ExportProfile!
+  getBookExportProfiles(bookId: ID!): ExportProfileResponse!
+}
+
+extend type Mutation {
+  createExportProfile(input: CreateExportProfileInput!): ExportProfile!
+  updateExportProfile(id: ID!, data: UpdateExportProfileInput!): ExportProfile!
+  deleteExportProfile(id: ID!): ID!
+  createLuluProject(exportProfileId: ID!): ExportProfile!
+  updateLuluProject(exportProfileId: ID!): ExportProfile!
+  uploadToLulu(id: ID!): ExportProfile!
+  uploadToProvider(providerLabel: String!, id: ID!): ExportProfile!
+}
+
+extend type Subscription {
+  exportProfileUpdated(bookId: ID!): ID!
+  exportProfileCreated(bookId: ID!): ID!
+  exportProfileDeleted(bookId: ID!): ID!
+}

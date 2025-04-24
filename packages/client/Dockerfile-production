@@ -1,45 +1,41 @@
-# IMAGE FOR BUILDING
-FROM cokoapps/base:18-latest
+FROM node:18.19.0-alpine3.19
 
-WORKDIR /home/node/app
+RUN apk add --no-cache git make g++
+
+WORKDIR /home/node/client
 
 COPY package.json .
 COPY yarn.lock .
 
-RUN yarn install --frozen-lockfile --production
 
-COPY . .
+RUN yarn cache clean
+RUN yarn install --frozen-lockfile --production=true
+
+COPY app app
+COPY static static
 
 ARG server_url
-ARG client_websocket_url
-ARG client_load_extra_theme
-ARG client_show_email_login_option
+ARG websocket_server_url
+ENV SERVER_URL=$server_url
+ENV WEBSOCKET_SERVER_URL=$websocket_server_url
 
 ENV NODE_ENV='production'
-ENV CLIENT_PAGE_TITLE='Wax'
-ENV CLIENT_FAVICON_PATH='../static/favicon.png'
+ENV CLIENT_PAGE_TITLE='Ketty'
+ENV CLIENT_FAVICON_PATH='../static/wax.ico'
 ENV CLIENT_LANGUAGE='en-US'
-
-ENV SERVER_URL=$server_url
-ENV CLIENT_WEBSOCKET_URL=$client_websocket_url
-ENV CLIENT_LOAD_EXTRA_THEME=$client_load_extra_theme
-ENV CLIENT_SHOW_EMAIL_LOGIN_OPTION=$client_show_email_login_option
 
 RUN yarn coko-client-build
 
-######################################################################
-######################################################################
+############################################################################
 
-# IMAGE FOR RUNNING
+FROM node:18.19.0-alpine3.19
 
-FROM cokoapps/base:18-latest
+RUN npm install --global serve
 
-WORKDIR /home/node/app
+WORKDIR /home/node/client
 
-RUN yarn global add serve
-
-COPY --from=0 /home/node/app/_build ./_build
-COPY --from=0 /home/node/app/node_modules/@coko/client/scripts/env.sh ./env.sh
+COPY --from=0 /home/node/client/_build ./_build
+COPY --from=0 /home/node/client/node_modules/@coko/client/scripts/env.sh ./env.sh
 
 RUN chown -R node:node .
 USER node

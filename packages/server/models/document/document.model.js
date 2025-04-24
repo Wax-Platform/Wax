@@ -1,5 +1,6 @@
 /* eslint-disable global-require */
 const { logger, fileStorage, BaseModel } = require('@coko/server')
+const { Model } = require('objection')
 const Embedding = require('../embeddings/embedding.model')
 
 class Document extends BaseModel {
@@ -15,6 +16,7 @@ class Document extends BaseModel {
     super(properties)
     this.type = 'document'
   }
+  // TODO: add the file skey and relation mapping bookid>objectId
 
   static get schema() {
     return {
@@ -26,16 +28,35 @@ class Document extends BaseModel {
         extension: { type: 'string' },
         sectionsKeys: { type: 'array', items: { type: 'string' } },
         created: { type: 'string', format: 'date-time' },
+        bookId: { type: 'string', format: 'uuid' },
       },
     }
   }
 
-  static async getAlldocuments() {
-    return this.query().select('*').from(this.tableName)
+  static get relationMappings() {
+    const Book = require('../book/book.model')
+    return {
+      book: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Book,
+        join: {
+          from: 'documents.bookId',
+          to: 'books.id',
+        },
+      },
+    }
   }
 
-  static async createDocument(name, extension, sectionsKeys, tr) {
-    return this.insert({ name, extension, sectionsKeys }, { tr })
+  static async getAlldocuments(bookId) {
+    return this.query()
+      .select('*')
+      .from(this.tableName)
+      .where('bookId', bookId)
+      .orderBy('created', 'desc')
+  }
+
+  static async createDocument(name, extension, sectionsKeys, bookId, tr) {
+    return this.insert({ name, extension, sectionsKeys, bookId }, { tr })
   }
 
   static async deleteFolder(id) {
@@ -51,7 +72,7 @@ class Document extends BaseModel {
         throw new Error(`Document with ID ${id} not found.`)
       }
 
-      await fileStorage.delete(document.sectionsKeys)
+      await fileStorage.deleteFiles(document.sectionsKeys)
       await Embedding.query()
         .delete()
         .whereIn('storedObjectKey', document.sectionsKeys)

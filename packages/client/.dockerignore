@@ -7,7 +7,7 @@ docker-compose*
 .gitignore
 
 # npm & yarn
-**/node_modules/
+node_modules
 npm-debug.log
 package-lock.json
 yarn-error.log
@@ -19,34 +19,29 @@ yarn-error.log
 app.pid
 
 # environment files
-.env
-.env-ci
-.env.example
-.envrc
+.env*
 *.env
 
 # app
 _build/
 config/local*
-cypress/
 data/
 coverage/
+cypress/
 logs/
 tmp/
-uploads/*
-!uploads/sample-image.jpg
-CONTRIBUTING.md
+uploads/
 
-# storybook
-# .storybook
-# stories/
+# Include README.md and LICENSE.md, exlcude the rest
+*.md
+!README.md
+!LICENSE.md
 
 # development config files
-.eslintrc.js
+# .eslintrc.js
 .commitlintrc.js
 .cz-config.js
 .gitlab-ci.yml
 .linstagedrc.js
-.prettierrc.js
-.stylelintrc.js
-cypress.json
+# .prettierrc.js
+# .stylelintrc.js

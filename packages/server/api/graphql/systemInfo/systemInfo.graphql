@@ -1,0 +1,14 @@
+type HealthCheck {
+  displayName: String!
+  healthcheckURL: String!
+  isWorking: Boolean!
+}
+
+type SystemInfo {
+  version: String
+  healthcheck: [HealthCheck]
+}
+
+extend type Query {
+  systemInfo: SystemInfo
+}

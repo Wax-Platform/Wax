@@ -35,10 +35,11 @@ const StyledButton = styled(AntButton)`
     if (!Object.keys(colors).includes(status)) {
       if (type === 'primary' && !ghost) {
         return css`
-          &:hover,
-          &:focus,
-          &:active {
+          &:hover:not([disabled]),
+          &:focus:not([disabled]),
+          &:active:not([disabled]) {
             background-color: ${darken('colorPrimary', 0.25)} !important;
+            color: ${th('colorTextReverse')} !important;
           }
         `
       }
@@ -55,20 +56,22 @@ const StyledButton = styled(AntButton)`
         border-color: ${color};
         color: ${theme.colorTextReverse};
 
-        &:hover,
-        &:focus,
-        &:active {
+        &:hover:not([disabled]),
+        &:focus:not([disabled]),
+        &:active:not([disabled]) {
           border-color: ${color};
           color: ${theme.colorTextReverse};
         }
 
-        &:hover,
-        &:focus {
+        &:hover:not([disabled]),
+        &:focus:not([disabled]) {
           background-color: ${darken(color, 0.25)} !important;
+          color: ${th('colorTextReverse')} !important;
         }
 
-        &:active {
+        &:active:not([disabled]) {
           background-color: ${darken(color, 0.25)} !important;
+          color: ${th('colorTextReverse')} !important;
         }
       `
 
@@ -77,19 +80,19 @@ const StyledButton = styled(AntButton)`
       color: ${color};
       border-color: ${color};
 
-      &:hover,
-      &:focus {
+      &:hover:not([disabled]),
+      &:focus:not([disabled]) {
         color: ${darken(color, 0.25)};
         border-color: ${darken(color, 0.25)};
       }
 
-      &:active {
+      &:active:not([disabled]) {
         color: ${darken(color, 0.25)};
         border-color: ${darken(color, 0.25)};
       }
     `
   }}
-  padding: 0 ${grid(4)};
+  padding: ${grid(1)};
 `
 
 /**

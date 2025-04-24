@@ -1,174 +1,58 @@
-/* eslint-disable no-param-reassign */
-const { startServer, verifyJWT, logger } = require('@coko/server')
-const map = require('lib0/map')
-const { WebSocketServer } = require('ws')
+const { startServer, logger } = require('@coko/server')
 const config = require('config')
-const seedResourceTree = require('./scripts/seedResourceTree')
-const { WSSharedDoc, utils } = require('./services')
-const Doc = require('./models/doc/doc.model')
+const isEmpty = require('lodash/isEmpty')
 
-const pingTimeout = 30000
+const hasScripts =
+  config.has('export') &&
+  config.has('export.scripts') &&
+  !isEmpty(config.get('export.scripts'))
 
-const { CLIENT_SHOW_EMAIL_LOGIN_OPTION } = process.env
-
-const messageListener = (conn, doc, message) => {
-  try {
-    const encoder = utils.encoding.createEncoder()
-    const decoder = utils.decoding.createDecoder(message)
-    const messageType = utils.decoding.readVarUint(decoder)
-
-    // eslint-disable-next-line default-case
-    switch (messageType) {
-      case utils.messageSync:
-        utils.encoding.writeVarUint(encoder, utils.messageSync)
-        utils.syncProtocol.readSyncMessage(decoder, encoder, doc, null)
-
-        if (utils.encoding.length(encoder) > 1) {
-          utils.send(doc, conn, utils.encoding.toUint8Array(encoder))
-        }
-
-        break
-      case utils.messageAwareness:
-        utils.awarenessProtocol.applyAwarenessUpdate(
-          doc.awareness,
-          utils.decoding.readVarUint8Array(decoder),
-          conn,
-        )
-        break
-    }
-  } catch (error) {
-    console.error(error)
-    doc.emit('error', [error])
-  }
-}
+const { startWSServer } = require('./startWebSocketServer')
+const { cleanUpLocks } = require('./services/bookComponentLock.service')
 
 const init = async () => {
   try {
-    await seedResourceTree()
-    await startServer()
+    await cleanUpLocks()
 
-    const WSServer = new WebSocketServer({
-      port: config.get('pubsweet-server.wsServerPort'),
-      clientTracking: true,
-    })
+    const server = await startServer()
 
-    // eslint-disable-next-line consistent-return
-    WSServer.on('connection', async (injectedWS, request) => {
-      injectedWS.binaryType = 'arraybuffer'
-      const [identifier, params] = request.url.slice('1').split('?')
-      const token = params?.split('=')[1] || ''
+    logger.info('starting WebSockets server')
+    await startWSServer(server)
 
-      let userId = null
+    if (hasScripts) {
+      const scripts = config.get('export.scripts')
+      const errors = []
 
-      try {
-        userId = await new Promise((resolve, reject) => {
-          verifyJWT(token, (_, usr) => {
-            if (usr) {
-              resolve(usr)
-            } else {
-              reject()
-            }
-          })
-        })
-      } catch (e) {
-        logger.error('failed to Connect')
-        userId = null
-      }
-
-      const doc = getYDoc(identifier, userId)
-
-      const docObject = await Doc.query().findOne({ identifier })
-
-      if (userId) {
-        if (docObject) {
-          // logger.info('Adding user as viewer')
-          // await docObject.addMemberAsViewer(userId)
-        } else {
-          // logger.info('Creating new document')
-          // await ResourceTree.createNewDocumentResource({ identifier, userId })
-        }
-      } else if (CLIENT_SHOW_EMAIL_LOGIN_OPTION == 'false') {
-        logger.info('Creating new document')
-        if (!docObject) {
-          // await ResourceTree.createNewDocumentResource({
-          //   title: identifier,
-          //   identifier,
-          // })
-        }
-      }
-
-      doc.conns.set(injectedWS, new Set())
-
-      injectedWS.on('message', message =>
-        messageListener(injectedWS, doc, new Uint8Array(message)),
-      )
-
-      let pingReceived = true
-
-      const pingInterval = setInterval(() => {
-        if (!pingReceived) {
-          if (doc.conns.has(injectedWS)) {
-            utils.closeConn(doc, injectedWS)
+      for (let i = 0; i < scripts.length; i += 1) {
+        for (let j = i + 1; j < scripts.length; j += 1) {
+          if (
+            scripts[i].label === scripts[j].label &&
+            scripts[i].filename !== scripts[j].filename &&
+            scripts[i].scope === scripts[j].scope
+          ) {
+            errors.push(
+              `your have provided the same label (${scripts[i].label}) for two different scripts`,
+            )
           }
 
-          clearInterval(pingInterval)
-        } else if (doc.conns.has(injectedWS)) {
-          pingReceived = false
-
-          try {
-            injectedWS.ping()
-          } catch (error) {
-            utils.closeConn(doc, injectedWS)
-            clearInterval(pingInterval)
+          if (
+            scripts[i].label === scripts[j].label &&
+            scripts[i].filename === scripts[j].filename &&
+            scripts[i].scope === scripts[j].scope
+          ) {
+            errors.push(
+              `your have declared the script with label (${scripts[i].label}) twice`,
+            )
           }
         }
-      }, pingTimeout)
-
-      injectedWS.on('close', () => {
-        utils.closeConn(doc, injectedWS)
-        clearInterval(pingInterval)
-      })
-
-      injectedWS.on('ping', () => {
-        pingReceived = true
-      })
-
-      {
-        const encoder = utils.encoding.createEncoder()
-        utils.encoding.writeVarUint(encoder, utils.messageSync)
-        utils.syncProtocol.writeSyncStep1(encoder, doc)
-        utils.send(doc, injectedWS, utils.encoding.toUint8Array(encoder))
-        const awarenessStates = doc.awareness.getStates()
-
-        if (awarenessStates.size > 0) {
-          const encoder1 = utils.encoding.createEncoder()
-          utils.encoding.writeVarUint(encoder1, utils.messageAwareness)
-          utils.encoding.writeVarUint8Array(
-            encoder1,
-            utils.awarenessProtocol.encodeAwarenessUpdate(
-              doc.awareness,
-              Array.from(awarenessStates.keys()),
-            ),
-          )
-          utils.send(doc, injectedWS, utils.encoding.toUint8Array(encoder1))
-        }
       }
-    })
 
-    const getYDoc = (docName, userId) =>
-      map.setIfUndefined(utils.docs, docName, () => {
-        const doc = new WSSharedDoc(docName, userId)
-        doc.gc = true
-
-        if (utils.persistence !== null) {
-          utils.persistence.bindState(docName, doc)
-        }
-
-        utils.docs.set(docName, doc)
-        return doc
-      })
-  } catch (error) {
-    throw new Error(error)
+      if (errors.length !== 0) {
+        throw new Error(errors)
+      }
+    }
+  } catch (e) {
+    throw new Error(e)
   }
 }
 

@@ -1,17 +1,18 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Checkbox } from 'antd'
 
 import { checkboxStyles } from './Checkbox'
-import { vertical as verticalCss } from '../_helpers/cssSnippets'
+
+// eslint-disable-next-line import/prefer-default-export
+export const verticalCss = css`
+  display: flex;
+  flex-direction: column;
+`
 
 const StyledGroup = styled(Checkbox.Group)`
   ${checkboxStyles}
-
-  label.ant-checkbox-wrapper {
-    margin-inline-start: 0;
-  }
 `
 
 const VerticalWrapper = styled.div`

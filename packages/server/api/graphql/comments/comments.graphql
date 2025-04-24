@@ -1,0 +1,30 @@
+type Comment {
+  id: ID!
+  created: Date
+  updated: Date
+  bookId: ID!
+  chapterId: ID!
+  content: String
+}
+
+input CommentInput {
+  bookId: ID!
+  chapterId: ID!
+  content: String
+}
+
+input MentionInput {
+  bookId: ID!
+  chapterId: ID!
+  ids: [ID!]!
+  text: String
+}
+
+extend type Query {
+  getChapterComments(bookId: ID!, chapterId: ID!): Comment
+}
+
+extend type Mutation {
+  addComments(commentData: CommentInput!): Comment!
+  notifyMentions(mentionsData: MentionInput!): Boolean
+}

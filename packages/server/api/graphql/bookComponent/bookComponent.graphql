@@ -1,0 +1,174 @@
+scalar Date
+
+type Pagination {
+  left: Boolean!
+  right: Boolean!
+}
+
+input PaginationInput {
+  left: Boolean!
+  right: Boolean!
+}
+
+type Lock {
+  created: Date
+  username: String
+  isAdmin: Boolean
+  givenNames: String
+  foreignId: ID
+  foreignType: String
+  surname: String
+  tabId: ID!
+  userAgent: String
+  userId: ID
+  id: ID!
+}
+
+input LockInput {
+  created: Date
+  username: String
+  isAdmin: Boolean
+  givenNames: String
+  foreignId: ID
+  foreignType: String
+  surname: String
+  tabId: ID!
+  userAgent: String
+  userId: ID
+  id: ID!
+}
+
+type WorkFlowItem {
+  label: String!
+  type: String!
+  value: Int!
+}
+
+input WorkFlowItemInput {
+  label: String!
+  type: String!
+  value: Int!
+}
+
+type BookStructureElement {
+  groupHeader: String!
+  items: [StructureElement]
+}
+
+type StructureElement {
+  displayName: String!
+  className: String!
+  headingLevel: Int!
+  nestedHeadingLevel: Int
+  isSection: Boolean
+}
+
+type BookComponent {
+  id: ID!
+  title: String
+  bookId: ID!
+  bookTitle: String
+  bookStructureElements: [BookStructureElement]
+  componentTypeOrder: Int!
+  hasContent: Boolean!
+  divisionId: ID!
+  divisionType: String
+  lock: Lock
+  pagination: Pagination!
+  archived: Boolean!
+  workflowStages: [WorkFlowItem]
+  yState: String
+  content: String
+  componentType: String!
+  trackChangesEnabled: Boolean!
+  uploading: Boolean!
+  includeInToc: Boolean!
+  runningHeadersRight: String
+  runningHeadersLeft: String
+  status: Int
+  parentComponentId: ID
+}
+
+input BookComponentInput {
+  title: String
+  bookId: ID!
+  componentType: String!
+  divisionId: ID!
+  afterId: ID
+  uploading: Boolean
+  pagination: PaginationInput
+}
+
+input WordFileInput {
+  title: String
+  content: String
+  componentType: String
+}
+
+input UpdateBookComponentInput {
+  id: ID!
+  title: String
+  deleted: Boolean
+  lock: LockInput
+  includeInToc: Boolean
+  uploading: Boolean
+  pagination: PaginationInput
+  workflowStages: [WorkFlowItemInput]
+  componentType: String
+  trackChangesEnabled: Boolean
+  content: String
+  parentComponentId: ID
+}
+
+input IngestWordFiles {
+  file: Upload!
+  bookComponentId: ID
+  bookId: ID
+  componentType: String
+  divisionLabel: String
+}
+
+extend type Query {
+  getBookComponent(id: ID!): BookComponent!
+  getBookComponentAndAcquireLock(id: ID!, tabId: ID!): BookComponent!
+}
+
+extend type Mutation {
+  ingestWordFile(bookComponentFiles: [IngestWordFiles!]): [BookComponent!]
+  addBookComponent(input: BookComponentInput): BookComponent!
+  podAddBookComponent(input: BookComponentInput): BookComponent!
+  renameBookComponent(input: UpdateBookComponentInput): BookComponent!
+  renameBookComponentTitle(id: ID!, title: String!): BookComponent!
+  deleteBookComponent(input: UpdateBookComponentInput): BookComponent!
+  podDeleteBookComponent(input: UpdateBookComponentInput): Book!
+  archiveBookComponent(input: UpdateBookComponentInput): BookComponent!
+  updateWorkflowState(input: UpdateBookComponentInput): BookComponent!
+  updatePagination(input: UpdateBookComponentInput): BookComponent!
+  unlockBookComponent(input: UpdateBookComponentInput): BookComponent!
+  lockBookComponent(id: ID!, tabId: ID!, userAgent: String!): BookComponent!
+  podLockBookComponent(id: ID!, tabId: ID!, userAgent: String!): Book!
+  updateTrackChanges(input: UpdateBookComponentInput): BookComponent!
+  updateContent(input: UpdateBookComponentInput): BookComponent!
+  updateComponentType(input: UpdateBookComponentInput): BookComponent!
+  updateBookComponentParentId(input: UpdateBookComponentInput): BookComponent!
+  updateUploading(input: UpdateBookComponentInput): BookComponent!
+  toggleIncludeInTOC(input: UpdateBookComponentInput): BookComponent!
+  setBookComponentStatus(id: ID!, status: Int!): BookComponent!
+}
+
+extend type Subscription {
+  bookComponentAdded: ID!
+  bookComponentUpdated(id: ID!): ID!
+  bookComponentDeleted: ID!
+  bookComponentWorkflowUpdated: ID!
+  bookComponentPaginationUpdated: ID!
+  bookComponentTrackChangesUpdated: ID!
+  bookComponentLockUpdated: ID!
+  bookComponentsLockUpdated: [ID!]!
+  bookComponentTitleUpdated: ID!
+  bookComponentContentUpdated: ID!
+  bookComponentTypeUpdated: ID!
+  bookComponentUploadingUpdated: ID!
+  bookComponentTOCToggled: ID!
+  yjsContentUpdated(id: ID!): ID!
+}

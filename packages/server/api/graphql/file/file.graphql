@@ -1,0 +1,45 @@
+extend type File {
+  inUse: Boolean!
+}
+
+enum Order {
+  asc
+  desc
+}
+
+enum ImageTarget {
+  epub
+  pdf
+  icml
+  pagedjs
+  editor
+}
+
+input SortingParams {
+  key: String!
+  order: Order!
+}
+
+input EntityFilesInput {
+  entityId: ID!
+  sortingParams: [SortingParams]
+  includeInUse: Boolean
+}
+
+extend type Query {
+  getFiles: [File]!
+  getFile(id: ID!): File!
+  getSignedURL(operation: String!, filename: String!): SignedURLPayload!
+  getEntityFiles(input: EntityFilesInput): [File!]!
+  getSpecificFiles(ids: [ID!]!): [File!]!
+}
+extend type Mutation {
+  uploadFiles(files: [Upload]!, entityType: String, entityId: ID): [File]!
+  updateFile(input: UpdateFileInput!): File!
+  deleteFiles(ids: [ID!]!, remoteToo: Boolean): Int
+}
+extend type Subscription {
+  filesUploaded: Boolean
+  fileUpdated: ID!
+  filesDeleted: Boolean
+}

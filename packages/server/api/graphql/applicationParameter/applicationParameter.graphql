@@ -1,0 +1,32 @@
+scalar JSON
+
+type applicationParameter {
+  id: ID
+  context: String
+  area: String
+  config: JSON
+}
+
+input updateParametersInput {
+  context: String
+  area: String
+  config: String
+}
+
+extend type Query {
+  getApplicationParameters(
+    context: String
+    area: String
+  ): [applicationParameter!]!
+}
+
+extend type Mutation {
+  updateApplicationParameters(
+    input: updateParametersInput!
+  ): applicationParameter!
+  uploadTranslation(file: Upload, code: String): ID!
+}
+
+extend type Subscription {
+  updateApplicationParameters: ID!
+}

@@ -1,0 +1,37 @@
+module.exports = {
+  canAddBooks: 'can add books',
+  canAssignMembers: 'can assign members',
+  canViewAddTeamMember: 'can view add team member',
+  canRemoveTeamMember: 'can remove team member',
+  canViewFragmentEdit: 'can view fragmentEdit',
+  editor: {
+    canEditFull: 'can edit full',
+    canEditSelection: 'can edit selection',
+    canEditReview: 'can edit preview',
+    canAccessBook: 'can access book',
+    canToggleTrackChanges: 'can toggle track changes',
+  },
+  dashboard: {
+    canRenameBooks: 'can rename books',
+    canDeleteBooks: 'can delete books',
+    canArchiveBooks: 'can archive books',
+  },
+  bookBuilder: {
+    canViewTeamManager: 'can view teamManager',
+    canViewAddComponent: 'can view addComponent',
+    canViewUploadButton: 'can view uploadButton',
+    canViewAlignmentTool: 'can view alignmentTool',
+    canViewDeleteAction: 'can view deleteComponent',
+    canViewStateList: 'can view stateList',
+    canAccessBook: 'can access book',
+    canReorderBookComponent: 'can reorder bookComponents',
+    canViewMultipleFilesUpload: 'can view multipleFilesUpload',
+    exportBook: 'can view export book',
+    downloadEPUB: 'can view download epub',
+  },
+  workFlowStages: {
+    canChangeProgressList: 'can change progressList',
+    canChangeProgressListRight: 'can change progressList right',
+    canChangeProgressListLeft: 'can change progressList left',
+  },
+}

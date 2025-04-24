@@ -1,26 +1,16 @@
-/* stylelint-disable declaration-no-important */
-
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import { grid, th } from '@coko/client'
+import { grid } from '@coko/client'
 
-import { Link } from 'react-router-dom'
-
-import { Form, Button } from '../common'
+import { useTranslation } from 'react-i18next'
+import { Form, Button, Link } from '../common'
 
 const Wrapper = styled.div``
 
 const SubmitButton = styled(Button)`
-  background-color: ${th('colorAccept')};
   width: 100%;
-
-  &:hover,
-  &:focus,
-  &:active {
-    background-color: ${th('colorAccept')} !important;
-  }
 `
 
 const Footer = styled.div`
@@ -28,10 +18,6 @@ const Footer = styled.div`
   justify-content: ${props =>
     props.showForgotPassword ? 'space-between' : 'flex-end'};
   margin-top: ${grid(4)};
-
-  div:first-child {
-    padding-right: 20px;
-  }
 `
 
 const ForgotPassword = styled.div`
@@ -61,11 +47,16 @@ const AuthenticationForm = props => {
     onSubmit,
     showForgotPassword,
     submitButtonLabel,
+    /* eslint-disable-next-line react/prop-types */
+    form,
   } = props
+
+  const { t } = useTranslation()
 
   return (
     <Wrapper className={className}>
       <Form
+        form={form}
         layout="vertical"
         onFinish={onSubmit}
         ribbonMessage={errorMessage}
@@ -73,7 +64,7 @@ const AuthenticationForm = props => {
       >
         {children}
 
-        <SubmitButton htmlType="submit" loading={!!loading} type="primary">
+        <SubmitButton htmlType="submit" loading={loading} type="primary">
           {submitButtonLabel}
         </SubmitButton>
       </Form>
@@ -82,7 +73,9 @@ const AuthenticationForm = props => {
         <Footer showForgotPassword={showForgotPassword}>
           {showForgotPassword && (
             <ForgotPassword>
-              <Link to={forgotPasswordUrl}>Forgot your password?</Link>
+              <Link to={forgotPasswordUrl}>
+                {t('pages.login.links.forgotPassword')}
+              </Link>
             </ForgotPassword>
           )}
 

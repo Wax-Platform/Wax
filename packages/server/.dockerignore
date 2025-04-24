@@ -8,7 +8,6 @@ docker-compose*
 
 # npm & yarn
 node_modules
-packages/server/node_modules
 npm-debug.log
 package-lock.json
 yarn-error.log
@@ -20,18 +19,31 @@ yarn-error.log
 app.pid
 
 # environment files
-.env
-.env-ci
-.env.example
-.envrc
+.env*
 *.env
 
+# app
+_build/
+config/local*
+data/
+coverage/
+cypress/
+logs/
+stories/
+tmp/
+uploads/
+templates
+
+# Include README.md and LICENSE.md, exlcude the rest
+*.md
+!README.md
+!LICENSE.md
+
 # development config files
-.eslintrc.js
+# .eslintrc.js
 .commitlintrc.js
 .cz-config.js
 .gitlab-ci.yml
 .linstagedrc.js
-.prettierrc.js
+# .prettierrc.js
 .stylelintrc.js
-cypress.json

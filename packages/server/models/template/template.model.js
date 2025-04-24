@@ -1,56 +1,101 @@
-const { BaseModel, modelTypes, File } = require('@coko/server')
-const User = require('../user/user.model')
-const Doc = require('../doc/doc.model')
-const { idNullable } = require('@coko/server/src/models/_helpers/types')
-const { string, objectNullable, stringNullable } = modelTypes
+const { Model } = require('objection')
+const remove = require('lodash/remove')
+const Base = require('../ketidaBase')
 
-class Template extends BaseModel {
+const {
+  id,
+  stringNotEmpty,
+  string,
+  targetType,
+  notesType,
+  booleanDefaultFalse,
+  booleanDefaultTrue,
+} = require('../helpers').schema
+
+class Template extends Base {
+  constructor(properties) {
+    super(properties)
+    this.type = 'template'
+  }
+
   static get tableName() {
-    return 'templates'
+    return 'template'
+  }
+
+  static get schema() {
+    return {
+      type: 'object',
+      required: ['name'],
+      properties: {
+        name: stringNotEmpty,
+        referenceId: id,
+        thumbnailId: id,
+        author: string,
+        target: targetType,
+        trimSize: string,
+        default: booleanDefaultFalse,
+        exportScripts: {
+          type: ['object', 'array'],
+        },
+        notes: notesType,
+        url: string,
+        enabled: booleanDefaultTrue,
+      },
+    }
   }
 
   static get relationMappings() {
+    /* eslint-disable global-require */
+    const File = require('../file/file.model')
+    /* eslint-enable global-require */
     return {
-      user: {
-        relation: BaseModel.BelongsToOneRelation,
-        modelClass: User,
-        join: {
-          from: 'templates.userId',
-          to: 'users.id',
-        },
-      },
-      doc: {
-        relation: BaseModel.HasOneRelation,
-        modelClass: Doc,
-        join: {
-          from: 'templates.id',
-          to: 'docs.templateId',
-        },
-      },
-      file: {
-        relation: BaseModel.BelongsToOneRelation,
+      files: {
+        relation: Model.HasManyRelation,
         modelClass: File,
         join: {
-          from: 'templates.fileId',
+          from: 'template.id',
+          to: 'files.object_id',
+        },
+      },
+      thumbnail: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: File,
+        join: {
+          from: 'template.thumbnail_id',
           to: 'files.id',
         },
       },
     }
   }
 
-  static get schema() {
-    return {
-      properties: {
-        userId: idNullable,
-        docId: idNullable,
-        fileId: idNullable,
-        displayName: string,
-        category: string,
-        meta: objectNullable,
-        status: string,
-        rawCss: stringNullable,
-      },
-      required: [],
+  async getFiles(tr = undefined) {
+    const { thumbnailId } = this
+    const associatedFiles = await this.$relatedQuery('files', tr)
+
+    if (thumbnailId) {
+      remove(associatedFiles, file => file.id === thumbnailId)
+    }
+
+    remove(associatedFiles, file => file.deleted === true)
+    return associatedFiles
+  }
+
+  async getThumbnail(tr = undefined) {
+    /* eslint-disable global-require */
+    const File = require('../file/file.model')
+    /* eslint-enable global-require */
+
+    const { thumbnailId } = this
+
+    try {
+      if (thumbnailId) {
+        const file = await File.findById(thumbnailId, { trx: tr })
+        return file
+      }
+
+      return null
+    } catch (error) {
+      return null
     }
   }
 }

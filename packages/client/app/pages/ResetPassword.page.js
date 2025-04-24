@@ -2,10 +2,10 @@ import React from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { useMutation } from '@apollo/client'
 
-import { ResetPassword } from 'ui'
+import { ResetPassword } from '../ui'
 import { RESET_PASSWORD } from '../graphql'
 
-const ResetPasswordPage = props => {
+const ResetPasswordPage = () => {
   const history = useHistory()
   const { token } = useParams()
 
@@ -22,7 +22,7 @@ const ResetPasswordPage = props => {
       },
     }
 
-    resetPasswordMutation(mutationVariables)
+    resetPasswordMutation(mutationVariables).catch(msg => console.error(msg))
   }
 
   const redirectToLogin = () => {
@@ -39,9 +39,5 @@ const ResetPasswordPage = props => {
     />
   )
 }
-
-ResetPasswordPage.propTypes = {}
-
-ResetPasswordPage.defaultProps = {}
 
 export default ResetPasswordPage

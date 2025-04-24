@@ -1,0 +1,111 @@
+type ExportScript {
+  label: String!
+  value: String!
+  scope: String!
+}
+
+input ExportScriptInput {
+  label: String!
+  value: String!
+}
+
+extend type Query {
+  getExportScripts(scope: String): [ExportScript!]!
+}
+
+type Template {
+  id: ID!
+  name: String!
+  thumbnail: File
+  author: String
+  trimSize: String
+  target: String
+  notes: String
+  default: Boolean
+  files: [File]!
+  exportScripts: [ExportScript]!
+  updated: Date
+  lastUpdated: Date
+  url: String
+  enabled: Boolean
+  canBeDeleted: Boolean
+}
+
+input CreateTemplateInput {
+  name: String!
+  thumbnail: Upload
+  author: String
+  trimSize: String
+  target: String
+  notes: String
+  files: [Upload]!
+  exportScripts: [ExportScriptInput]!
+}
+
+input TemplatesWhereInput {
+  target: String!
+  trimSize: String
+  name: String
+}
+
+input ClonedTemplateInput {
+  id: ID!
+  bookId: ID!
+  name: String!
+  cssFile: String
+  hashed: String
+}
+
+input UpdateTemplateInput {
+  id: ID!
+  name: String!
+  thumbnail: Upload
+  deleteThumbnail: String
+  author: String
+  trimSize: String
+  target: String
+  notes: String
+  files: [Upload]!
+  deleteFiles: [String]!
+  exportScripts: [ExportScriptInput]!
+}
+
+input UpdateTemplateCSSFileInput {
+  id: ID!
+  bookId: ID
+  name: String
+  source: String
+  mimetype: String
+  data: String
+  hashed: String
+}
+
+extend type Query {
+  getTemplates(
+    ascending: Boolean
+    sortKey: String
+    target: String
+    notes: String
+  ): [Template]!
+  getTemplate(id: ID!): Template!
+  getSpecificTemplates(where: TemplatesWhereInput!): [Template!]!
+}
+
+extend type Mutation {
+  createTemplate(input: CreateTemplateInput): Template!
+  addTemplate(url: String): Int
+  refreshTemplate(url: String): Int
+  enableTemplate(url: String): Boolean
+  disableTemplate(url: String): Boolean
+  removeTemplate(url: String): Boolean
+  cloneTemplate(input: ClonedTemplateInput): ExportResult!
+  updateTemplate(input: UpdateTemplateInput): Template!
+  updateTemplateCSSFile(input: UpdateTemplateCSSFileInput!): ExportResult!
+  deleteTemplate(id: ID!): ID!
+}
+
+extend type Subscription {
+  templateCreated: ID!
+  templateDeleted: ID!
+  templateUpdated: ID!
+}

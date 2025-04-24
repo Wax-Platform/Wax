@@ -1,22 +1,32 @@
 import React from 'react'
-import { useMutation } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 
-import { Signup } from 'ui'
-import { SIGNUP } from '../graphql'
+import { Signup } from '../ui'
+import { SIGNUP, APPLICATION_PARAMETERS } from '../graphql'
 
-const SignupPage = props => {
+const SignupPage = () => {
+  const { data: { getApplicationParameters } = {} } = useQuery(
+    APPLICATION_PARAMETERS,
+    {
+      variables: {
+        context: 'bookBuilder',
+        area: 'termsAndConditions',
+      },
+    },
+  )
+
   const [signupMutation, { data, loading, error }] = useMutation(SIGNUP)
 
   const signup = formData => {
-    const { email, firstName, lastName, password } = formData
+    const { agreedTc, email, givenNames, surname, password } = formData
 
     const mutationData = {
       variables: {
         input: {
-          agreedTc: true,
+          agreedTc,
           email,
-          givenNames: firstName,
-          surname: lastName,
+          givenNames,
+          surname,
           password,
         },
       },
@@ -25,20 +35,20 @@ const SignupPage = props => {
     signupMutation(mutationData).catch(e => console.error(e))
   }
 
+  const termsAndConditions = getApplicationParameters?.find(
+    p => p.area === 'termsAndConditions',
+  )?.config
+
   return (
     <Signup
       errorMessage={error?.message}
       hasError={!!error}
       hasSuccess={!!data}
-      loading={!!loading}
+      loading={loading}
       onSubmit={signup}
-      // userEmail
+      termsAndConditions={termsAndConditions}
     />
   )
 }
-
-SignupPage.propTypes = {}
-
-SignupPage.defaultProps = {}
 
 export default SignupPage

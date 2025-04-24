@@ -9,6 +9,7 @@ docker-compose*
 # npm & yarn
 node_modules
 packages/server/node_modules
+packages/client/node_modules
 npm-debug.log
 package-lock.json
 yarn-error.log

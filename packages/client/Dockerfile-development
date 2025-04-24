@@ -1,6 +1,8 @@
-FROM cokoapps/base:18-latest
+FROM node:18.19.0-bullseye-slim
 
-WORKDIR /home/node/app
+RUN apt-get update && apt-get install -y ranger vim
+
+WORKDIR /home/node/client
 
 COPY package.json .
 COPY yarn.lock .
@@ -8,6 +10,10 @@ COPY yarn.lock .
 RUN chown -R node:node .
 USER node
 
-RUN yarn install --frozen-lockfile
+RUN yarn cache clean
+RUN yarn install --frozen-lockfile --production=false
 
-COPY --chown=node:node . .
+RUN yarn cypress cache clear
+
+COPY --chown=node:node app app
+COPY --chown=node:node static static

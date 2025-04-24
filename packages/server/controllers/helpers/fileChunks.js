@@ -1,10 +1,13 @@
-const { logger, fileStorage } = require('@coko/server')
+const { logger } = require('@coko/server')
 const mammoth = require('mammoth')
 const fs = require('fs')
 const path = require('path')
 const pdf2html = require('pdf2html')
+const XLSX = require('xlsx')
 const cheerio = require('cheerio')
+
 // const { getTokens } = require('../../api/helpers')
+const xlFileExtensions = ['xls', 'xlsb', 'xlsm', 'xlsx', 'xlt', 'xltm', 'xltx']
 
 const getBuffer = async file => {
   const { createReadStream } = await file
@@ -25,24 +28,6 @@ const getBuffer = async file => {
       reject(error)
     })
   })
-}
-
-const uploadFileFromUrl = async fileUrl => {
-  try {
-    const response = await fetch(fileUrl)
-
-    if (!response.ok || response.body) {
-      throw new Error('Invalid response or no body found')
-    }
-
-    const fileStream = response.body
-    const filename = path.basename(fileUrl)
-    const storedObjects = await fileStorage.upload(fileStream, filename, {})
-    logger.info(`URL: ${storedObjects[0]?.Key || ''}`)
-    return storedObjects
-  } catch (error) {
-    throw new Error('Failed to upload file:', error)
-  }
 }
 
 const splitFileContent = async (file, extension, maxLng = 10000) => {
@@ -102,9 +87,28 @@ const splitFileContent = async (file, extension, maxLng = 10000) => {
 
       return blocks
     },
+    xls: async () => {
+      const workbook = XLSX.read(buffer, { type: 'buffer' })
+      const sheetName = workbook.SheetNames[0]
+      const worksheet = workbook.Sheets[sheetName]
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+
+      const headers = jsonData[0]
+      const dataRows = jsonData.slice(1)
+
+      const content = dataRows
+        .map(row =>
+          headers.map((header, index) => `${header}: ${row[index]}`).join(', '),
+        )
+        .join('\n\n')
+
+      const headingPattern = /\n{2,}/g
+      return generateChunksFromText(content, headingPattern, maxLng, filename)
+    },
   }
 
-  const sections = await processors[extension]()
+  const ext = xlFileExtensions.includes(extension) ? 'xls' : extension
+  const sections = await processors[ext]()
   return sections
 }
 
@@ -137,7 +141,8 @@ function generateChunksFromText(content, headingPattern, maxLng, filename) {
   }
 
   const fragmentWithHeading = splittedByHeadings.flatMap((section, i) => {
-    const heading = headingMatch[i]?.trim() || section.split('\n')[0]
+    const heading =
+      (headingMatch && headingMatch[i]?.trim()) || section.split('\n')[0]
 
     const splitSections = splitByMaxLength(section, maxLng)
 
@@ -227,5 +232,4 @@ function generateChunksFromHtml(htmlContent, maxLng, filename) {
 module.exports = {
   splitFileContent,
   getBuffer,
-  uploadFileFromUrl,
 }

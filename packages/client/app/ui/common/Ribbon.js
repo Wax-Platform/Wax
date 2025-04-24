@@ -18,13 +18,16 @@ const Wrapper = styled.div`
       return props.theme.colorTextReverse
     return props.theme.colorText
   }};
-  padding: ${grid(0.5)} ${grid(2)};
+  opacity: 1;
+  padding: ${grid(1)} ${grid(2)};
   text-align: center;
+  transition: opacity 0.2s ease-in-out;
 
   /* stylelint-disable-next-line order/properties-alphabetical-order */
   ${props =>
     props.hide &&
     css`
+      opacity: 0;
       visibility: hidden;
     `}
 `

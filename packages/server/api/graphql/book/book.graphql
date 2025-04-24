@@ -1,0 +1,340 @@
+type Book {
+  id: ID!
+  authors: [User]
+  archived: Boolean!
+  bookSettings: BookSettings
+  bookStructure: BookStructure
+  collectionId: ID
+  copyrightStatement: String
+  copyrightYear: Int
+  copyrightHolder: String
+  divisions: [Division]!
+  edition: Int
+  isPublished: Boolean
+  isbn: String
+  issn: String
+  issnL: String
+  license: String
+  productionEditors: [String]
+  publicationDate: Date
+  title: String
+  subtitle: String
+  podMetadata: PODMetadata
+  # associatedTemplates: AssociatedTemplates
+  status: Int
+  thumbnailId: ID
+  thumbnailURL: String
+  webPublishInfo: WebPublishInfo
+  cover: [Cover]
+}
+
+type WebPublishInfo {
+  published: Boolean
+  firstPublished: Date
+  lastUpdated: Date
+  publicUrl: String
+  profileId: ID
+}
+
+type Cover {
+  fileId: ID
+  coverUrl: String
+  altText: String
+}
+
+# type AssociatedTemplates {
+#   pagedjs: [PreviewerConfiguration!]
+#   epub: PreviewerConfiguration
+# }
+
+# type PreviewerConfiguration {
+#   templateId: ID
+#   trimSize: String
+#   additionalExportOptions: AdditionalExportOptions
+# }
+
+# input AssociatedTemplatesInput {
+#   pagedjs: [PreviewerConfigurationInput!]
+#   epub: PreviewerConfigurationInput
+# }
+
+# input PreviewerConfigurationInput {
+#   templateId: ID!
+#   trimSize: String
+#   additionalExportOptions: AdditionalExportOptionsInput!
+# }
+
+type LicenseTypes {
+  NC: Boolean
+  SA: Boolean
+  ND: Boolean
+}
+
+input LicenseTypesInput {
+  NC: Boolean
+  SA: Boolean
+  ND: Boolean
+}
+
+type PODMetadata {
+  authors: String
+  bottomPage: String
+  copyrightLicense: String
+  isbns: [ISBN]
+  licenseTypes: LicenseTypes
+  ncCopyrightHolder: String
+  ncCopyrightYear: Date
+  publicDomainType: String
+  saCopyrightHolder: String
+  saCopyrightYear: Date
+  topPage: String
+}
+
+type ISBN {
+  isbn: String!
+  label: String!
+}
+
+input ISBNInput {
+  isbn: String!
+  label: String!
+}
+
+input PODMetadataInput {
+  authors: String
+  bottomPage: String
+  copyrightLicense: String
+  isbns: [ISBNInput]
+  licenseTypes: LicenseTypesInput
+  ncCopyrightHolder: String
+  ncCopyrightYear: Date
+  publicDomainType: String
+  saCopyrightHolder: String
+  saCopyrightYear: Date
+  topPage: String
+}
+
+input CreateBookInput {
+  collectionId: ID
+  title: String
+  addUserToBookTeams: [String!]
+}
+
+type AdditionalExportOptions {
+  includeTOC: Boolean
+  includeCopyrights: Boolean
+  includeTitlePage: Boolean
+  isbn: String
+}
+
+input AdditionalExportOptionsInput {
+  includeTOC: Boolean
+  includeCopyrights: Boolean
+  includeTitlePage: Boolean
+  includeCoverPage: Boolean
+  isbn: String
+  includePdf: Boolean
+  includeEpub: Boolean
+  pdfProfileId: ID
+  epubProfileId: ID
+  customHeader: String
+  customFooter: String
+}
+
+input ExportBookInput {
+  bookId: ID!
+  bookComponentId: ID!
+  templateId: ID
+  previewer: String
+  fileExtension: String
+  icmlNotes: String
+  additionalExportOptions: AdditionalExportOptionsInput
+}
+
+type ContentStructure {
+  id: ID!
+  type: String!
+  displayName: String!
+}
+
+input ContentStructureInput {
+  id: ID
+  type: String!
+  displayName: String!
+}
+
+type Level {
+  id: ID!
+  type: String!
+  displayName: String!
+  contentStructure: [ContentStructure!]!
+}
+
+input LevelInput {
+  id: ID
+  type: String!
+  displayName: String!
+  contentStructure: [ContentStructureInput]
+}
+
+type Outline {
+  id: ID!
+  title: String
+  parentId: ID!
+  type: String!
+  children: [Outline!]!
+}
+
+input OutlineInput {
+  id: ID!
+  title: String
+  parentId: ID!
+  type: String!
+  children: [OutlineInput]
+}
+
+type BookSettings {
+  id: ID
+  aiOn: Boolean
+  aiPdfDesignerOn: Boolean
+  freeTextPromptsOn: Boolean
+  customPrompts: [String]
+  customPromptsOn: Boolean
+  customTags: [String]
+  knowledgeBaseOn: Boolean
+  configurableEditorOn: Boolean
+  configurableEditorConfig: [String]
+}
+
+input BookSettingsInput {
+  aiOn: Boolean
+  aiPdfDesignerOn: Boolean
+  freeTextPromptsOn: Boolean
+  customPrompts: [String]
+  customPromptsOn: Boolean
+  customTags: [String]
+  knowledgeBaseOn: Boolean
+  configurableEditorOn: Boolean
+  configurableEditorConfig: [String]
+}
+
+type BookStructure {
+  id: ID!
+  levels: [Level!]!
+  outline: [Outline!]!
+  finalized: Boolean!
+  showWelcome: Boolean!
+}
+
+input BookStructureInput {
+  id: ID!
+  numberOfLevels: Int
+  levels: [LevelInput]
+  outline: [OutlineInput]
+}
+
+type PagedPreviewerLink {
+  link: String!
+}
+
+type BookResponse {
+  result: [Book!]!
+  totalCount: Int
+}
+
+input OrderByInput {
+  column: String!
+  order: Order!
+}
+
+input BookPageInput {
+  archived: Boolean!
+  pageSize: Int
+  page: Int
+  orderBy: OrderByInput
+}
+
+input MetadataInput {
+  id: ID!
+  publicationDate: Date
+  edition: Int
+  copyrightStatement: String
+  copyrightYear: Int
+  copyrightHolder: String
+  isbn: String
+  issn: String
+  issnL: String
+  license: String
+}
+
+input RunningHeadersInput {
+  id: ID!
+  runningHeadersRight: String
+  runningHeadersLeft: String
+}
+
+input PagedPreviewerOptions {
+  doublePageSpread: Boolean
+  backgroundColor: String
+  zoomPercentage: Float
+}
+
+type ExportResult {
+  path: String!
+  validationResult: String
+}
+
+type CreateBookResponse {
+  book: Book!
+  newUserTeam: Team
+}
+
+extend type Query {
+  getBook(id: ID!): Book!
+  getPagedPreviewerLink(
+    hash: String!
+    previewerOptions: PagedPreviewerOptions
+  ): PagedPreviewerLink!
+  getBooks(options: BookPageInput!): BookResponse!
+}
+
+extend type Mutation {
+  archiveBook(id: ID!, archive: Boolean!): Book!
+  createBook(input: CreateBookInput!): CreateBookResponse!
+  renameBook(id: ID!, title: String!): Book!
+  updateSubtitle(id: ID!, subtitle: String): Book!
+  deleteBook(id: ID!): Book!
+  updateMetadata(input: MetadataInput!): Book!
+  updatePODMetadata(bookId: ID!, metadata: PODMetadataInput!): Book!
+  changeLevelLabel(bookId: ID!, levelId: ID!, label: String!): Level!
+  changeNumberOfLevels(bookId: ID!, levelsNumber: Int!): [Level!]!
+  updateLevelContentStructure(bookId: ID!, levels: [LevelInput!]!): [Level!]!
+  updateBookOutline(bookId: ID!, outline: [OutlineInput!]!): BookStructure!
+  updateBookSettings(bookId: ID!, settings: BookSettingsInput!): BookSettings!
+  updateBookStructure(input: BookStructureInput!): BookStructure!
+  updateRunningHeaders(input: [RunningHeadersInput!]!, bookId: ID!): Book!
+  updateShowWelcome(bookId: ID!): Book!
+  finalizeBookStructure(bookId: ID!): ID!
+  exportBook(input: ExportBookInput!): ExportResult!
+  publishOnline(input: ExportBookInput!, profileId: ID!): ExportResult!
+  unpublishOnline(bookId: ID!): Boolean!
+  # updateAssociatedTemplates(
+  #   bookId: ID!
+  #   associatedTemplates: AssociatedTemplatesInput!
+  # ): Book!
+  updateBookStatus(bookId: ID!, status: Int!): Book!
+  uploadBookThumbnail(bookId: ID!, file: Upload): Book!
+  uploadBookCover(bookId: ID!, file: Upload): Book!
+  updateCoverAlt(bookId: ID!, coverAlt: String): Book!
+}
+
+extend type Subscription {
+  bookArchived: ID!
+  bookCreated: ID!
+  bookDeleted: ID!
+  bookRenamed: ID!
+  bookMetadataUpdated: ID!
+  bookRunningHeadersUpdated: ID!
+  bookSettingsUpdated: ID!
+  bookUpdated(id: ID!): ID!
+}

@@ -1,7 +1,6 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { th } from '@coko/client'
 import { Input as AntInput } from 'antd'
 import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined'
 import EyeOutlined from '@ant-design/icons/EyeOutlined'
@@ -19,18 +18,9 @@ const NoStyleButton = styled.button`
   border: none;
 `
 
-const StyledPassword = styled(AntInput.Password)`
-  transition: outline 0s;
+const StyledPassword = styled(AntInput.Password)``
 
-  :has(input:focus) {
-    box-shadow: 0 0 2px ${th('colorPrimary')};
-    outline: ${props => `${props.theme.lineWidth * 4}`}px solid
-      ${th('colorPrimaryBorder')};
-    outline-offset: 1px;
-  }
-`
-
-const Input = props => {
+const Input = forwardRef((props, ref) => {
   const { className, onChange, type, passwordIconRender, ...rest } = props
 
   const handleChange = e => onChange && onChange(e.target.value)
@@ -50,18 +40,21 @@ const Input = props => {
 
   return (
     <Wrapper className={className}>
-      {type !== 'password' && <StyledInput onChange={handleChange} {...rest} />}
+      {type !== 'password' && (
+        <StyledInput onChange={handleChange} ref={ref} {...rest} />
+      )}
 
       {type === 'password' && (
         <StyledPassword
           iconRender={passwordIconRender || defaultPasswordIconRender}
           onChange={handleChange}
+          ref={ref}
           {...rest}
         />
       )}
     </Wrapper>
   )
-}
+})
 
 Input.propTypes = {
   /** optional icon for reveal/hide password */

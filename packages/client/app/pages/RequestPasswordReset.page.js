@@ -1,10 +1,10 @@
 import React from 'react'
 import { useMutation } from '@apollo/client'
 
-import { RequestPasswordReset } from 'ui'
+import { RequestPasswordReset } from '../ui'
 import { REQUEST_PASSWORD_RESET } from '../graphql'
 
-const RequestPasswordResetPage = props => {
+const RequestPasswordResetPage = () => {
   const [emailUsed, setEmailUsed] = React.useState(null)
 
   const [requestPasswordResetMutation, { data, loading, error }] = useMutation(
@@ -23,15 +23,11 @@ const RequestPasswordResetPage = props => {
     <RequestPasswordReset
       hasError={!!error}
       hasSuccess={!!data}
-      loading={!!loading}
+      loading={loading}
       onSubmit={requestPasswordReset}
       userEmail={emailUsed}
     />
   )
 }
-
-RequestPasswordResetPage.propTypes = {}
-
-RequestPasswordResetPage.defaultProps = {}
 
 export default RequestPasswordResetPage

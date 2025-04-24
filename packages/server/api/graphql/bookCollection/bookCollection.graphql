@@ -1,0 +1,27 @@
+type BookCollection {
+  id: ID!
+  title: String!
+  books(ascending: Boolean, sortKey: String, archived: Boolean): [Book]!
+}
+
+input BookCollectionInput {
+  id: ID!
+}
+
+input NewBookCollectionInput {
+  title: String!
+}
+
+extend type Query {
+  getBookCollection(input: BookCollectionInput!): BookCollection!
+  getBookCollections: [BookCollection!]!
+  # getBookCollections(archivedBooks:Boolean!, deletedBooks:Boolean!): [BookCollection]!
+}
+
+extend type Mutation {
+  createBookCollection(input: NewBookCollectionInput!): BookCollection!
+}
+
+extend type Subscription {
+  collectionAdded: ID!
+}

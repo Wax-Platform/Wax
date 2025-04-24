@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 
-import { H4 } from '../common'
+import { H1 } from '../common'
 
-const Title = styled(H4)`
+const Title = styled(H1)`
   text-align: center;
 `
 

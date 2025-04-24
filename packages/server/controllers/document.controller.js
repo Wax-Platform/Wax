@@ -1,16 +1,20 @@
 /* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable no-restricted-syntax */
 const { useTransaction, logger, fileStorage } = require('@coko/server')
 const crypto = require('crypto')
 const { emptyUndefinedOrNull } = require('@coko/server/src/helpers')
 const config = require('config')
 const AWS = require('aws-sdk')
 const { list } = require('@coko/server/src/services/fileStorage')
-const { Document, Embedding } = require('../models')
+const { Document, Embedding } = require('../models').models
 const { splitFileContent } = require('./helpers/fileChunks')
 
-const { safeId } = require('../utilities/utils')
+const { embeddings } = require('./openAi.controller')
+const { safeKey } = require('../utilities/utils')
 
-const createDocument = async ({ file, maxLng }, options = {}) => {
+const KB_FILES_DIRNAME = 'kbfiles'
+
+const createDocument = async ({ file, maxLng, bookId }, options = {}) => {
   try {
     const { trx } = options
 
@@ -22,16 +26,25 @@ const createDocument = async ({ file, maxLng }, options = {}) => {
           const { filename } = await file
           const extension = filename.split('.').pop()
           const originalDirName = filename.replace(`.${extension}`, '')
+          logger.info(`EXTENSION: ${JSON.stringify(extension)}`)
           const allObjects = await list()
 
-          let dirName = originalDirName
+          const existingKeys = allObjects.Contents.map(so => so.Key)
 
-          const dirnameExists = allObjects.Contents.map(
-            so => so.Key.split('/')[0],
-          ).find(objK => objK.includes(`${dirName}`))
+          let dirName = await safeKey(originalDirName, existingKeys)
 
-          if (dirnameExists) {
-            dirName = safeId(dirName, dirnameExists)
+          const currentDocuments = await Document.find({ bookId })
+          const docNames = currentDocuments.result.map(doc => doc.name)
+
+          if (docNames.find(n => n === dirName)) {
+            let prefix = 1
+            const newKey = () => `${dirName}(${prefix})`
+
+            while (docNames.find(n => n === newKey())) {
+              prefix += 1
+            }
+
+            dirName = newKey()
           }
 
           const sections = await splitFileContent(file, extension, maxLng)
@@ -39,7 +52,7 @@ const createDocument = async ({ file, maxLng }, options = {}) => {
           const uploadedChunks = await Promise.all(
             sections.map(section => {
               const hashedFilename = crypto.randomBytes(6).toString('hex')
-              const forceObjectKeyValue = `${dirName}/${hashedFilename}.txt`
+              const forceObjectKeyValue = `${KB_FILES_DIRNAME}/${dirName}/${hashedFilename}.txt`
               return fileStorage.upload(
                 section.fragment,
                 `${hashedFilename}.txt`,
@@ -50,24 +63,33 @@ const createDocument = async ({ file, maxLng }, options = {}) => {
             }),
           )
 
-          // eslint-disable-next-line global-require
-          const { generateEmbeddings } = require('./aiService.controller')
-
           logger.info(`Generating Embeddings`)
-          await Promise.all(
-            sections.map(({ fragment, heading, fragmentIndex }, i) =>
-              generateEmbeddings(fragment).then(data => {
-                Embedding.insertNewEmbedding({
-                  embedding: JSON.parse(data).data[0].embedding,
-                  storedObjectKey: uploadedChunks[i][0].key,
-                  filename: dirName,
-                  section: heading,
-                  index: fragmentIndex,
-                  trx: tr,
-                })
-              }),
-            ),
-          )
+
+          const splitSections = []
+          const size = 20
+
+          for (let i = 0; i < sections.length; i += size) {
+            splitSections.push(sections.slice(i, i + size))
+          }
+
+          for await (const partial of splitSections) {
+            await Promise.all(
+              partial.map(({ fragment, heading, fragmentIndex }, i) =>
+                embeddings(fragment).then(data =>
+                  Embedding.insertNewEmbedding({
+                    bookId,
+                    embedding: JSON.parse(data).data[0].embedding,
+                    storedObjectKey: uploadedChunks[i][0].key,
+                    filename: dirName,
+                    section: heading,
+                    index: fragmentIndex,
+                    trx: tr,
+                  }),
+                ),
+              ),
+            )
+          }
+
           logger.info(`Embeddings generated successfully`)
 
           const sectionsKeys = sections.map((_, i) => uploadedChunks[i][0].key)
@@ -76,6 +98,7 @@ const createDocument = async ({ file, maxLng }, options = {}) => {
             dirName,
             extension,
             sectionsKeys,
+            bookId,
             tr,
           )
 
@@ -93,10 +116,10 @@ const createDocument = async ({ file, maxLng }, options = {}) => {
   }
 }
 
-const getDocuments = async () => {
+const getDocuments = async bookId => {
   try {
     logger.info(`Get documents`)
-    return Document.getAlldocuments()
+    return Document.getAlldocuments(bookId)
   } catch (e) {
     logger.error(`Error creating document: ${e.message}`)
     throw new Error(e)

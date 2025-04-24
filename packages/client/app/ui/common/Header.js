@@ -1,293 +1,292 @@
-/* stylelint-disable string-quotes, declaration-no-important */
-import React, { useContext, useEffect } from 'react'
+/* stylelint-disable declaration-no-important */
+/* stylelint-disable string-quotes */
+/* stylelint-disable value-list-comma-newline-after */
+import React from 'react'
+import { Link, useHistory } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import styled, { css } from 'styled-components'
-import logoMobile from '../../../static/waxdesignerwhite.svg'
-import { useAiDesignerContext } from '../component-ai-assistant/hooks/AiDesignerContext'
-import Toggle from '../component-ai-assistant/components/Toggle'
-import { DocumentContext } from '../dashboard/hooks/DocumentContext'
-import { CleanButton, FlexCol, FlexRow } from '../_styleds/common'
-import PathRender from '../dashboard/MainMenu/PathRender'
-import { objIf } from '../../shared/generalUtils'
-import {
-  RedoIcon,
-  RefreshIcon,
-  UndoIcon,
-} from '../component-ai-assistant/utils'
-import { PrinterOutlined, SaveOutlined } from '@ant-design/icons'
-import { TemplatesDropdown } from '../dashboard/MainMenu/TemplatesDropdown'
-import { debounce } from 'lodash'
+import styled from 'styled-components'
+import { grid, th } from '@coko/client'
+import { Avatar } from 'antd'
+import Popup from '@coko/client/dist/ui/common/Popup'
+import { useTranslation } from 'react-i18next'
+import Button from './Button'
+import { LanguageSwitcher } from '../languageSwitcher'
 
 // #region styles
 const StyledHeader = styled.header`
   align-items: center;
-  background: var(--color-trois-lightest-2);
+  background-color: ${th('colorBody')};
+  border-bottom: ${th('borderWidth')} ${th('borderStyle')} ${th('colorBorder')};
   display: flex;
-  height: var(--header-height);
-  justify-content: space-between;
-  padding: 0 10px 0 0;
-  position: relative;
-  z-index: 999;
+  height: 48px;
+  justify-content: flex-start;
+  padding: ${grid(1)};
+  width: 100%;
+  z-index: 9;
 `
 
-const Logo = styled.img`
-  display: flex;
-  height: 100%;
-  margin: 0;
-  object-fit: contain;
-  padding-inline: 5px 12px;
-`
-
-const UserMenu = styled.div`
+const Navigation = styled.nav`
   align-items: center;
+  background-color: ${th('colorBody')};
   display: flex;
-  gap: 11px;
   height: 100%;
   justify-content: space-between;
+  width: calc(100vw - 56px);
+`
 
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
+const BookTitle = styled.h1`
+  flex-grow: 1;
+  font-size: ${th('fontSizeLarge')};
+  font-weight: bold;
+  overflow: hidden;
+  padding: ${grid(2)};
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
-    img {
-      height: 22px;
-      object-fit: contain;
-      width: 22px;
-    }
-  }
-
-  > :last-child {
-    align-items: center;
-    border-left: 1px solid #0001;
-    display: flex;
-    gap: 10px;
-    line-height: 1;
-    padding: 0.7rem 20px;
+  &[data-pad-left='true'] {
+    padding-inline-start: 90px;
   }
 `
-const DocumentInfoArea = styled(FlexCol)`
-  border-left: 1px solid #0001;
-  gap: 2px;
-  height: 100%;
-  line-height: 1;
-  padding: 0 20px;
 
-  > p {
-    color: #222;
-    font-size: 15px;
-    margin: 0;
-  }
+const BrandingContainer = styled.div`
+  margin-right: ${grid(2)};
+`
 
-  > small {
-    font-size: 10px;
+const UnstyledLink = styled(Link)`
+  align-items: center;
+  border-radius: ${th('borderRadius')};
+  color: inherit;
+  display: inline-flex;
+  justify-content: center;
+  min-block-size: 32px;
+  padding: 4px;
+  text-decoration: none;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: rgba(105 105 105 / 6%);
+    color: inherit;
     text-decoration: none;
   }
 `
 
-const EditDesignLabels = styled(CleanButton)`
-  color: ${p =>
-    p.$active ? p.$activecolor ?? 'var(--active-color)' : '#0004'};
-  font-weight: bold;
-  transform: scale(${p => (p.$active ? '1' : '0.9')});
-  transform-origin: center;
-  transition: all 0.3s;
+const BrandLogo = styled.img`
+  height: 36px;
 `
 
-const DesignerActions = styled(FlexRow)`
-  /* background: var(--color-trois-lightest); */
-  border-radius: 1rem;
-  bottom: -40px;
-  gap: 12px;
-  height: 30px;
-  justify-content: center;
-  max-width: ${p => (p.$designerOn ? '300px' : '0')};
-  opacity: ${p => (p.$designerOn ? '1' : '0')};
-  padding: 0 0.5rem;
-  pointer-events: ${p => (p.$designerOn ? 'all' : 'none')};
-  /* position: absolute; */
-  /* right: 40px; */
-  transition: all 0.3s;
-  z-index: 88;
+const BrandLabel = styled.div`
+  font-size: ${th('fontSizeLarge')};
+  font-weight: bold;
+`
 
-  button {
-    padding: 0;
+const StyledPopup = styled(Popup)`
+  border: 1px solid ${th('colorBorder')};
+  border-block-start: none;
+  border-radius: 0;
+  box-shadow: 0 6px 16px 0 rgb(0 0 0 / 8%), 0 3px 6px -4px rgb(0 0 0 / 12%),
+    0 9px 28px 8px rgb(0 0 0 / 5%);
+  margin-top: ${grid(1)};
+  padding: 5px;
+
+  &::before,
+  &::after {
+    background-color: inherit;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    content: '';
+    height: 7px;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    right: 12px;
+    top: -7px;
+    width: 16px;
+    z-index: 1;
   }
 
-  svg {
-    fill: var(--color-trois-opaque);
-    height: 16px;
-    transform: ${p => (p.$designerOn ? 'scale(1)' : 'scale(0)')};
-    transition: all 0.3s;
-    width: 16px;
+  &::before {
+    background-color: ${th('colorBorder')};
+    top: -8px;
+  }
+`
+
+const StyledAvatar = styled(Avatar)`
+  display: grid;
+  font-weight: bold;
+  place-content: center;
+`
+
+const PopupContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    background-color: transparent;
+    border: none;
+    padding: 5px 12px;
+
+    &:focus,
+    &:hover {
+      background-color: rgb(105 105 105 / 4%);
+      color: inherit !important;
+      outline: none;
+    }
   }
 `
 // #endregion styles
 
+const getInitials = fullname => {
+  const deconstructName = fullname.split(' ')
+  return `${deconstructName[0][0].toUpperCase()}${
+    deconstructName[1][0] && deconstructName[1][0].toUpperCase()
+  }`
+}
+
 const Header = props => {
   const {
-    loggedin,
-    canManageUsers,
-    canManageTeams,
-    currentPath,
-    displayName,
+    homeURL,
+    brandLabel,
+    brandLogoURL,
+    canAccessAdminPage,
     onLogout,
-    enableLogin,
+    userDisplayName,
+    showDashboard,
+    dashboardURL,
+    showBackToBook,
+    backToBookURL,
+    previewURL,
+    dropdownItems,
+    languages,
+    bookTitle,
     ...rest
   } = props
 
-  const {
-    designerOn,
-    setDesignerOn,
-    updateLayout,
-    layout,
-    previewRef,
-    updatePreview,
-    onHistory,
-    css,
-  } = useAiDesignerContext()
+  const history = useHistory()
 
-  const { currentDoc } = useContext(DocumentContext)
+  const { t } = useTranslation(null, {
+    keyPrefix: 'pages.common.header.menu.options',
+  })
 
-  const toggleDesigner = () => {
-    setDesignerOn(!designerOn)
-    !designerOn
-      ? updateLayout({
-          preview: true,
-          editor: false,
-        })
-      : updateLayout({
-          preview: false,
-          editor: true,
-          ...objIf(layout.userMenu, {
-            snippetsManager: false,
-            codeEditor: false,
-            files: true,
-          }),
-        })
-    updatePreview(true, css)
+  const navItemsLeft = []
+
+  if (showBackToBook) {
+    navItemsLeft.push(
+      <UnstyledLink
+        data-test="header-back-link"
+        key="back"
+        style={{ position: 'absolute' }}
+        to={`/`}
+      >
+        {t('backToBook')}
+      </UnstyledLink>,
+    )
   }
 
   return (
-    <StyledHeader
-      role="banner"
-      style={objIf(!currentDoc?.title, { justifyContent: 'flex-start' })}
-      {...rest}
-    >
-      <FlexRow style={{ gap: '0', height: '100%' }}>
-        <Logo src={logoMobile} alt="Wax platform"></Logo>
-        {currentDoc?.title && (
-          <DocumentInfoArea>
-            <small>Document:</small>
-            <p>{currentDoc?.title}</p>
-          </DocumentInfoArea>
+    <StyledHeader role="banner" {...rest}>
+      <BrandingContainer>
+        <UnstyledLink data-test="header-logo-link" to={homeURL}>
+          {brandLogoURL ? (
+            <BrandLogo alt={brandLabel} src={brandLogoURL} />
+          ) : (
+            <BrandLabel>{brandLabel}</BrandLabel>
+          )}
+        </UnstyledLink>
+      </BrandingContainer>
+      <Navigation role="navigation">
+        {navItemsLeft.map(el => el)}
+        <BookTitle data-pad-left={showBackToBook}>{bookTitle}</BookTitle>
+        {userDisplayName ? (
+          <StyledPopup
+            alignment="end"
+            position="block-end"
+            toggle={
+              <Button type="text">
+                <StyledAvatar data-test="avatar-initials">
+                  {getInitials(userDisplayName)}
+                </StyledAvatar>
+              </Button>
+            }
+          >
+            <PopupContentWrapper>
+              <LanguageSwitcher languages={languages} />
+              <UnstyledLink
+                to={homeURL}
+                onClick={() => {
+                  history.push('/')
+                }}
+              >
+                Editor
+              </UnstyledLink>
+              {canAccessAdminPage && (
+                <>
+                  <UnstyledLink
+                    data-test="header-admin-link"
+                    onClick={() => {
+                      document.querySelector('#main-content').focus()
+                    }}
+                    to="/admin"
+                  >
+                    {t('admin')}
+                  </UnstyledLink>
+                  <UnstyledLink
+                    data-test="header-admin-link"
+                    onClick={() => {
+                      document.querySelector('#main-content').focus()
+                    }}
+                    to="/template-manager"
+                  >
+                    Templates
+                  </UnstyledLink>
+                </>
+              )}
+              <Button data-test="logout-button" onClick={onLogout}>
+                {t('logout')}
+              </Button>
+            </PopupContentWrapper>
+          </StyledPopup>
+        ) : (
+          <LanguageSwitcher languages={languages} />
         )}
-      </FlexRow>
-      {currentDoc?.title && (
-        <UserMenu $designerOn={designerOn}>
-          <DesignerActions $designerOn={designerOn}>
-            <UndoIcon
-              onClick={() => onHistory.apply('undo')}
-              title="Undo (Ctrl + z)"
-            />
-            <RedoIcon
-              onClick={() => onHistory.apply('redo')}
-              title="Redo (Ctrl + y)"
-            />
-            <RefreshIcon
-              onClick={updatePreview}
-              title="Update preview"
-              type="button"
-            />
-            <PrinterOutlined
-              as="button"
-              onClick={() => {
-                const body = previewRef?.current?.contentDocument.body
-                console.log({
-                  body,
-                })
-                body && (body.style.transform = 'scale(1)')
-                body && (body.style.padding = '0')
-                const selected = body.querySelectorAll('.selected-id')
-                selected.forEach(el => el.classList.remove('selected-id'))
-
-                previewRef?.current?.contentWindow?.print()
-                if (body) {
-                  selected.forEach(el => el.classList.add('selected-id'))
-                  body.style.padding = '50px 0 50px 50px'
-                  layout.userMenu
-                    ? (body.style.transform = 'scale(0.8)')
-                    : (body.style.transform = 'scale(1)')
-                }
-              }}
-              title="Print"
-              type="button"
-            />
-          </DesignerActions>
-          <FlexRow>
-            <EditDesignLabels $active={!designerOn} $activecolor="#222">
-              Edit
-            </EditDesignLabels>
-            <Toggle
-              handleChange={() => toggleDesigner()}
-              checked={designerOn}
-            />
-            <EditDesignLabels
-              $active={designerOn}
-              $activecolor="var(--color-trois)"
-            >
-              Design
-            </EditDesignLabels>
-          </FlexRow>
-        </UserMenu>
-      )}
+      </Navigation>
     </StyledHeader>
   )
 }
 
 Header.propTypes = {
-  loggedin: PropTypes.bool,
-  currentPath: PropTypes.string.isRequired,
-  // user: PropTypes.shape(),
-  canManageUsers: PropTypes.bool,
-  canManageTeams: PropTypes.bool,
-  displayName: PropTypes.string,
-  enableLogin: PropTypes.bool,
-  links: PropTypes.shape({
-    homepage: PropTypes.string,
-    questions: PropTypes.string,
-    dashboard: PropTypes.string,
-    lists: PropTypes.string,
-    about: PropTypes.string,
-    learning: PropTypes.string,
-    manageUsers: PropTypes.string,
-    manageTeams: PropTypes.string,
-    profile: PropTypes.string,
-    login: PropTypes.string,
-  }),
-  onLogout: PropTypes.func,
+  brandLabel: PropTypes.string.isRequired,
+  brandLogoURL: PropTypes.string,
+  canAccessAdminPage: PropTypes.bool,
+  homeURL: PropTypes.string.isRequired,
+  userDisplayName: PropTypes.string.isRequired,
+  onLogout: PropTypes.func.isRequired,
+  showBackToBook: PropTypes.bool.isRequired,
+  showDashboard: PropTypes.bool,
+  dashboardURL: PropTypes.string,
+  backToBookURL: PropTypes.string,
+  bookTitle: PropTypes.string,
+  previewURL: PropTypes.string,
+  dropdownItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      key: PropTypes.string.isRequired,
+      onClickHandler: PropTypes.func.isRequired,
+    }),
+  ),
+  languages: PropTypes.arrayOf(PropTypes.shape({})),
 }
 
 Header.defaultProps = {
-  loggedin: false,
-  // user: {},
-  canManageUsers: false,
-  canManageTeams: false,
-  displayName: 'User',
-  enableLogin: false,
-  onLogout: () => {},
-  links: {
-    homepage: '#',
-    questions: '#',
-    dashboard: '#',
-    lists: '#',
-    about: '#',
-    learning: '#',
-    manageUsers: '#',
-    manageTeams: '#',
-    profile: '#',
-    login: '#',
-  },
+  brandLogoURL: null,
+  canAccessAdminPage: false,
+  dropdownItems: [],
+  dashboardURL: null,
+  backToBookURL: null,
+  previewURL: null,
+  languages: [],
+  showDashboard: true,
+  bookTitle: '',
 }
 
 export default Header

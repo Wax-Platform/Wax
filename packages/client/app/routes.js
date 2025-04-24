@@ -1,198 +1,170 @@
-/* eslint-disable react/function-component-definition */
-import React, { useContext, useEffect, useState } from 'react'
-import {
-  Route,
-  Switch,
-  Redirect,
-  useLocation,
-  useHistory,
-} from 'react-router-dom'
-import styled from 'styled-components'
+/* stylelint-disable no-descending-specificity */
+
+import React, { useState, useEffect, Suspense, useContext } from 'react'
+import { useApolloClient, useQuery } from '@apollo/client'
+import { Route, Switch, useHistory, Redirect } from 'react-router-dom'
+import styled, { createGlobalStyle } from 'styled-components'
+import { useTranslation } from 'react-i18next'
+import { ConfigProvider } from 'antd'
+import { CURRENT_USER } from '@coko/client/dist/helpers/currentUserQuery'
 
 import {
   Authenticate,
   PageLayout as Page,
   RequireAuth,
+  th,
   useCurrentUser,
+  ProviderConnectionPage,
 } from '@coko/client'
 
-import GlobalStyles from './globalStyles'
-import { Header, VisuallyHiddenElement, Spin, ContextMenu } from './ui/common'
-
-import { YjsProvider } from './yjsProvider'
+import theme from './theme'
+import { isAdmin } from './helpers/permissions'
+import Header from './ui/common/Header'
 
 import {
-  Dashboard,
-  Login,
-  Signup,
-  VerifyEmail,
-  RequestPasswordReset,
-  ResetPassword,
-  VerifyCheck,
+  ImportPage,
+  LoginPage,
+  ProducerPage,
+  ExporterPage,
+  RequestPasswordResetPage,
+  RequestVerificationEmailPage,
+  UnverifiedUserPage,
+  ResetPasswordPage,
+  SignupPage,
+  VerifyEmailPage,
+  AiPDFDesignerPage,
+  AdminPage,
+  CreateBook,
+  KnowledgeBasePage,
+  TemplateMananger,
 } from './pages'
 
-import { CURRENT_USER } from './graphql'
-import {
-  AiDesignerProvider,
-  useAiDesignerContext,
-} from './ui/component-ai-assistant/hooks/AiDesignerContext'
-import {
-  DocumentContextProvider,
-  useDocumentContext,
-} from './ui/dashboard/hooks/DocumentContext'
-import { ModalProvider } from './hooks/modalContext'
-import ContextModal from './ui/common/ContextModal'
-const StyledContextMenu = styled(ContextMenu)`
-  --svg-fill: var(--color-trois-opaque-2);
-  margin: 0;
+import { APPLICATION_PARAMETERS } from './graphql'
+import { CssAssistantProvider } from './ui/AiPDFDesigner/hooks/CssAssistantContext'
+import { GlobalContextProvider } from './helpers/hooks/GlobalContext'
 
-  li > button {
-    gap: 8px;
-    padding-block: 2px;
+import { YjsProvider } from './ui/provider-yjs/YjsProvider'
+import DocumentContext, {
+  DocumentProvider,
+} from './ui/documentProvider/DocumentProvider'
 
-    svg {
-      fill: var(--color-trois-opaque);
-    }
-  }
-`
 const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 104dvh;
+  height: 100%;
 `
 
-const regexPaths = [
-  {
-    path: /^\/dashboard$/,
-    name: 'Dashboard page',
-  },
-  {
-    path: /^\/login+/,
-    name: 'Login page',
-  },
-  {
-    path: /^\/signup$/,
-    name: 'Signup page',
-  },
-  {
-    path: /^\/email-verification\/[A-Za-z0-9-]+$/,
-    name: 'Verify email',
-  },
-  {
-    path: /^\/request-password-reset$/,
-    name: 'Request Password Reset page',
-  },
-  {
-    path: /^\/password-reset\/[A-Za-z0-9-]+$/,
-    name: 'Reset Password page',
-  },
-  {
-    path: /^\/ensure-verified-login$/,
-    name: 'Email Not Verified page',
-  },
-]
+const GlobalStyle = createGlobalStyle`
+  #root {
+    > div.ant-spin-nested-loading {
+      height: 100%;
 
-const Layout = props => {
-  const { children, id } = props
-  const history = useHistory()
-
-  useEffect(() => {
-    const path = history.location.pathname
-    const title = regexPaths.find(p => p.path.test(path))
-
-    if (title) {
-      document.title = `${title?.name} - Wax`
+      > div.ant-spin-container {
+        height: 100%;
+      }
     }
 
-    const unlisten = history.listen(val => {
-      const pathName = val.pathname
-      const pathTitle = regexPaths.find(p => p.path.test(pathName))
-
-      if (pathTitle) {
-        document.getElementById('page-announcement').innerHTML = pathTitle?.name
-
-        document.title = `${pathTitle?.name} - Wax`
+    *:not([contenteditable="true"]) {
+      &:focus {
+        outline: none;
       }
-    })
 
-    return unlisten
-  }, [])
+      &:focus-visible:not(#ai-overlay input) {
+        outline: 2px solid ${th('colorOutline')};
+      }
+    }
+  }
 
-  return (
-    <LayoutWrapper id={id}>
-      {children}
-      <VisuallyHiddenElement
-        aria-live="polite"
-        as="div"
-        id="page-announcement"
-        role="status"
-      />
-    </LayoutWrapper>
-  )
+  .ant-tooltip .ant-tooltip-arrow::before {
+    clip-path: polygon(0 100%, 50% 0%, 100% 100%);
+  }
+
+  .ant-modal-confirm-content {
+    /* stylelint-disable-next-line declaration-no-important */
+    max-width: 100% !important;
+  }
+`
+
+const Wrapper = props => {
+  const { children } = props
+
+  return <LayoutWrapper>{children}</LayoutWrapper>
 }
 
 const StyledPage = styled(Page)`
-  height: calc(100dvh);
+  height: calc(100% - 48px);
 
   > div {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    /* flex-direction: column; */
-    overflow: hidden;
-  }
-
-  @media screen and (min-width: 720px) {
-    height: ${p => p.$height};
+    padding: 0;
   }
 `
 
-const StyledSpin = styled(Spin)`
-  display: grid;
-  height: 100vh;
-  place-content: center;
-`
-
-const Loader = () => <StyledSpin spinning />
-
-const SiteHeader = ({ enableLogin }) => {
-  const headerLinks = {
-    homepage: '/',
-    login: '/login',
-  }
-
+const SiteHeader = () => {
+  const { title } = useContext(DocumentContext)
+  const { currentUser, setCurrentUser } = useCurrentUser()
+  const client = useApolloClient()
   const history = useHistory()
-
-  const { currentUser } = useCurrentUser()
   const [currentPath, setCurrentPath] = useState(history.location.pathname)
 
   useEffect(() => {
-    if (!currentUser && history.location.pathname === '/') {
-      history.push('/login')
-    }
     const unlisten = history.listen(val => setCurrentPath(val.pathname))
+
     return unlisten
   }, [])
 
-  return currentUser || enableLogin === false ? (
+  const logout = () => {
+    setCurrentUser(null)
+    client.cache.reset()
+    localStorage.removeItem('token')
+    history.push('/login')
+  }
+
+  const { data: applicationParametersData } = useQuery(APPLICATION_PARAMETERS, {
+    fetchPolicy: 'network-only',
+  })
+
+  const languages = applicationParametersData?.getApplicationParameters.find(
+    c => c.area === 'languages',
+  )
+
+  const isExporterPage = currentPath.includes('/exporter')
+  const isAiAssistantPage = currentPath.includes('/ai-pdf')
+  const isKnowledgeBasePage = currentPath.includes('/knowledge-base')
+  const isAdminPage = currentPath.includes('/admin')
+  const isTemplatePage = currentPath.includes('/template-manager')
+
+  return (
     <Header
-      currentPath={currentPath}
-      displayName={currentUser?.displayName}
-      enableLogin={!!enableLogin}
-      links={headerLinks}
-      loggedin={!!currentUser}
+      bookTitle={title}
+      brandLabel="wax-platform"
+      brandLogoURL="/wax.png"
+      canAccessAdminPage={currentUser ? isAdmin(currentUser) : false}
+      homeURL="/"
+      languages={languages?.config.filter(l => l.enabled)}
+      onLogout={logout}
+      showBackToBook={
+        isExporterPage ||
+        isAiAssistantPage ||
+        isKnowledgeBasePage ||
+        isAdminPage ||
+        isTemplatePage
+      }
+      userDisplayName={currentUser ? currentUser.displayName : ''}
     />
-  ) : null
+  )
 }
 
-const RequireProfile = ({ children }) => {
-  const { pathname } = useLocation()
+const StyledMain = styled.main`
+  height: 100%;
+`
+
+const RequireVerifiedUser = ({ children }) => {
   const { currentUser } = useCurrentUser()
 
-  if (!currentUser) return null
+  if (!currentUser) return <Redirect to="/login" />
 
-  if (!currentUser.isActive && pathname !== '/deactivated-user') {
-    return <Redirect to="/deactivated-user" />
+  if (!currentUser.isActive || !currentUser.defaultIdentity.isVerified) {
+    return <Redirect to="/unverified-user" />
   }
 
   return children
@@ -201,110 +173,168 @@ const RequireProfile = ({ children }) => {
 const Authenticated = ({ children }) => {
   return (
     <RequireAuth notAuthenticatedRedirectTo="/login">
-      <RequireProfile>{children}</RequireProfile>
+      <RequireVerifiedUser>{children}</RequireVerifiedUser>
     </RequireAuth>
   )
 }
 
-const PageWrapper = props => {
-  const { setUserInteractions } = useAiDesignerContext()
-  const { contextualMenu, setSelectedDocs } = useDocumentContext()
+const routes = (
+  <ConfigProvider
+    theme={{
+      token: theme,
+    }}
+  >
+    <Authenticate currentUserQuery={CURRENT_USER}>
+      <GlobalStyle />
+      <LayoutWrapper>
+        <Wrapper>
+          <Suspense fallback={<div>Loading...</div>}>
+            <DocumentProvider>
+              <SiteHeader />
+              <StyledPage fadeInPages>
+                <StyledMain id="main-content" tabIndex="-1">
+                  <GlobalContextProvider>
+                    <YjsProvider>
+                      <Switch>
+                        <Redirect exact path="/" to="/create-document" />
 
-  useEffect(() => {
-    const hideContextMenu = ({ target }) => {
-      const { dataset } = target
-      !dataset.contextmenu && contextualMenu.update({ show: false })
-      !dataset.contextmenu && setSelectedDocs([])
-    }
+                        <Route component={SignupPage} exact path="/signup" />
+                        <Route component={LoginPage} exact path="/login" />
 
-    const keydownHandler = e => {
-      setUserInteractions(prev => ({ ...prev, ctrl: e.ctrlKey }))
-    }
+                        <Route
+                          component={RequestPasswordResetPage}
+                          exact
+                          path="/request-password-reset"
+                        />
+                        <Route
+                          component={ResetPasswordPage}
+                          exact
+                          path="/password-reset/:token"
+                        />
+                        <Route
+                          component={VerifyEmailPage}
+                          exact
+                          path="/email-verification/:token"
+                        />
+                        <Route
+                          component={UnverifiedUserPage}
+                          exact
+                          path="/unverified-user/"
+                        />
+                        <Route
+                          component={RequestVerificationEmailPage}
+                          exact
+                          path="/request-verification-email/"
+                        />
+                        <Route
+                          exact
+                          path="/create-document"
+                          render={() => (
+                            <Authenticated>
+                              <CreateBook />
+                            </Authenticated>
+                          )}
+                        />
+                        <Route
+                          exact
+                          path="/books/:bookId/import"
+                          render={() => (
+                            <Authenticated>
+                              <ImportPage />
+                            </Authenticated>
+                          )}
+                        />
+                        <Route
+                          exact
+                          path="/document/:bookComponentId"
+                          render={() => (
+                            <Authenticated>
+                              <ProducerPage />
+                            </Authenticated>
+                          )}
+                        />
 
-    const scrollHandler = () => {
-      document.querySelector('body').scrollTop = 0
-      document.querySelector('html').scrollTop = 0
-    }
+                        <Route exact path="/books/:bookId/exporter">
+                          <Authenticated>
+                            <ExporterPage />
+                          </Authenticated>
+                        </Route>
 
-    window.addEventListener('click', hideContextMenu)
-    window.addEventListener('keydown', keydownHandler)
-    window.addEventListener('keyup', keydownHandler)
-    window.addEventListener('scroll', scrollHandler)
+                        <Route exact path="/books/:bookId/ai-pdf">
+                          <Authenticated>
+                            <CssAssistantProvider>
+                              <AiPDFDesignerPage />
+                            </CssAssistantProvider>
+                          </Authenticated>
+                        </Route>
 
-    return () => {
-      window.removeEventListener('keydown', keydownHandler)
-      window.removeEventListener('keyup', keydownHandler)
-      window.removeEventListener('scroll', scrollHandler)
-      window.removeEventListener('click', hideContextMenu)
-    }
-  }, [])
+                        <Route exact path="/books/:bookId/knowledge-base">
+                          <Authenticated>
+                            <KnowledgeBasePage />
+                          </Authenticated>
+                        </Route>
 
-  return <StyledPage {...props} $height={`calc(100% - 82px)`} />
-}
+                        <Route exact path="/provider-redirect/:provider">
+                          <ProviderConnectionPage closeOnSuccess />
+                        </Route>
 
-const routes = enableLogin => (
-  <AiDesignerProvider>
-    <DocumentContextProvider>
-      <ModalProvider>
-        <Layout id="layout-root">
-          <GlobalStyles />
-          <YjsProvider enableLogin={enableLogin}>
-            <SiteHeader enableLogin={enableLogin} />
-            <PageWrapper fadeInPages={false} padPages={false}>
-              <Switch>
-                <Route component={Login} exact path="/login" />
-                <Route component={Signup} exact path="/signup" />
-                <Route
-                  component={VerifyEmail}
-                  exact
-                  path="/email-verification/:token"
-                />
-                <Route
-                  component={RequestPasswordReset}
-                  exact
-                  path="/request-password-reset"
-                />
-                <Route
-                  component={ResetPassword}
-                  exact
-                  path="/password-reset/:token"
-                />
-                <Route
-                  component={VerifyCheck}
-                  exact
-                  path="/ensure-verified-login"
-                />
-                <Route
-                  exact
-                  path={['/', '/:docIdentifier']}
-                  render={() =>
-                    enableLogin ? (
-                      <Authenticated>
-                        <Dashboard showFilemanager enableLogin={enableLogin} />
-                      </Authenticated>
-                    ) : (
-                      <Dashboard />
-                    )
-                  }
-                />
-                <Route render={() => <Redirect to="/login" />} path="*" />
-              </Switch>
-              <StyledContextMenu />
-              <ContextModal />
-            </PageWrapper>
-          </YjsProvider>
-        </Layout>
-      </ModalProvider>
-    </DocumentContextProvider>
-  </AiDesignerProvider>
+                        <Route exact path="/admin">
+                          <Authenticated>
+                            <AdminPage />
+                          </Authenticated>
+                        </Route>
+                        <Route exact path="/template-manager">
+                          <Authenticated>
+                            <TemplateMananger />
+                          </Authenticated>
+                        </Route>
+
+                      <Route exact path="/document/:bookComponentId/exporter">
+                        <Authenticated>
+                          <ExporterPage />
+                        </Authenticated>
+                      </Route>
+
+                      <Route exact path="/books/:bookId/ai-pdf">
+                        <Authenticated>
+                          <CssAssistantProvider>
+                            <AiPDFDesignerPage />
+                          </CssAssistantProvider>
+                        </Authenticated>
+                      </Route>
+
+                      <Route exact path="/books/:bookId/knowledge-base">
+                        <Authenticated>
+                          <KnowledgeBasePage />
+                        </Authenticated>
+                      </Route>
+
+                      <Route exact path="/provider-redirect/:provider">
+                        <ProviderConnectionPage closeOnSuccess />
+                      </Route>
+
+                      <Route exact path="/admin">
+                        <Authenticated>
+                          <AdminPage />
+                        </Authenticated>
+                      </Route>
+                      <Route exact path="/template-manager">
+                        <Authenticated>
+                          <TemplateMananger />
+                        </Authenticated>
+                      </Route>
+                    </Switch>
+                    
+                  </YjsProvider>
+                </GlobalContextProvider>
+              </StyledMain>
+            </StyledPage>
+            </DocumentProvider>
+          </Suspense>
+        </Wrapper>
+      </LayoutWrapper>
+    </Authenticate>
+  </ConfigProvider>
 )
 
-export default enableLogin => {
-  return enableLogin ? (
-    <Authenticate currentUserQuery={CURRENT_USER} loadingComponent={<Loader />}>
-      {routes(enableLogin)}
-    </Authenticate>
-  ) : (
-    routes(enableLogin)
-  )
-}
+export default routes

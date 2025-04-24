@@ -1,139 +1,101 @@
-/* eslint-disable no-restricted-globals */
-
-import { emDash, ellipsis } from 'prosemirror-inputrules'
+import { DefaultSchema } from 'wax-prosemirror-core'
 
 import {
   InlineAnnotationsService,
-  BaseService,
-  CommentsService,
-  // ImageService,
+  ImageService,
   LinkService,
   ListsService,
+  BaseService,
   DisplayBlockLevelService,
   TextBlockLevelService,
-  DisplayTextToolGroupService,
-  MathService,
-  FindAndReplaceService,
-  FullScreenService,
   SpecialCharactersService,
-  HighlightService,
-  BottomInfoService,
-  TransformService,
-  CustomTagService,
   BlockDropDownToolGroupService,
-  YjsService,
+  FindAndReplaceService,
+  // FindAndReplaceToolGroupService,
+  FullScreenService,
+  // disallowPasteImagesPlugin,
+  CommentsService,
 } from 'wax-prosemirror-services'
 
-import { TablesService, columnResizing } from 'wax-table-service'
+import { TablesService, tableEditing } from 'wax-table-service'
 
-import CharactersList from './characterList'
-import AiStudioSchema from '../../component-ai-assistant/components/waxSchema'
-import AidCtxService from '../Services/AidCtxService'
-import { arrIf, objIf } from '../../../shared/generalUtils'
+import disallowPasteImagesPlugin from '../disallowPasteImagesPlugin'
 
-const config = (yjsProvider, ydoc, docIdentifier) => {
-  const noYjs = !yjsProvider || !ydoc || !docIdentifier
+import charactersList from './charactersList'
 
-  return {
-    MenuService: [
-      {
-        templateArea: 'mainMenuToolBar',
-        toolGroups: [
-          {
-            name: 'Base',
-            exclude: ['Save'],
-          },
-          {
-            name: 'BlockDropDown',
-            exclude: [
-              'Author',
-              'SubTitle',
-              'EpigraphProse',
-              'EpigraphPoetry',
-              'Heading4',
-              'ParagraphContinued',
-              'ExtractProse',
-              'SourceNote',
-            ],
-          },
-          {
-            name: 'Annotations',
-            more: ['Superscript', 'Subscript', 'SmallCaps'],
-            exclude: ['Code'],
-          },
-          'HighlightToolGroup',
-          'TransformToolGroup',
-          'Lists',
-          // 'Images',
-          'SpecialCharacters',
-          'Tables',
-          'FindAndReplaceTool',
-          'FullScreen',
-        ],
-      },
-      {
-        templateArea: 'BottomRightInfo',
-        toolGroups: ['InfoToolGroup'],
-      },
-    ],
-    SchemaService: AiStudioSchema,
-    SpecialCharactersService: CharactersList,
-    RulesService: [emDash, ellipsis],
-    ShortCutsService: {},
-    CommentsService: {
-      showTitle: true,
-      getComments: comments => {},
-      setComments: () => {
-        return true
-      },
+import { onInfoModal } from '../../../helpers/commonModals'
+
+import YjsService from './YjsService'
+
+const config = {
+  MenuService: [
+    {
+      templateArea: 'mainMenuToolBar',
+      toolGroups: [
+        { name: 'Base', exclude: ['Save'] },
+        'BlockDropDown',
+        // { name: 'BlockQuoteTool', exclude: ['Lift'] },l
+        { name: 'Lists', exclude: ['JoinUp'] },
+        // {
+        //   name: 'Text',
+        //   exclude: [
+        //     'ExtractPoetry',
+        //     'ExtractProse',
+        //     'ParagraphContinued',
+        //     'Subscript',
+        //     'SourceNote',
+        //     'Paragraph',
+        //   ],
+        // },
+        'Images',
+        {
+          name: 'Annotations',
+          exclude: ['SmallCaps', 'StrikeThrough', 'Subscript', 'Superscript'],
+        },
+        // 'Tables',
+        'SpecialCharacters',
+        'FindAndReplaceTool',
+        'FullScreen',
+      ],
     },
-    ...objIf(!noYjs, {
-      YjsService: {
-        provider: () => {
-          return yjsProvider
-        },
-        ydoc: () => {
-          return ydoc
-        },
-        docIdentifier,
-        cursorBuilder: user => {
-          const cursor = document.createElement('span')
-          cursor.classList.add('ProseMirror-yjs-cursor')
-          cursor.setAttribute('style', `border-color: ${user.color}`)
-          const userDiv = document.createElement('div')
-          userDiv.setAttribute('style', `background-color: ${user.color}`)
-          userDiv.insertBefore(document.createTextNode(user.displayName), null)
-          cursor.insertBefore(userDiv, null)
-          return cursor
-        },
-      },
-    }),
+  ],
 
-    PmPlugins: [columnResizing()],
-    services: [
-      ...arrIf(!noYjs, new YjsService()),
-      new BaseService(),
-      new BlockDropDownToolGroupService(),
-      new CommentsService(),
-      new DisplayBlockLevelService(),
-      new TextBlockLevelService(),
-      new ListsService(),
-      new LinkService(),
-      new InlineAnnotationsService(),
-      // new ImageService(),
-      new TablesService(),
-      new MathService(),
-      new FindAndReplaceService(),
-      new FullScreenService(),
-      new DisplayTextToolGroupService(),
-      new SpecialCharactersService(),
-      new HighlightService(),
-      new BottomInfoService(),
-      new TransformService(),
-      new CustomTagService(),
-      new AidCtxService(),
-    ],
-  }
+  SchemaService: DefaultSchema,
+  SpecialCharactersService: charactersList,
+  PmPlugins: [
+    tableEditing(),
+    disallowPasteImagesPlugin(() => {
+      if (!window.showInfo) {
+        window.showInfo = true
+        onInfoModal(
+          `Pasting external images is not supported. Please upload an image file by selecting the image icon in the toolbar.`,
+        )
+        setTimeout(() => {
+          window.showInfo = false
+        }, 500)
+      }
+    }),
+  ],
+
+  ImageService: { showAlt: true },
+
+  services: [
+    new YjsService(),
+    new CommentsService(),
+    new InlineAnnotationsService(),
+    new ImageService(),
+    new LinkService(),
+    new ListsService(),
+    new BaseService(),
+    new TablesService(),
+    new DisplayBlockLevelService(),
+    new TextBlockLevelService(),
+    new SpecialCharactersService(),
+    new BlockDropDownToolGroupService(),
+    new FindAndReplaceService(),
+    // new FindAndReplaceToolGroupService(),
+    new FullScreenService(),
+  ],
 }
 
 export default config

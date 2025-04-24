@@ -4,56 +4,78 @@ services:
   client:
     build:
       context: ./packages/client
-      dockerfile: ./Dockerfile-production
-      args:
-        - server_url=${SERVER_URL}
-        - client_websocket_url=${CLIENT_WEBSOCKET_URL}
-        - client_load_extra_theme=${CLIENT_LOAD_EXTRA_THEME}
-        - client_show_email_login_option=${CLIENT_SHOW_EMAIL_LOGIN_OPTION}
-    command: ['npx', 'serve', '-p', '4000', '--single', './_build']
+      dockerfile: Dockerfile-production
+    entrypoint: ['sh', './env.sh']
+    command: ['nginx', '-g', 'daemon off;']
     ports:
-      - ${CLIENT_PORT:-4000}:4000
+      - ${NGINX_PORT_TO_LOCAL:-4000}:80
+    environment:
+      - SERVER_URL=${SERVER_URL:-http://localhost:3000}
+      - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL:-ws://localhost:3333}
 
   server:
+    restart: unless-stopped
     build:
-      context: ./packages/server
-      dockerfile: ./Dockerfile-production
-    depends_on:
-      - db
-      - createbucket
-    entrypoint: ['sh', 'scripts/setupDevServer.sh']
-    command: ['node', 'startServer.js']
+      context: ./
+      dockerfile: Dockerfile
     ports:
-      - ${SERVER_PORT}:3000
-      - ${WS_SERVER_PORT}:${WS_SERVER_PORT}
+      - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
+      - ${WS_SERVER_PORT:-3333}:${WS_SERVER_PORT:-3333}
     environment:
       - NODE_ENV=production
-      - PUBSWEET_SECRET=${PUBSWEET_SECRET:-dev_secret}
-      - POSTGRES_HOST=${POSTGRES_HOST:-db}
-      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
-      - POSTGRES_DB=${POSTGRES_DB:-wax_dev}
-      - POSTGRES_USER=${POSTGRES_USER:-dev_user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev_user_password}
-      - SERVER_PORT=${SERVER_PORT:-3000}
-      - WS_SERVER_PORT=${WS_SERVER_PORT:-3001}
-      - CLIENT_URL=${CLIENT_URL:-http://localhost:4000}
-      - CHATGPT_URL=${CHATGPT_URL}
-      - CHATGPT_KEY=${CHATGPT_KEY}
-      - MAILER_SENDER=${MAILER_SENDER}
-      - MAILER_HOSTNAME=${MAILER_HOSTNAME}
-      - MAILER_PORT=${MAILER_PORT}
+      - WAX_FLAVOUR=${WAX_FLAVOUR}
+      - PUBSWEET_SECRET=${PUBSWEET_SECRET}
+      - SERVER_URL=${SERVER_URL}
+      - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL}
+      - CLIENT_URL=${CLIENT_URL}
+      - SERVER_SERVE_CLIENT=false
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_GIVEN_NAME=${ADMIN_GIVEN_NAME}
+      - ADMIN_SURNAME=${ADMIN_SURNAME}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - SERVER_PORT=${SERVER_PORT}
+      - WS_SERVER_PORT=${WS_SERVER_PORT}
+      - WS_HEARTBEAT_INTERVAL=${WS_HEARTBEAT_INTERVAL:-10000}
+      - FAIL_SAFE_UNLOCKING_INTERVAL=${FAIL_SAFE_UNLOCKING_INTERVAL:-12000}
       - MAILER_USER=${MAILER_USER}
       - MAILER_PASSWORD=${MAILER_PASSWORD}
-      - PASSWORD_RESET_PATH=${PASSWORD_RESET_PATH:-password-reset}
-      - CLIENT_SHOW_EMAIL_LOGIN_OPTION=${CLIENT_SHOW_EMAIL_LOGIN_OPTION:-true}
-      - S3_PROTOCOL=http
-      - S3_HOST=${S3_HOST:-filehosting}
-      - S3_PORT=${S3_PORT:-9000}
-      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-nonRootUser}
-      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-nonRootPassword}
-      - S3_BUCKET=${S3_BUCKET:-uploads}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - MAILER_SENDER=${MAILER_SENDER}
+      - MAILER_HOSTNAME=${MAILER_HOSTNAME}
+      - PASSWORD_RESET_PATH_TO_PAGE=/password-reset
+      - S3_PROTOCOL=${S3_PROTOCOL}
+      - S3_HOST=${S3_HOST}
+      - S3_PORT=${S3_PORT}
+      - S3_ACCESS_KEY_ID_USER=${S3_ACCESS_KEY_ID_USER}
+      - S3_SECRET_ACCESS_KEY_USER=${S3_SECRET_ACCESS_KEY_USER}
+      - S3_BUCKET=uploads
+      # - SERVICE_EPUB_CHECKER_CLIENT_ID=${SERVICE_EPUB_CHECKER_CLIENT_ID}
+      # - SERVICE_EPUB_CHECKER_SECRET=${SERVICE_EPUB_CHECKER_SECRET}
+      # - SERVICE_EPUB_CHECKER_URL=${SERVICE_EPUB_CHECKER_URL}
+      - SERVICE_ICML_CLIENT_ID=${SERVICE_ICML_CLIENT_ID}
+      - SERVICE_ICML_SECRET=${SERVICE_ICML_SECRET}
+      - SERVICE_ICML_URL=${SERVICE_ICML_URL}
+      - SERVICE_PAGEDJS_CLIENT_ID=${SERVICE_PAGEDJS_CLIENT_ID}
+      - SERVICE_PAGEDJS_SECRET=${SERVICE_PAGEDJS_SECRET}
+      - SERVICE_PAGEDJS_URL=${SERVICE_PAGEDJS_URL}
+      - SERVICE_XSWEET_CLIENT_ID=${SERVICE_XSWEET_CLIENT_ID}
+      - SERVICE_XSWEET_SECRET=${SERVICE_XSWEET_SECRET}
+      - SERVICE_XSWEET_URL=${SERVICE_XSWEET_URL}
+      # - SERVICE_FLAX_CLIENT_ID=${SERVICE_FLAX_CLIENT_ID}
+      # - SERVICE_FLAX_SECRET=${SERVICE_FLAX_SECRET}
+      # - SERVICE_FLAX_URL=${SERVICE_FLAX_URL}
+      - FEATURE_UPLOAD_DOCX_FILES=${FEATURE_UPLOAD_DOCX_FILES}
+      - FEATURE_BOOK_STRUCTURE=${FEATURE_BOOK_STRUCTURE}
+      - FEATURE_POD=${FEATURE_POD:-false}
+      - AI_ENABLED=${AI_ENABLED:-false}
+      - TEMP_DIRECTORY_CRON_JOB_SCHEDULE=${TEMP_DIRECTORY_CRON_JOB_SCHEDULE}
+      - TEMP_DIRECTORY_CRON_JOB_OFFSET=${TEMP_DIRECTORY_CRON_JOB_OFFSET}
+      - TEMP_DIRECTORY_CLEAN_UP=${TEMP_DIRECTORY_CLEAN_UP}
 
   db:
     build:

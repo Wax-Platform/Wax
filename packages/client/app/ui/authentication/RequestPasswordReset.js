@@ -1,51 +1,54 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import PropTypes from 'prop-types'
-// import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-import styled from 'styled-components'
-
+import { useTranslation } from 'react-i18next'
 import AuthenticationForm from './AuthenticationForm'
 import AuthenticationHeader from './AuthenticationHeader'
 import AuthenticationWrapper from './AuthenticationWrapper'
 import SuccessSubTitle from './SuccessSubTitle'
 import { Form, Input, Paragraph, Result, Page } from '../common'
 
-const StyledPage = styled(Page)`
-  height: unset;
-  left: 50%;
-  position: fixed;
-  top: 50%;
-  transform: translate(-50%, -50%);
-`
-
 const RequestPasswordResetForm = props => {
   // disable prop types that will be checked in the exported component anyway
   // eslint-disable-next-line react/prop-types
   const { hasError, loading, onSubmit } = props
 
+  const { t } = useTranslation('translation', {
+    keyPrefix: 'pages',
+    useSuspense: false,
+  })
+
   return (
     <AuthenticationForm
-      alternativeActionLabel="Return to login form"
+      alternativeActionLabel={t('passwordReset.links.login')}
       alternativeActionLink="/login"
-      errorMessage="Something went wrong! Please contact the administrator."
+      errorMessage={t(
+        'Something went wrong! Please contact the administrator.'
+          .toLowerCase()
+          .replace(/ /g, '_'),
+      )}
       hasError={hasError}
-      loading={!!loading}
+      loading={loading}
       onSubmit={onSubmit}
-      // submitButtonLabel="Send"
+      submitButtonLabel={t('passwordReset.actions.send')}
     >
-      <Paragraph>
-        Please enter the email address connected to your account.
-      </Paragraph>
+      <Paragraph>{t('passwordReset.description')}</Paragraph>
 
       <Form.Item
-        label="Email"
+        label={t('common.form.email')}
         name="email"
         rules={[
-          { required: true, message: 'Email is required' },
-          { type: 'email', message: "Doesn't look like a valid email" },
+          {
+            required: true,
+            message: () => t('common.form.email.errors.noValue'),
+          },
+          {
+            type: 'email',
+            message: () => t('common.form.email.errors.invalidEmail'),
+          },
         ]}
       >
-        <Input placeholder="Enter your email" />
+        <Input placeholder={t('common.form.email.placeholder')} />
       </Form.Item>
     </AuthenticationForm>
   )
@@ -55,42 +58,48 @@ const RequestPasswordReset = props => {
   const { className, hasError, hasSuccess, loading, onSubmit, userEmail } =
     props
 
+  const { t } = useTranslation('translation', {
+    keyPrefix: 'pages.passwordReset',
+    useSuspense: false,
+  })
+
   return (
-    <StyledPage maxWidth={600}>
-      <AuthenticationWrapper className={className}>
-        <AuthenticationHeader>Request password reset</AuthenticationHeader>
+    <Page maxWidth={600}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <AuthenticationWrapper className={className}>
+          <AuthenticationHeader>{t('title')}</AuthenticationHeader>
 
-        {hasSuccess && (
-          <div role="alert">
-            <Result
-              data-testid="result-request-password-success"
-              extra={[
-                <Link key={1} to="/login">
-                  Return to the login form
-                </Link>,
-              ]}
-              status="success"
-              subTitle={<SuccessSubTitle userEmail={userEmail} />}
-              title="Request successful!"
+          {hasSuccess && (
+            <div role="alert">
+              <Result
+                data-testid="result-request-password-success"
+                extra={[
+                  <Link key={1} to="/login">
+                    {t('links.login')}
+                  </Link>,
+                ]}
+                status="success"
+                subTitle={<SuccessSubTitle userEmail={userEmail} />}
+                title={t('success')}
+              />
+            </div>
+          )}
+
+          {!hasSuccess && (
+            <RequestPasswordResetForm
+              hasError={hasError}
+              loading={loading}
+              onSubmit={onSubmit}
             />
-          </div>
-        )}
-
-        {!hasSuccess && (
-          <RequestPasswordResetForm
-            hasError={hasError}
-            loading={!!loading}
-            onSubmit={onSubmit}
-          />
-        )}
-      </AuthenticationWrapper>
-    </StyledPage>
+          )}
+        </AuthenticationWrapper>
+      </Suspense>
+    </Page>
   )
 }
 
 RequestPasswordReset.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-
   hasError: PropTypes.bool,
   hasSuccess: PropTypes.bool,
   loading: PropTypes.bool,

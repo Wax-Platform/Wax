@@ -4,39 +4,69 @@
   "description": "Wax backend",
   "repository": {
     "type": "git",
-    "url": "git@gitlab.coko.foundation:cokoapps/wax.git"
+    "url": "git@github.com:Wax-Platform/Wax.git"
   },
   "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "create:admin": "node ./scripts/runners/createAdmin.js",
+    "create:collection": "node ./scripts/runners/createCollection.js",
+    "delete:templates": "node ./scripts/runners/deleteTemplates.js",
+    "exec:fixUploading": "node ./scripts/runners/unfreezeUploads.js",
+    "seed:templates": "node ./scripts/runners/createTemplates.js",
+    "cz": "git-cz",
+    "lint": "eslint '**/*.js'",
+    "test": "jest"
   },
-  "resolutions": {
-    "pg": "8"
+"resolutions": {
+    "objection": "^2.2.15",
+    "pg": "8",
+    "axios": "1.6"
   },
   "dependencies": {
     "@coko/server": "3.13.1",
-    "@pubsweet/models": "^0.3.26",
-    "jsonwebtoken": "^9.0.2",
-    "express": "^4.18.2",
-    "axios": "^1.3.4",
-    "config": "^3.3.6",
-    "knex": "^2.3.0",
-    "lib0": "^0.2.54",
-    "lodash": "^4.17.21",
-    "uuid": "^9.0.0",
-    "ws": "^8.12.1",
-    "y-protocols": "^1.0.5",
-    "yjs": "^13.5.42",
     "@dqbd/tiktoken": "^1.0.14",
-    "cheerio": "^1.0.0-rc.12",
-    "graphql-subscriptions": "^2.0.0",
+    "@pubsweet/models": "^0.3.26",
+    "archiver": "^3.1.1",
+    "axios": "^1.6.2",
+    "bluebird": "^3.7.2",
+    "cheerio": "^1.0.0-rc.2",
+    "config": "^3.2.5",
+    "css-tree": "^1.1.2",
+    "express": "^4.17.1",
+    "form-data": "^3.0.0",
+    "fs-extra": "^9.0.1",
+    "graphql-subscriptions": "1.2.1",
+    "highlight.js": "^10.7.1",
+    "js-beautify": "^1.11.0",
+    "jsonwebtoken": "8.5.1",
+    "katex": "^0.15.3",
+    "libtidy-updated": "0.4.1",
+    "list-contents": "^4.0.2",
+    "lodash": "4.17.21",
     "mammoth": "^1.7.1",
+    "marked": "^12.0.1",
+    "mathjax-node": "^2.1.1",
+    "mime-types": "^2.1.24",
+    "moment": "^2.29.4",
+    "objection": "^2.2.15",
     "pdf2html": "^3.1.0",
-    "xml": "^1.0.1"
+    "pubsweet": "^5.1.31",
+    "ws": "8.12.0",
+    "xlsx": "^0.18.5",
+    "xmlbuilder": "^13.0.2",
+    "lib0": "^0.2.54",
+    "y-protocols": "^1.0.5",
+    "yjs": "13.5.38",
+    "jsdom":"26.1.0",
+    "y-prosemirror": "1.2.0",
+    "prosemirror-schema-basic": "1.2.4",
+    "prosemirror-model":"1.25.0",
+    "prosemirror-schema-list": "1.5.1"
   },
   "devDependencies": {
-    "jest": "^27.5.1",
+    "@coko/lint": "^2.0.0",
+    "jest": "^28.1.3",
     "node-wait-for-it": "^0.2.0",
-    "nodemon": "^2.0.13"
+    "nodemon": "^1.19.1"
   }
 }

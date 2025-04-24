@@ -1,146 +1,315 @@
-version: '3'
-
 services:
   client:
+    restart: unless-stopped
     build:
       context: ./packages/client
-      dockerfile: ./Dockerfile-development
-    command: ['node_modules/.bin/coko-client-dev']
+      dockerfile: Dockerfile-development
+    command: ["node_modules/.bin/coko-client-dev"]
     ports:
       - ${CLIENT_PORT:-4000}:${CLIENT_PORT:-4000}
     environment:
       - NODE_ENV=development
       - CLIENT_PORT=${CLIENT_PORT:-4000}
       - CLIENT_FAST_REFRESH=1
-      - CLIENT_PAGE_TITLE=${CLIENT_PAGE_TITLE:-Wax}
+      - CLIENT_PAGE_TITLE=${CLIENT_PAGE_TITLE:-wax}
       - CLIENT_LANGUAGE=${CLIENT_LANGUAGE:-"en-US"}
-      - CLIENT_FAVICON_PATH=${CLIENT_FAVICON_PATH:-../static/favicon.png}
-      - CLIENT_WEBSOCKET_URL=${CLIENT_WEBSOCKET_URL:-ws://localhost:3001}
+      - CLIENT_FEATURE_UPLOAD_DOCX_FILES=true
+      - CLIENT_FEATURE_BOOK_STRUCTURE=false
       - SERVER_URL=${SERVER_URL:-http://localhost:3000}
-      - CLIENT_LOAD_EXTRA_THEME=${CLIENT_LOAD_EXTRA_THEME}
-      - CLIENT_SHOW_EMAIL_LOGIN_OPTION=${CLIENT_SHOW_EMAIL_LOGIN_OPTION:-true}
+      - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL:-ws://localhost:3333}
+      # - CLIENT_WS_MIN_TIMEOUT=3000
+      # - CLIENT_WS_TIMEOUT=30000
+      - CLIENT_FAVICON_PATH=${CLIENT_FAVICON_PATH:-../static/wax.ico}
     volumes:
-      - ./packages/client/app:/home/node/app/app
-      - ./packages/client/static:/home/node/app/static
+      - ./packages/client/app:/home/node/client/app
     tty: true
 
   server:
+    restart: unless-stopped
     build:
       context: ./packages/server
-      dockerfile: ./Dockerfile-development
+      dockerfile: Dockerfile-development
     depends_on:
       - db
+      - s3
+      - createbucket
+      # - epubchecker
+      - pagedjs
+      - xsweet
+      # - flax
     entrypoint:
       [
-        'node_modules/.bin/wait-for-it',
-        'db:5432',
-        '--',
-        'sh',
-        'scripts/setupDevServer.sh',
+        "sh",
+        "scripts/wait-for-it",
+        "db:5432",
+        "-t",
+        "60",
+        "--",
+        "sh",
+        "scripts/wait-for-it",
+        "http://s3:9001",
+        "-t",
+        "60",
+        # "--",
+        # "sh",
+        # "scripts/wait-for-it",
+        # "http://epubchecker:3001/healthcheck",
+        # "-t",
+        # "60",
+        "--",
+        "sh",
+        "scripts/wait-for-it",
+        "http://pagedjs:3003/healthcheck",
+        "-t",
+        "60",
+        "--",
+        "sh",
+        "scripts/wait-for-it",
+        "http://xsweet:3004/healthcheck",
+        "-t",
+        "60",
+        # "--",
+        # "sh",
+        # "scripts/wait-for-it",
+        # "http://flax:3005/healthcheck",
+        # "-t",
+        # "60",
+        "--",
+        "sh",
+        "scripts/setupDevServerKetida2.sh",
       ]
     command:
       [
-        'node_modules/.bin/nodemon',
-        'startServer.js',
-        '--watch',
-        'api',
-        '--watch',
-        'config',
-        '--watch',
-        'controllers',
-        '--watch',
-        'models',
-        '--watch',
-        'services',
-        '--watch',
-        'scripts',
-        '--watch',
-        '--ext',
-        'js, graphql',
+        "node_modules/.bin/nodemon",
+        "--watch",
+        "api",
+        "--watch",
+        "config",
+        "--watch",
+        "controllers",
+        "--watch",
+        "models",
+        "--watch",
+        "scripts",
+        "--watch",
+        "services",
+        "--watch",
+        "utilities",
+        "--watch",
+        "app.js",
+        "--watch",
+        "startWebSocketServer.js",
+        "startServer.js",
+        "--ext",
+        "js,graphql",
       ]
     ports:
-      - ${SERVER_PORT:-3000}:3000
-      - ${WS_SERVER_PORT:-3001}:${WS_SERVER_PORT:-3001}
+      - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
+      - ${WS_SERVER_PORT:-3333}:${WS_SERVER_PORT:-3333}
     environment:
       - NODE_ENV=development
+      - WAX_FLAVOUR=VANILLA
       - PUBSWEET_SECRET=${PUBSWEET_SECRET:-dev_secret}
-      - POSTGRES_HOST=${POSTGRES_HOST:-db}
-      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
-      - POSTGRES_DB=${POSTGRES_DB:-wax_dev}
+      - SERVER_URL=${SERVER_URL:-http://server:3000}
+      - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL:-ws://server:${WS_SERVER_PORT:-3333}}
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:4000}
+      - SERVER_SERVE_CLIENT=false
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-ketida_dev}
       - POSTGRES_USER=${POSTGRES_USER:-dev_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev_user_password}
-      - WS_SERVER_PORT=${WS_SERVER_PORT:-3001}
-      - CLIENT_URL=${CLIENT_URL:-http://localhost:4000}
-      - CHATGPT_URL=${CHATGPT_URL}
-      - CHATGPT_KEY=${CHATGPT_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
-      - MAILER_HOSTNAME=${MAILER_HOSTNAME}
-      - MAILER_PORT=${MAILER_PORT}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-password}
+      - ADMIN_GIVEN_NAME=${ADMIN_GIVEN_NAME:-Admin}
+      - ADMIN_SURNAME=${ADMIN_SURNAME:-Adminius}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - SERVER_PORT=${SERVER_PORT:-3000}
+      - WS_SERVER_PORT=${WS_SERVER_PORT:-3333}
+      - WS_HEARTBEAT_INTERVAL=${WS_HEARTBEAT_INTERVAL:-3000}
+      - FAIL_SAFE_UNLOCKING_INTERVAL=${FAIL_SAFE_UNLOCKING_INTERVAL:-12000}
       - MAILER_USER=${MAILER_USER}
       - MAILER_PASSWORD=${MAILER_PASSWORD}
-      - PASSWORD_RESET_PATH=${PASSWORD_RESET_PATH:-password-reset}
-      - CLIENT_SHOW_EMAIL_LOGIN_OPTION=${CLIENT_SHOW_EMAIL_LOGIN_OPTION:-true}
-      - S3_PROTOCOL=http
-      - S3_HOST=${S3_HOST:-filehosting}
+      - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
+      - MAILER_HOSTNAME=${MAILER_HOSTNAME}
+      - PASSWORD_RESET_PATH_TO_PAGE=/password-reset
+      - S3_PROTOCOL=${S3_PROTOCOL:-http}
+      - S3_HOST=${S3_HOST:-s3}
       - S3_PORT=${S3_PORT:-9000}
-      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-nonRootUser}
-      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-nonRootPassword}
+      - S3_ACCESS_KEY_ID_USER=${S3_ACCESS_KEY_ID_USER:-ketida}
+      - S3_SECRET_ACCESS_KEY_USER=${S3_SECRET_ACCESS_KEY_USER:-superSecretUserPassword}
       - S3_BUCKET=${S3_BUCKET:-uploads}
+      # FOR THE CASE OF GCP
+      # - S3_SEPARATE_DELETE_OPERATIONS=true
+      # - S3_FORCE_PATH_STYLE=false
+      # - SERVICE_EPUB_CHECKER_CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+      # - SERVICE_EPUB_CHECKER_SECRET=asldkjLKJLaslkdf897kjhKUJH
+      # - SERVICE_EPUB_CHECKER_URL=${SERVICE_EPUB_CHECKER_URL:-http://epubchecker:3001}
+      - SERVICE_PAGEDJS_CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+      - SERVICE_PAGEDJS_SECRET=asldkjLKJLaslkdf897kjhKUJH
+      - SERVICE_PAGEDJS_URL=${SERVICE_PAGEDJS_URL:-http://pagedjs:3003}
+      - SERVICE_XSWEET_CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+      - SERVICE_XSWEET_SECRET=asldkjLKJLaslkdf897kjhKUJH
+      - SERVICE_XSWEET_URL=${SERVICE_XSWEET_URL:-http://xsweet:3004}
+      # - SERVICE_FLAX_CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+      # - SERVICE_FLAX_SECRET=asldkjLKJLaslkdf897kjhKUJH
+      # - SERVICE_FLAX_URL=${SERVICE_FLAX_URL:-http://flax:3005}
+      - FEATURE_UPLOAD_DOCX_FILES=true
+      - FEATURE_BOOK_STRUCTURE=false
+      - FEATURE_POD=true
+      # - AI_ENABLED=true
+      # - CHAT_GPT_KEY=${CHAT_GPT_KEY}
+      - TEMP_DIRECTORY_CRON_JOB_SCHEDULE=${TEMP_DIRECTORY_CRON_JOB_TIMING:-0 * * * *}
+      - TEMP_DIRECTORY_CRON_JOB_OFFSET=${TEMP_DIRECTORY_CRON_JOB_OFFSET:-1800000}
+      - TEMP_DIRECTORY_CLEAN_UP=${TEMP_DIRECTORY_CLEAN_UP:-true}
     volumes:
-      - ./packages/server/api:/home/node/wax/api
-      - ./packages/server/config:/home/node/wax/config
-      - ./packages/server/controllers:/home/node/wax/controllers
-      - ./packages/server/models:/home/node/wax/models
-      - ./packages/server/scripts:/home/node/wax/scripts
-      - ./packages/server/services:/home/node/wax/services
-      - ./packages/server/startServer.js:/home/node/wax/startServer.js
+      - ./packages/server/api:/home/node/server/api
+      - ./packages/server/config:/home/node/server/config
+      - ./packages/server/controllers:/home/node/server/controllers
+      - ./packages/server/models:/home/node/server/models
+      - ./packages/server/scripts:/home/node/server/scripts
+      - ./packages/server/services:/home/node/server/services
+      - ./packages/server/utilities:/home/node/server/utilities
+      - ./packages/server/app.js:/home/node/server/app.js
+      - ./packages/server/startServer.js:/home/node/server/startServer.js
+      - ./packages/server/startWebSocketServer.js:/home/node/server/startWebSocketServer.js
+      - ./packages/server/config/local.js:/home/node/server/config/local.js
+
+  # epubchecker:
+  #   depends_on:
+  #     - db-epubchecker
+  #   image: cokoapps/epubchecker:2.0.2
+  #   ports:
+  #     - ${SERVICE_EPUB_CHECKER_PORT:-3001}:${SERVICE_EPUB_CHECKER_PORT:-3001}
+  #   environment:
+  #     - NODE_ENV=development
+  #     - SECRET=epubchecker_dev_secret
+  #     - SERVER_PORT=${SERVICE_EPUB_CHECKER_PORT:-3001}
+  #     - POSTGRES_HOST=db-epubchecker
+  #     - POSTGRES_PORT=5432
+  #     - POSTGRES_DB=epubchecker_dev
+  #     - POSTGRES_USER=epubchecker_user_dev
+  #     - POSTGRES_PASSWORD=epubchecker_user_password
+  #     - CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+  #     - CLIENT_SECRET=asldkjLKJLaslkdf897kjhKUJH
+
+  pagedjs:
+    depends_on:
+      - db-pagedjs
+    image: cokoapps/pagedjs:2.0.6
+    ports:
+      - ${SERVICE_PAGEDJS_PORT:-3003}:${SERVICE_PAGEDJS_PORT:-3003}
+    environment:
+      - NODE_ENV=development
+      - SECRET=pagedjs_dev_secret
+      - SERVER_PORT=${SERVICE_PAGEDJS_PORT:-3003}
+      - SERVER_URL=${PAGEDJS_PUBLIC_URL:-http://localhost:3003}
+      - POSTGRES_HOST=db-pagedjs
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=pagedjs_dev
+      - POSTGRES_USER=pagedjs_user_dev
+      - POSTGRES_PASSWORD=pagedjs_user_password
+      - CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+      - CLIENT_SECRET=asldkjLKJLaslkdf897kjhKUJH
+    security_opt:
+      - seccomp:unconfined
+
+  xsweet:
+    depends_on:
+      - db-xsweet
+    image: cokoapps/xsweet:3.0.2
+    ports:
+      - ${SERVICE_XSWEET_PORT:-3004}:${SERVICE_XSWEET_PORT:-3004}
+    environment:
+      - NODE_ENV=development
+      - SECRET=xsweet_dev_secret
+      - SERVER_PORT=${SERVICE_XSWEET_PORT:-3004}
+      - POSTGRES_HOST=db-xsweet
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=xsweet_dev
+      - POSTGRES_USER=xsweet_user_dev
+      - POSTGRES_PASSWORD=xsweet_user_password
+      - CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+      - CLIENT_SECRET=asldkjLKJLaslkdf897kjhKUJH
+
+  # flax:
+  #   depends_on:
+  #     - db-flax
+  #   image: cokoapps/ketty-flax:latest
+  #   ports:
+  #     - ${SERVICE_FLAX_PORT:-3005}:${SERVICE_FLAX_PORT:-3005}
+  #   environment:
+  #     - PUBSWEET_SECRET=flax_dev_secret
+  #     - SERVER_PORT=${SERVICE_FLAX_PORT:-3005}
+  #     - POSTGRES_HOST=db-flax
+  #     - POSTGRES_DB=flax_dev_db
+  #     - POSTGRES_USER=flax_user_dev
+  #     - POSTGRES_PASSWORD=flax_secretpassword
+  #     - POSTGRES_PORT=5432
+  #     - CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+  #     - CLIENT_SECRET=asldkjLKJLaslkdf897kjhKUJH
+  #   command: ["yarn", "coko-server", "start"]
+  #   tty: true
 
   db:
     build:
-      context: .
+      context: ./
       dockerfile: Dockerfile-pgvector
     ports:
-      - ${POSTGRES_PORT:-5432}:5432
+      - 5432:5432
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-wax_dev}
+      - POSTGRES_DB=${POSTGRES_DB:-ketida_dev}
       - POSTGRES_USER=${POSTGRES_USER:-dev_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev_user_password}
     volumes:
       - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/init-pgboss.sql
 
-  filehosting:
-    image: minio/minio
+  # db-epubchecker:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     - POSTGRES_DB=epubchecker_dev
+  #     - POSTGRES_USER=epubchecker_user_dev
+  #     - POSTGRES_PASSWORD=epubchecker_user_password
+
+  db-pagedjs:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=pagedjs_dev
+      - POSTGRES_USER=pagedjs_user_dev
+      - POSTGRES_PASSWORD=pagedjs_user_password
+
+  db-xsweet:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=xsweet_dev
+      - POSTGRES_USER=xsweet_user_dev
+      - POSTGRES_PASSWORD=xsweet_user_password
+
+  # db-flax:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     - POSTGRES_DB=flax_dev_db
+  #     - POSTGRES_USER=flax_user_dev
+  #     - POSTGRES_PASSWORD=flax_secretpassword
+
+  s3:
+    image: minio/minio:RELEASE.2023-12-07T04-16-00Z
     ports:
       - ${S3_PORT:-9000}:9000
       - ${MINIO_CONSOLE_PORT:-9001}:9001
     volumes:
       - minio_storage:/data
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-admin}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-superSecretAdminPassword}
-    command: server --console-address ":${MINIO_CONSOLE_PORT:-9001}" /data
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
-      interval: 30s
-      timeout: 20s
-      retries: 3
+      - MINIO_ROOT_USER=${S3_ACCESS_KEY_ID_ADMIN:-admin}
+      - MINIO_ROOT_PASSWORD=${S3_SECRET_ACCESS_KEY_ADMIN:-superSecretAdminPassword}
+    command: server --console-address ":9001" /data
 
   createbucket:
-    image: minio/mc
+    image: minio/mc:RELEASE.2023-12-02T11-24-10Z
     depends_on:
-      filehosting:
-        condition: service_healthy
+      - s3
     entrypoint: >
-      /bin/sh -c "
-        /usr/bin/mc config host add cokoServer http://filehosting:${S3_PORT:-9000} ${MINIO_ROOT_USER:-admin} ${MINIO_ROOT_PASSWORD:-superSecretAdminPassword};
-        /usr/bin/mc admin user add cokoServer/ ${S3_ACCESS_KEY_ID:-nonRootUser} ${S3_SECRET_ACCESS_KEY:-nonRootPassword};
-        /usr/bin/mc admin user enable cokoServer/ ${S3_ACCESS_KEY_ID:-nonRootUser};
-        /usr/bin/mc mb cokoServer/${S3_BUCKET:-uploads};
-        /usr/bin/mc admin policy attach cokoServer/ readwrite --user ${S3_ACCESS_KEY_ID:-nonRootUser};
-        exit 0;
-      "
+      /bin/sh -c " /usr/bin/mc config host add ketida ${S3_PROTOCOL:-http}://${S3_HOST:-s3}:${S3_PORT:-9000} ${S3_ACCESS_KEY_ID_ADMIN:-admin} ${S3_SECRET_ACCESS_KEY_ADMIN:-superSecretAdminPassword}; /usr/bin/mc admin user add ketida/ ${S3_ACCESS_KEY_ID_USER:-ketida} ${S3_SECRET_ACCESS_KEY_USER:-superSecretUserPassword}; /usr/bin/mc admin user enable ketida/ ${S3_ACCESS_KEY_ID_USER:-ketida}; /usr/bin/mc mb ketida/${S3_BUCKET:-uploads}; /usr/bin/mc admin policy attach ketida readwrite --user ${S3_ACCESS_KEY_ID_USER:-ketida}; exit 0; "
 
 volumes:
   minio_storage:

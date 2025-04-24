@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-// import styled from 'styled-components'
 
 import AuthenticationForm from './AuthenticationForm'
 import AuthenticationHeader from './AuthenticationHeader'
@@ -29,7 +28,7 @@ const ResetPassword = props => {
       <AuthenticationWrapper className={className}>
         <AuthenticationHeader>Reset password</AuthenticationHeader>
 
-        {verifying && <Result icon={<Spin />} title="Verifying..." />}
+        {verifying && <Result icon={<Spin spinning />} title="Verifying..." />}
 
         {success && (
           <div role="alert">
@@ -63,7 +62,22 @@ const ResetPassword = props => {
             <Form.Item
               label="New password"
               name="password"
-              rules={[{ required: true, message: 'New password is required' }]}
+              rules={[
+                { required: true, message: 'New password is required' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (value && value.length >= 8) {
+                      return Promise.resolve()
+                    }
+
+                    return Promise.reject(
+                      new Error(
+                        'Password should not be shorter than 8 characters',
+                      ),
+                    )
+                  },
+                }),
+              ]}
             >
               <Input placeholder="Enter new password" type="password" />
             </Form.Item>
@@ -103,7 +117,6 @@ const ResetPassword = props => {
 ResetPassword.propTypes = {
   redirectToLogin: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-
   hasError: PropTypes.bool,
   hasSuccess: PropTypes.bool,
   verifying: PropTypes.bool,

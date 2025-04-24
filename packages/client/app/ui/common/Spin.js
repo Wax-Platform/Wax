@@ -38,11 +38,9 @@ const bounce = keyframes`
 `
 
 const IndicatorWrapper = styled.div`
-  &&& {
-    height: ${props => grid(props.size)};
-    position: relative;
-    width: ${props => grid(props.size)};
-  }
+  height: ${props => grid(props.size)};
+  position: relative;
+  width: ${props => grid(props.size)};
 `
 
 const BounceOne = styled.div`
@@ -62,7 +60,7 @@ const BounceTwo = styled(BounceOne)`
 `
 
 const NestedWrapper = styled.div`
-  height: 100%;
+  height: 100vh;
 
   .ant-spin-nested-loading {
     height: 100%;
@@ -77,20 +75,13 @@ const NestedWrapper = styled.div`
   }
 `
 
-export const Indicator = ({ size, className }) => (
-  <IndicatorWrapper className={className} size={size}>
+/* eslint-disable-next-line react/prop-types */
+const Indicator = ({ size }) => (
+  <IndicatorWrapper size={size}>
     <BounceOne />
     <BounceTwo />
   </IndicatorWrapper>
 )
-
-Indicator.propTypes = {
-  size: PropTypes.number,
-}
-
-Indicator.defaultProps = {
-  size: 10,
-}
 
 const Spin = props => {
   const { className, children, renderBackground, size, spinning, ...rest } =

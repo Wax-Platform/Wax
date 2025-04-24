@@ -1,0 +1,40 @@
+
+const { BookComponent } = require('@pubsweet/models')
+
+const {
+  updateTreePosition,
+  renameResource,
+  deleteResource,
+  addResource,
+  getDocTree,
+  getSharedDocTree,
+} = require('../../../controllers/docTree.controllers')
+const { getObjectTeam } = require('../../../controllers/team.controller')
+
+module.exports = {
+  DocTree: {
+    bookComponent: async docTree => {
+      if (!docTree.bookComponentId) {
+        return null
+      }
+      return BookComponent.query().findOne({ id: docTree.bookComponentId })
+    },
+    key: docTree => docTree.id,
+    bookComponentId: async docTree => {
+      if (docTree.bookComponentId) {
+        const { id } = await BookComponent.query().findOne({ id: docTree.bookComponentId })
+        return id
+      }
+    },
+  },
+  Query: {
+    getDocTree,
+    getSharedDocTree,
+  },
+  Mutation: {
+    addResource,
+    deleteResource,
+    renameResource,
+    updateTreePosition,
+  },
+}

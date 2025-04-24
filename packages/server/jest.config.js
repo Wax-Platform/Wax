@@ -1,30 +1,35 @@
 module.exports = {
   collectCoverage: false,
-  // collectCoverageFrom: [
-  //   '<rootDir>/src/models/**/*.model.js',
-  //   '<rootDir>/src/models/useTransaction.js',
-  //   '!<rootDir>/src/models/__tests__/helpers/**',
-  // ],
-  // coverageDirectory: '<rootDir>/coverage',
+  collectCoverageFrom: [
+    '**/*.{js,jsx}',
+    '!**/*test.{js,jsx}',
+    '!**/test/**',
+    '!**/node_modules/**',
+    '!**/config/**',
+    '!**/coverage/**',
+  ],
+  coverageDirectory: '<rootDir>/coverage',
   projects: [
     {
+      displayName: 'graphql',
+      testEnvironment: 'node',
+      testRegex: './api/graphql/__tests__/.+test.js$',
+      globalSetup: './scripts/helpers/_setup.js',
+      globalTeardown: './scripts/helpers/_teardown.js',
+    },
+    /* {
       displayName: 'models',
       testEnvironment: 'node',
-      testRegex: 'models/__tests__/.+test.js$',
-      globalSetup: '<rootDir>/models/__tests__/_setup.js',
-      // globalTeardown: '<rootDir>/src/models/__tests__/_teardown.js',
-    },
+      testRegex: './models/__tests__/.+test.js$',
+      globalSetup: './scripts/helpers/_setup.js',
+      globalTeardown: './scripts/helpers/_teardown.js',
+    }, */
     {
       displayName: 'controllers',
       testEnvironment: 'node',
-      testRegex: 'controllers/__tests__/.+test.js$',
-      globalSetup: '<rootDir>/models/__tests__/_setup.js',
-    },
-    {
-      displayName: 'services',
-      testEnvironment: 'node',
-      testRegex: 'services/__tests__/.+test.js$',
-      // globalSetup: '<rootDir>/models/__tests__/_setup.js',
+      testRegex: './controllers/__tests__/.+test.js$',
+      globalSetup: './scripts/helpers/_setup.js',
+      globalTeardown: './scripts/helpers/_teardown.js',
     },
   ],
   maxWorkers: 1,

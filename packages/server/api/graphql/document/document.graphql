@@ -1,0 +1,22 @@
+type Document {
+  id: ID
+  name: String!
+  extension: String!
+  sectionsKeys: [String!]
+  bookId: String!
+}
+
+extend type Query {
+  getDocument(id: ID!): Document
+  getDocuments(bookId: String!): [Document!]!
+  getFilesFromDocument(id: ID!, start: Int, length: Int): [String!]
+}
+
+extend type Mutation {
+  createDocument(file: Upload!, maxLng: Int, bookId: String!): Document
+  deleteFolder(id: ID!, bookId: ID!): Boolean
+}
+
+extend type Subscription {
+  kbUpdated(bookId: ID!): ID!
+}

@@ -1,0 +1,30 @@
+type InvitationUser {
+  displayName: String
+  email: String
+}
+
+type InvitationMembers {
+  status: String
+  user: InvitationUser
+}
+
+type Invitation {
+  role: String
+  members: [InvitationMembers]
+}
+
+extend type Query {
+  getInvitations(bookComponentId: ID!): [Invitation]!
+}
+
+extend type Mutation {
+  sendInvitations(
+    teamId: ID!
+    bookComponentId: ID!
+    members: [String]!
+    status: String!
+  ): [Invitation]!
+  handleInvitation(token: String!): ID
+  deleteInvitation(bookComponentId: ID!, email: String!): [Invitation]!
+  updateInvitation(bookComponentId: ID!, email: String!, status: String!): [Invitation]!
+}
