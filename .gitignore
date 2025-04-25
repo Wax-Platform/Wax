@@ -80,3 +80,5 @@ uploads/
 .nvmrc
 wax.code-workspace
 .nvmrc
+
+fly-secrets*

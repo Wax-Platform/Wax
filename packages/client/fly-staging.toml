@@ -1,0 +1,27 @@
+# fly.toml app configuration file generated for wax-staging-client on 2025-04-25T13:24:27+03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'wax-staging-client'
+primary_region = 'ord'
+
+[build]
+dockerfile = "Dockerfile-production"
+
+[http_service]
+internal_port = 8080
+force_https = true
+auto_stop_machines = 'stop'
+auto_start_machines = true
+min_machines_running = 0
+processes = ['app']
+
+[[vm]]
+memory = '256mb'
+cpu_kind = 'shared'
+cpu = 1
+
+[env]
+SERVER_URL = 'https://wax-staging-server.fly.dev'
+WEBSOCKET_SERVER_URL = 'wss://wax-staging-server.fly.dev:3333'

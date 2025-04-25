@@ -80,6 +80,7 @@ module.exports = {
     from: 'MAILER_SENDER',
     transport: {
       host: 'MAILER_HOSTNAME',
+      port: 'MAILER_PORT',
       auth: {
         user: 'MAILER_USER',
         pass: 'MAILER_PASSWORD',
