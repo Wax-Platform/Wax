@@ -8,8 +8,6 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 
 WORKDIR /home/node/server
 
-COPY ./scripts/init-pgboss.sql /docker-entrypoint-initdb.d/init-pgboss.sql
-
 COPY package.json .
 COPY yarn.lock .
 

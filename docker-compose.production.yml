@@ -87,8 +87,6 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-wax_dev}
       - POSTGRES_USER=${POSTGRES_USER:-wax_dev_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-wax_dev_user_password}
-    volumes:
-      - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/init-pgboss.sql
 
   filehosting:
     image: minio/minio
