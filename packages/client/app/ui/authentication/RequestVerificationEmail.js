@@ -82,7 +82,7 @@ const RequestVerificationEmail = props => {
               ]}
               status="success"
               subTitle={<SuccessSubTitle userEmail={userEmail} />}
-              title={t('Request successful!'.lowerCase().replace(/ /g, '_'))}
+              title={t('Request successful!'.toLowerCase().replace(/ /g, '_'))}
             />
           </div>
         )}
