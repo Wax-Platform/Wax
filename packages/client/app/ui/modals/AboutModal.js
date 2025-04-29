@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { th } from '@coko/client'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import Modal from '../common/Modal'
-import logoVertical from '../../../static/logoVertical.png'
-import cokoLogo from '../../../static/cokoLogo.png'
+// import logoVertical from '../../../static/logoVertical.png'
+// import cokoLogo from '../../../static/cokoLogo.png'
 
 const InfoCircleOutlinedStyled = styled(InfoCircleOutlined)`
   font-size: 30px;
@@ -27,8 +27,8 @@ const StyledModal = styled(Modal)`
   }
 `
 
+/* background-image: ${`url(${logoVertical})`}; */
 const CenteredLogo = styled.div`
-  background-image: ${`url(${logoVertical})`};
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 520px 142px;
@@ -36,8 +36,8 @@ const CenteredLogo = styled.div`
   margin-bottom: 10px;
 `
 
+/* background-image: ${`url(${cokoLogo})`}; */
 const CenteredCokoLogo = styled.div`
-  background-image: ${`url(${cokoLogo})`};
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 300px 168px;

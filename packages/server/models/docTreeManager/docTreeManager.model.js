@@ -1,10 +1,11 @@
 const { modelTypes, BaseModel } = require('@coko/server')
 const { Team, TeamMember } = require('@pubsweet/models')
+
+const config = require('config')
+
 const {
   addBookComponent,
 } = require('../../controllers/bookComponent.controller')
-
-const config = require('config')
 
 const { booleanDefaultFalse, idNullable, stringNullable, arrayOfIds } =
   modelTypes
@@ -55,7 +56,7 @@ class DocTreeManager extends BaseModel {
   }
 
   static async createUserRootFolder(userId, options = {}) {
-    return await DocTreeManager.createResource({
+    return DocTreeManager.createResource({
       title: 'Root Folder',
       isFolder: true,
       parentId: null,
@@ -66,7 +67,7 @@ class DocTreeManager extends BaseModel {
 
   static async findRootFolderOfUser(userId, options = { trx: null }) {
     if (!userId) {
-      return await DocTreeManager.query(options.trx).findOne({ parentId: null })
+      return DocTreeManager.query(options.trx).findOne({ parentId: null })
     }
 
     const teamMembers = await TeamMember.query(options.trx).where({ userId })
@@ -78,7 +79,7 @@ class DocTreeManager extends BaseModel {
         .whereIn('id', teams)
         .andWhere({ objectType: 'docTreeManager', role: 'owner' })
 
-      return await DocTreeManager.query(options.trx)
+      return DocTreeManager.query(options.trx)
         .whereIn(
           'id',
           userDocNodes.map(docNode => docNode.objectId),
@@ -95,6 +96,7 @@ class DocTreeManager extends BaseModel {
     // Find or create the root folder for that specific user
     if (!parent) {
       parent = await DocTreeManager.findRootFolderOfUser(userId)
+
       if (!parent && userId) {
         // if this is the first time that this user creates a document
         // create a root Node

@@ -86,7 +86,6 @@ const ExporterService = async (
     })
 
     if (fileExtension === 'epub') {
-      
       const assetsTimestamp = `${new Date().getTime()}`
       const EPUBFileTimestamp = `${new Date().getTime() + 1}` // delay it a bit
 
@@ -107,7 +106,7 @@ const ExporterService = async (
       )
 
       await EPUBPreparation(book, template, EPUBtempFolderAssetsPath, isbn)
-      
+
       const filename = await EPUBArchiver(
         EPUBtempFolderAssetsPath,
         EPUBtempFolderFilePath,
@@ -129,7 +128,7 @@ const ExporterService = async (
       }
 
       await fs.remove(EPUBtempFolderAssetsPath)
- 
+
       const localPath = path.join(
         uploadsDir,
         'temp',

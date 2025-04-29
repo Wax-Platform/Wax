@@ -67,7 +67,8 @@ const {
   getBookSettings,
   updateBookSettings,
 } = require('../../../controllers/bookSettings.controller')
-const { bookComponent } = require('../../../models')
+
+// const { bookComponent } = require('../../../models')
 
 // const updateAssociatedTemplateHandler = async (
 //   _,
@@ -306,7 +307,13 @@ const exportBookHandler = async (_, { input }, ctx) => {
   logger.info('book resolver: executing exportBook use case')
 
   return previewer === 'web'
-    ? createWebPreview(bookId, bookComponentId, templateId, ctx.user, additionalExportOptions)
+    ? createWebPreview(
+        bookId,
+        bookComponentId,
+        templateId,
+        ctx.user,
+        additionalExportOptions,
+      )
     : exportBook(
         bookId,
         bookComponentId,
@@ -319,7 +326,12 @@ const exportBookHandler = async (_, { input }, ctx) => {
 }
 
 const publishOnlineHandler = async (_, { input, profileId }, ctx) => {
-  const { bookId, bookComponentId, templateId, additionalExportOptions = {} } = input
+  const {
+    bookId,
+    bookComponentId,
+    templateId,
+    additionalExportOptions = {},
+  } = input
 
   return publishOnline(
     bookId,

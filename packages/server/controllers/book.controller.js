@@ -1806,9 +1806,10 @@ const createWebPreview = async (
   try {
     const book = await bookConstructor(bookId, bookComponentId)
 
-    const bookComponent = await BookComponentTranslation.findOne(
-      { bookComponentId: bookComponentId, languageIso: 'en' },
-    )
+    const bookComponent = await BookComponentTranslation.findOne({
+      bookComponentId,
+      languageIso: 'en',
+    })
 
     let chapters = Array.from(book.divisions.get('body').bookComponents).map(
       ch => ch[1],
@@ -1892,14 +1893,14 @@ const createWebPreview = async (
 
       const timestamp = Date.now()
 
-      console.log({
-        path: `${response.serviceBaseUrl}${flaxBookPathPrefix(
-          'preview',
-          bookId,
-          userId,
-        )}/?timestamp=${timestamp}`,
-        validationResult: undefined,
-      })
+      // console.log({
+      //   path: `${response.serviceBaseUrl}${flaxBookPathPrefix(
+      //     'preview',
+      //     bookId,
+      //     userId,
+      //   )}/?timestamp=${timestamp}`,
+      //   validationResult: undefined,
+      // })
 
       return {
         path: `${response.serviceBaseUrl}${flaxBookPathPrefix(
@@ -1934,11 +1935,12 @@ const publishOnline = async (
   )
 
   try {
-    const book = await bookConstructor(bookId,bookComponentId)
-    
-    const bookComponent = await BookComponentTranslation.findOne(
-      { bookComponentId: bookComponentId, languageIso: 'en' },
-    )
+    const book = await bookConstructor(bookId, bookComponentId)
+
+    const bookComponent = await BookComponentTranslation.findOne({
+      bookComponentId,
+      languageIso: 'en',
+    })
 
     let chapters = Array.from(book.divisions.get('body').bookComponents).map(
       ch => ch[1],
@@ -2005,7 +2007,7 @@ const publishOnline = async (
         null, // icmlNotes
         {
           isbn: pdfProfile.isbn,
-          includeTOC:  false, // pdfProfile.includedComponents.toc,
+          includeTOC: false, // pdfProfile.includedComponents.toc,
           includeCopyrights: false, // pdfProfile.includedComponents.copyright,
           includeTitlePage: pdfProfile.includedComponents.titlePage,
         },
@@ -2027,8 +2029,8 @@ const publishOnline = async (
         null, // icmlNotes
         {
           isbn: epubProfile.isbn,
-          includeTOC: false, //epubProfile.includedComponents.toc,
-          includeCopyrights: false, //epubProfile.includedComponents.copyright,
+          includeTOC: false, // epubProfile.includedComponents.toc,
+          includeCopyrights: false, // epubProfile.includedComponents.copyright,
           includeTitlePage: epubProfile.includedComponents.titlePage,
         },
       )

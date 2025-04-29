@@ -1,6 +1,17 @@
-const { DocTreeManager, BookComponent, Team, TeamMember } = require('@pubsweet/models')
-const { v4: uuidv4 } = require('uuid')
-const { getBookComponent, deleteBookComponent } = require('./bookComponent.controller')
+const {
+  DocTreeManager,
+  BookComponent,
+  Team,
+  TeamMember,
+} = require('@pubsweet/models')
+
+const { uuid: uuidv4 } = require('@coko/server')
+
+const {
+  getBookComponent,
+  deleteBookComponent,
+} = require('./bookComponent.controller')
+
 const BookComponentTranslation = require('../models/bookComponentTranslation/bookComponentTranslation.model')
 
 const deleteResourceRecursively = async (id, ctx) => {
@@ -21,12 +32,13 @@ const deleteResourceRecursively = async (id, ctx) => {
 
   if (deleteResource.isFolder) {
     if (deleteResource.children.length > 0) {
+      /* eslint-disable-next-line no-plusplus */
       for (let i = 0; i < deleteResource.children.length; i++) {
+        /* eslint-disable-next-line no-await-in-loop */
         await deleteResourceRecursively(deleteResource.children[i], ctx)
       }
     }
   } else {
-
     const bookComponent = await getBookComponent(deleteResource.bookComponentId)
 
     if (!bookComponent) {
@@ -36,26 +48,30 @@ const deleteResourceRecursively = async (id, ctx) => {
     const deletedBookComponent = await deleteBookComponent(bookComponent)
 
     if (deletedBookComponent) {
-      const team = await Team.query().findOne({ objectId: deletedBookComponent.id, objectType: 'bookComponent', role: 'owner' })
+      const team = await Team.query().findOne({
+        objectId: deletedBookComponent.id,
+        objectType: 'bookComponent',
+        role: 'owner',
+      })
 
       if (team) {
-        await TeamMember.query()
-          .delete()
-          .where({
-            teamId: team.id,
-            userId: ctx.user
-          })
+        await TeamMember.query().delete().where({
+          teamId: team.id,
+          userId: ctx.user,
+        })
       }
 
-      const teamViewer = await Team.query().findOne({ objectId: deletedBookComponent.id, objectType: 'bookComponent', role: 'viewer' })
+      const teamViewer = await Team.query().findOne({
+        objectId: deletedBookComponent.id,
+        objectType: 'bookComponent',
+        role: 'viewer',
+      })
 
       if (teamViewer) {
-        await TeamMember.query()
-          .delete()
-          .where({
-            teamId: teamViewer.id,
-            userId: ctx.user
-          })
+        await TeamMember.query().delete().where({
+          teamId: teamViewer.id,
+          userId: ctx.user,
+        })
       }
     }
   }
@@ -70,14 +86,17 @@ const DocTreeNested = async (folderId, userId) => {
   )
 
   const getChildren = async children => {
+    /* eslint-disable-next-line no-plusplus */
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       const childItem = AllFiles.find(f => f.id === child)
 
       const doc = childItem.bookComponentId
-        ? getAllDocs.find(doc => doc.id === childItem.bookComponentId)
+        ? /* eslint-disable-next-line no-shadow */
+          getAllDocs.find(doc => doc.id === childItem.bookComponentId)
         : null
 
+      /* eslint-disable-next-line no-param-reassign */
       children[i] = {
         id: childItem.id,
         key: childItem.id,
@@ -86,7 +105,8 @@ const DocTreeNested = async (folderId, userId) => {
         bookComponentId: doc ? doc.id : null,
         children:
           childItem.children.length > 0
-            ? await getChildren(childItem.children)
+            ? /* eslint-disable-next-line no-await-in-loop */
+              await getChildren(childItem.children)
             : [],
       }
     }
@@ -98,11 +118,13 @@ const DocTreeNested = async (folderId, userId) => {
     ? [AllFiles.find(f => f.id === folderId)]
     : AllFiles.filter(f => f.parentId === null)
 
+  /* eslint-disable-next-line no-plusplus */
   for (let i = 0; i < rootNodes.length; i++) {
     const rootNode = rootNodes[i]
 
     const doc = rootNode.bookComponentid
-      ? getAllDocs.find(doc => doc.id === rootNode.bookComponentid)
+      ? /* eslint-disable-next-line no-shadow */
+        getAllDocs.find(doc => doc.id === rootNode.bookComponentid)
       : null
 
     rootNodes[i] = {
@@ -111,17 +133,19 @@ const DocTreeNested = async (folderId, userId) => {
       title: rootNode.title,
       isFolder: rootNode.isFolder,
       bookComponentId: doc ? doc.id : null,
+      /* eslint-disable-next-line no-await-in-loop */
       children: await getChildren(rootNode.children),
     }
   }
 
-  return rootNodes ? rootNodes : null
+  return rootNodes || null
 }
 
 const getDocTree = async (_, { folderId }, ctx) => {
   return JSON.stringify(await DocTreeNested(folderId, ctx.user))
 }
 
+/* eslint-disable-next-line no-empty-pattern */
 const getSharedDocTree = async (_, {}, ctx) => {
   const bookComponents = await BookComponent.getSharedBookComponents(ctx.user)
   let children = []
@@ -150,21 +174,20 @@ const getSharedDocTree = async (_, {}, ctx) => {
 const addResource = async (_, { id, bookId, divisionId, isFolder }, ctx) => {
   if (isFolder) {
     return DocTreeManager.createNewFolderResource({ id, userId: ctx.user })
-  } else {
-    return DocTreeManager.createNewDocumentResource({
-      id,
-      userId: ctx.user,
-      bookComponent: {
-        bookId,
-        componentType: 'chapter',
-        divisionId,
-      }
-    })
   }
+
+  return DocTreeManager.createNewDocumentResource({
+    id,
+    userId: ctx.user,
+    bookComponent: {
+      bookId,
+      componentType: 'chapter',
+      divisionId,
+    },
+  })
 }
 
 const deleteResource = async (_, { id }, ctx) => {
-
   const deleteResourceItem = await DocTreeManager.query().findOne({ id })
 
   if (deleteResourceItem.isFolder) {
@@ -172,14 +195,15 @@ const deleteResource = async (_, { id }, ctx) => {
     return deleteResourceItem
   }
 
-  const isUserTheOwnerOfTheDoc = await BookComponent.isMyBookComponent(deleteResourceItem.bookComponentId ,ctx.user)
+  const isUserTheOwnerOfTheDoc = await BookComponent.isMyBookComponent(
+    deleteResourceItem.bookComponentId,
+    ctx.user,
+  )
 
   if (isUserTheOwnerOfTheDoc) {
-
     deleteResourceRecursively(id, ctx)
 
     if (deleteResourceItem.bookComponentId) {
-      
       const teams = await Team.query()
         .delete()
         .where({ objectId: id })
@@ -191,17 +215,19 @@ const deleteResource = async (_, { id }, ctx) => {
           'teamId',
           teams.map(team => team.id),
         )
-    } 
+    }
   } else {
-    const team = await Team.query().findOne({ objectId: deleteResourceItem.bookComponentId, objectType: 'bookComponent', role: 'viewer' })
+    const team = await Team.query().findOne({
+      objectId: deleteResourceItem.bookComponentId,
+      objectType: 'bookComponent',
+      role: 'viewer',
+    })
 
     if (team) {
-      await TeamMember.query()
-        .delete()
-        .where({
-          teamId: team.id,
-          userId: ctx.user
-        })
+      await TeamMember.query().delete().where({
+        teamId: team.id,
+        userId: ctx.user,
+      })
     }
   }
 

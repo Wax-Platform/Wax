@@ -120,25 +120,39 @@ class BookComponent extends Base {
     return this.$relatedQuery('bookComponentState')
   }
 
+  /* eslint-disable no-shadow */
   static async isMyBookComponent(id, userId) {
+    /* eslint-disable global-require */
     const Team = require('../team/team.model')
     const TeamMember = require('../teamMember/teamMember.model')
+    /* eslint-enable global-require */
 
     let teamMember = null
-    const teamOwnerOfDoc = await Team.query().findOne({ objectType: 'bookComponent', objectId: id, role: 'owner' })
+
+    const teamOwnerOfDoc = await Team.query().findOne({
+      objectType: 'bookComponent',
+      objectId: id,
+      role: 'owner',
+    })
 
     if (teamOwnerOfDoc) {
-      teamMember = await TeamMember.query().findOne({ teamId: teamOwnerOfDoc.id, userId })
+      teamMember = await TeamMember.query().findOne({
+        teamId: teamOwnerOfDoc.id,
+        userId,
+      })
     }
 
-    return teamMember ? true : false
+    return !!teamMember
   }
 
-    static async getSharedBookComponents(userId) {
-      const Team = require('../team/team.model')
-      const TeamMember = require('../teamMember/teamMember.model')
+  static async getSharedBookComponents(userId) {
+    /* eslint-disable global-require */
+    const Team = require('../team/team.model')
+    const TeamMember = require('../teamMember/teamMember.model')
+    /* eslint-enable global-require */
 
     let allBookCompoments = []
+
     if (userId) {
       const teamMembers = await TeamMember.query().where({ userId })
       const teams = (teamMembers || []).map(teamMember => teamMember.teamId)
@@ -160,13 +174,16 @@ class BookComponent extends Base {
     return allBookCompoments
   }
 
-
-    static async getUserBookComponentDetails(userId, bookComponentId, options) {
+  static async getUserBookComponentDetails(userId, bookComponentId, options) {
     try {
       const { trx } = options
 
       const queryBuilder = BookComponent.query(trx)
-        .leftJoin('book_component_translation', 'book_component_translation.book_component_id', 'book_component.id')
+        .leftJoin(
+          'book_component_translation',
+          'book_component_translation.book_component_id',
+          'book_component.id',
+        )
         .leftJoin('teams', 'teams.object_id', 'book_component.id')
         .leftJoin('team_members', 'team_members.team_id', 'teams.id')
         .leftJoin('users', 'users.id', 'team_members.user_id')
@@ -190,7 +207,6 @@ class BookComponent extends Base {
       throw new Error(e.message)
     }
   }
-
 }
 
 module.exports = BookComponent

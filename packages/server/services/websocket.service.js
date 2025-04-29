@@ -90,8 +90,6 @@ const establishYjsConnection = async (injectedWS, request) => {
     variables[key] = value || ''
   })
 
-  console.log(variables, 'variables')
-
   const user = await isAuthenticatedUser(variables.token)
 
   const { userId } = user

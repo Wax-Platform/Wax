@@ -811,6 +811,7 @@ module.exports = {
         bookComponentId: bookComponent.id,
         languageIso: 'en',
       })
+
       if (bookComponentTranslation.yState) {
         return bookComponentTranslation.yState.toString()
       }

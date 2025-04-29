@@ -72,17 +72,21 @@ const prepareBook = async (bookId, bookComponentId, template, options) => {
   const tocComponent = frontDivision.bookComponents.get('toc') || {}
 
   if (featureBookStructure) {
-    tocComponent.content = !isEmpty(tocComponent.content) ? generateContainer(tocComponent, false, 'one') : ''
+    tocComponent.content = !isEmpty(tocComponent.content)
+      ? generateContainer(tocComponent, false, 'one')
+      : ''
   } else {
-    tocComponent.content = !isEmpty(tocComponent.content) ? generateContainer(tocComponent, false) : ''
+    tocComponent.content = !isEmpty(tocComponent.content)
+      ? generateContainer(tocComponent, false)
+      : ''
   }
 
   if (featurePODEnabled) {
-   
     if (includeTitlePage) {
-      const titlePageComponent = frontDivision.bookComponents.get('title-page') || {}
+      const titlePageComponent =
+        frontDivision.bookComponents.get('title-page') || {}
 
-      titlePageComponent.content =  generateTitlePage(
+      titlePageComponent.content = generateTitlePage(
         titlePageComponent,
         book.title,
         book.metadata.authors,
@@ -101,7 +105,8 @@ const prepareBook = async (bookId, bookComponentId, template, options) => {
     }
 
     if (includeCopyrights) {
-      const copyrightComponent = frontDivision.bookComponents.get('copyrights-page') || {}
+      const copyrightComponent =
+        frontDivision.bookComponents.get('copyrights-page') || {}
 
       copyrightComponent.content = generateCopyrightsPage(
         book.title,
@@ -139,63 +144,36 @@ const prepareBook = async (bookId, bookComponentId, template, options) => {
     let counter = 0
     let chapterCounter = 1
     division.bookComponents.forEach(bookComponent => {
-        const { componentType } = bookComponent
-  
-        const isTheFirstInBody = division.type === 'body' && counter === 0
-        const isChapter =
-          division.type === 'body' && componentType === 'chapter'
+      const { componentType } = bookComponent
 
-        if (isChapter) {
-          chapterCounter += 1
-        }
+      const isTheFirstInBody = division.type === 'body' && counter === 0
 
-        // restore previously save toc content, if it exists
-        if (isTheFirstInBody && tocAfterFrontmatter) {
-          tocComponent.content = tocAfterFrontmatter
-        }
-       
-        if (componentType === 'toc' && fileExtension !== 'epub') return
+      const isChapter = division.type === 'body' && componentType === 'chapter'
 
-        let container
-        let cleanedContent
+      if (isChapter) {
+        chapterCounter += 1
+      }
 
-        if (featureBookStructure) {
-          const levelIndex = findIndex(book.bookStructure.levels, {
-            type: componentType,
-          })
+      // restore previously save toc content, if it exists
+      if (isTheFirstInBody && tocAfterFrontmatter) {
+        tocComponent.content = tocAfterFrontmatter
+      }
 
-          if (levelIndex !== -1) {
-            container = generateContainer(
-              bookComponent,
-              isTheFirstInBody,
-              levelMapper[levelIndex],
-            )
-            cleanedContent = cleanHTML(
-              container,
-              bookComponent,
-              notesType,
-              tocComponent,
-              bookComponentsWithMath,
-              endnotesComponent,
-              levelMapper[levelIndex],
-            )
-          } else {
-            container = generateContainer(bookComponent, isTheFirstInBody)
-            cleanedContent = cleanHTML(
-              container,
-              bookComponent,
-              notesType,
-              tocComponent,
-              bookComponentsWithMath,
-              endnotesComponent,
-            )
-          }
-        } else {
-          const levelIndex = bookComponent.parentComponentId ? 2 : 1
+      if (componentType === 'toc' && fileExtension !== 'epub') return
+
+      let container
+      let cleanedContent
+
+      if (featureBookStructure) {
+        const levelIndex = findIndex(book.bookStructure.levels, {
+          type: componentType,
+        })
+
+        if (levelIndex !== -1) {
           container = generateContainer(
             bookComponent,
             isTheFirstInBody,
-            levelIndex,
+            levelMapper[levelIndex],
           )
           cleanedContent = cleanHTML(
             container,
@@ -204,25 +182,51 @@ const prepareBook = async (bookId, bookComponentId, template, options) => {
             tocComponent,
             bookComponentsWithMath,
             endnotesComponent,
-            levelIndex,
-            chapterCounter,
-            isTheFirstInBody,
+            levelMapper[levelIndex],
           )
-         
+        } else {
+          container = generateContainer(bookComponent, isTheFirstInBody)
+          cleanedContent = cleanHTML(
+            container,
+            bookComponent,
+            notesType,
+            tocComponent,
+            bookComponentsWithMath,
+            endnotesComponent,
+          )
         }
+      } else {
+        const levelIndex = bookComponent.parentComponentId ? 2 : 1
+        container = generateContainer(
+          bookComponent,
+          isTheFirstInBody,
+          levelIndex,
+        )
+        cleanedContent = cleanHTML(
+          container,
+          bookComponent,
+          notesType,
+          tocComponent,
+          bookComponentsWithMath,
+          endnotesComponent,
+          levelIndex,
+          chapterCounter,
+          isTheFirstInBody,
+        )
+      }
 
-        // HACK: store a copy of TOC after finishing the frontmatter
-        // the link to the TOC gets unexplicably deleted, i can't solve it otherwise
-        if (bookComponent.componentType === 'toc' && fileExtension === 'epub') {
-          tocAfterFrontmatter = tocComponent.content
-        }
+      // HACK: store a copy of TOC after finishing the frontmatter
+      // the link to the TOC gets unexplicably deleted, i can't solve it otherwise
+      if (bookComponent.componentType === 'toc' && fileExtension === 'epub') {
+        tocAfterFrontmatter = tocComponent.content
+      }
 
-        const { content, hasMath } = cleanedContent
-        /* eslint-disable no-param-reassign */
-        bookComponent.hasMath = hasMath
-        bookComponent.content = cleanDataAttributes(content)
-        /* eslint-enable no-param-reassign */
-        counter += 1
+      const { content, hasMath } = cleanedContent
+      /* eslint-disable no-param-reassign */
+      bookComponent.hasMath = hasMath
+      bookComponent.content = cleanDataAttributes(content)
+      /* eslint-enable no-param-reassign */
+      counter += 1
     })
   })
 

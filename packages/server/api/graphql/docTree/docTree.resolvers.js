@@ -1,4 +1,3 @@
-
 const { BookComponent } = require('@pubsweet/models')
 
 const {
@@ -9,7 +8,8 @@ const {
   getDocTree,
   getSharedDocTree,
 } = require('../../../controllers/docTree.controllers')
-const { getObjectTeam } = require('../../../controllers/team.controller')
+
+// const { getObjectTeam } = require('../../../controllers/team.controller')
 
 module.exports = {
   DocTree: {
@@ -17,12 +17,17 @@ module.exports = {
       if (!docTree.bookComponentId) {
         return null
       }
+
       return BookComponent.query().findOne({ id: docTree.bookComponentId })
     },
     key: docTree => docTree.id,
+    /* eslint-disable-next-line consistent-return */
     bookComponentId: async docTree => {
       if (docTree.bookComponentId) {
-        const { id } = await BookComponent.query().findOne({ id: docTree.bookComponentId })
+        const { id } = await BookComponent.query().findOne({
+          id: docTree.bookComponentId,
+        })
+
         return id
       }
     },

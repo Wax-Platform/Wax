@@ -22,7 +22,7 @@ const divisionTypeMapper = {
   Backmatter: 'back',
 }
 
-module.exports = async (bookId, id,  options = {}) => {
+module.exports = async (bookId, id, options = {}) => {
   try {
     const { forceISBN, isEPUB } = options
     const finalBook = {}
@@ -66,9 +66,9 @@ module.exports = async (bookId, id,  options = {}) => {
       if (component.id !== id && component.divisionId === bodyDivision.id) {
         return false
       }
-        return true
-    })
 
+      return true
+    })
 
     const bookComponentsWithState = await Promise.all(
       map(bookComponents, async bookComponent => {
@@ -145,7 +145,6 @@ module.exports = async (bookId, id,  options = {}) => {
         }
       },
     )
-
 
     if (featurePODEnabled) {
       if (book.podMetadata.authors) {
@@ -239,9 +238,6 @@ module.exports = async (bookId, id,  options = {}) => {
           tempDivision.bookComponents.set(bookComponentId, bookComponent)
         }
       })
-
-
-
 
       bookDivisions.set(divisionTypeMapper[division.label], tempDivision)
     }

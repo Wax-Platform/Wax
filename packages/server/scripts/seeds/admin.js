@@ -3,6 +3,7 @@ const Identity = require('@coko/server/src/models/identity/identity.model')
 const Team = require('../../models/team/team.model')
 const User = require('../../models/user/user.model')
 const DocTreeManager = require('../../models/docTreeManager/docTreeManager.model')
+
 const seedAdmin = async userData => {
   try {
     logger.info('### CREATING ADMIN USER ###')

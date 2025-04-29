@@ -1,21 +1,21 @@
 /* eslint-disable no-param-reassign */
 const { WebSocketServer } = require('ws')
-const { logger } = require('@coko/server')
-const config = require('config')
+// const { logger } = require('@coko/server')
+// const config = require('config')
 // const utils = require('./services/yjsWebsocket/utils')
 
 const {
-  establishConnection,
+  // establishConnection,
   establishYjsConnection,
-  heartbeat,
-  initializeHeartbeat,
-  initializeFailSafeUnlocking,
+  // heartbeat,
+  // initializeHeartbeat,
+  // initializeFailSafeUnlocking,
 } = require('./services/websocket.service')
 
-const { unlockBookComponent } = require('./services/bookComponentLock.service')
-const { updateLastActiveAt } = require('./controllers/lock.controller')
+// const { unlockBookComponent } = require('./services/bookComponentLock.service')
+// const { updateLastActiveAt } = require('./controllers/lock.controller')
 
-let WSServer
+// let WSServer
 let WSServerYjs
 
 const startWSServer = async server => {
@@ -78,7 +78,8 @@ const startWSServer = async server => {
     // }
 
     WSServerYjs.on('connection', async (ws, req) => {
-      const { doc, pingInterval } = await establishYjsConnection(ws, req)
+      // const { doc, pingInterval } = await establishYjsConnection(ws, req)
+      await establishYjsConnection(ws, req)
     })
 
     // // WS_SERVER EVENT LISTENERS SECTION

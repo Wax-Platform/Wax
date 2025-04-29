@@ -164,12 +164,12 @@ const InitBook = props => {
 
 InitBook.propTypes = {
   onCreateBook: PropTypes.func,
-  onImportBook: PropTypes.func,
+  // onImportBook: PropTypes.func,
 }
 
 InitBook.defaultProps = {
   onCreateBook: null,
-  onImportBook: null,
+  // onImportBook: null,
 }
 
 export default InitBook

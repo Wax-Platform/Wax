@@ -30,7 +30,7 @@ export default (content = '<p>hello</p>') => {
       return {
         update: editorView => {
           const pluginState = getSyncContentPlugin.getState(editorView.state)
-          
+
           if (pluginState.inserted) return
 
           const {

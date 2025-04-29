@@ -4,8 +4,8 @@ const RobotSvg = () => (
   <svg
     fill="currentColor"
     height="1em"
-    version="1.1"
     transform="scale(1.4)"
+    version="1.1"
     viewBox="0 0 512 512"
     width="1em"
     xmlns="http://www.w3.org/2000/svg"

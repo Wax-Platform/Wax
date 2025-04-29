@@ -176,7 +176,7 @@ const Header = props => {
         data-test="header-back-link"
         key="back"
         style={{ position: 'absolute' }}
-        to={`/`}
+        to="/"
       >
         {t('backToBook')}
       </UnstyledLink>,
@@ -212,10 +212,10 @@ const Header = props => {
             <PopupContentWrapper>
               <LanguageSwitcher languages={languages} />
               <UnstyledLink
-                to={homeURL}
                 onClick={() => {
                   history.push('/')
                 }}
+                to={homeURL}
               >
                 Editor
               </UnstyledLink>

@@ -51,7 +51,10 @@ const deleteInvitationHandler = async (_, { bookComponentId, email }) => {
   return deleteInvitation(bookComponentId, email)
 }
 
-const updateInvitationHandler = async (_, { bookComponentId, email, status }) => {
+const updateInvitationHandler = async (
+  _,
+  { bookComponentId, email, status },
+) => {
   return updateInvitation(bookComponentId, email, status)
 }
 

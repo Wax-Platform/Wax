@@ -1,4 +1,4 @@
-﻿/* stylelint-disable no-descending-specificity */
+﻿/* stylelint-disable no-descending-specificity, string-quotes */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import React from 'react'
@@ -337,9 +337,7 @@ PreviewSettings.propTypes = {
     value: PropTypes.string.isRequired,
     format: PropTypes.oneOf(['pdf', 'epub', 'web']),
     size: PropTypes.oneOf(['8.5x11', '6x9', '5.5x8.5']),
-    content: PropTypes.arrayOf(
-      PropTypes.oneOf(['includeTitlePage']),
-    ),
+    content: PropTypes.arrayOf(PropTypes.oneOf(['includeTitlePage'])),
     template: PropTypes.string,
     isbn: PropTypes.string,
   }).isRequired,

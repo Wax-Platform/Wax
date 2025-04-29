@@ -1,4 +1,6 @@
 /* eslint-disable react/prop-types */
+/* stylelint-disable string-quotes */
+
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
@@ -139,7 +141,7 @@ const ExportOptionsSection = props => {
   const isEpub = selectedFormat === 'epub'
   const isWeb = selectedFormat === 'web'
   const contentOptions = makeContentOptions(isPdf, isEpub, hasCover)
-  const contentValue = selectedContent
+  // const contentValue = selectedContent
   // if (isEpub && !contentValue.includes('includeTOC'))
   //   contentValue.push('includeTOC')
 

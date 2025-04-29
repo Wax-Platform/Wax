@@ -1,10 +1,8 @@
-/* eslint-disable react/prop-types */
-
 import React, { useState } from 'react'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
 
-import { uuid } from '@coko/client'
+import { uuid, webSocketServerUrl } from '@coko/client'
 
 const YjsContext = React.createContext({
   wsProvider: null,
@@ -61,7 +59,7 @@ const YjsProvider = ({ children }) => {
 
     // eslint-disable-next-line no-restricted-globals
     provider = new WebsocketProvider(
-      'ws://localhost:3333',
+      webSocketServerUrl,
       identifier,
       ydocInstance,
       {

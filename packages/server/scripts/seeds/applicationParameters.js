@@ -58,9 +58,7 @@ const truncate = async () => {
 const seedApplicationParameters = async () => {
   try {
     if (!flavour) {
-      throw new Error(
-        'env variable WAX_FLAVOUR is needed in order to continue',
-      )
+      throw new Error('env variable WAX_FLAVOUR is needed in order to continue')
     }
 
     const selectedConfig = await whichConfig()

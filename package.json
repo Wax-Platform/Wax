@@ -28,7 +28,9 @@
   "resolutions": {
     "postcss": "8"
   },
-  "dependencies": {},
+  "dependencies": {
+    "jest": "^29.7.0"
+  },
   "devDependencies": {
     "@coko/lint": "^2.1.0"
   },

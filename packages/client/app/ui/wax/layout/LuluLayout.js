@@ -1,4 +1,4 @@
-/* stylelint-disable no-descending-specificity */
+/* stylelint-disable no-descending-specificity, string-quotes */
 import React, { useContext, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -523,12 +523,12 @@ const LuluLayout = ({ customProps, ...rest }) => {
     onChapterClick,
     onUploadChapter, // WE KEEP FOR DOC UPLOAD
     selectedChapterId,
-    title,
-    onSubmitBookMetadata,
-    bookMetadataValues,
-    chaptersActionInProgress,
-    canEdit,
-    onUploadBookCover,
+    // title,
+    // onSubmitBookMetadata,
+    // bookMetadataValues,
+    // chaptersActionInProgress,
+    // canEdit,
+    // onUploadBookCover,
     viewMetadata,
     setViewMetadata,
     settings,

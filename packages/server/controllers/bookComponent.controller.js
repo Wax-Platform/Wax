@@ -28,6 +28,7 @@ const { createTeam, getObjectTeam } = require('./team.controller')
 const { STATUSES } = require('../api/graphql/bookComponent/constants')
 
 const { TEAM_MEMBERS_UPDATED } = require('../api/graphql/team/constants')
+
 const {
   YJS_CONTENT_UPDATED,
 } = require('../api/graphql/bookComponent/constants')
@@ -375,6 +376,7 @@ const addBookComponent = async (
 const updateContent = async (bookComponentId, content, languageIso) => {
   try {
     const pubsub = await pubsubManager.getPubsub()
+
     const bookComponentTranslation = await BookComponentTranslation.findOne({
       bookComponentId,
       languageIso,

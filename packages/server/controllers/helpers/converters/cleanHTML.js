@@ -14,7 +14,6 @@ module.exports = (
   chapterCounter = undefined,
   isTheFirstInBody = false,
 ) => {
- 
   const {
     title,
     componentType,
@@ -72,7 +71,7 @@ module.exports = (
   }
 
   let chapterEndnotes
-  
+
   if (notesType === 'chapterEnd') {
     chapterEndnotes = cheerio.load(
       `<aside class="footnotes"><h2 class="notes-title">Notes</h2></aside>`,

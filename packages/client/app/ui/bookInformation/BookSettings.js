@@ -1,4 +1,4 @@
-/* stylelint-disable declaration-no-important */
+/* stylelint-disable declaration-no-important, string-quotes */
 /* eslint-disable react/prop-types */
 import React from 'react'
 import styled from 'styled-components'

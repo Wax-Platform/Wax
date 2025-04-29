@@ -26,5 +26,9 @@ extend type Mutation {
   ): [Invitation]!
   handleInvitation(token: String!): ID
   deleteInvitation(bookComponentId: ID!, email: String!): [Invitation]!
-  updateInvitation(bookComponentId: ID!, email: String!, status: String!): [Invitation]!
+  updateInvitation(
+    bookComponentId: ID!
+    email: String!
+    status: String!
+  ): [Invitation]!
 }

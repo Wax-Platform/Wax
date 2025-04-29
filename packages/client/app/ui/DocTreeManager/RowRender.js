@@ -1,5 +1,8 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable no-param-reassign */
+
+/* stylelint-disable no-descending-specificity, declaration-no-important */
+
 import React, { useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
@@ -16,12 +19,12 @@ import DocumentContext from '../documentProvider/DocumentProvider'
 import Button from '../common/Button'
 
 const RowContainer = styled.div`
+  color: ${props => (props.isActive ? 'black' : 'inherit')};
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
+  font-weight: ${props => (props.isActive ? '600' : 'normal')};
   margin-bottom: 5px;
-  color: ${props => (props.isActive ? 'black' : 'inherit')}
-  font-weight: ${props => (props.isActive ? '600' : 'normal')}
+  margin-top: 10px;
 `
 
 const TitleToolsContainer = styled.div`
@@ -37,12 +40,12 @@ const ToolsContainer = styled.div`
 
 const StyledFolderFileBtn = styled(Button)`
   background-color: transparent;
-  text-decoration: none;
   border: none;
-  outline: 0 !important;
-  width: fit-content;
-  padding: 0;
   margin-left: 10px;
+  outline: 0 !important;
+  padding: 0;
+  text-decoration: none;
+  width: fit-content;
 
   &:active,
   &:focus,
@@ -52,6 +55,7 @@ const StyledFolderFileBtn = styled(Button)`
 
   svg {
     fill: #4c4949;
+
     &:active,
     &:focus,
     &:hover {
@@ -61,10 +65,10 @@ const StyledFolderFileBtn = styled(Button)`
 `
 
 const StyledInput = styled.input`
+  background-color: #f4f2f2;
+  border: 2px solid #4c4949;
   margin-right: 5px;
 
-  border: 2px solid #4c4949;
-  background-color: #f4f2f2;
   :focus {
     outline: none;
   }
@@ -73,6 +77,7 @@ const StyledInput = styled.input`
 const StyledApplyButton = styled(Button)`
   background-color: #4c4949;
   color: #fff;
+
   &:hover {
     background-color: #4c4949 !important;
     color: #fff !important;
@@ -84,8 +89,8 @@ const IconTitleContainer = styled.div`
   flex-direction: row;
 
   span {
-    margin-right: 5px;
     margin-bottom: 10px;
+    margin-right: 5px;
 
     svg {
       fill: #4c4949;
@@ -134,6 +139,7 @@ const RowRender = row => {
     )
   }
 
+  /* eslint-disable-next-line consistent-return */
   const goToDocument = e => {
     if (!lock) {
       lock = true

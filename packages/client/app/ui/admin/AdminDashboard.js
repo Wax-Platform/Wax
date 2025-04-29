@@ -184,8 +184,8 @@ const AdminDashboard = props => {
   const {
     aiEnabled,
     chatGptApiKey,
-    luluToggleConfig,
-    luluUpdateConfig,
+    // luluToggleConfig,
+    // luluUpdateConfig,
     luluConfig,
     paramsLoading,
     termsAndConditions,
@@ -205,7 +205,7 @@ const AdminDashboard = props => {
   const [newLanguageForm] = Form.useForm()
   const [luluConfigForm] = Form.useForm()
   const [enableAI, setEnableAI] = useState(aiEnabled)
-  const [luluConfigUpdateResult, setLuluConfigUpdateResult] = useState()
+  // const [luluConfigUpdateResult, setLuluConfigUpdateResult] = useState()
   const [keyUpdateResult, setKeyUpdateResult] = useState()
   const [tcUpdateResult, setTCUpdateResult] = useState()
   const [newLanguage, setNewLanguage] = useState()
@@ -270,35 +270,35 @@ const AdminDashboard = props => {
       })
   }
 
-  const updateLuluConfig = () => {
-    const { location } = window
-    luluConfigForm.validateFields().then(vals => {
-      const data = {
-        ...vals,
-        redirectUri: `${location.protocol}//${location.host}${vals.redirectUri}`,
-      }
+  // const updateLuluConfig = () => {
+  //   const { location } = window
+  //   luluConfigForm.validateFields().then(vals => {
+  //     const data = {
+  //       ...vals,
+  //       redirectUri: `${location.protocol}//${location.host}${vals.redirectUri}`,
+  //     }
 
-      luluUpdateConfig(data)
-        .then(() => {
-          setLuluConfigUpdateResult({
-            success: true,
-            message: t('integrations.lulu.updateConfig.success'),
-          })
-          setTimeout(() => {
-            setLuluConfigUpdateResult(null)
-          }, 5000)
-        })
-        .catch(() => {
-          setLuluConfigUpdateResult({
-            success: false,
-            message: t('integrations.lulu.updateConfig.error'),
-          })
-          setTimeout(() => {
-            setLuluConfigUpdateResult(null)
-          }, 5000)
-        })
-    })
-  }
+  //     luluUpdateConfig(data)
+  //       .then(() => {
+  //         setLuluConfigUpdateResult({
+  //           success: true,
+  //           message: t('integrations.lulu.updateConfig.success'),
+  //         })
+  //         setTimeout(() => {
+  //           setLuluConfigUpdateResult(null)
+  //         }, 5000)
+  //       })
+  //       .catch(() => {
+  //         setLuluConfigUpdateResult({
+  //           success: false,
+  //           message: t('integrations.lulu.updateConfig.error'),
+  //         })
+  //         setTimeout(() => {
+  //           setLuluConfigUpdateResult(null)
+  //         }, 5000)
+  //       })
+  //   })
+  // }
 
   const addLanguage = () => {
     newLanguageForm
@@ -874,8 +874,8 @@ const AdminDashboard = props => {
 
 AdminDashboard.propTypes = {
   aiEnabled: PropTypes.bool,
-  luluToggleConfig: PropTypes.func,
-  luluUpdateConfig: PropTypes.func,
+  // luluToggleConfig: PropTypes.func,
+  // luluUpdateConfig: PropTypes.func,
   luluConfig: PropTypes.shape(),
   paramsLoading: PropTypes.bool,
   termsAndConditions: PropTypes.string,
@@ -891,8 +891,8 @@ AdminDashboard.propTypes = {
 
 AdminDashboard.defaultProps = {
   aiEnabled: false,
-  luluToggleConfig: null,
-  luluUpdateConfig: null,
+  // luluToggleConfig: null,
+  // luluUpdateConfig: null,
   luluConfig: null,
   paramsLoading: false,
   termsAndConditions: '',

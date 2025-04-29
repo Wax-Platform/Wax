@@ -7,7 +7,7 @@ const {
 
 const { bookComponentInvite } = require('./helpers/emailTemplates')
 
-const { Invitations, Book } = require('../models').models
+const { Invitations, BookComponent } = require('../models').models
 
 const sendInvitations = async (invitationData, userId, options = {}) => {
   try {
@@ -18,10 +18,13 @@ const sendInvitations = async (invitationData, userId, options = {}) => {
     //   trx,
     // })
 
-    const bookComponent = await BookComponent.getUserBookComponentDetails(userId, invitationData.bookComponentId, {
-      trx,
-    })
-
+    const bookComponent = await BookComponent.getUserBookComponentDetails(
+      userId,
+      invitationData.bookComponentId,
+      {
+        trx,
+      },
+    )
 
     const invitations = invitationData.members.map(member => ({
       teamId: invitationData.teamId,
@@ -89,7 +92,9 @@ const getInvitations = async (bookComponentId, options = {}) => {
 
     return useTransaction(
       async tr => {
-        const invitations = await Invitations.query(tr).where({ bookComponentId })
+        const invitations = await Invitations.query(tr).where({
+          bookComponentId,
+        })
 
         return [
           {
@@ -113,7 +118,12 @@ const getInvitations = async (bookComponentId, options = {}) => {
   }
 }
 
-const updateInvitation = async (bookComponentId, email, status, options = {}) => {
+const updateInvitation = async (
+  bookComponentId,
+  email,
+  status,
+  options = {},
+) => {
   try {
     const { trx } = options
     logger.info(`updateInvitation: email ${email} status ${status}`)

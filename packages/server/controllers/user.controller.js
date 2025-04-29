@@ -115,8 +115,6 @@ const ketidaResendVerificationEmail = async (email, options = {}) => {
           { trx: tr },
         )
 
-        console.log('identity', identity)
-
         if (!identity)
           throw new Error(
             `[USER CONTROLLER] - ketidaResendVerificationEmail: Token does not correspond to an identity`,

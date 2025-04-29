@@ -183,7 +183,7 @@ const DocTreeManager = ({
 
   const [defaultState, setDefaultState] = useState(expandFilesArea)
 
-    useSubscription(YJS_CONTENT_UPDATED_SUBSCRIPTION, {
+  useSubscription(YJS_CONTENT_UPDATED_SUBSCRIPTION, {
     variables: { id: bookComponentId },
     fetchPolicy: 'network-only',
     onData: async () => {

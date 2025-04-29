@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 
 // import useWebSocket from 'react-use-websocket'
-import { useHistory, useParams } from 'react-router-dom'
+import {
+  useHistory,
+  // useParams
+} from 'react-router-dom'
 import {
   useQuery,
   useLazyQuery,
@@ -17,13 +20,13 @@ import {
   GET_ENTIRE_BOOK,
   GET_BOOK_SETTINGS,
   RENAME_BOOK_COMPONENT,
-  UPDATE_BOOK_COMPONENT_CONTENT,
-  UPDATE_BOOK_COMPONENT_TYPE,
-  DELETE_BOOK_COMPONENT,
-  CREATE_BOOK_COMPONENT,
+  // UPDATE_BOOK_COMPONENT_CONTENT,
+  // UPDATE_BOOK_COMPONENT_TYPE,
+  // DELETE_BOOK_COMPONENT,
+  // CREATE_BOOK_COMPONENT,
   INGEST_WORD_FILES,
   UPDATE_BOOK_POD_METADATA,
-  UPDATE_BOOK_COMPONENTS_ORDER,
+  // UPDATE_BOOK_COMPONENTS_ORDER,
   UPLOAD_FILES,
   // LOCK_BOOK_COMPONENT_POD,
   RENAME_BOOK,
@@ -34,7 +37,7 @@ import {
   USE_CHATGPT,
   APPLICATION_PARAMETERS,
   SET_BOOK_COMPONENT_STATUS,
-  UPDATE_BOOK_COMPONENT_PARENT_ID,
+  // UPDATE_BOOK_COMPONENT_PARENT_ID,
   RAG_SEARCH,
   GET_COMMENTS,
   ADD_COMMENTS,
@@ -108,7 +111,7 @@ const constructMetadataValues = (title, podMetadata, cover) => {
 
 // eslint-disable-next-line react/prop-types
 const ProducerPage = ({ bookId }) => {
-  const { bookComponentId } = useParams()
+  // const { bookComponentId } = useParams()
   // #region INITIALIZATION SECTION START
   const { createYjsProvider, wsProvider, ydoc } = useContext(YjsContext)
   const history = useHistory()
@@ -143,9 +146,9 @@ const ProducerPage = ({ bookId }) => {
   const [viewMetadata, setViewMetadata] = useState('')
   const [isCurrentDocumentMine, setIsCurrentDocumentMine] = useState(null)
   const [canModify, setCanModify] = useState(true)
+
   const [currentBookComponentContent, setCurrentBookComponentContent] =
     useState(null)
-
 
   // const token = localStorage.getItem('token')
 
@@ -215,13 +218,15 @@ const ProducerPage = ({ bookId }) => {
         }
       },
       onCompleted: data => {
-        if (data.getBookComponent.content && data.getBookComponent.yState === null ) {
-          console.log('has content with no State')
-          console.log(data.getBookComponent.yState)
+        if (
+          data.getBookComponent.content &&
+          data.getBookComponent.yState === null
+        ) {
           setCurrentBookComponentContent(data.getBookComponent.content)
         } else {
           setCurrentBookComponentContent('')
         }
+
         getComments({
           variables: {
             bookId,
@@ -300,7 +305,7 @@ const ProducerPage = ({ bookId }) => {
 
       window.history.replaceState('', document.title, window.location.pathname)
     }
-    
+
     return () => wsProvider?.disconnect()
   }, [])
 
@@ -412,34 +417,34 @@ const ProducerPage = ({ bookId }) => {
   }, [bookQueryData?.getBook.bookSettings?.aiOn])
 
   // MUTATIONS SECTION START
-  const [updateContent] = useMutation(UPDATE_BOOK_COMPONENT_CONTENT, {
-    onError: err => {
-      if (err.toString().includes('Not Authorised')) {
-        showUnauthorizedActionModal(false)
-      } else if (!reconnecting) showGenericErrorModal()
-    },
-  })
+  // const [updateContent] = useMutation(UPDATE_BOOK_COMPONENT_CONTENT, {
+  //   onError: err => {
+  //     if (err.toString().includes('Not Authorised')) {
+  //       showUnauthorizedActionModal(false)
+  //     } else if (!reconnecting) showGenericErrorModal()
+  //   },
+  // })
 
   const [addComments] = useMutation(ADD_COMMENTS)
 
-  const [updateBookComponentType, { loading: componentTypeInProgress }] =
-    useMutation(UPDATE_BOOK_COMPONENT_TYPE, {
-      onError: err => {
-        if (err.toString().includes('Not Authorised')) {
-          showUnauthorizedActionModal(false)
-        } else if (!reconnecting) showGenericErrorModal()
-      },
-    })
+  // const [updateBookComponentType, { loading: componentTypeInProgress }] =
+  //   useMutation(UPDATE_BOOK_COMPONENT_TYPE, {
+  //     onError: err => {
+  //       if (err.toString().includes('Not Authorised')) {
+  //         showUnauthorizedActionModal(false)
+  //       } else if (!reconnecting) showGenericErrorModal()
+  //     },
+  //   })
 
-  const [updateBookComponentParentId, { loading: parentIdInProgress }] =
-    useMutation(UPDATE_BOOK_COMPONENT_PARENT_ID, {
-      refetchQueries: [GET_ENTIRE_BOOK],
-      onError: err => {
-        if (err.toString().includes('Not Authorised')) {
-          showUnauthorizedActionModal(false)
-        } else if (!reconnecting) showGenericErrorModal()
-      },
-    })
+  // const [updateBookComponentParentId, { loading: parentIdInProgress }] =
+  //   useMutation(UPDATE_BOOK_COMPONENT_PARENT_ID, {
+  //     refetchQueries: [GET_ENTIRE_BOOK],
+  //     onError: err => {
+  //       if (err.toString().includes('Not Authorised')) {
+  //         showUnauthorizedActionModal(false)
+  //       } else if (!reconnecting) showGenericErrorModal()
+  //     },
+  //   })
 
   const [
     setBookComponentStatus,
@@ -468,15 +473,15 @@ const ProducerPage = ({ bookId }) => {
     },
   })
 
-  const [createBookComponent, { loading: addBookComponentInProgress }] =
-    useMutation(CREATE_BOOK_COMPONENT, {
-      refetchQueries: [GET_ENTIRE_BOOK],
-      onError: err => {
-        if (err.toString().includes('Not Authorised')) {
-          showUnauthorizedActionModal(false)
-        } else if (!reconnecting) showGenericErrorModal()
-      },
-    })
+  // const [createBookComponent, { loading: addBookComponentInProgress }] =
+  //   useMutation(CREATE_BOOK_COMPONENT, {
+  //     refetchQueries: [GET_ENTIRE_BOOK],
+  //     onError: err => {
+  //       if (err.toString().includes('Not Authorised')) {
+  //         showUnauthorizedActionModal(false)
+  //       } else if (!reconnecting) showGenericErrorModal()
+  //     },
+  //   })
 
   const [renameBookComponent] = useMutation(RENAME_BOOK_COMPONENT, {
     variables: {
@@ -491,25 +496,25 @@ const ProducerPage = ({ bookId }) => {
     },
   })
 
-  const [deleteBookComponent, { loading: deleteBookComponentInProgress }] =
-    useMutation(DELETE_BOOK_COMPONENT, {
-      refetchQueries: [GET_ENTIRE_BOOK],
-      onError: err => {
-        if (err.toString().includes('Not Authorised')) {
-          showUnauthorizedActionModal(false)
-        } else if (!reconnecting) showGenericErrorModal()
-      },
-    })
+  // const [deleteBookComponent, { loading: deleteBookComponentInProgress }] =
+  //   useMutation(DELETE_BOOK_COMPONENT, {
+  //     refetchQueries: [GET_ENTIRE_BOOK],
+  //     onError: err => {
+  //       if (err.toString().includes('Not Authorised')) {
+  //         showUnauthorizedActionModal(false)
+  //       } else if (!reconnecting) showGenericErrorModal()
+  //     },
+  //   })
 
-  const [updateBookComponentsOrder, { loading: changeOrderInProgress }] =
-    useMutation(UPDATE_BOOK_COMPONENTS_ORDER, {
-      refetchQueries: [GET_ENTIRE_BOOK],
-      onError: err => {
-        if (err.toString().includes('Not Authorised')) {
-          showUnauthorizedActionModal(false)
-        } else if (!reconnecting) showGenericErrorModal()
-      },
-    })
+  // const [updateBookComponentsOrder, { loading: changeOrderInProgress }] =
+  //   useMutation(UPDATE_BOOK_COMPONENTS_ORDER, {
+  //     refetchQueries: [GET_ENTIRE_BOOK],
+  //     onError: err => {
+  //       if (err.toString().includes('Not Authorised')) {
+  //         showUnauthorizedActionModal(false)
+  //       } else if (!reconnecting) showGenericErrorModal()
+  //     },
+  //   })
 
   const [ingestWordFile, { loading: ingestWordFileInProgress }] = useMutation(
     INGEST_WORD_FILES,
@@ -994,12 +999,11 @@ const ProducerPage = ({ bookId }) => {
 
   useEffect(() => {
     if (wsProvider) {
-      console.log('disconnect')
       wsProvider?.disconnect()
     }
 
     if (selectedChapterId) {
-      setTimeout(() => {    
+      setTimeout(() => {
         createYjsProvider({
           currentUser,
           identifier: selectedChapterId,
@@ -1038,13 +1042,12 @@ const ProducerPage = ({ bookId }) => {
   // }, [applicationParametersLoading, loading, bookComponentLoading])
 
   const chaptersActionInProgress =
-    changeOrderInProgress ||
-    addBookComponentInProgress ||
-    deleteBookComponentInProgress ||
-    ingestWordFileInProgress ||
-    setBookComponentStatusInProgress ||
-    componentTypeInProgress ||
-    parentIdInProgress
+    ingestWordFileInProgress || setBookComponentStatusInProgress
+  // changeOrderInProgress ||
+  // addBookComponentInProgress ||
+  // deleteBookComponentInProgress ||
+  // componentTypeInProgress ||
+  // parentIdInProgress
 
   const isAIEnabled = find(
     applicationParametersData?.getApplicationParameters,
@@ -1069,7 +1072,7 @@ const ProducerPage = ({ bookId }) => {
     .flat()
     .filter(member => !!member)
 
-  if (!wsProvider || currentBookComponentContent === null ) return null
+  if (!wsProvider || currentBookComponentContent === null) return null
 
   return (
     <Editor
@@ -1077,8 +1080,8 @@ const ProducerPage = ({ bookId }) => {
       addResource={addResource}
       aiEnabled={isAIEnabled?.config}
       aiOn={aiOn}
-      bookComponentContent={currentBookComponentContent}
       bodyDivisionId={getBodyDivisionId()}
+      bookComponentContent={currentBookComponentContent}
       bookId={bookId}
       bookMembers={members}
       bookMetadataValues={bookMetadataValues}
@@ -1114,17 +1117,17 @@ const ProducerPage = ({ bookId }) => {
       onUploadChapter={onUploadChapter}
       queryAI={queryAI}
       renameResource={renameResource}
+      reorderResource={reorderResource}
       selectedChapterId={selectedChapterId}
+      setIsCurrentDocumentMine={setIsCurrentDocumentMine}
+      setSelectedChapterId={setSelectedChapterId}
       settings={bookQueryData?.getBook.bookSettings}
       setViewMetadata={setViewMetadata}
       title={bookQueryData?.getBook.title}
       user={currentUser}
       viewMetadata={viewMetadata}
-      reorderResource={reorderResource}
       wsProvider={wsProvider}
       ydoc={ydoc}
-      setSelectedChapterId={setSelectedChapterId}
-      setIsCurrentDocumentMine={setIsCurrentDocumentMine}
     />
   )
 }

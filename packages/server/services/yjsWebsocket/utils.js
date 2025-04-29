@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-const pick = require('lodash/pick')
+// const pick = require('lodash/pick')
 const syncProtocol = require('y-protocols/dist/sync.cjs')
 const awarenessProtocol = require('y-protocols/dist/awareness.cjs')
 const encoding = require('lib0/encoding')
@@ -10,7 +9,7 @@ const Y = require('yjs')
 const { db } = require('@coko/server')
 
 const WSSharedDoc = require('./wsSharedDoc')
-const { CollaborativeDoc, Form, ...otherModels } = require('../../models')
+// const { CollaborativeDoc, Form } = require('../../models')
 const BookComponentTranslation = require('../../models/bookComponentTranslation/bookComponentTranslation.model')
 
 let persistence = null
@@ -142,6 +141,7 @@ persistence = {
 
     if (collaborativeForm) {
       const { yState } = collaborativeForm
+
       if (yState) {
         const uint8Array = Uint8Array.from(Buffer.from(yState, 'base64'))
         Y.applyUpdate(doc, uint8Array)
@@ -154,22 +154,22 @@ persistence = {
 
     const timestamp = db.fn.now()
 
-    try {
-      const content = ydoc.getXmlFragment('prosemirror').toString()
+    // try {
+    const content = ydoc.getXmlFragment('prosemirror').toString()
 
-      const base64State = Buffer.from(state).toString('base64')
+    const base64State = Buffer.from(state).toString('base64')
 
-      await BookComponentTranslation.query()
-        .patch({
-          yState: base64State,
-          updated: timestamp,
-          content,
-        })
-        .findOne({ bookComponentId: objectId })
-    } catch (e) {
-      console.log(`Patch Query`)
-      console.log(e)
-    }
+    await BookComponentTranslation.query()
+      .patch({
+        yState: base64State,
+        updated: timestamp,
+        content,
+      })
+      .findOne({ bookComponentId: objectId })
+    // } catch (e) {
+    // console.log(`Patch Query`)
+    // console.log(e)
+    // }
   },
 }
 

@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { gql } from '@apollo/client'
 
 const APPLICATION_PARAMETERS = gql`

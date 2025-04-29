@@ -47,6 +47,7 @@ const CreateBook = () => {
   const root = JSON.parse(documents.getDocTree)
 
   const firstDocument = findFirstDocument(root)
+
   if (firstDocument) {
     history.push(`/document/${firstDocument?.bookComponentId}`, {
       replace: true,

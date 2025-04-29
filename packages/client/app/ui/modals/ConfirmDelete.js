@@ -15,6 +15,7 @@ import Modal from '../common/Modal'
 
 const StyledModal = styled(Modal)`
   font-family: ${th('fontBrand')};
+
   p {
     font-size: ${th('fontSizeBaseSmall')};
   }
@@ -24,7 +25,7 @@ const StyledModal = styled(Modal)`
   }
 
   .ant-modal-header {
-    border-radius: 10px 10px 0px 0px;
+    border-radius: 10px 10px 0 0;
   }
 `
 
@@ -64,13 +65,13 @@ const ConfirmDelete = ({
         <StyledModal
           // bodyStyle={{ fontSize: th('fontSizeBaseSmall') }}
           closable
+          // footer={null}
+          maskClosable
+          onCancel={handleCancel}
           onOk={() => {
             deleteResourceFn({ variables: { id: deleteResourceRow.id } })
             setDeleteResourceRow(null)
           }}
-          // footer={null}
-          maskClosable
-          onCancel={handleCancel}
           open={!!deleteResourceRow}
           title="Delete Resource"
           width="420px"

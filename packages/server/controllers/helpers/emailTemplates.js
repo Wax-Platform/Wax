@@ -40,8 +40,14 @@ const bookComponentInvite = context => {
   const clientUrl = config.get('clientUrl')
 
   try {
-    const { email, bookComponentTitle, sharerEmail, sharerName, bookComponentId, status } =
-      context
+    const {
+      email,
+      bookComponentTitle,
+      sharerEmail,
+      sharerName,
+      bookComponentId,
+      status,
+    } = context
 
     const link = `${clientUrl}/document/${bookComponentId}`
 

@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 
 import React, { useState } from 'react'
-import { WebsocketProvider } from 'y-websocket'
-import * as Y from 'yjs'
+// import { WebsocketProvider } from 'y-websocket'
+// import * as Y from 'yjs'
 
-import { uuid } from '@coko/client'
+// import { uuid } from '@coko/client'
 
 const DocumentContext = React.createContext({
   title: null,
@@ -13,11 +13,9 @@ const DocumentContext = React.createContext({
 
 const { Provider, Consumer } = DocumentContext
 
-
 const DocumentProvider = ({ children }) => {
   const [title, setTitle] = useState(null)
 
-  console.log(title,"title")
   return (
     <Provider
       value={{

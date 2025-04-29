@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 // #region import
 import React, { useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
@@ -61,10 +63,7 @@ export const defaultProfile = {
   isbn: null,
 }
 
-const contentOrder = [
-  'includeCoverPage',
-  'includeTitlePage',
-]
+const contentOrder = ['includeCoverPage', 'includeTitlePage']
 
 const sanitizeProfileData = input => {
   const res = { ...input }
@@ -987,7 +986,8 @@ const PreviewerPage = ({ bookId }) => {
   )
 }
 
-export default props => {
+/* eslint-disable-next-line func-names, react/function-component-definition */
+export default function (props) {
   const { loading, data: dataBooks } = useQuery(GET_BOOKS, {
     fetchPolicy: 'network-only',
     variables: {

@@ -64,12 +64,12 @@ const epubcheckerHandler = async epubPath => {
       })
         .then(async ({ data }) => {
           await fileStorageDeleteFiles([storedObjects[0].key])
-          console.log([storedObjects[0].key])
           return resolve(data)
         })
         .catch(async err => {
           await fileStorageDeleteFiles([storedObjects[0].key])
           const { response } = err
+
           if (!response) {
             if (err.message === 'Error: Request failed with status code 401') {
               return reject(
