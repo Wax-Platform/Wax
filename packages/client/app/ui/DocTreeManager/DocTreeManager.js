@@ -140,6 +140,23 @@ const StyledMainButton = styled(Button)`
   }
 `
 
+const StyledUploadMainButton = styled(StyledMainButton)`
+  @keyframes blink {
+    0%   { opacity: 1; }
+    50%  { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  animation: ${props =>
+    props.animation === 'true' ? ' blink 1s infinite;' : 'unset;'};
+  
+  pointer-events: ${props =>
+    props.animation === 'true' ? ' none;' : 'auto;'};
+}
+` 
+
+
+
 const StyledMainButtonExpand = styled(StyledMainButton)`
   svg {
     transform: ${props =>
@@ -162,10 +179,20 @@ const DocTreeManager = ({
   setSelectedChapterId,
   setIsCurrentDocumentMine,
   onUploadChapter,
+  documentTitle,
+  isUploading,
+  setUploading,
 }) => {
   const { bookComponentId } = useParams()
   const { setTitle } = useContext(DocumentContext)
   let isFileManagerOpen = true
+
+  // console.log({title})
+
+  const [expandedKeys, setExpandedKeys] = useState(() => {
+    const saved = localStorage.getItem('docTreeExpandedKeys')
+    return saved ? JSON.parse(saved) : []
+  })
 
   if (localStorage.getItem('isFileManagerOpen') !== null) {
     isFileManagerOpen = localStorage.getItem('isFileManagerOpen')
@@ -193,6 +220,7 @@ const DocTreeManager = ({
       allData[0].isRoot = true
       allData[0].title = 'My Folders and Files'
       setGData([...allData])
+      setUploading(false)
     },
   })
   // const [expandedKeys] = useState(['0-0', '0-0-0', '0-0-0-0'])
@@ -297,6 +325,20 @@ const DocTreeManager = ({
     }
   }, [])
 
+  useEffect(() => {
+    if (documentTitle) {
+      const myDocs = findChildNodeByBookComponentId(gData, bookComponentId)
+      if (myDocs) {
+        renameResourceFn({ variables: { id: myDocs.id, title: documentTitle } })
+        setTitle(documentTitle)
+      }
+    }
+  }, [documentTitle])
+
+  useEffect(() => {
+    localStorage.setItem('docTreeExpandedKeys', JSON.stringify(expandedKeys))
+  }, [expandedKeys])
+
   const addResourceFn = async variables => {
     await addResource(variables)
 
@@ -345,6 +387,8 @@ const DocTreeManager = ({
     currentIdentifier,
   )
 
+  if (gData.length == 0) return null
+
   return (
     <DocTreeManagerWrapper>
       <ControlsWrappers>
@@ -371,9 +415,9 @@ const DocTreeManager = ({
         >
           <FileAddOutlined style={{ fontSize: '24px' }} />
         </StyledMainButton>
-        <StyledMainButton onClick={onUploadChapter} title="Upload a Document">
+        <StyledUploadMainButton animation={isUploading.toString()} onClick={onUploadChapter} title="Upload a Document">
           <CloudUploadOutlined style={{ fontSize: '24px' }} />
-        </StyledMainButton>
+        </StyledUploadMainButton>
         <StyledMainButtonExpand
           expand={expandFilesArea.toString()}
           onClick={() => {
@@ -388,6 +432,8 @@ const DocTreeManager = ({
       </ControlsWrappers>
       <FilesWrapper defaultState={defaultState} expand={expandFilesArea}>
         <Tree
+          expandedKeys={expandedKeys}                       // controlled prop
+          onExpand={(newKeys) => setExpandedKeys(newKeys)}  // update state
           allowDrop={node => {
             if (
               (node.dropPosition <= 0 && node.dropNode.isRoot) ||
@@ -400,7 +446,7 @@ const DocTreeManager = ({
           }}
           blockNode
           className="draggable-tree"
-          defaultExpandAll
+          // defaultExpandAll
           draggable
           key="myDocs"
           // defaultExpandedKeys={expandedKeys}

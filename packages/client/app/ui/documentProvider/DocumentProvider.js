@@ -1,11 +1,6 @@
 /* eslint-disable react/prop-types */
 
 import React, { useState } from 'react'
-// import { WebsocketProvider } from 'y-websocket'
-// import * as Y from 'yjs'
-
-// import { uuid } from '@coko/client'
-
 const DocumentContext = React.createContext({
   title: null,
   updateTitle: () => {},
