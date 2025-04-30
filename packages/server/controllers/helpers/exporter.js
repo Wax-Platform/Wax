@@ -225,6 +225,7 @@ const ExporterService = async (
         pagedJStempFolderAssetsPathForPreviewer,
       )
 
+      console.log(`${assetsTimestamp}/template/${templateId}`)
       return {
         path: `${assetsTimestamp}/template/${templateId}`,
         validationResult: undefined,

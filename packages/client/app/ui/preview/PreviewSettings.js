@@ -238,50 +238,50 @@ const PreviewSettings = props => {
               </StyledStack>
             ),
           },
-          {
-            label: t('publishingProfiles.title'),
-            key: 'saved',
-            children: (
-              <StyledStack>
-                <SavedProfilesTab
-                  canModify={canModify}
-                  canUploadToProvider={canUploadToProvider}
-                  createProfile={createProfile}
-                  currentOptions={currentOptions}
-                  exportsConfig={exportsConfig}
-                  handleOptionsChange={handleOptionsChange}
-                  handleProfileChange={handleProfileChange}
-                  hasChanges={hasChanges}
-                  hasCover={hasCover}
-                  isbns={isbns}
-                  isCollapsed={isCollapsed}
-                  isProfileSyncedWithLulu={isProfileSyncedWithLulu}
-                  isUserConnectedToLulu={isUserConnectedToLulu}
-                  lastSynced={lastSynced}
-                  loadingPreview={loadingPreview}
-                  luluConfig={luluConfig}
-                  onClickConnectToLulu={onClickConnectToLulu}
-                  onClickDelete={deleteProfile}
-                  onClickDownload={download}
-                  onPublish={onPublish}
-                  onUnpublish={onUnpublish}
-                  optionsDisabled={optionsDisabled}
-                  profiles={profiles}
-                  projectId={projectId}
-                  projectUrl={projectUrl}
-                  publishing={publishing}
-                  renameProfile={renameProfile}
-                  selectedProfile={selectedProfile}
-                  selectedProfileLastUpdated={fullSelectedProfile.updated}
-                  selectedProfileSelectOption={selectedProfileSelectOption}
-                  sendToLulu={sendToLulu}
-                  templates={templates}
-                  updateProfileOptions={updateProfileOptions}
-                  webPublishInfo={webPublishInfo}
-                />
-              </StyledStack>
-            ),
-          },
+          // {
+          //   label: t('publishingProfiles.title'),
+          //   key: 'saved',
+          //   children: (
+          //     <StyledStack>
+          //       <SavedProfilesTab
+          //         canModify={canModify}
+          //         canUploadToProvider={canUploadToProvider}
+          //         createProfile={createProfile}
+          //         currentOptions={currentOptions}
+          //         exportsConfig={exportsConfig}
+          //         handleOptionsChange={handleOptionsChange}
+          //         handleProfileChange={handleProfileChange}
+          //         hasChanges={hasChanges}
+          //         hasCover={hasCover}
+          //         isbns={isbns}
+          //         isCollapsed={isCollapsed}
+          //         isProfileSyncedWithLulu={isProfileSyncedWithLulu}
+          //         isUserConnectedToLulu={isUserConnectedToLulu}
+          //         lastSynced={lastSynced}
+          //         loadingPreview={loadingPreview}
+          //         luluConfig={luluConfig}
+          //         onClickConnectToLulu={onClickConnectToLulu}
+          //         onClickDelete={deleteProfile}
+          //         onClickDownload={download}
+          //         onPublish={onPublish}
+          //         onUnpublish={onUnpublish}
+          //         optionsDisabled={optionsDisabled}
+          //         profiles={profiles}
+          //         projectId={projectId}
+          //         projectUrl={projectUrl}
+          //         publishing={publishing}
+          //         renameProfile={renameProfile}
+          //         selectedProfile={selectedProfile}
+          //         selectedProfileLastUpdated={fullSelectedProfile.updated}
+          //         selectedProfileSelectOption={selectedProfileSelectOption}
+          //         sendToLulu={sendToLulu}
+          //         templates={templates}
+          //         updateProfileOptions={updateProfileOptions}
+          //         webPublishInfo={webPublishInfo}
+          //       />
+          //     </StyledStack>
+          //   ),
+          // },
         ]}
         onChange={setActiveTabKey}
       />

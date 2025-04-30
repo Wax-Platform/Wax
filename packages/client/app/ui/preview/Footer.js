@@ -216,16 +216,16 @@ const Footer = props => {
     const actions = []
 
     if (isNewProfileSelected) {
-      actions.push(
-        <Button
-          data-test="preview-save-btn"
-          disabled={loadingPreview || !canModify}
-          key="save-profile"
-          onClick={handleClickSave}
-        >
-          {t('tabs.newPreview.actions.save')}
-        </Button>,
-      )
+      // actions.push(
+      //   <Button
+      //     data-test="preview-save-btn"
+      //     disabled={loadingPreview || !canModify}
+      //     key="save-profile"
+      //     onClick={handleClickSave}
+      //   >
+      //     {t('tabs.newPreview.actions.save')}
+      //   </Button>,
+      // )
     } else if (selectedFormat === 'web') {
       actions.push(
         <Button

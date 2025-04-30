@@ -1,14 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useQuery, useLazyQuery } from '@apollo/client'
-import { GET_ENTIRE_BOOK, GET_BOOK_COMPONENT } from '../graphql'
+import { GET_ENTIRE_BOOK, GET_BOOK_COMPONENT, GET_BOOKS } from '../graphql'
 import AiPDFDesigner from '../ui/AiPDFDesigner/AiPDFDesigner'
 import { CssAssistantContext } from '../ui/AiPDFDesigner/hooks/CssAssistantContext'
 
-const AiPDFDesignerPage = () => {
-  const params = useParams()
+const AiPDFDesignerPage = ({ bookId }) => {
   const { setPassedContent } = useContext(CssAssistantContext)
-  const { bookId } = params
+ 
   const [bookTitle, setBookTitle] = useState('')
 
   const { data: bookQueryData } = useQuery(GET_ENTIRE_BOOK, {
@@ -56,4 +54,26 @@ const AiPDFDesignerPage = () => {
   return <AiPDFDesigner bookTitle={bookTitle} />
 }
 
-export default AiPDFDesignerPage
+// eslint-disable-next-line react/function-component-definition
+export default props => {
+  const { loading, data: dataBooks } = useQuery(GET_BOOKS, {
+    fetchPolicy: 'network-only',
+    variables: {
+      options: {
+        archived: false,
+        orderBy: {
+          column: 'title',
+          order: 'asc',
+        },
+        page: 0,
+        pageSize: 10,
+      },
+    },
+  })
+
+  if (loading) return null
+
+  const [book] = dataBooks.getBooks.result
+
+  return <AiPDFDesignerPage {...props} bookId={book.id} />
+}

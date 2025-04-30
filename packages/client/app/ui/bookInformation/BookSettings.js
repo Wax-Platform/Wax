@@ -3,7 +3,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { th, grid } from '@coko/client'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { SettingOutlined } from '@ant-design/icons'
 import { Tooltip as AntTooltip } from 'antd'
 import { Button } from '../common'
@@ -84,13 +84,14 @@ const StyledLink = styled(Link)`
 `
 
 const BookSettings = props => {
+  const { bookComponentId } = useParams()
   const {
     viewInformation,
     toggleInformation,
     showAiAssistantLink,
     showKnowledgeBaseLink,
-    bookId,
   } = props
+
 
   return (
     <Wrapper>
@@ -106,7 +107,7 @@ const BookSettings = props => {
         <Tooltip placement="bottom" title="Knowledge Base">
           <StyledLink
             aria-label="Knowledge Base"
-            to={`/books/${bookId}/knowledge-base`}
+            to={`/document/${bookComponentId}/knowledge-base`}
           >
             KB
           </StyledLink>
@@ -116,7 +117,7 @@ const BookSettings = props => {
         <Tooltip placement="bottomRight" title="AI Book Designer (Beta)">
           <StyledLink
             aria-label="AI Book Designer (Beta)"
-            to={`/books/${bookId}/ai-pdf`}
+            to={`/document/${bookComponentId}/ai-pdf`}
           >
             <RobotSvg />
           </StyledLink>
