@@ -44,7 +44,7 @@ cpus = 2
 
 [env]
 NODE_ENV = 'production'
-CLIENT_URL = 'https://wax-client.fly.dev'
+CLIENT_URL = 'https://app.wax.is'
 SERVER_URL = 'https://wax-server.fly.dev'
 WEBSOCKET_SERVER_URL = 'wss://wax-server.fly.dev'
 SERVER_PORT = 3000
