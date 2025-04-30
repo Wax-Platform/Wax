@@ -83,6 +83,10 @@ const ExporterService = async (
           ...additionalExportOptions,
           isbn,
         }),
+      includeTOC: false,
+      includeCopyrights: false,
+      includeTitlePage: false,
+      includeCoverPage: false,
     })
 
     if (fileExtension === 'epub') {
