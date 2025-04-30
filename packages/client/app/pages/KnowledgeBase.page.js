@@ -1,7 +1,6 @@
 /* stylelint-disable declaration-no-important */
 /* eslint-disable react/prop-types */
 import React from 'react'
-import { useParams } from 'react-router-dom'
 import { useMutation, useQuery, useSubscription } from '@apollo/client'
 import {
   GET_DOCUMENTS,
@@ -9,12 +8,10 @@ import {
   DELETE_DOCUMENT,
   KB_UPDATED_SUBSCRIPTION,
 } from '../graphql/knowledgeBase.queries'
+import { GET_BOOKS } from '../graphql'
 import { KnowledgeBase } from '../ui'
 
-export const KnowledgeBasePage = () => {
-  const params = useParams()
-  const { bookId } = params
-
+export const KnowledgeBasePage = ({ bookId }) => {
   const { data, refetch } = useQuery(GET_DOCUMENTS, {
     fetchPolicy: 'network-only',
     variables: {
@@ -56,4 +53,26 @@ export const KnowledgeBasePage = () => {
   )
 }
 
-export default KnowledgeBasePage
+export default props => {
+  const { loading, data: dataBooks } = useQuery(GET_BOOKS, {
+    fetchPolicy: 'network-only',
+    variables: {
+      options: {
+        archived: false,
+        orderBy: {
+          column: 'title',
+          order: 'asc',
+        },
+        page: 0,
+        pageSize: 10,
+      },
+    },
+  })
+
+  if (loading) return null
+
+  const [book] = dataBooks.getBooks.result
+
+  return <KnowledgeBasePage {...props} bookId={book.id} />
+}
+

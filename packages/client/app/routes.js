@@ -259,7 +259,7 @@ const routes = (
                           </Authenticated>
                         </Route>
 
-                        <Route exact path="/books/:bookId/ai-pdf">
+                        <Route exact path="/document/:bookComponentId/ai-pdf">
                           <Authenticated>
                             <CssAssistantProvider>
                               <AiPDFDesignerPage />
@@ -267,7 +267,7 @@ const routes = (
                           </Authenticated>
                         </Route>
 
-                        <Route exact path="/books/:bookId/knowledge-base">
+                        <Route exact path="/document/:bookComponentId/knowledge-base">
                           <Authenticated>
                             <KnowledgeBasePage />
                           </Authenticated>

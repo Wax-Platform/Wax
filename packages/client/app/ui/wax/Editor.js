@@ -181,6 +181,19 @@ const EditorWrapper = ({
   useEffect(() => {
     setSelectedWaxConfig({
       ...selectedWaxConfig,
+      MenuService: selectedWaxConfig.MenuService.map(service => {
+        // Find the matching service in waxMenuConfig based on templateArea
+        const matchingConfig = waxMenuConfig.MenuService.find(
+          config => config?.templateArea === service.templateArea,
+        )
+
+        return {
+          ...service,
+          toolGroups: matchingConfig
+            ? matchingConfig.toolGroups
+            : service.toolGroups,
+        }
+      }),
       YjsService: {
         content: bookComponentContent,
         provider: () => wsProvider,
@@ -217,6 +230,14 @@ const EditorWrapper = ({
         },
         userList: bookMembers,
         getMentionedUsers: onMention,
+      },
+      AskAiContentService: {
+        AskAiContentTransformation: queryAI,
+        FreeTextPromptsOn: freeTextPromptsOn,
+        CustomPromptsOn: customPromptsOn,
+        CustomPrompts: customPromptsOn ? customPrompts : [],
+        AiOn: aiEnabled && aiOn,
+        ...(kbOn ? { AskKb: true } : {}),
       },
 
       services: [new YjsService(), ...selectedWaxConfig.services],
