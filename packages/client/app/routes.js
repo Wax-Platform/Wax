@@ -99,7 +99,7 @@ const StyledPage = styled(Page)`
 `
 
 const SiteHeader = () => {
-  const { title } = useContext(DocumentContext)
+  const { title, setTitle } = useContext(DocumentContext)
   const { currentUser, setCurrentUser } = useCurrentUser()
   const client = useApolloClient()
   const history = useHistory()
@@ -112,6 +112,7 @@ const SiteHeader = () => {
   }, [])
 
   const logout = () => {
+    setTitle(null)
     setCurrentUser(null)
     client.cache.reset()
     localStorage.removeItem('token')
