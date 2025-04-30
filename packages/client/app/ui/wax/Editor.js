@@ -1,10 +1,23 @@
 /* eslint-disable react/prop-types, react/jsx-no-constructed-context-values */
-import React, { useEffect, useState, useMemo, useRef } from 'react'
+import React, { useEffect, useState, useMemo, useRef, useContext } from 'react'
 import { Wax } from 'wax-prosemirror-core'
 import { isEqual } from 'lodash'
+import styled from 'styled-components'
+
 import { LuluLayout } from './layout'
 import configWithAi from './config/configWithAI'
 import YjsService from './config/YjsService'
+import { Result, Spin } from '../common'
+
+const SpinnerWrapper = styled.div`
+  display: ${props => (props.showSpinner ? 'block' : 'none')};
+  left: ${props => props.position}px;
+  margin-top: -25px;
+  position: absolute;
+  top: 50%;
+  z-index: 999;
+`
+
 
 const EditorWrapper = ({
   bookId,
@@ -53,7 +66,14 @@ const EditorWrapper = ({
   reorderResource,
   getDocTreeData,
   setSelectedChapterId,
+  isUploading,
+  setUploading,
+  showSpinner,
 }) => {
+  const [documentTitle, setTitle] = useState(null)
+
+  const [position, setPosition] = useState(0)
+
   const [luluWax, setLuluWax] = useState({
     onChapterClick,
     selectedChapterId,
@@ -182,7 +202,9 @@ const EditorWrapper = ({
         },
       },
       TitleService: {
-        updateTitle: onPeriodicTitleChange,
+        updateTitle:(title) => {
+          setTitle(title)
+        },
       },
       CommentsService: {
         // readOnly: !canInteractWithComments,
@@ -228,6 +250,8 @@ const EditorWrapper = ({
       getDocTreeData,
       setSelectedChapterId,
       setIsCurrentDocumentMine,
+      isUploading,
+      setUploading,
     })
   }, [
     title,
@@ -243,6 +267,13 @@ const EditorWrapper = ({
     aiEnabled,
   ])
 
+  useEffect(() => {
+    if (editorRef.current) {
+      const { right, left } = document.getElementsByClassName('ProseMirror')[0].getBoundingClientRect()
+      setPosition( (right - left))
+    }
+  }, [editorRef.current])
+
   const userObject = {
     userId: user.id,
     userColor: {
@@ -255,16 +286,29 @@ const EditorWrapper = ({
   if (!selectedWaxConfig || canInteractWithComments === null) return null
 
   return (
-    <Wax
-      autoFocus
-      config={selectedWaxConfig}
-      customProps={luluWax}
-      fileUpload={onImageUpload}
-      layout={LuluLayout}
-      readonly={isReadOnly}
-      ref={editorRef}
-      user={userObject}
-    />
+    <>
+      <Wax
+        autoFocus
+        config={selectedWaxConfig}
+        customProps={luluWax}
+        fileUpload={onImageUpload}
+        layout={LuluLayout}
+        readonly={isReadOnly}
+        ref={editorRef}
+        user={userObject}
+        documentTitle={documentTitle}
+      />
+      <SpinnerWrapper
+        // showFilemanager={showFilemanager}
+        showSpinner={showSpinner}
+        position={position}
+      >
+        <Result
+          icon={<Spin size={18} spinning />}
+          title="Loading your document"
+        />
+      </SpinnerWrapper>
+    </>
   )
 }
 

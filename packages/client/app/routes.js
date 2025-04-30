@@ -4,7 +4,6 @@ import React, { useState, useEffect, Suspense, useContext } from 'react'
 import { useApolloClient, useQuery } from '@apollo/client'
 import { Route, Switch, useHistory, Redirect } from 'react-router-dom'
 import styled, { createGlobalStyle } from 'styled-components'
-// import { useTranslation } from 'react-i18next'
 import { ConfigProvider } from 'antd'
 import { CURRENT_USER } from '@coko/client/dist/helpers/currentUserQuery'
 

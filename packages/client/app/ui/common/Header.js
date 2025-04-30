@@ -2,7 +2,7 @@
 /* stylelint-disable string-quotes */
 /* stylelint-disable value-list-comma-newline-after */
 import React from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useHistory, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { grid, th } from '@coko/client'
@@ -163,6 +163,7 @@ const Header = props => {
   } = props
 
   const history = useHistory()
+  const location = useLocation()
 
   const { t } = useTranslation(null, {
     keyPrefix: 'pages.common.header.menu.options',
@@ -171,12 +172,18 @@ const Header = props => {
   const navItemsLeft = []
 
   if (showBackToBook) {
+
+    const match = location.pathname.match(/^\/document\/([^/]+)\/[^/]+/);
+    const bookComponentId = match?.[1] || null;
+      
+    const to = bookComponentId ? `/document/${bookComponentId}` : "/"
+
     navItemsLeft.push(
       <UnstyledLink
         data-test="header-back-link"
         key="back"
         style={{ position: 'absolute' }}
-        to="/"
+        to={to}
       >
         {t('backToBook')}
       </UnstyledLink>,

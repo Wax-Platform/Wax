@@ -452,7 +452,7 @@ const LeftPanelWrapper = styled.div`
   padding-inline: ${grid(3)} ${grid(3)} ${grid(3)} 0;
   position: absolute;
   transition: flex-basis 0.4s, width 0.4s;
-  width: 340px;
+  width: 360px;
   z-index: 1000; // hate it but it's the wax cursor's fault!
 
   &:has([data-collapsed='true']) {
@@ -461,7 +461,7 @@ const LeftPanelWrapper = styled.div`
   }
 
   @media (min-width: 600px) {
-    flex: 0 0 340px;
+    flex: 0 0 360px;
     position: relative;
     width: unset;
   }
@@ -474,7 +474,7 @@ const LeftPanelWrapper = styled.div`
 
   @media (min-width: 1100px) {
     &:has([data-collapsed]) {
-      flex: 0 0 400px;
+      flex: 0 0 420px;
     }
   }
 `
@@ -544,6 +544,8 @@ const LuluLayout = ({ customProps, ...rest }) => {
     getDocTreeData,
     setSelectedChapterId,
     setIsCurrentDocumentMine,
+    setUploading,
+    isUploading
   } = customProps
 
   const params = useParams()
@@ -753,6 +755,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
                   reorderResource={reorderResource}
                   setIsCurrentDocumentMine={setIsCurrentDocumentMine}
                   setSelectedChapterId={setSelectedChapterId}
+                  documentTitle={rest.documentTitle}
+                  isUploading={isUploading}
+                  setUploading={setUploading}
                 />
               </LeftPanelWrapper>
             )}

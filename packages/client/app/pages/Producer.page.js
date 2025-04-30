@@ -122,6 +122,8 @@ const ProducerPage = ({ bookId }) => {
     () => localStorage.getItem(`${bookId}-selected-chapter`) || undefined,
   )
 
+  const [isUploading, setUploading] = useState(false)
+
   // TreeFileManager
   const { refetch: getDocTreeData } = useQuery(
     GET_TREE_MANAGER_AND_SHARED_DOCS,
@@ -149,6 +151,7 @@ const ProducerPage = ({ bookId }) => {
 
   const [currentBookComponentContent, setCurrentBookComponentContent] =
     useState(null)
+  const [showSpinner, setShowSpinner] = useState(false)
 
   // const token = localStorage.getItem('token')
 
@@ -218,10 +221,7 @@ const ProducerPage = ({ bookId }) => {
         }
       },
       onCompleted: data => {
-        if (
-          data.getBookComponent.content &&
-          data.getBookComponent.yState === null
-        ) {
+        if (data.getBookComponent.content && data.getBookComponent.yState === null ) {
           setCurrentBookComponentContent(data.getBookComponent.content)
         } else {
           setCurrentBookComponentContent('')
@@ -416,35 +416,7 @@ const ProducerPage = ({ bookId }) => {
     }
   }, [bookQueryData?.getBook.bookSettings?.aiOn])
 
-  // MUTATIONS SECTION START
-  // const [updateContent] = useMutation(UPDATE_BOOK_COMPONENT_CONTENT, {
-  //   onError: err => {
-  //     if (err.toString().includes('Not Authorised')) {
-  //       showUnauthorizedActionModal(false)
-  //     } else if (!reconnecting) showGenericErrorModal()
-  //   },
-  // })
-
   const [addComments] = useMutation(ADD_COMMENTS)
-
-  // const [updateBookComponentType, { loading: componentTypeInProgress }] =
-  //   useMutation(UPDATE_BOOK_COMPONENT_TYPE, {
-  //     onError: err => {
-  //       if (err.toString().includes('Not Authorised')) {
-  //         showUnauthorizedActionModal(false)
-  //       } else if (!reconnecting) showGenericErrorModal()
-  //     },
-  //   })
-
-  // const [updateBookComponentParentId, { loading: parentIdInProgress }] =
-  //   useMutation(UPDATE_BOOK_COMPONENT_PARENT_ID, {
-  //     refetchQueries: [GET_ENTIRE_BOOK],
-  //     onError: err => {
-  //       if (err.toString().includes('Not Authorised')) {
-  //         showUnauthorizedActionModal(false)
-  //       } else if (!reconnecting) showGenericErrorModal()
-  //     },
-  //   })
 
   const [
     setBookComponentStatus,
@@ -473,16 +445,6 @@ const ProducerPage = ({ bookId }) => {
     },
   })
 
-  // const [createBookComponent, { loading: addBookComponentInProgress }] =
-  //   useMutation(CREATE_BOOK_COMPONENT, {
-  //     refetchQueries: [GET_ENTIRE_BOOK],
-  //     onError: err => {
-  //       if (err.toString().includes('Not Authorised')) {
-  //         showUnauthorizedActionModal(false)
-  //       } else if (!reconnecting) showGenericErrorModal()
-  //     },
-  //   })
-
   const [renameBookComponent] = useMutation(RENAME_BOOK_COMPONENT, {
     variables: {
       id: selectedChapterId,
@@ -495,26 +457,6 @@ const ProducerPage = ({ bookId }) => {
         showGenericErrorModal()
     },
   })
-
-  // const [deleteBookComponent, { loading: deleteBookComponentInProgress }] =
-  //   useMutation(DELETE_BOOK_COMPONENT, {
-  //     refetchQueries: [GET_ENTIRE_BOOK],
-  //     onError: err => {
-  //       if (err.toString().includes('Not Authorised')) {
-  //         showUnauthorizedActionModal(false)
-  //       } else if (!reconnecting) showGenericErrorModal()
-  //     },
-  //   })
-
-  // const [updateBookComponentsOrder, { loading: changeOrderInProgress }] =
-  //   useMutation(UPDATE_BOOK_COMPONENTS_ORDER, {
-  //     refetchQueries: [GET_ENTIRE_BOOK],
-  //     onError: err => {
-  //       if (err.toString().includes('Not Authorised')) {
-  //         showUnauthorizedActionModal(false)
-  //       } else if (!reconnecting) showGenericErrorModal()
-  //     },
-  //   })
 
   const [ingestWordFile, { loading: ingestWordFileInProgress }] = useMutation(
     INGEST_WORD_FILES,
@@ -853,6 +795,7 @@ const ProducerPage = ({ bookId }) => {
     input.onchange = event => {
       const selectedFile = event.target.files[0]
 
+      setUploading(true)
       ingestWordFile({
         variables: {
           bookComponentFiles: [
@@ -1003,7 +946,8 @@ const ProducerPage = ({ bookId }) => {
     }
 
     if (selectedChapterId) {
-      setTimeout(() => {
+      setShowSpinner(true)
+      setTimeout(() => {    
         createYjsProvider({
           currentUser,
           identifier: selectedChapterId,
@@ -1012,6 +956,11 @@ const ProducerPage = ({ bookId }) => {
           },
         })
       }, 500)
+
+      setTimeout(() => {
+        setShowSpinner(false)
+      }, 1200)
+
     }
 
     return () => wsProvider?.disconnect()
@@ -1042,12 +991,8 @@ const ProducerPage = ({ bookId }) => {
   // }, [applicationParametersLoading, loading, bookComponentLoading])
 
   const chaptersActionInProgress =
-    ingestWordFileInProgress || setBookComponentStatusInProgress
-  // changeOrderInProgress ||
-  // addBookComponentInProgress ||
-  // deleteBookComponentInProgress ||
-  // componentTypeInProgress ||
-  // parentIdInProgress
+    ingestWordFileInProgress ||
+    setBookComponentStatusInProgress
 
   const isAIEnabled = find(
     applicationParametersData?.getApplicationParameters,
@@ -1128,6 +1073,9 @@ const ProducerPage = ({ bookId }) => {
       viewMetadata={viewMetadata}
       wsProvider={wsProvider}
       ydoc={ydoc}
+      isUploading={isUploading}
+      setUploading={setUploading}
+      showSpinner={showSpinner}
     />
   )
 }

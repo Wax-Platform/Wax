@@ -4,7 +4,7 @@
 /* stylelint-disable no-descending-specificity, declaration-no-important */
 
 import React, { useState, useContext } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import {
   FolderAddOutlined,
@@ -120,6 +120,7 @@ const RowRender = row => {
 
   const { setTitle } = useContext(DocumentContext)
   const history = useHistory()
+  const { bookComponentId: currentBookComponentId } = useParams()
   const [updatedName, setUpdateName] = useState(title)
   const [isRename, setRename] = useState(false)
 
@@ -141,11 +142,11 @@ const RowRender = row => {
 
   /* eslint-disable-next-line consistent-return */
   const goToDocument = e => {
-    if (!lock) {
-      lock = true
-      setTimeout(() => {
-        lock = false
-      }, 1500)
+    // if (!lock) {
+    //   lock = true
+    //   setTimeout(() => {
+    //     lock = false
+    //   }, 1500)
 
       if (e.target.type === 'text') {
         e.preventDefault()
@@ -160,7 +161,6 @@ const RowRender = row => {
         history.push(`/document/${bookComponentId}`, { replace: true })
         setActive()
       }
-    }
   }
 
   return (
