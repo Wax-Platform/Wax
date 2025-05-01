@@ -155,7 +155,7 @@ persistence = {
     const timestamp = db.fn.now()
 
     // try {
-    const content = ydoc.getXmlFragment('prosemirror').toString()
+    const content = ydoc.getText('html').toString()
 
     const base64State = Buffer.from(state).toString('base64')
 

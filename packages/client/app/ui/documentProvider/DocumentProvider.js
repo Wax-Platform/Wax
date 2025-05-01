@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 const DocumentContext = React.createContext({
   title: null,
-  updateTitle: () => {},
+  setTitle: () => {},
 })
 
 const { Provider, Consumer } = DocumentContext

@@ -4,6 +4,7 @@ import { yCursorPlugin, ySyncPlugin, yUndoPlugin } from 'y-prosemirror'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
 import ySyncContentPlugin from './ySyncContentPlugin'
+import htmlSyncPlugin from './htmlSyncPlugin'
 
 class YjsService extends Service {
   name = 'YjsService'
@@ -41,13 +42,15 @@ class YjsService extends Service {
       console.log({ connectioError: args })
     })
 
-    const type = ydoc.getXmlFragment(yjsType || 'prosemirror')
+    const yXmlFragment = ydoc.getXmlFragment(yjsType || 'prosemirror')
 
     if (content !== '') {
       this.app.PmPlugins.add('ySyncContentPlugin', ySyncContentPlugin(content))
     }
 
-    this.app.PmPlugins.add('ySyncPlugin', ySyncPlugin(type))
+    this.app.PmPlugins.add('htmlSyncPlugin', htmlSyncPlugin(ydoc, { debounceMs: 1000 }))
+
+    this.app.PmPlugins.add('ySyncPlugin', ySyncPlugin(yXmlFragment))
 
     if (cursorBuilder) {
       this.app.PmPlugins.add(

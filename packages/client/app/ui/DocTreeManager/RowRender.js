@@ -3,7 +3,7 @@
 
 /* stylelint-disable no-descending-specificity, declaration-no-important */
 
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -118,11 +118,14 @@ const RowRender = row => {
     myFiles,
   } = row
 
-  const { setTitle } = useContext(DocumentContext)
+  const { title: providerTitle, setTitle } = useContext(DocumentContext)
   const history = useHistory()
-  const { bookComponentId: currentBookComponentId } = useParams()
   const [updatedName, setUpdateName] = useState(title)
   const [isRename, setRename] = useState(false)
+
+  useEffect(() => {
+    setUpdateName(providerTitle)
+  }, [providerTitle])
 
   const setActive = () => {
     Array.from(document.getElementsByClassName('rowContainer')).forEach(
@@ -178,7 +181,7 @@ const RowRender = row => {
               onChange={e => setUpdateName(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter' || e.keyCode === 13) {
-                  renameResource({ variables: { id, title: updatedName } })
+                  renameResource({ variables: { id, title: updatedName, lockRename: true } })
                   setTitle(updatedName)
                   setRename(false)
                 }
@@ -188,13 +191,13 @@ const RowRender = row => {
             />
             <StyledApplyButton
               onClick={() => {
-                renameResource({ variables: { id, title: updatedName } })
+                renameResource({ variables: { id, title: updatedName, lockRename: true } })
                 setTitle(updatedName)
                 setRename(false)
               }}
               onMouseDown={e => {
                 e.preventDefault()
-                renameResource({ variables: { id, title: updatedName } })
+                renameResource({ variables: { id, title: updatedName, lockRename: true } })
                 setTitle(updatedName)
                 setRename(false)
               }}

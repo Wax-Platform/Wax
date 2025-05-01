@@ -259,7 +259,7 @@ const ExportOptionsSection = props => {
           </ExportOption>
         )}
 
-        {(isEpub || isPdf) && (
+        {/* {(isEpub || isPdf) && (
           <FrontmatterOption inline label={t('frontMatter.select')}>
             <MultiSelect
               allowClear
@@ -273,7 +273,7 @@ const ExportOptionsSection = props => {
               value={selectedContent}
             />
           </FrontmatterOption>
-        )}
+        )} */}
 
         {isWeb && webDownloadOptions.length > 0 && (
           <div>
