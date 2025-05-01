@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 // #region import
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -30,10 +30,13 @@ import {
   RENAME_EXPORT_PROFILE,
   UPLOAD_TO_LULU,
   UPDATE_EXPORT_PROFILE_OPTIONS,
+  UPDATE_BOOK_COMPONENT_CONTENT,
   PUBLISH_ONLINE,
   UNPUBLISH_ONLINE,
   GET_BOOK_WEB_PUBLISH_INFO,
 } from '../graphql'
+
+import YjsContext from '../ui/provider-yjs/YjsProvider'
 
 import { isOwner, hasEditAccess } from '../helpers/permissions'
 import {
@@ -124,6 +127,10 @@ const PreviewerPage = ({ bookId }) => {
   const [creatingPreview, setCreatingPreview] = useState(true)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [activeTabKey, setActiveTabKey] = useState('new')
+
+  const { ydoc } = useContext(YjsContext)
+
+  const [updateContent] = useMutation(UPDATE_BOOK_COMPONENT_CONTENT)
 
   React.useEffect(() => {
     if (!localStorage.getItem('zoomPercentage')) {
@@ -605,7 +612,7 @@ const PreviewerPage = ({ bookId }) => {
     })
   }
 
-  const handleCreatePreview = (templates, options, target) => {
+  const handleCreatePreview = async (templates, options, target) => {
     const newTemplates = templates
 
     const optionsToApply = { ...options }
@@ -688,6 +695,20 @@ const PreviewerPage = ({ bookId }) => {
     }
 
     if ((target === 'pagedjs' || target === 'web') && !previewIsLoading) {
+
+      if (ydoc) {
+        const content = ydoc.getText('html').toString()
+
+        await updateContent({
+          variables: {
+            input: {
+              id: bookComponentId,
+              content,
+            },
+          },
+        })
+      }
+
       createPreview({
         variables: {
           input: previewData,

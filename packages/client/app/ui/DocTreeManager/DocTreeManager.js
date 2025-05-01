@@ -325,12 +325,15 @@ const DocTreeManager = ({
     }
   }, [])
 
-  useEffect(() => {
+  useEffect(async () => {
     if (documentTitle) {
       const myDocs = findChildNodeByBookComponentId(gData, bookComponentId)
       if (myDocs) {
-        renameResourceFn({ variables: { id: myDocs.id, title: documentTitle } })
-        setTitle(documentTitle)
+        const renamed = await renameResourceFn({ variables: { id: myDocs.id, title: documentTitle, lockRename: false } })
+        
+        if (renamed.data.renameResource) {
+          setTitle(documentTitle)
+        }
       }
     }
   }, [documentTitle])
@@ -351,13 +354,15 @@ const DocTreeManager = ({
   }
 
   const renameResourceFn = async variables => {
-    await renameResource(variables)
+    const renamedResource = await renameResource(variables)
     const { data } = await getDocTreeData()
     const allData = JSON.parse(data.getDocTree)
     allData[0].disabled = true
     allData[0].isRoot = true
     allData[0].title = 'My Folders and Files'
     setGData([...allData])
+
+    return renamedResource
   }
 
   const deleteResourceFn = async variables => {

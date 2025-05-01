@@ -50,8 +50,8 @@ export const ADD_RESOURCE = gql`
 `
 
 export const RENAME_RESOURCE = gql`
-  mutation renameResource($id: ID!, $title: String!) {
-    renameResource(id: $id, title: $title) {
+  mutation renameResource($id: ID!, $title: String!, $lockRename: Boolean) {
+    renameResource(id: $id, title: $title, lockRename: $lockRename) {
       id
       title
     }

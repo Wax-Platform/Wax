@@ -234,9 +234,16 @@ const deleteResource = async (_, { id }, ctx) => {
   return deleteResourceItem
 }
 
-const renameResource = async (_, { id, title }, ctx) => {
+const renameResource = async (_, { id, title, lockRename }, ctx) => {
+
+  const { renameLock } = await DocTreeManager.query()
+    .findOne({ id })
+    .returning('*')
+
+  if (renameLock && !lockRename) return null
+
   const updatedItem = await DocTreeManager.query()
-    .patch({ title })
+    .patch({ title, renameLock: lockRename })
     .findOne({ id })
     .returning('*')
 

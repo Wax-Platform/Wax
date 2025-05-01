@@ -7,7 +7,6 @@ import { Link, useParams } from 'react-router-dom'
 import { SettingOutlined } from '@ant-design/icons'
 import { Tooltip as AntTooltip } from 'antd'
 import { Button } from '../common'
-import RobotSvg from './RobotSvg'
 
 const Wrapper = styled.div`
   display: flex !important;
@@ -103,26 +102,6 @@ const BookSettings = props => {
           onClick={() => toggleInformation('settings')}
         />
       </Tooltip>
-      {showKnowledgeBaseLink && (
-        <Tooltip placement="bottom" title="Knowledge Base">
-          <StyledLink
-            aria-label="Knowledge Base"
-            to={`/document/${bookComponentId}/knowledge-base`}
-          >
-            KB
-          </StyledLink>
-        </Tooltip>
-      )}
-      {showAiAssistantLink && (
-        <Tooltip placement="bottomRight" title="AI Book Designer (Beta)">
-          <StyledLink
-            aria-label="AI Book Designer (Beta)"
-            to={`/document/${bookComponentId}/ai-pdf`}
-          >
-            <RobotSvg />
-          </StyledLink>
-        </Tooltip>
-      )}
     </Wrapper>
   )
 }

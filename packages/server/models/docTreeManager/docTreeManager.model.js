@@ -25,6 +25,7 @@ class DocTreeManager extends BaseModel {
         bookComponentId: idNullable,
         isFolder: booleanDefaultFalse,
         children: arrayOfIds,
+        renameLock: booleanDefaultFalse,
       },
     }
   }
