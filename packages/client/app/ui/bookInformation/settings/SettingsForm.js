@@ -186,8 +186,9 @@ const SettingsForm = ({
   useSubscription(BOOK_SETTINGS_UPDATED_SUBSCRIPTION, {
     variables: { id: bookId },
     fetchPolicy: 'network-only',
-    onData: () => {
-      console.log('BOOK_SETTINGS_UPDATED_SUBSCRIPTION')
+    onData: ({ data }) => {
+      console.log(data, 'BOOK_SETTINGS_UPDATED_SUBSCRIPTION')
+      debugger;
       refetchBookSettings({ id: bookId })
     },
   })
