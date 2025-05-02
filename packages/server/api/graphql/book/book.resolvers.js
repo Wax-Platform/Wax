@@ -534,9 +534,11 @@ const updateBookSettingsHandler = async (_, { bookId, settings }, cx) => {
 
     const updatedBookSettings = await updateBookSettings(bookId, settings)
 
+    console.log(updatedBookSettings, 'updatedBookSettings')
     pubsub.publish(BOOK_SETTINGS_UPDATED, {
       bookSettingsUpdated: updatedBookSettings.bookId,
     })
+    
 
     return updatedBookSettings
   } catch (e) {
@@ -778,8 +780,9 @@ module.exports = {
       },
     },
     bookSettingsUpdated: {
-      subscribe: async () => {
+      subscribe: async (_, __, context) => {
         const pubsub = await pubsubManager.getPubsub()
+        console.log("Subscribing to NEW_MESSAGE", { user: context });
         return pubsub.asyncIterator(BOOK_SETTINGS_UPDATED)
       },
     },
