@@ -188,7 +188,7 @@ const SettingsForm = ({
     onData: () => refetchBookSettings({ id: bookId }),
   })
 
-  const handleUpdateBookSettings = () => {
+  const handleUpdateBookSettings = async () => {
     // Both Free text and Custom prompts cannot be off
     // This check will throw a validation error to nudge user to add a prompt
     const inputPrompt = form.getFieldValue('prompt')
@@ -210,7 +210,7 @@ const SettingsForm = ({
       return
     }
 
-    updateBookSettings({
+    await updateBookSettings({
       variables: {
         bookId,
         aiOn: isAiOn,
@@ -225,9 +225,9 @@ const SettingsForm = ({
       },
     })
 
-    setTimeout(() => {
+    // setTimeout(() => {
       toggleInformation(toggleName)
-    }, 500)
+    // }, 500)
   }
 
   const saveWaxConfig = config => {
