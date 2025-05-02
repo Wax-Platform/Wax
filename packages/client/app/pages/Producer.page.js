@@ -946,7 +946,7 @@ const ProducerPage = ({ bookId }) => {
     }
 
     if (selectedChapterId) {
-      setShowSpinner(true)
+      // setShowSpinner(true)
       setTimeout(() => {    
         createYjsProvider({
           currentUser,
@@ -957,9 +957,9 @@ const ProducerPage = ({ bookId }) => {
         })
       }, 500)
 
-      setTimeout(() => {
-        setShowSpinner(false)
-      }, 1200)
+      // setTimeout(() => {
+        // setShowSpinner(false)
+      // }, 1200)
 
     }
 
