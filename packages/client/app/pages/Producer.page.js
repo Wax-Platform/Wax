@@ -191,7 +191,7 @@ const ProducerPage = ({ bookId }) => {
       id: bookId,
     },
     onCompleted: data => {
-      // setAiOn(data?.getBook?.bookSettings?.aiOn)
+      setAiOn(data?.getBook?.bookSettings?.aiOn)
       setCustomPrompts(data?.getBook?.bookSettings?.customPrompts)
       setFreeTextPromptsOn(data?.getBook?.bookSettings?.freeTextPromptsOn)
       setCustomPromptsOn(data?.getBook?.bookSettings?.customPromptsOn)
@@ -946,7 +946,7 @@ const ProducerPage = ({ bookId }) => {
     }
 
     if (selectedChapterId) {
-      // setShowSpinner(true)
+      setShowSpinner(true)
       setTimeout(() => {    
         createYjsProvider({
           currentUser,
@@ -957,9 +957,9 @@ const ProducerPage = ({ bookId }) => {
         })
       }, 500)
 
-      // setTimeout(() => {
-        // setShowSpinner(false)
-      // }, 1200)
+      setTimeout(() => {
+        setShowSpinner(false)
+      }, 1200)
 
     }
 
@@ -1024,7 +1024,7 @@ const ProducerPage = ({ bookId }) => {
       addComments={handleAddingComments}
       addResource={addResource}
       aiEnabled={isAIEnabled?.config}
-      aiOn={bookQueryData?.getBook?.bookSettings?.aiOn}
+      aiOn={aiOn}
       bodyDivisionId={getBodyDivisionId()}
       bookComponentContent={currentBookComponentContent}
       bookId={bookId}

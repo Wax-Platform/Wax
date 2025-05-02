@@ -246,6 +246,7 @@ const EditorWrapper = ({
 
   useEffect(() => {
     setLuluWax({
+      ...luluWax,
       title,
       selectedChapterId,
       chaptersActionInProgress,

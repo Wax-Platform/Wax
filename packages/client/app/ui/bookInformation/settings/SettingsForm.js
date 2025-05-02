@@ -613,9 +613,9 @@ const SettingsForm = ({
               htmlType="submit"
               loading={updateLoading}
               onClick={() => {
-                setTimeout(() => {
+                // setTimeout(() => {
                   toggleInformation(toggleName)
-                }, 500)
+                // }, 500)
               }}
               type="primary"
             >
