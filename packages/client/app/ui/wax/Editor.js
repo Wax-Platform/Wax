@@ -245,7 +245,6 @@ const EditorWrapper = ({
   }, [memoizedProvider])
 
   useEffect(() => {
-    console.log('new Settings',settings)
     setLuluWax({
       ...luluWax,
       title,

@@ -547,8 +547,6 @@ const LuluLayout = ({ customProps, ...rest }) => {
     setUploading,
     isUploading
   } = customProps
-  console.log('settings', settings)
-
   const params = useParams()
   const { bookComponentId } = params
 

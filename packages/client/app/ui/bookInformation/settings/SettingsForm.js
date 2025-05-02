@@ -126,7 +126,6 @@ const SettingsForm = ({
   toggleInformation,
   toggleName,
 }) => {
-  console.log(bookSettings, 'bookSettings inside SettingsForm')
   const { t } = useTranslation(null, {
     keyPrefix: 'pages.common.header.bookSettingsModal',
   })
@@ -233,7 +232,7 @@ const SettingsForm = ({
     await refetchBookSettings({ id: bookId })
 
     // setTimeout(() => {
-      //toggleInformation(toggleName)
+      toggleInformation(toggleName)
     // }, 500)
   }
 
