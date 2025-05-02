@@ -261,7 +261,7 @@
       "chat": {
         "title": {
           "type": "title",
-          "value": "Coko AI Book Designer"
+          "value": "Coko AI Designer"
         },
         "bubble": {
           "type": "text",
@@ -488,11 +488,11 @@
             },
             "aiBookDesigner": {
               "type": "link(text)",
-              "value": "AI Book Designer (Beta)"
+              "value": "AI Designer (Beta)"
             },
             "bookSettings": {
               "type": "action",
-              "value": "Book Settings"
+              "value": "Settings"
             },
             "admin": {
               "type": "link(text)",
@@ -544,7 +544,7 @@
         "bookSettingsModal": {
           "title": {
             "type": "title",
-            "value": "Book Settings"
+            "value": "Settings"
           },
           "aiWriting": {
             "promptUse": {
@@ -556,7 +556,7 @@
               },
               "detail": {
                 "type": "switch(detail)",
-                "value": "Users with edit access to this book can use the AI Book Designer."
+                "value": "Users with edit access to this book can use the AI Designer."
               }
             },
             "freeText": {
@@ -622,7 +622,7 @@
           },
           "aiDesigner": {
             "type": "switch(label)",
-            "value": "AI Book Designer (Beta)",
+            "value": "AI Designer (Beta)",
             "detail": {
               "type": "switch(detail)",
               "value": "Users with edit access to this book can use AI writing prompts."
@@ -1343,23 +1343,23 @@
             },
             "aiBookDesigner": {
               "type": "link(text)",
-              "value": "AI Book Designer (Beta)"
+              "value": "AI Designer (Beta)"
             },
             "bookSettings": {
               "type": "action",
-              "value": "Book Settings"
+              "value": "Settings"
             }
           }
         }
       },
       "untitledBook": {
         "type": "placeholder",
-        "value": "Untitled Book"
+        "value": "Untitled"
       },
       "bookMetadataTab": {
         "title": {
           "type": "title",
-          "value": "Book Metadata"
+          "value": "Metadata"
         },
         "introduction": {
           "type": "detail",

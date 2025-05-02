@@ -191,7 +191,7 @@ const ProducerPage = ({ bookId }) => {
       id: bookId,
     },
     onCompleted: data => {
-      setAiOn(data?.getBook?.bookSettings?.aiOn)
+      // setAiOn(data?.getBook?.bookSettings?.aiOn)
       setCustomPrompts(data?.getBook?.bookSettings?.customPrompts)
       setFreeTextPromptsOn(data?.getBook?.bookSettings?.freeTextPromptsOn)
       setCustomPromptsOn(data?.getBook?.bookSettings?.customPromptsOn)
@@ -1024,7 +1024,7 @@ const ProducerPage = ({ bookId }) => {
       addComments={handleAddingComments}
       addResource={addResource}
       aiEnabled={isAIEnabled?.config}
-      aiOn={aiOn}
+      aiOn={bookQueryData?.getBook?.bookSettings?.aiOn}
       bodyDivisionId={getBodyDivisionId()}
       bookComponentContent={currentBookComponentContent}
       bookId={bookId}

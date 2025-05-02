@@ -120,9 +120,9 @@ const BookInformation = props => {
         </Tooltip>
       )}
       {showAiAssistantLink && (
-        <Tooltip placement="bottomRight" title="AI Book Designer (Beta)">
+        <Tooltip placement="bottomRight" title="AI Designer (Beta)">
           <StyledLink
-            aria-label="AI Book Designer (Beta)"
+            aria-label="AI Designer (Beta)"
             to={`/document/${bookComponentId}/ai-pdf`}
           >
             <RobotSvg />
