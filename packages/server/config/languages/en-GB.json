@@ -343,18 +343,18 @@
             "type": "label",
             "value": "Selection",
             "book": {
-              "value": "book"
+              "value": "chapter"
             }
           }
         },
         "bookPreview": {
           "heading": {
             "type": "heading",
-            "value": "Book preview"
+            "value": "Chapter preview"
           },
           "select": {
             "type": "select(label)",
-            "value": "Book preview"
+            "value": "Chapter preview"
           }
         },
         "livePreview": {

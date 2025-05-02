@@ -210,9 +210,13 @@ const addTeamMembers = async (
           }),
         )
       } else if (bookComponentId) {
-        const bookComponent = await BookComponent.findById(bookComponentId, {
-          trx,
-        })
+        const bookComponent = await BookComponent.getUserBookComponentDetails(
+          currentUserId,
+          bookComponentId,
+          {
+            trx,
+          },
+        )
 
         Promise.all(
           members.map(async userId => {

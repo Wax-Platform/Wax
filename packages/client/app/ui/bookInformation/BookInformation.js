@@ -113,7 +113,7 @@ const BookInformation = props => {
         <Tooltip placement="bottom" title="Knowledge Base">
           <StyledLink
             aria-label="Knowledge Base"
-            to={`/books/${bookId}/knowledge-base`}
+            to={`/document/${bookComponentId}/knowledge-base`}
           >
             KB
           </StyledLink>
@@ -123,7 +123,7 @@ const BookInformation = props => {
         <Tooltip placement="bottomRight" title="AI Book Designer (Beta)">
           <StyledLink
             aria-label="AI Book Designer (Beta)"
-            to={`/books/${bookId}/ai-pdf`}
+            to={`/document/${bookComponentId}/ai-pdf`}
           >
             <RobotSvg />
           </StyledLink>

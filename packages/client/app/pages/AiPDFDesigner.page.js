@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useQuery, useLazyQuery } from '@apollo/client'
+import { useParams } from 'react-router-dom'
 import { GET_ENTIRE_BOOK, GET_BOOK_COMPONENT, GET_BOOKS } from '../graphql'
 import AiPDFDesigner from '../ui/AiPDFDesigner/AiPDFDesigner'
 import { CssAssistantContext } from '../ui/AiPDFDesigner/hooks/CssAssistantContext'
 
 const AiPDFDesignerPage = ({ bookId }) => {
+  const { bookComponentId } = useParams()
   const { setPassedContent } = useContext(CssAssistantContext)
  
   const [bookTitle, setBookTitle] = useState('')
@@ -27,10 +29,13 @@ const AiPDFDesignerPage = ({ bookId }) => {
       setBookTitle(bookQueryData?.getBook.title)
       // templatesData && console.log(templatesData)
 
-      const chaptersIds = bookQueryData.getBook.divisions[1].bookComponents.map(
-        division => division.id,
-      )
+      // const chaptersIds = bookQueryData.getBook.divisions[1].bookComponents.map(
+      //   division => division.id,
+      // )
 
+      // console.log(chaptersIds)
+      const chaptersIds = [bookComponentId]
+      
       setPassedContent('')
       Promise.all(
         chaptersIds.map((chapterId, i) =>

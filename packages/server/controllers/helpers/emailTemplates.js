@@ -11,7 +11,7 @@ const bookInvite = context => {
     const link = `${clientUrl}/books/${bookId}/producer`
 
     const content = `
-        <p>${sharerName} (${sharerEmail}) has invited you to ${status} the following book: <a href="${link}">${bookTitle}</a>.</p>
+        <p>${sharerName} (${sharerEmail}) has invited you to ${status} the following Chapter: <a href="${link}">${bookTitle}</a>.</p>
         <p></p>
         <p>
           If you cannot click the link above, paste the following into your browser to continue:
@@ -21,12 +21,12 @@ const bookInvite = context => {
       `
 
     const text = `
-      Book shared with you: ${bookTitle}!\nCopy and paste the following link into your browser to view the book.\n\n${link}`
+      Chapter shared with you: ${bookTitle}!\nCopy and paste the following link into your browser to view the chapter.\n\n${link}`
 
     const data = {
       content,
       text,
-      subject: `Book shared with you: ${bookTitle}`,
+      subject: `Chapter shared with you: ${bookTitle}`,
       to: email,
     }
 
@@ -52,7 +52,7 @@ const bookComponentInvite = context => {
     const link = `${clientUrl}/document/${bookComponentId}`
 
     const content = `
-        <p>${sharerName} (${sharerEmail}) has invited you to ${status} the following book component: <a href="${link}">${bookComponentTitle}</a>.</p>
+        <p>${sharerName} (${sharerEmail}) has invited you to ${status} the following chapter: <a href="${link}">${bookComponentTitle || 'Untitled'}</a>.</p>
         <p></p>
         <p>
           If you cannot click the link above, paste the following into your browser to continue:
@@ -62,12 +62,12 @@ const bookComponentInvite = context => {
       `
 
     const text = `
-      Book component shared with you: ${bookComponentTitle}!\nCopy and paste the following link into your browser to view the book component.\n\n${link}`
+      Chapter shared with you: ${bookComponentTitle || 'Untitled'}!\nCopy and paste the following link into your browser to view the chapter.\n\n${link}`
 
     const data = {
       content,
       text,
-      subject: `Book shared with you: ${bookComponentTitle}`,
+      subject: `Chapter shared with you: ${bookComponentTitle || 'Untitled'}`,
       to: email,
     }
 
@@ -105,7 +105,7 @@ const mentionNotification = context => {
     `
 
     const text = `
-      Someone mentioned you in a comment in the book ${bookTitle}!\nCopy and paste the following link into your browser to view the book.\n\n${link}`
+      Someone mentioned you in a comment in the chapter ${bookTitle}!\nCopy and paste the following link into your browser to view the book.\n\n${link}`
 
     const data = {
       content,
