@@ -83,7 +83,6 @@ const StyledLink = styled(Link)`
 `
 
 const BookSettings = props => {
-  const { bookComponentId } = useParams()
   const {
     viewInformation,
     toggleInformation,

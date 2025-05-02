@@ -245,6 +245,7 @@ const EditorWrapper = ({
   }, [memoizedProvider])
 
   useEffect(() => {
+    console.log('new Settings',settings)
     setLuluWax({
       ...luluWax,
       title,
@@ -276,16 +277,16 @@ const EditorWrapper = ({
       setUploading,
     })
   }, [
-    // title,
-    // selectedChapterId,
-    // bookMetadataValues,
-    // chaptersActionInProgress,
-    // canEdit,
-    // editorLoading,
-    // savedComments,
+    title,
+    selectedChapterId,
+    bookMetadataValues,
+    chaptersActionInProgress,
+    canEdit,
+    editorLoading,
+    savedComments,
     viewMetadata,
     settings,
-    // bookId,
+    bookId,
     aiEnabled,
   ])
 

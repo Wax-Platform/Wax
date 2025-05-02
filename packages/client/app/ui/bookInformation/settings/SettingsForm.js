@@ -126,6 +126,7 @@ const SettingsForm = ({
   toggleInformation,
   toggleName,
 }) => {
+  console.log(bookSettings, 'bookSettings inside SettingsForm')
   const { t } = useTranslation(null, {
     keyPrefix: 'pages.common.header.bookSettingsModal',
   })
@@ -185,7 +186,10 @@ const SettingsForm = ({
   useSubscription(BOOK_SETTINGS_UPDATED_SUBSCRIPTION, {
     variables: { id: bookId },
     fetchPolicy: 'network-only',
-    onData: () => refetchBookSettings({ id: bookId }),
+    onData: () => {
+      console.log('BOOK_SETTINGS_UPDATED_SUBSCRIPTION')
+      refetchBookSettings({ id: bookId })
+    },
   })
 
   const handleUpdateBookSettings = async () => {
@@ -226,7 +230,7 @@ const SettingsForm = ({
     })
 
     // setTimeout(() => {
-      toggleInformation(toggleName)
+      //toggleInformation(toggleName)
     // }, 500)
   }
 
