@@ -183,15 +183,15 @@ const SettingsForm = ({
     },
   )
 
-  useSubscription(BOOK_SETTINGS_UPDATED_SUBSCRIPTION, {
-    variables: { id: bookId },
-    fetchPolicy: 'network-only',
-    onData: ({ data }) => {
-      console.log(data, 'BOOK_SETTINGS_UPDATED_SUBSCRIPTION')
-      debugger;
-      refetchBookSettings({ id: bookId })
-    },
-  })
+  // useSubscription(BOOK_SETTINGS_UPDATED_SUBSCRIPTION, {
+  //   variables: { id: bookId },
+  //   fetchPolicy: 'network-only',
+  //   onData: ({ data }) => {
+  //     console.log(data, 'BOOK_SETTINGS_UPDATED_SUBSCRIPTION')
+  //     debugger;
+  //     refetchBookSettings({ id: bookId })
+  //   },
+  // })
 
   const handleUpdateBookSettings = async () => {
     // Both Free text and Custom prompts cannot be off
@@ -229,6 +229,8 @@ const SettingsForm = ({
         configurableEditorConfig: JSON.stringify(waxConfig),
       },
     })
+
+    await refetchBookSettings({ id: bookId })
 
     // setTimeout(() => {
       //toggleInformation(toggleName)
