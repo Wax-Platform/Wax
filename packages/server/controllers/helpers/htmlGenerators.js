@@ -93,7 +93,7 @@ const generateContainer = (
       }${runningHeadersGenerator(
         runningHeadersLeft,
         runningHeadersRight,
-      )}<header>${componentNumber || ''}</header></section>`,
+      )}</section>`, //<header>${componentNumber || ''}</header>
     )
   }
 
