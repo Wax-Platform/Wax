@@ -97,7 +97,7 @@ module.exports = {
       amount: 24,
       unit: 'hours',
     },
-    pool: { min: 0, max: 10, idleTimeoutMillis: 1000 },
+    pool: { min: 0, max: 100, idleTimeoutMillis: 1000 },
     cron: {
       path: path.join(__dirname, '..', 'services', 'cron.service.js'),
     },
