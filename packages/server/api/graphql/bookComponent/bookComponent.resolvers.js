@@ -1,17 +1,16 @@
-const { logger } = require('@coko/server')
-const { pubsubManager } = require('@coko/server')
+const { logger, subscriptionManager } = require('@coko/server')
 const { withFilter } = require('graphql-subscriptions')
 const fs = require('fs-extra')
 const crypto = require('crypto')
 const path = require('path')
 const BPromise = require('bluebird')
 
-const { DocTreeManager } = require('@pubsweet/models')
 const findIndex = require('lodash/findIndex')
 const find = require('lodash/find')
 const groupBy = require('lodash/groupBy')
 const pullAll = require('lodash/pullAll')
 
+const DocTreeManager = require('../../../models/docTreeManager/docTreeManager.model')
 const { models } = require('../../../models/dataloader')
 
 const { writeLocallyFromReadStream } = require('../../../utilities/filesystem')
@@ -86,7 +85,7 @@ const getBookComponentHandler = async (_, { id }, ctx) => {
 
 // const getBookComponentAndAcquireLock = async (_, { id, tabId }, ctx) => {
 //   try {
-//     
+//
 
 //     const bookComponent = await useCaseGetBookComponentAndAcquireLock(
 //       id,
@@ -107,7 +106,6 @@ const getBookComponentHandler = async (_, { id }, ctx) => {
 
 const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
   try {
-    
     const bookComponents = []
     let bookIdToFetch
     await BPromise.mapSeries(bookComponentFiles, async bookComponentFile => {
@@ -223,7 +221,6 @@ const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
 const addBookComponentHandler = async (_, { input }, ctx, info) => {
   try {
     const { divisionId, bookId, componentType } = input
-    
 
     const newBookComponent = await addBookComponent(
       divisionId,
@@ -251,7 +248,6 @@ const addBookComponentHandler = async (_, { input }, ctx, info) => {
 const podAddBookComponentHandler = async (_, { input }, ctx, info) => {
   try {
     const { divisionId, bookId, componentType, afterId } = input
-    
 
     const newBookComponent = await addBookComponent(
       divisionId,
@@ -279,7 +275,6 @@ const podAddBookComponentHandler = async (_, { input }, ctx, info) => {
 const renameBookComponentHandler = async (_, { input }, ctx) => {
   try {
     const { id, title } = input
-    
 
     await renameBookComponent(id, title, 'en')
 
@@ -307,8 +302,6 @@ const renameBookComponentHandler = async (_, { input }, ctx) => {
 // used in ketty
 const renameBookComponentTitleHandler = async (_, { id, title }, ctx) => {
   try {
-    
-
     await renameBookComponent(id, title, 'en')
 
     const updatedBookComponent = await getBookComponent(id)
@@ -335,7 +328,7 @@ const renameBookComponentTitleHandler = async (_, { id, title }, ctx) => {
 const deleteBookComponentHandler = async (_, { input }, ctx) => {
   try {
     const { id } = input
-    
+
     const bookComponent = await getBookComponent(id)
 
     if (!bookComponent) {
@@ -366,7 +359,7 @@ const deleteBookComponentHandler = async (_, { input }, ctx) => {
 const podDeleteBookComponentHandler = async (_, { input }, ctx) => {
   try {
     const { id } = input
-    
+
     const bookComponent = await getBookComponent(id)
 
     if (!bookComponent) {
@@ -397,7 +390,6 @@ const podDeleteBookComponentHandler = async (_, { input }, ctx) => {
 const updateWorkflowStateHandler = async (_, { input }, ctx) => {
   try {
     const { id, workflowStages } = input
-    
 
     const bookComponentState = await BookComponentState.findOne({
       bookComponentId: id,
@@ -437,7 +429,6 @@ const updateWorkflowStateHandler = async (_, { input }, ctx) => {
 
 const unlockBookComponentHandler = async (_, { input }, ctx) => {
   try {
-    
     const { id: bookComponentId } = input
 
     await unlockBookComponent(bookComponentId, ctx.userId)
@@ -464,7 +455,6 @@ const unlockBookComponentHandler = async (_, { input }, ctx) => {
 
 const lockBookComponentHandler = async (_, { id, tabId, userAgent }, ctx) => {
   try {
-    
     await lockBookComponent(id, tabId, userAgent, ctx.userId)
 
     const bookComponent = await getBookComponent(id)
@@ -494,7 +484,6 @@ const podLockBookComponentHandler = async (
   ctx,
 ) => {
   try {
-    
     await lockBookComponent(id, tabId, userAgent, ctx.userId)
 
     const bookComponent = await getBookComponent(id)
@@ -512,7 +501,6 @@ const podLockBookComponentHandler = async (
 const updateContentHandler = async (_, { input }, ctx) => {
   try {
     const { id, content } = input
-    
 
     const { shouldNotifyWorkflowChange } = await updateContent(
       id,
@@ -553,7 +541,6 @@ const updateContentHandler = async (_, { input }, ctx) => {
 const updatePaginationHandler = async (_, { input }, ctx) => {
   try {
     const { id, pagination } = input
-    
 
     const currentBookComponent = await getBookComponent(id)
 
@@ -581,7 +568,6 @@ const updatePaginationHandler = async (_, { input }, ctx) => {
 const updateTrackChangesHandler = async (_, { input }, ctx) => {
   try {
     const { id, trackChangesEnabled } = input
-    
 
     const currentState = await BookComponentState.findOne({
       bookComponentId: id,
@@ -615,7 +601,6 @@ const updateTrackChangesHandler = async (_, { input }, ctx) => {
 const updateUploadingHandler = async (_, { input }, ctx) => {
   try {
     const { id, uploading } = input
-    
 
     const currentState = await BookComponentState.findOne({
       bookComponentId: id,
@@ -649,7 +634,6 @@ const updateUploadingHandler = async (_, { input }, ctx) => {
 const updateComponentTypeHandler = async (_, { input }, ctx) => {
   try {
     const { id, componentType } = input
-    
 
     const updatedBookComponent = await updateComponentType(id, componentType)
 
@@ -670,7 +654,6 @@ const updateComponentTypeHandler = async (_, { input }, ctx) => {
 const updateBookComponentParentIdHandler = async (_, { input }, ctx) => {
   try {
     const { id, parentComponentId } = input
-    
 
     const updatedBookComponent = await updateBookComponentParentId(
       id,
@@ -691,7 +674,6 @@ const updateBookComponentParentIdHandler = async (_, { input }, ctx) => {
 const toggleIncludeInTOCHandler = async (_, { input }, ctx) => {
   try {
     const { id } = input
-    
 
     await toggleIncludeInTOC(id)
 
@@ -714,7 +696,6 @@ const toggleIncludeInTOCHandler = async (_, { input }, ctx) => {
 const setBookComponentStatusHandler = async (_, { id, status }, ctx) => {
   try {
     // const { id, status } = input
-    
 
     await setStatus(id, status)
     const updatedBookComponent = await getBookComponent(id)
@@ -887,15 +868,15 @@ module.exports = {
       return locked
     },
     async componentTypeOrder(bookComponent, _, ctx) {
+      const DivisionLoader = models.find(
+        md => md.modelName === 'DivisionLoader',
+      )
 
-      const DivisionLoader = models.find(md => md.modelName === 'DivisionLoader')
-  
       const { componentType } = bookComponent
 
-      const sortedPerDivision =
-        await DivisionLoader.model.bookComponents.load(
-          bookComponent.divisionId,
-        )
+      const sortedPerDivision = await DivisionLoader.model.bookComponents.load(
+        bookComponent.divisionId,
+      )
 
       const groupedByType = groupBy(
         pullAll(sortedPerDivision, [undefined]),
@@ -910,15 +891,14 @@ module.exports = {
       )
     },
     async uploading(bookComponent, _, ctx) {
+      const BookComponentStateLoader = models.find(
+        md => md.modelName === 'BookComponentStateLoader',
+      )
 
-      const BookComponentStateLoader = models.find(md => md.modelName === 'BookComponentStateLoader')
-  
       await BookComponentStateLoader.model.state.clear()
 
       const bookComponentState =
-        await BookComponentStateLoader.model.state.load(
-          bookComponent.id,
-        )
+        await BookComponentStateLoader.model.state.load(bookComponent.id)
 
       return bookComponentState.uploading
     },
@@ -926,14 +906,14 @@ module.exports = {
       return bookComponent.pagination
     },
     async workflowStages(bookComponent, _, ctx) {
-      const BookComponentStateLoader = models.find(md => md.modelName === 'BookComponentStateLoader')
-      
+      const BookComponentStateLoader = models.find(
+        md => md.modelName === 'BookComponentStateLoader',
+      )
+
       await BookComponentStateLoader.model.state.clear()
 
       const bookComponentState =
-        await BookComponentStateLoader.model.state.load(
-          bookComponent.id,
-        )
+        await BookComponentStateLoader.model.state.load(bookComponent.id)
 
       return bookComponentState.workflowStages || null
     },
@@ -1070,80 +1050,74 @@ module.exports = {
   Subscription: {
     bookComponentAdded: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENT_ADDED)
       },
     },
     bookComponentDeleted: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENT_DELETED)
       },
     },
     bookComponentPaginationUpdated: {
       subscribe: async () => {
-        
-        return subscriptionManager.asyncIterator(BOOK_COMPONENT_PAGINATION_UPDATED)
+        return subscriptionManager.asyncIterator(
+          BOOK_COMPONENT_PAGINATION_UPDATED,
+        )
       },
     },
     bookComponentWorkflowUpdated: {
       subscribe: async () => {
-        
-        return subscriptionManager.asyncIterator(BOOK_COMPONENT_WORKFLOW_UPDATED)
+        return subscriptionManager.asyncIterator(
+          BOOK_COMPONENT_WORKFLOW_UPDATED,
+        )
       },
     },
     bookComponentTrackChangesUpdated: {
       subscribe: async () => {
-        
-        return subscriptionManager.asyncIterator(BOOK_COMPONENT_TRACK_CHANGES_UPDATED)
+        return subscriptionManager.asyncIterator(
+          BOOK_COMPONENT_TRACK_CHANGES_UPDATED,
+        )
       },
     },
     bookComponentTitleUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENT_TITLE_UPDATED)
       },
     },
     bookComponentContentUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENT_CONTENT_UPDATED)
       },
     },
     bookComponentUploadingUpdated: {
       subscribe: async () => {
-        
-        return subscriptionManager.asyncIterator(BOOK_COMPONENT_UPLOADING_UPDATED)
+        return subscriptionManager.asyncIterator(
+          BOOK_COMPONENT_UPLOADING_UPDATED,
+        )
       },
     },
     bookComponentLockUpdated: {
       subscribe: async (payload, variables, context, info) => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENT_LOCK_UPDATED)
       },
     },
     bookComponentsLockUpdated: {
       subscribe: async (payload, variables, context, info) => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENTS_LOCK_UPDATED)
       },
     },
     bookComponentTypeUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENT_TYPE_UPDATED)
       },
     },
     bookComponentTOCToggled: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENT_TOC_UPDATED)
       },
     },
     bookComponentUpdated: {
       subscribe: async (...args) => {
-        
-
         return withFilter(
           () => {
             return subscriptionManager.asyncIterator(BOOK_COMPONENT_UPDATED)
@@ -1159,7 +1133,6 @@ module.exports = {
     },
     yjsContentUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(YJS_CONTENT_UPDATED)
       },
     },

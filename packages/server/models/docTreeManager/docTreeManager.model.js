@@ -1,5 +1,9 @@
-const { BaseModel } = require('@coko/server')
-const { Team, TeamMember } = require('@pubsweet/models')
+const {
+  BaseModel,
+  Team,
+  TeamMember,
+  modelJsonSchemaTypes,
+} = require('@coko/server')
 
 const config = require('config')
 
@@ -7,9 +11,12 @@ const {
   addBookComponent,
 } = require('../../controllers/bookComponent.controller')
 
-const { booleanDefaultFalse, idNullable, stringNullable, arrayOfIds } = require('../helpers').schema
+const { booleanDefaultFalse, idNullable, stringNullable, arrayOfIds } =
+  modelJsonSchemaTypes
 
-const OWNER_TEAM = config.get('teams.nonGlobal').find(team => team.role === 'owner')
+const OWNER_TEAM = config
+  .get('teams.nonGlobal')
+  .find(team => team.role === 'owner')
 
 class DocTreeManager extends BaseModel {
   static get tableName() {
@@ -18,6 +25,7 @@ class DocTreeManager extends BaseModel {
 
   static get schema() {
     return {
+      type: 'object',
       properties: {
         title: stringNullable,
         parentId: idNullable,

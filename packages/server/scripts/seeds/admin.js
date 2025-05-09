@@ -69,7 +69,6 @@ const seedAdmin = async userData => {
         )
 
         await Team.addMemberToGlobalTeam(newAdminUser.id, 'admin', { trx })
-
         await DocTreeManager.createUserRootFolder(newAdminUser.id, { trx })
 
         logger.info(

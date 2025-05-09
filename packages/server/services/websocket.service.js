@@ -10,7 +10,7 @@ const { cleanUpLocks } = require('./bookComponentLock.service')
 
 const userExists = async userId => {
   try {
-    const { User } = require('@pubsweet/models')
+    const { User } = require('@coko/server')
     logger.info('executing userExists')
 
     if (!userId) {

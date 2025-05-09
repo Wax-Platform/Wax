@@ -17,18 +17,11 @@
     "seed:templates": "node ./scripts/runners/createTemplates.js",
     "test": "jest"
   },
-  "resolutions": {
-    "axios": "1.6",
-    "objection": "^2.2.15",
-    "pg": "8"
-  },
   "dependencies": {
-    "@coko/server": "4.9.0",
+    "@coko/server": "4.10.0",
     "@dqbd/tiktoken": "^1.0.14",
-    "@pubsweet/models": "^0.3.26",
     "archiver": "^3.1.1",
     "axios": "^1.6.2",
-    "aws-sdk": "^2.1692.0",
     "bluebird": "^3.7.2",
     "cheerio": "^1.0.0-rc.2",
     "config": "^3.2.5",
@@ -51,12 +44,11 @@
     "mathjax-node": "^2.1.1",
     "mime-types": "^2.1.24",
     "moment": "^2.29.4",
-    "objection": "^2.2.15",
+    "objection": "^3.1.4",
     "pdf2html": "^3.1.0",
     "prosemirror-model": "1.25.0",
     "prosemirror-schema-basic": "1.2.4",
     "prosemirror-schema-list": "1.5.1",
-    "pubsweet": "^5.1.31",
     "ws": "8.12.0",
     "xlsx": "^0.18.5",
     "xmlbuilder": "^13.0.2",

@@ -24,7 +24,7 @@ const {
 
 const { getUser } = require('@coko/server/src/models/user/user.controller')
 
-const { DocTreeManager } = require('@pubsweet/models')
+const DocTreeManager = require('../models/docTreeManager/docTreeManager.model')
 
 const {
   createFile,
@@ -895,8 +895,6 @@ const deleteBook = async (bookId, options = {}) => {
             trx: tr,
           },
         )
-
-        
 
         if (associatedTeams.length > 0) {
           await Promise.all(

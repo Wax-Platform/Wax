@@ -1,5 +1,4 @@
-const FileBase = require('@coko/server/src/models/file/file.model')
-const { Model } = require('objection')
+const { File: FileBase, BaseModel } = require('@coko/server')
 
 class File extends FileBase {
   static get relationMappings() {
@@ -11,7 +10,7 @@ class File extends FileBase {
 
     return {
       book: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Book,
         join: {
           from: 'files.object_id',
@@ -19,7 +18,7 @@ class File extends FileBase {
         },
       },
       bookComponent: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: BookComponent,
         join: {
           from: 'files.object_id',
@@ -27,7 +26,7 @@ class File extends FileBase {
         },
       },
       template: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Template,
         join: {
           from: 'files.object_id',

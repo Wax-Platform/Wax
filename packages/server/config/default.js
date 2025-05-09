@@ -1,5 +1,3 @@
-const path = require('path')
-
 const components = require('./components')
 const vanillaAuthorizations = require('./modules/vanillaAuthorizations')
 const booksprintsAuthorizations = require('./modules/booksprintAuthorizations')
@@ -65,7 +63,7 @@ module.exports = {
       ? booksprintsAuthorizations
       : vanillaAuthorizations,
   bookBuilder,
-  'passwordReset': {
+  passwordReset: {
     pathToPage: '/password-reset',
   },
   featureBookStructure: false,
@@ -109,11 +107,16 @@ module.exports = {
     user: 'dev_user',
     password: 'dev_user_password',
   },
+  devServerIgnore: ['./templates/*'],
   onStartup: [
     {
       label: 'Seed Admin',
       execute: async () => {
+        /* eslint-disable global-require */
+        const config = require('config')
         const seedAdmin = require('../scripts/seeds/admin')
+        /* eslint-enable global-require */
+
         const adminUser = config.get('admin')
         await seedAdmin({ ...adminUser })
       },
@@ -121,47 +124,63 @@ module.exports = {
     {
       label: 'Seed Application Parameters',
       execute: async () => {
+        /* eslint-disable global-require */
         const seedApplicationParameters = require('../scripts/seeds/applicationParameters')
+        /* eslint-enable global-require */
+
         await seedApplicationParameters()
       },
     },
     {
       label: 'Seed Templates',
       execute: async () => {
+        /* eslint-disable global-require */
         const seedTemplates = require('../scripts/seeds/templates')
+        /* eslint-enable global-require */
+
         await seedTemplates()
       },
     },
     {
       label: 'Clean up Locks',
       execute: async () => {
-        const { cleanUpLocks } = require('../../services/bookComponentLock.service')
+        /* eslint-disable global-require */
+        const {
+          cleanUpLocks,
+        } = require('../services/bookComponentLock.service')
+        /* eslint-enable global-require */
+
         await cleanUpLocks()
       },
     },
     {
       label: 'Start YJS Service',
       execute: async () => {
-        const { startWSServer } = require('../../startWebSocketServer')
+        /* eslint-disable global-require */
+        const { startWSServer } = require('../startWebSocketServer')
+        /* eslint-enable global-require */
+
         await startWSServer()
       },
     },
     {
       label: 'Check Scripts Validation',
       execute: async () => {
+        /* eslint-disable global-require */
         const config = require('config')
         const isEmpty = require('lodash/isEmpty')
-        
+        /* eslint-enable global-require */
+
         const hasScripts =
           config.has('export') &&
           config.has('export.scripts') &&
           !isEmpty(config.get('export.scripts'))
-        
+
         try {
           if (hasScripts) {
             const scripts = config.get('export.scripts')
             const errors = []
-      
+
             for (let i = 0; i < scripts.length; i += 1) {
               for (let j = i + 1; j < scripts.length; j += 1) {
                 if (
@@ -173,7 +192,7 @@ module.exports = {
                     `your have provided the same label (${scripts[i].label}) for two different scripts`,
                   )
                 }
-      
+
                 if (
                   scripts[i].label === scripts[j].label &&
                   scripts[i].filename === scripts[j].filename &&
@@ -185,7 +204,7 @@ module.exports = {
                 }
               }
             }
-      
+
             if (errors.length !== 0) {
               throw new Error(errors)
             }

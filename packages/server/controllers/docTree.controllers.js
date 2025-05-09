@@ -1,11 +1,7 @@
-const {
-  DocTreeManager,
-  BookComponent,
-  Team,
-  TeamMember,
-} = require('@pubsweet/models')
+const { uuid: uuidv4, Team, TeamMember } = require('@coko/server')
 
-const { uuid: uuidv4 } = require('@coko/server')
+const DocTreeManager = require('../models/docTreeManager/docTreeManager.model')
+const BookComponent = require('../models/bookComponent/bookComponent.model')
 
 const {
   getBookComponent,
@@ -235,7 +231,6 @@ const deleteResource = async (_, { id }, ctx) => {
 }
 
 const renameResource = async (_, { id, title, lockRename }, ctx) => {
-
   const { renameLock } = await DocTreeManager.query()
     .findOne({ id })
     .returning('*')
