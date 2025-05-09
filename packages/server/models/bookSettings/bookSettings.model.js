@@ -2,7 +2,7 @@
   BookSettings: Settings of a book
 */
 
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const Base = require('../ketidaBase')
 
@@ -25,7 +25,7 @@ class BookSettings extends Base {
 
     return {
       book: {
-        relation: Model.HasOneRelation,
+        relation: BaseModel.HasOneRelation,
         modelClass: Book,
         join: {
           from: 'BookSettings.bookId',

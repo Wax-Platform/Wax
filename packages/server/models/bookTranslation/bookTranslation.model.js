@@ -1,4 +1,4 @@
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const Translation = require('../translation')
 
@@ -20,7 +20,7 @@ class BookTranslation extends Translation {
     /* eslint-enable global-require */
     return {
       book: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Book,
         join: {
           from: 'BookTranslation.bookId',

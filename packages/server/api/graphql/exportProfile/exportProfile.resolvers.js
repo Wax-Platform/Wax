@@ -1,5 +1,4 @@
-const { withFilter } = require('graphql-subscriptions')
-const { subscriptionManager, logger } = require('@coko/server')
+const { subscriptionManager, logger, withFilter } = require('@coko/server')
 
 const { subscriptions, labels } = require('./constants')
 
@@ -53,8 +52,6 @@ const createExportProfileHandler = async (_, { input }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} createExportProfileHandler`)
 
-    
-
     const newExportProfile = await createExportProfile(input)
 
     subscriptionManager.publish(EXPORT_PROFILE_CREATED, {
@@ -73,8 +70,6 @@ const createExportProfileHandler = async (_, { input }, ctx) => {
 const updateExportProfileHandler = async (_, { id, data }) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} updateExportProfileHandler`)
-
-    
 
     const updatedExportProfile = await updateExportProfile(id, data)
 
@@ -95,8 +90,6 @@ const deleteExportProfileHandler = async (_, { id }) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} deleteExportProfileHandler`)
 
-    
-
     await deleteExportProfile(id)
 
     subscriptionManager.publish(EXPORT_PROFILE_DELETED, {
@@ -115,8 +108,6 @@ const deleteExportProfileHandler = async (_, { id }) => {
 const createLuluProjectHandler = async (_, { exportProfileId }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} createLuluProjectHandler`)
-
-    
 
     const updatedExportProfile = await createLuluProject(
       ctx.userId,
@@ -140,8 +131,6 @@ const updateLuluProjectHandler = async (_, { exportProfileId }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} updateLuluProjectHandler`)
 
-    
-
     const updatedExportProfile = await updateLuluProject(
       ctx.userId,
       exportProfileId,
@@ -163,8 +152,6 @@ const updateLuluProjectHandler = async (_, { exportProfileId }, ctx) => {
 const uploadToProviderHandler = async (_, { providerLabel, id }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} uploadToProviderHandler`)
-
-    
 
     const updatedExportProfile = await uploadToProvider(
       providerLabel,
@@ -190,8 +177,6 @@ const uploadToLuluHandler = async (_, { id }, ctx) => {
     logger.info(`${EXPORT_PROFILE_RESOLVER} uploadToLuluHandler`)
 
     const updatedExportProfile = await uploadToLulu(id, ctx.userId)
-
-    
 
     subscriptionManager.publish(EXPORT_PROFILE_UPDATED, {
       exportProfileUpdated: updatedExportProfile.id,
@@ -272,8 +257,6 @@ module.exports = {
   Subscription: {
     exportProfileUpdated: {
       subscribe: async (...args) => {
-        
-
         return withFilter(
           () => {
             return subscriptionManager.asyncIterator(EXPORT_PROFILE_UPDATED)
@@ -291,8 +274,6 @@ module.exports = {
     },
     exportProfileCreated: {
       subscribe: async (...args) => {
-        
-
         return withFilter(
           () => {
             return subscriptionManager.asyncIterator(EXPORT_PROFILE_CREATED)
@@ -310,8 +291,6 @@ module.exports = {
     },
     exportProfileDeleted: {
       subscribe: async (...args) => {
-        
-
         return withFilter(
           () => {
             return subscriptionManager.asyncIterator(EXPORT_PROFILE_DELETED)

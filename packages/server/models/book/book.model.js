@@ -1,7 +1,7 @@
-const { Model, ValidationError } = require('objection')
+const { ValidationError } = require('objection')
 const { get, isEmpty } = require('lodash')
 
-const { uuid } = require('@coko/server')
+const { uuid, BaseModel } = require('@coko/server')
 
 const Base = require('../ketidaBase')
 
@@ -221,7 +221,7 @@ class Book extends Base {
     /* eslint-enable global-require */
     return {
       bookCollection: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: BookCollection,
         join: {
           from: 'Book.collectionId',
@@ -229,7 +229,7 @@ class Book extends Base {
         },
       },
       exportProfiles: {
-        relation: Model.HasManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: ExportProfile,
         join: {
           from: 'book.id',

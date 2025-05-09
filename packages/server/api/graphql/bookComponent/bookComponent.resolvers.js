@@ -1,5 +1,4 @@
-const { logger, subscriptionManager } = require('@coko/server')
-const { withFilter } = require('graphql-subscriptions')
+const { logger, subscriptionManager, withFilter } = require('@coko/server')
 const fs = require('fs-extra')
 const crypto = require('crypto')
 const path = require('path')

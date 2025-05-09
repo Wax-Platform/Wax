@@ -1,4 +1,4 @@
-const { logger, useTransaction, pubsubManager } = require('@coko/server')
+const { logger, useTransaction, subscriptionManager } = require('@coko/server')
 const { NotFoundError, raw } = require('objection')
 const config = require('config')
 const findIndex = require('lodash/findIndex')
@@ -141,7 +141,6 @@ const addBookComponent = async (
   options = {},
 ) => {
   try {
-    
     logger.info('bookComponent resolver: executing addBookComponent use case')
     const { trx } = options
     return useTransaction(
@@ -373,8 +372,6 @@ const addBookComponent = async (
 
 const updateContent = async (bookComponentId, content, languageIso) => {
   try {
-    
-
     const bookComponentTranslation = await BookComponentTranslation.findOne({
       bookComponentId,
       languageIso,

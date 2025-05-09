@@ -6,7 +6,7 @@
   (eg. a description).
 */
 
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const Translation = require('../translation')
 const { id, string } = require('../helpers').schema
@@ -27,7 +27,7 @@ class BookCollectionTranslation extends Translation {
     /* eslint-enable global-require */
     return {
       bookCollection: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: BookCollection,
         join: {
           from: 'BookCollectionTranslation.collectionId',

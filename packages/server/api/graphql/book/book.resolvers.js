@@ -1,5 +1,9 @@
-const { withFilter } = require('graphql-subscriptions')
-const { subscriptionManager, logger, fileStorage } = require('@coko/server')
+const {
+  subscriptionManager,
+  logger,
+  fileStorage,
+  withFilter,
+} = require('@coko/server')
 
 const { getUser } = require('@coko/server/src/models/user/user.controller')
 
@@ -78,7 +82,7 @@ const {
 //   try {
 //     logger.info('book resolver: executing updateAssociatedTemplate use case')
 
-//     
+//
 
 //     const updatedBook = await updateAssociatedTemplates(
 //       bookId,
@@ -98,8 +102,6 @@ const {
 const updateBookStatusHandler = async (_, { bookId, status }, ctx) => {
   try {
     logger.info('book resolver: executing updateBookStatus use case')
-
-    
 
     const updatedBook = await updateBookStatus(bookId, status)
 
@@ -140,7 +142,6 @@ const createBookHandler = async (_, { input }, ctx) => {
     logger.info('book resolver: executing createBook use case')
 
     const { collectionId, title, addUserToBookTeams } = input
-    
 
     let newBook
     let newUserTeam
@@ -178,8 +179,6 @@ const renameBookHandler = async (_, { id, title }, ctx) => {
   try {
     logger.info('book resolver: executing renameBook use case')
 
-    
-
     const renamedBook = await renameBook(id, title)
 
     logger.info('book resolver: broadcasting renamed book to clients')
@@ -202,8 +201,6 @@ const updateSubtitleHandler = async (_, { id, subtitle }, ctx) => {
   try {
     logger.info('book resolver: executing updateSubtitle use case')
 
-    
-
     const updatedBook = await updateSubtitle(id, subtitle)
 
     logger.info('book resolver: broadcasting updated book subtitle to clients')
@@ -221,7 +218,6 @@ const updateSubtitleHandler = async (_, { id, subtitle }, ctx) => {
 const deleteBookHandler = async (_, args, ctx) => {
   try {
     logger.info('book resolver: executing deleteBook use case')
-    
 
     const deletedBook = await deleteBook(args.id)
 
@@ -241,7 +237,6 @@ const deleteBookHandler = async (_, args, ctx) => {
 const archiveBookHandler = async (_, { id, archive }, ctx) => {
   try {
     logger.info('book resolver: executing archiveBook use case')
-    
 
     const archivedBook = await archiveBook(id, archive)
 
@@ -259,7 +254,6 @@ const archiveBookHandler = async (_, { id, archive }, ctx) => {
 const updateMetadataHandler = async (_, { input }, ctx) => {
   try {
     logger.info('book resolver: executing updateMetadata use case')
-    
 
     const updatedBook = await updateMetadata(input)
 
@@ -277,7 +271,6 @@ const updateMetadataHandler = async (_, { input }, ctx) => {
 const updatePODMetadataHandler = async (_, { bookId, metadata }, ctx) => {
   try {
     logger.info('book resolver: executing updatePODMetadata use case')
-    
 
     const updatedBook = await updatePODMetadata(bookId, metadata)
 
@@ -350,7 +343,7 @@ const unpublishOnlineHandler = async (_, { bookId }, ctx) => {
 const updateRunningHeadersHandler = async (_, { input, bookId }, ctx) => {
   try {
     logger.info('book resolver: executing updateRunningHeaders use case')
-    
+
     const updatedBook = await updateRunningHeaders(input, bookId)
 
     logger.info('book resolver: broadcasting updated book to clients')
@@ -445,7 +438,7 @@ const updateLevelContentStructureHandler = async (
 const finalizeBookStructureHandler = async (_, { bookId }, cx) => {
   try {
     logger.info('book resolver: executing finalizeBookStructure use case')
-    
+
     const updatedBook = await finalizeBookStructure(bookId)
     // should add a specific event for the case of finalized
     subscriptionManager.publish(BOOK_ARCHIVED, {
@@ -460,7 +453,7 @@ const finalizeBookStructureHandler = async (_, { bookId }, cx) => {
 const updateShowWelcomeHandler = async (_, { bookId }, cx) => {
   try {
     logger.info('book resolver: executing updateShowWelcome use case')
-    
+
     const updatedBook = await updateShowWelcome(bookId)
     // should add a specific event for the case of finalized
     subscriptionManager.publish(BOOK_ARCHIVED, {
@@ -475,8 +468,6 @@ const updateShowWelcomeHandler = async (_, { bookId }, cx) => {
 const uploadBookThumbnailHandler = async (_, { bookId, file }, cx) => {
   try {
     logger.info('book resolver: uploading book thumbnail')
-
-    
 
     const updatedBook = await uploadBookThumbnail(bookId, file)
 
@@ -494,8 +485,6 @@ const uploadBookCoverHandler = async (_, { bookId, file }, cx) => {
   try {
     logger.info('book resolver: uploading book thumbnail')
 
-    
-
     const updatedBook = await uploadBookCover(bookId, file)
 
     subscriptionManager.publish(BOOK_UPDATED, {
@@ -511,8 +500,6 @@ const uploadBookCoverHandler = async (_, { bookId, file }, cx) => {
 const updateCoverAltHandler = async (_, { bookId, coverAlt }, cx) => {
   try {
     logger.info("book resolver: updating book's coverAlt")
-
-    
 
     const updatedBook = await updateBookCoverAltText(bookId, coverAlt)
 
@@ -530,14 +517,12 @@ const updateBookSettingsHandler = async (_, { bookId, settings }, cx) => {
   try {
     logger.info('book resolver: executing updateBookSettings use case')
 
-    
-
     const updatedBookSettings = await updateBookSettings(bookId, settings)
 
     subscriptionManager.publish(BOOK_SETTINGS_UPDATED, {
       bookSettingsUpdated: updatedBookSettings.bookId,
     })
-    
+
     return updatedBookSettings
   } catch (e) {
     throw new Error(e)
@@ -732,8 +717,6 @@ module.exports = {
     },
     bookDeleted: {
       subscribe: async (...args) => {
-        
-
         return withFilter(
           () => {
             return subscriptionManager.asyncIterator(BOOK_DELETED)
@@ -748,8 +731,6 @@ module.exports = {
     },
     bookRenamed: {
       subscribe: async (...args) => {
-        
-
         return withFilter(
           () => {
             return subscriptionManager.asyncIterator(BOOK_RENAMED)
@@ -764,19 +745,16 @@ module.exports = {
     },
     bookMetadataUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_METADATA_UPDATED)
       },
     },
     bookRunningHeadersUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_RUNNING_HEADERS_UPDATED)
       },
     },
     bookSettingsUpdated: {
       subscribe: async (_, __, context) => {
-        
         return subscriptionManager.asyncIterator(BOOK_SETTINGS_UPDATED)
       },
     },

@@ -1,4 +1,4 @@
-const objection = require('objection')
+const { ValidationError } = require('objection')
 const Base = require('../ketidaBase')
 
 const { id, date, string, stringNotEmpty } = require('../helpers').schema
@@ -89,14 +89,14 @@ class ExportProfile extends Base {
 
   $beforeInsert(queryContext) {
     if (this.format === 'epub' && this.trimSize) {
-      throw new objection.ValidationError({
+      throw new ValidationError({
         message: 'trim size is only valid option for PDF format',
         type: 'ValidationError',
       })
     }
 
     if (this.format === 'pdf' && !this.trimSize) {
-      throw new objection.ValidationError({
+      throw new ValidationError({
         message: 'trim size is required for PDF format',
         type: 'ValidationError',
       })
@@ -120,7 +120,7 @@ class ExportProfile extends Base {
 
         if (finalFormat === 'epub') {
           if (finalTrimSize) {
-            throw new objection.ValidationError({
+            throw new ValidationError({
               message: 'trim size is only valid option for PDF format',
               type: 'ValidationError',
             })
@@ -129,7 +129,7 @@ class ExportProfile extends Base {
 
         if (finalFormat === 'pdf') {
           if (!finalTrimSize) {
-            throw new objection.ValidationError({
+            throw new ValidationError({
               message: 'trim size is required for PDF format',
               type: 'ValidationError',
             })
