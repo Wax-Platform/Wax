@@ -13,9 +13,7 @@ const seedGlobalTeams = async () => {
     const configGlobalTeams = config.get('teams.global')
     return useTransaction(async trx =>
       Promise.all(
-        Object.keys(configGlobalTeams).map(async k => {
-          const teamData = configGlobalTeams[k]
-
+        configGlobalTeams.map(async teamData => {
           const exists = await Team.findOne(
             {
               global: true,

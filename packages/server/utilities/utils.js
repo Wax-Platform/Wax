@@ -53,9 +53,16 @@ const safeKey = async (key, existingKeys) => {
   return `${key}(${prefix})`
 }
 
+const emptyUndefinedOrNull = value => {
+  return (
+    value == null || (typeof value === 'string' && value.trim().length === 0)
+  )
+}
+
 module.exports = {
   callOn,
   safeCall,
   isFunction,
   safeKey,
+  emptyUndefinedOrNull,
 }

@@ -1,4 +1,5 @@
-exports.up = knex => {
+exports.up = async knex => {
+  await knex.raw(`CREATE EXTENSION IF NOT EXISTS "vector";`);
   return knex.raw(`
     ALTER TABLE embeddings
     ADD COLUMN embedding VECTOR(1536);

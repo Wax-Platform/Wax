@@ -10,11 +10,11 @@ const getCommentsResolver = (_, { bookId, chapterId }) => {
 
 const addCommentsResolver = (_, { commentData }) => {
   const { bookId, chapterId, content } = commentData
-  return addComments(bookId, chapterId, content) // ctx.user
+  return addComments(bookId, chapterId, content) // ctx.userId
 }
 
 const notifyMentionsResolver = (_, { mentionsData }, ctx) => {
-  return notifyMentions(mentionsData, ctx.user)
+  return notifyMentions(mentionsData, ctx.userId)
 }
 
 module.exports = {

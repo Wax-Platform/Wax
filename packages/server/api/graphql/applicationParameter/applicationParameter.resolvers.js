@@ -1,5 +1,5 @@
 const {
-  pubsubManager,
+  subscriptionManager,
   logger,
   deleteFiles,
   createFile,
@@ -31,7 +31,7 @@ const getApplicationParametersHandler = async (_, args, ctx) => {
 const updateApplicationParametersHandler = async (_, { input }, ctx) => {
   try {
     const { context, area, config } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     logger.info(
       'application parameters resolver: executing updateApplicationParameters use case',
@@ -47,7 +47,7 @@ const updateApplicationParametersHandler = async (_, { input }, ctx) => {
       'application parameters resolver: broadcasting updated application parameters to clients',
     )
 
-    pubsub.publish(UPDATE_APPLICATION_PARAMETERS, {
+    subscriptionManager.publish(UPDATE_APPLICATION_PARAMETERS, {
       updateApplicationParameters: updatedApplicationParameters.id,
     })
 
@@ -108,8 +108,8 @@ module.exports = {
   Subscription: {
     updateApplicationParameters: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(UPDATE_APPLICATION_PARAMETERS)
+        
+        return subscriptionManager.asyncIterator(UPDATE_APPLICATION_PARAMETERS)
       },
     },
   },

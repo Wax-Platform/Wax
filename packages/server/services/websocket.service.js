@@ -29,7 +29,7 @@ const isAuthenticatedUser = async token => {
   try {
     logger.info('executing isAuthenticatedUser')
 
-    const decoded = jwt.verify(token, config.get('pubsweet-server.secret'))
+    const decoded = jwt.verify(token, config.get('secret'))
 
     return userExists(decoded.id)
   } catch (e) {
@@ -158,7 +158,7 @@ const initializeHeartbeat = async WSServer => {
 
         return ws.ping()
       })
-    }, config['pubsweet-server'].wsHeartbeatInterval || 5000)
+    }, config.wsHeartbeatInterval || 5000)
   } catch (e) {
     throw new Error(e)
   }
@@ -194,11 +194,11 @@ const initializeYjs = (injectedWS, doc) => {
   return pingInterval
 }
 
-const initializeFailSafeUnlocking = async WSServer => {
+const initializeFailSafeUnlocking = async () => {
   try {
     return setInterval(
       async () => cleanUpLocks(),
-      config['pubsweet-server'].failSafeUnlockingInterval || 7000,
+      config.failSafeUnlockingInterval || 7000,
     )
   } catch (e) {
     throw new Error(e)

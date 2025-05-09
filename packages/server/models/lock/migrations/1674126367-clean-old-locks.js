@@ -1,11 +1,8 @@
 const { logger } = require('@coko/server')
 
-// /* eslint-disable import/no-unresolved */
-// const Lock = require('../models/lock/lock.model')
-// /* eslint-enable import/no-unresolved */
-const { Lock } = require('@pubsweet/models')
+const Lock = require('../lock.model')
 
-exports.up = async knex => {
+exports.up = async () => {
   try {
     return Lock.query().delete().where({})
   } catch (e) {
@@ -13,3 +10,5 @@ exports.up = async knex => {
     throw new Error(`Migration: Locks: deleting old data failed`)
   }
 }
+
+exports.down = async () => {}

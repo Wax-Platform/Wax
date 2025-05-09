@@ -6,7 +6,7 @@ const crypto = require('crypto')
 const get = require('lodash/get')
 const FormData = require('form-data')
 
-const uploadsDir = get(config, ['pubsweet-server', 'uploads'], 'uploads')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 
 const ServiceCallbackToken = require('../models/serviceCallbackToken/serviceCallbackToken.model')
 
@@ -218,7 +218,7 @@ const xsweetHandler = async (bookComponentId, filePath) => {
     const { responseToken, id: serviceCallbackTokenId } = serviceCallbackToken
     form.append('responseToken', responseToken)
     form.append('serviceCallbackTokenId', serviceCallbackTokenId)
-    const serverUrl = config.get('pubsweet-server.serverUrl')
+    const serverUrl = config.get('serverUrl')
 
     form.append('callbackURL', `${serverUrl}/api/xsweet`)
 

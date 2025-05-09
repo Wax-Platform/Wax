@@ -7,10 +7,6 @@ const config = require('config')
 const map = require('lodash/map')
 const find = require('lodash/find')
 
-const {
-  connectToFileStorage,
-} = require('@coko/server/src/services/fileStorage')
-
 const Template = require('../../models/template/template.model')
 
 const { createFile, deleteFiles } = require('../../controllers/file.controller')
@@ -77,8 +73,6 @@ const createTemplate = async (
 ) => {
   try {
     const { trx, ignoreConfig } = options
-
-    await connectToFileStorage()
 
     const featurePODEnabled =
       config.has('featurePOD') &&

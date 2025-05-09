@@ -60,15 +60,12 @@ if (featurePODEnabled) {
 }
 
 module.exports = {
-  authsome: {
-    mode: path.join(__dirname, 'authsome.js'),
-  },
   authorization:
     flavour === 'BOOKSPRINTS'
       ? booksprintsAuthorizations
       : vanillaAuthorizations,
   bookBuilder,
-  'password-reset': {
+  'passwordReset': {
     pathToPage: '/password-reset',
   },
   featureBookStructure: false,
@@ -76,42 +73,127 @@ module.exports = {
   featureUploadDOCXFiles: true,
   permissions: flavorPermissions,
   filters,
-  pubsweet: {
-    components,
+  components,
+  useGraphQLServer: true,
+  useFileStorage: true,
+  graphiql: true,
+  tokenExpiresIn: '360 days',
+  port: 3000,
+  emailVerificationTokenExpiry: {
+    amount: 24,
+    unit: 'hours',
   },
-  'pubsweet-server': {
-    useGraphQLServer: true,
-    useJobQueue: true,
-    useFileStorage: true,
-    serveClient: false,
-    graphiql: true,
-    tokenExpiresIn: '360 days',
-    host: 'localhost',
-    port: 3000,
-    uploads: 'uploads',
-    emailVerificationTokenExpiry: {
-      amount: 24,
-      unit: 'hours',
-    },
-    passwordResetTokenExpiry: {
-      amount: 24,
-      unit: 'hours',
-    },
-    pool: { min: 0, max: 100, idleTimeoutMillis: 1000 },
-    cron: {
-      path: path.join(__dirname, '..', 'services', 'cron.service.js'),
-    },
-    mailer: {
-      from: 'nobody@cokotest.com',
-      transport: {
-        host: 'smtp.ethereal.email',
-        auth: {
-          user: 'trinity.rosenbaum91@ethereal.email',
-          pass: 'e4v9TTA2sEfA3JQAc2',
-        },
+  passwordResetTokenExpiry: {
+    amount: 24,
+    unit: 'hours',
+  },
+  pool: { min: 0, max: 100, idleTimeoutMillis: 1000 },
+  // cron: {
+  //   path: path.join(__dirname, '..', 'services', 'cron.service.js'),
+  // },
+  mailer: {
+    from: 'nobody@cokotest.com',
+    transport: {
+      host: 'smtp.ethereal.email',
+      auth: {
+        user: 'trinity.rosenbaum91@ethereal.email',
+        pass: 'e4v9TTA2sEfA3JQAc2',
       },
     },
   },
   teams: flavorTeams,
   tempDirectoryCleanUp: true,
+  db: {
+    host: 'db',
+    database: 'wax_dev',
+    user: 'dev_user',
+    password: 'dev_user_password',
+  },
+  onStartup: [
+    {
+      label: 'Seed Admin',
+      execute: async () => {
+        const seedAdmin = require('../scripts/seeds/admin')
+        const adminUser = config.get('admin')
+        await seedAdmin({ ...adminUser })
+      },
+    },
+    {
+      label: 'Seed Application Parameters',
+      execute: async () => {
+        const seedApplicationParameters = require('../scripts/seeds/applicationParameters')
+        await seedApplicationParameters()
+      },
+    },
+    {
+      label: 'Seed Templates',
+      execute: async () => {
+        const seedTemplates = require('../scripts/seeds/templates')
+        await seedTemplates()
+      },
+    },
+    {
+      label: 'Clean up Locks',
+      execute: async () => {
+        const { cleanUpLocks } = require('../../services/bookComponentLock.service')
+        await cleanUpLocks()
+      },
+    },
+    {
+      label: 'Start YJS Service',
+      execute: async () => {
+        const { startWSServer } = require('../../startWebSocketServer')
+        await startWSServer()
+      },
+    },
+    {
+      label: 'Check Scripts Validation',
+      execute: async () => {
+        const config = require('config')
+        const isEmpty = require('lodash/isEmpty')
+        
+        const hasScripts =
+          config.has('export') &&
+          config.has('export.scripts') &&
+          !isEmpty(config.get('export.scripts'))
+        
+        try {
+          if (hasScripts) {
+            const scripts = config.get('export.scripts')
+            const errors = []
+      
+            for (let i = 0; i < scripts.length; i += 1) {
+              for (let j = i + 1; j < scripts.length; j += 1) {
+                if (
+                  scripts[i].label === scripts[j].label &&
+                  scripts[i].filename !== scripts[j].filename &&
+                  scripts[i].scope === scripts[j].scope
+                ) {
+                  errors.push(
+                    `your have provided the same label (${scripts[i].label}) for two different scripts`,
+                  )
+                }
+      
+                if (
+                  scripts[i].label === scripts[j].label &&
+                  scripts[i].filename === scripts[j].filename &&
+                  scripts[i].scope === scripts[j].scope
+                ) {
+                  errors.push(
+                    `your have declared the script with label (${scripts[i].label}) twice`,
+                  )
+                }
+              }
+            }
+      
+            if (errors.length !== 0) {
+              throw new Error(errors)
+            }
+          }
+        } catch (e) {
+          throw new Error(e)
+        }
+      },
+    },
+  ],
 }

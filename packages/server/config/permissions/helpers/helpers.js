@@ -41,7 +41,7 @@ const hasMembershipInGlobalTeams = async (userId, teams) => {
 
   const isGlobalList = await Promise.all(
     teams.map(async team =>
-      User.hasGlobalRole(userId, globalTeams[team.role].role),
+      User.hasGlobalRole(userId, globalTeams.find(t => t.role === team.role).role),
     ),
   )
 
@@ -64,17 +64,17 @@ const isGlobal = async (userId, includeAdmin = false) => {
     const User = require('../../../models/user/user.model')
     /* eslint-enable global-require */
 
-    let globalTeamsKeys = Object.keys(globalTeams)
+    let globalTeamsKeys = globalTeams
 
     if (!includeAdmin) {
-      globalTeamsKeys = Object.keys(globalTeams).filter(
+      globalTeamsKeys = globalTeams.filter(
         team => team !== 'admin',
       )
     }
 
     const isGlobalList = await Promise.all(
       globalTeamsKeys.map(async team =>
-        User.hasGlobalRole(userId, globalTeams[team].role),
+        User.hasGlobalRole(userId, team.role),
       ),
     )
 

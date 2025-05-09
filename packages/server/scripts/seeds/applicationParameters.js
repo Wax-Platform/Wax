@@ -11,10 +11,6 @@ const { db, createFile } = require('@coko/server')
 const fs = require('node:fs')
 const path = require('node:path')
 
-const {
-  connectToFileStorage,
-} = require('@coko/server/src/services/fileStorage')
-
 const { File, ApplicationParameter } = require('../../models').models
 
 const configBooksprints = require('../../config/modules/bookBuilderBooksprints')
@@ -103,8 +99,6 @@ const seedApplicationParameters = async () => {
                 return appParam
 
               case 'languages':
-                connectToFileStorage()
-
                 if (!existingParam) {
                   logger.info(
                     `Creating new Application Parameter: ${JSON.stringify(

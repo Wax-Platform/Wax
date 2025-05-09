@@ -1,18 +1,18 @@
 module.exports = {
-  global: {
-    admin: {
+  global: [
+    {
       displayName: 'Admin',
       role: 'admin',
     },
-  },
-  nonGlobal: {
-    owner: {
+  ],
+  nonGlobal: [
+    {
       displayName: 'Owner',
       role: 'owner',
     },
-    collaborator: {
+    {
       displayName: 'Collaborator',
       role: 'collaborator',
     },
-  },
+  ],
 }

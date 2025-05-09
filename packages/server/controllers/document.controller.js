@@ -2,15 +2,13 @@
 /* eslint-disable no-restricted-syntax */
 const { useTransaction, logger, fileStorage } = require('@coko/server')
 const crypto = require('crypto')
-const { emptyUndefinedOrNull } = require('@coko/server/src/helpers')
 const config = require('config')
 const AWS = require('aws-sdk')
-const { list } = require('@coko/server/src/services/fileStorage')
 const { Document, Embedding } = require('../models').models
 const { splitFileContent } = require('./helpers/fileChunks')
 
 const { embeddings } = require('./openAi.controller')
-const { safeKey } = require('../utilities/utils')
+const { safeKey, emptyUndefinedOrNull } = require('../utilities/utils')
 
 const KB_FILES_DIRNAME = 'kbfiles'
 
@@ -27,7 +25,7 @@ const createDocument = async ({ file, maxLng, bookId }, options = {}) => {
           const extension = filename.split('.').pop()
           const originalDirName = filename.replace(`.${extension}`, '')
           logger.info(`EXTENSION: ${JSON.stringify(extension)}`)
-          const allObjects = await list()
+          const allObjects = await fileStorage.list()
 
           const existingKeys = allObjects.Contents.map(so => so.Key)
 

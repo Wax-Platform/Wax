@@ -1,11 +1,8 @@
 const { logger } = require('@coko/server')
 const path = require('path')
 
-// /* eslint-disable import/no-unresolved */
-// const File = require('../models/file/file.model')
-// const FileTranslation = require('../models/fileTranslation/fileTranslation.model')
-// /* eslint-enable import/no-unresolved */
-const { File, FileTranslation } = require('@pubsweet/models')
+const File= require('../../file/file.model')
+const FileTranslation = require('../../fileTranslation/fileTranslation.model')
 
 exports.up = async knex => {
   try {
@@ -190,3 +187,6 @@ exports.up = async knex => {
     )
   }
 }
+
+
+exports.down = async () => {}

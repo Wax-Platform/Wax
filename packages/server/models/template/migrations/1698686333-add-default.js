@@ -1,16 +1,18 @@
 const { logger } = require('@coko/server')
-const { Template } = require('@pubsweet/models')
 const config = require('config')
 const find = require('lodash/find')
 
 exports.up = async knex => {
   try {
+    // Add "default" column to "template" table
     await knex.schema.table('template', table => {
       table.boolean('default').defaultTo(false)
     })
 
-    await Template.query().patch({ default: false })
+    // Set all rows to default = false
+    await knex('template').update({ default: false })
 
+    // Load templates from config
     const normalizedTemplates = config.has('templates')
       ? config.get('templates').map(t => ({
           label: t.label.toLowerCase(),
@@ -23,10 +25,11 @@ exports.up = async knex => {
 
     const defaultTemplate = find(normalizedTemplates, { default: true })
 
+    // If there's a default template defined in config, set it
     if (defaultTemplate) {
-      await Template.query()
-        .patch({ default: true })
+      await knex('template')
         .where({ name: defaultTemplate.label })
+        .update({ default: true })
     }
 
     return true
@@ -40,7 +43,7 @@ exports.up = async knex => {
 
 exports.down = async knex => {
   try {
-    return knex.schema.table('template', table => {
+    await knex.schema.table('template', table => {
       table.dropColumn('default')
     })
   } catch (e) {

@@ -1,5 +1,5 @@
 const { withFilter } = require('graphql-subscriptions')
-const { pubsubManager, logger, fileStorage } = require('@coko/server')
+const { subscriptionManager, logger, fileStorage } = require('@coko/server')
 
 const { getUser } = require('@coko/server/src/models/user/user.controller')
 
@@ -78,14 +78,14 @@ const {
 //   try {
 //     logger.info('book resolver: executing updateAssociatedTemplate use case')
 
-//     const pubsub = await pubsubManager.getPubsub()
+//     
 
 //     const updatedBook = await updateAssociatedTemplates(
 //       bookId,
 //       associatedTemplates,
 //     )
 
-//     pubsub.publish(BOOK_UPDATED, {
+//     subscriptionManager.publish(BOOK_UPDATED, {
 //       bookUpdated: updatedBook.id,
 //     })
 
@@ -99,13 +99,13 @@ const updateBookStatusHandler = async (_, { bookId, status }, ctx) => {
   try {
     logger.info('book resolver: executing updateBookStatus use case')
 
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBook = await updateBookStatus(bookId, status)
 
     logger.info('book resolver: broadcasting updated book to clients')
 
-    pubsub.publish(BOOK_UPDATED, { bookUpdated: updatedBook.id })
+    subscriptionManager.publish(BOOK_UPDATED, { bookUpdated: updatedBook.id })
 
     return updatedBook
   } catch (e) {
@@ -127,7 +127,7 @@ const getBooksHandler = async (_, { options }, ctx) => {
     const { archived, orderBy, page, pageSize } = options
     logger.info('book resolver: executing getBooks use case')
     return getBooks({
-      userId: ctx.user,
+      userId: ctx.userId,
       options: { showArchived: archived, orderBy, page, pageSize },
     })
   } catch (e) {
@@ -140,7 +140,7 @@ const createBookHandler = async (_, { input }, ctx) => {
     logger.info('book resolver: executing createBook use case')
 
     const { collectionId, title, addUserToBookTeams } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     let newBook
     let newUserTeam
@@ -151,13 +151,13 @@ const createBookHandler = async (_, { input }, ctx) => {
         title,
         options: {
           addUserToBookTeams,
-          userId: ctx.user,
+          userId: ctx.userId,
         },
       })
 
-      const updatedUser = await getUser(ctx.user)
+      const updatedUser = await getUser(ctx.userId)
 
-      pubsub.publish(USER_UPDATED, { userUpdated: updatedUser })
+      subscriptionManager.publish(USER_UPDATED, { userUpdated: updatedUser })
 
       newUserTeam = await getObjectTeam('owner', newBook.id, false)
     } else {
@@ -166,7 +166,7 @@ const createBookHandler = async (_, { input }, ctx) => {
 
     logger.info('book resolver: broadcasting new book to clients')
 
-    pubsub.publish(BOOK_CREATED, { bookCreated: newBook.id })
+    subscriptionManager.publish(BOOK_CREATED, { bookCreated: newBook.id })
 
     return { book: newBook, newUserTeam }
   } catch (e) {
@@ -178,17 +178,17 @@ const renameBookHandler = async (_, { id, title }, ctx) => {
   try {
     logger.info('book resolver: executing renameBook use case')
 
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const renamedBook = await renameBook(id, title)
 
     logger.info('book resolver: broadcasting renamed book to clients')
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: renamedBook.id,
     })
 
-    pubsub.publish(BOOK_RENAMED, {
+    subscriptionManager.publish(BOOK_RENAMED, {
       bookRenamed: renamedBook.id,
     })
 
@@ -202,13 +202,13 @@ const updateSubtitleHandler = async (_, { id, subtitle }, ctx) => {
   try {
     logger.info('book resolver: executing updateSubtitle use case')
 
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBook = await updateSubtitle(id, subtitle)
 
     logger.info('book resolver: broadcasting updated book subtitle to clients')
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBook.id,
     })
 
@@ -221,13 +221,13 @@ const updateSubtitleHandler = async (_, { id, subtitle }, ctx) => {
 const deleteBookHandler = async (_, args, ctx) => {
   try {
     logger.info('book resolver: executing deleteBook use case')
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const deletedBook = await deleteBook(args.id)
 
     logger.info('book resolver: broadcasting deleted book to clients')
 
-    pubsub.publish(BOOK_DELETED, {
+    subscriptionManager.publish(BOOK_DELETED, {
       bookDeleted: deletedBook.id,
     })
 
@@ -241,13 +241,13 @@ const deleteBookHandler = async (_, args, ctx) => {
 const archiveBookHandler = async (_, { id, archive }, ctx) => {
   try {
     logger.info('book resolver: executing archiveBook use case')
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const archivedBook = await archiveBook(id, archive)
 
     logger.info('book resolver: broadcasting archived book to clients')
 
-    pubsub.publish(BOOK_ARCHIVED, {
+    subscriptionManager.publish(BOOK_ARCHIVED, {
       bookArchived: archivedBook.id,
     })
     return archivedBook
@@ -259,13 +259,13 @@ const archiveBookHandler = async (_, { id, archive }, ctx) => {
 const updateMetadataHandler = async (_, { input }, ctx) => {
   try {
     logger.info('book resolver: executing updateMetadata use case')
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBook = await updateMetadata(input)
 
     logger.info('book resolver: broadcasting updated book to clients')
 
-    pubsub.publish(BOOK_METADATA_UPDATED, {
+    subscriptionManager.publish(BOOK_METADATA_UPDATED, {
       bookMetadataUpdated: updatedBook.id,
     })
     return updatedBook
@@ -277,13 +277,13 @@ const updateMetadataHandler = async (_, { input }, ctx) => {
 const updatePODMetadataHandler = async (_, { bookId, metadata }, ctx) => {
   try {
     logger.info('book resolver: executing updatePODMetadata use case')
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBook = await updatePODMetadata(bookId, metadata)
 
     logger.info('book resolver: broadcasting updated book to clients')
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBook.id,
     })
 
@@ -311,7 +311,7 @@ const exportBookHandler = async (_, { input }, ctx) => {
         bookId,
         bookComponentId,
         templateId,
-        ctx.user,
+        ctx.userId,
         additionalExportOptions,
       )
     : exportBook(
@@ -338,7 +338,7 @@ const publishOnlineHandler = async (_, { input, profileId }, ctx) => {
     bookComponentId,
     templateId,
     profileId,
-    ctx.user,
+    ctx.userId,
     additionalExportOptions,
   )
 }
@@ -350,12 +350,12 @@ const unpublishOnlineHandler = async (_, { bookId }, ctx) => {
 const updateRunningHeadersHandler = async (_, { input, bookId }, ctx) => {
   try {
     logger.info('book resolver: executing updateRunningHeaders use case')
-    const pubsub = await pubsubManager.getPubsub()
+    
     const updatedBook = await updateRunningHeaders(input, bookId)
 
     logger.info('book resolver: broadcasting updated book to clients')
 
-    pubsub.publish(BOOK_RUNNING_HEADERS_UPDATED, {
+    subscriptionManager.publish(BOOK_RUNNING_HEADERS_UPDATED, {
       bookRunningHeadersUpdated: updatedBook.id,
     })
 
@@ -445,10 +445,10 @@ const updateLevelContentStructureHandler = async (
 const finalizeBookStructureHandler = async (_, { bookId }, cx) => {
   try {
     logger.info('book resolver: executing finalizeBookStructure use case')
-    const pubsub = await pubsubManager.getPubsub()
+    
     const updatedBook = await finalizeBookStructure(bookId)
     // should add a specific event for the case of finalized
-    pubsub.publish(BOOK_ARCHIVED, {
+    subscriptionManager.publish(BOOK_ARCHIVED, {
       bookArchived: updatedBook.id,
     })
     return updatedBook.id
@@ -460,10 +460,10 @@ const finalizeBookStructureHandler = async (_, { bookId }, cx) => {
 const updateShowWelcomeHandler = async (_, { bookId }, cx) => {
   try {
     logger.info('book resolver: executing updateShowWelcome use case')
-    const pubsub = await pubsubManager.getPubsub()
+    
     const updatedBook = await updateShowWelcome(bookId)
     // should add a specific event for the case of finalized
-    pubsub.publish(BOOK_ARCHIVED, {
+    subscriptionManager.publish(BOOK_ARCHIVED, {
       bookArchived: updatedBook.id,
     })
     return updatedBook
@@ -476,11 +476,11 @@ const uploadBookThumbnailHandler = async (_, { bookId, file }, cx) => {
   try {
     logger.info('book resolver: uploading book thumbnail')
 
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBook = await uploadBookThumbnail(bookId, file)
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBook.id,
     })
 
@@ -494,11 +494,11 @@ const uploadBookCoverHandler = async (_, { bookId, file }, cx) => {
   try {
     logger.info('book resolver: uploading book thumbnail')
 
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBook = await uploadBookCover(bookId, file)
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBook.id,
     })
 
@@ -512,11 +512,11 @@ const updateCoverAltHandler = async (_, { bookId, coverAlt }, cx) => {
   try {
     logger.info("book resolver: updating book's coverAlt")
 
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBook = await updateBookCoverAltText(bookId, coverAlt)
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBook.id,
     })
 
@@ -530,11 +530,11 @@ const updateBookSettingsHandler = async (_, { bookId, settings }, cx) => {
   try {
     logger.info('book resolver: executing updateBookSettings use case')
 
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBookSettings = await updateBookSettings(bookId, settings)
 
-    pubsub.publish(BOOK_SETTINGS_UPDATED, {
+    subscriptionManager.publish(BOOK_SETTINGS_UPDATED, {
       bookSettingsUpdated: updatedBookSettings.bookId,
     })
     
@@ -712,11 +712,9 @@ module.exports = {
   Subscription: {
     bookUpdated: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
-
         return withFilter(
           () => {
-            return pubsub.asyncIterator(BOOK_UPDATED)
+            return subscriptionManager.asyncIterator(BOOK_UPDATED)
           },
           (payload, variables, ctx) => {
             const { id: bookId } = variables
@@ -729,58 +727,57 @@ module.exports = {
     },
     bookArchived: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_ARCHIVED)
+        return subscriptionManager.asyncIterator(BOOK_ARCHIVED)
       },
     },
     bookDeleted: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
+        
 
         return withFilter(
           () => {
-            return pubsub.asyncIterator(BOOK_DELETED)
+            return subscriptionManager.asyncIterator(BOOK_DELETED)
           },
           (_, __, ctx) => {
-            const { user } = ctx
+            const { userId } = ctx
 
-            return isAdmin(user)
+            return isAdmin(userId)
           },
         )(...args)
       },
     },
     bookRenamed: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
+        
 
         return withFilter(
           () => {
-            return pubsub.asyncIterator(BOOK_RENAMED)
+            return subscriptionManager.asyncIterator(BOOK_RENAMED)
           },
           (_, __, ctx) => {
-            const { user } = ctx
+            const { userId } = ctx
 
-            return isAdmin(user)
+            return isAdmin(userId)
           },
         )(...args)
       },
     },
     bookMetadataUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_METADATA_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_METADATA_UPDATED)
       },
     },
     bookRunningHeadersUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_RUNNING_HEADERS_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_RUNNING_HEADERS_UPDATED)
       },
     },
     bookSettingsUpdated: {
       subscribe: async (_, __, context) => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_SETTINGS_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_SETTINGS_UPDATED)
       },
     },
   },

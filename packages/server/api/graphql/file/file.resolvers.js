@@ -90,7 +90,7 @@ const getFileHandler = async (_, { id }, ctx) => {
 
 const uploadFilesHandler = async (_, { files, entityId }, ctx) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const uploadedFiles = await Promise.all(
       map(files, async file => {
@@ -101,7 +101,7 @@ const uploadFilesHandler = async (_, { files, entityId }, ctx) => {
       }),
     )
 
-    pubsub.publish(FILES_UPLOADED, {
+    subscriptionManager.publish(FILES_UPLOADED, {
       filesUploaded: true,
     })
     return uploadedFiles
@@ -114,9 +114,9 @@ const uploadFilesHandler = async (_, { files, entityId }, ctx) => {
 const updateFileHandler = async (_, { input }, ctx) => {
   try {
     const { id, name, alt } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
     const updatedFile = await updateFile(id, { name, alt })
-    pubsub.publish(FILE_UPDATED, {
+    subscriptionManager.publish(FILE_UPDATED, {
       fileUpdated: updatedFile.id,
     })
     return updatedFile
@@ -128,7 +128,7 @@ const updateFileHandler = async (_, { input }, ctx) => {
 
 const deleteFilesHandler = async (_, { ids, remoteToo }, ctx) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
+    
     let deletedFiles
 
     if (remoteToo) {
@@ -137,7 +137,7 @@ const deleteFilesHandler = async (_, { ids, remoteToo }, ctx) => {
       deletedFiles = await deleteFiles(ids)
     }
 
-    pubsub.publish(FILES_DELETED, {
+    subscriptionManager.publish(FILES_DELETED, {
       filesDeleted: true,
     })
     return deletedFiles
@@ -184,20 +184,20 @@ module.exports = {
   Subscription: {
     filesUploaded: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(FILES_UPLOADED)
+        
+        return subscriptionManager.asyncIterator(FILES_UPLOADED)
       },
     },
     filesDeleted: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(FILES_DELETED)
+        
+        return subscriptionManager.asyncIterator(FILES_DELETED)
       },
     },
     fileUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(FILE_UPDATED)
+        
+        return subscriptionManager.asyncIterator(FILE_UPDATED)
       },
     },
   },

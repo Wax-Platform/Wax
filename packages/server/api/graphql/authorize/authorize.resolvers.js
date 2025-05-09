@@ -1,6 +1,8 @@
 const map = require('lodash/map')
 const config = require('config')
 
+const { models } = require('../../../models/dataloader')
+
 const { Book, BookComponent, BookComponentState, ApplicationParameter } =
   require('../../../models').models
 
@@ -49,7 +51,9 @@ const executeMultipleAuthorizeRules = async (ctx, value, rules) => {
 }
 
 const getDashBoardRules = async (_, __, ctx) => {
-  await ctx.connectors.UserLoader.model.userTeams.clear()
+  const UserLoader = models.find(md => md.modelName === 'UserLoader')
+  
+  await UserLoader.model.userTeams.clear()
 
   const { result: books } = await Book.find({ deleted: false })
 
@@ -86,7 +90,9 @@ const getBookBuilderRules = async (_, args, ctx) => {
     area: 'stages',
   })
 
-  await ctx.connectors.UserLoader.model.userTeams.clear()
+  const UserLoader = models.find(md => md.modelName === 'UserLoader')
+
+  await UserLoader.model.userTeams.clear()
   const book = await Book.findById(args.id)
 
   const { result: bookComponents } = await BookComponent.find({
@@ -175,7 +181,9 @@ const getBookBuilderRules = async (_, args, ctx) => {
 }
 
 const getWaxRules = async (_, args, ctx) => {
-  await ctx.connectors.UserLoader.model.userTeams.clear()
+  const UserLoader = models.find(md => md.modelName === 'UserLoader')
+  
+  await UserLoader.model.userTeams.clear()
   const bookComponent = await BookComponent.findById(args.id)
 
   const { workflowStages } = await BookComponentState.findOne({

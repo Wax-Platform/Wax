@@ -15,7 +15,7 @@ const createBookHTML = require('./createBookHTML')
 const generateHash = require('./generateHash')
 const prepareBook = require('./prepareBook')
 
-const uploadsDir = get(config, ['pubsweet-server', 'uploads'], 'uploads')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 
 const generateBookHashes = async (
   bookId,

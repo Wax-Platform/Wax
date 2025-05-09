@@ -12,6 +12,8 @@ const find = require('lodash/find')
 const groupBy = require('lodash/groupBy')
 const pullAll = require('lodash/pullAll')
 
+const { models } = require('../../../models/dataloader')
+
 const { writeLocallyFromReadStream } = require('../../../utilities/filesystem')
 const { replaceImageSource } = require('../../../utilities/image')
 const DOCXFilenameParser = require('../../../controllers/helpers/DOCXFilenameParser')
@@ -84,15 +86,15 @@ const getBookComponentHandler = async (_, { id }, ctx) => {
 
 // const getBookComponentAndAcquireLock = async (_, { id, tabId }, ctx) => {
 //   try {
-//     const pubsub = await pubsubManager.getPubsub()
+//     
 
 //     const bookComponent = await useCaseGetBookComponentAndAcquireLock(
 //       id,
-//       ctx.user,
+//       ctx.userId,
 //       tabId,
 //     )
 
-//     pubsub.publish(BOOK_COMPONENT_LOCK_UPDATED, {
+//     subscriptionManager.publish(BOOK_COMPONENT_LOCK_UPDATED, {
 //       bookComponentLockUpdated: bookComponent.id,
 //     })
 
@@ -105,7 +107,7 @@ const getBookComponentHandler = async (_, { id }, ctx) => {
 
 const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
+    
     const bookComponents = []
     let bookIdToFetch
     await BPromise.mapSeries(bookComponentFiles, async bookComponentFile => {
@@ -164,7 +166,7 @@ const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
 
         const newBookComponent = await DocTreeManager.createNewDocumentResource(
           {
-            userId: ctx.user,
+            userId: ctx.userId,
             bookComponent: {
               bookId,
               componentType: 'chapter',
@@ -173,7 +175,7 @@ const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
           },
         )
 
-        pubsub.publish(BOOK_COMPONENT_ADDED, {
+        subscriptionManager.publish(BOOK_COMPONENT_ADDED, {
           bookComponentAdded: newBookComponent.bookComponentId,
         })
 
@@ -198,17 +200,17 @@ const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
 
       const updatedBookComponent = await getBookComponent(componentId)
       bookComponents.push(updatedBookComponent)
-      pubsub.publish(BOOK_COMPONENT_UPLOADING_UPDATED, {
+      subscriptionManager.publish(BOOK_COMPONENT_UPLOADING_UPDATED, {
         bookComponentUploadingUpdated: updatedBookComponent.id,
       })
-      pubsub.publish(BOOK_COMPONENT_UPDATED, {
+      subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
         bookComponentUpdated: updatedBookComponent.id,
       })
 
       return xsweetHandler(componentId, `${tempFilePath}/${randomFilename}`)
     })
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: bookIdToFetch,
     })
     return bookComponents
@@ -221,21 +223,21 @@ const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
 const addBookComponentHandler = async (_, { input }, ctx, info) => {
   try {
     const { divisionId, bookId, componentType } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const newBookComponent = await addBookComponent(
       divisionId,
       bookId,
       componentType,
       null,
-      ctx.user,
+      ctx.userId,
     )
 
-    pubsub.publish(BOOK_COMPONENT_ADDED, {
+    subscriptionManager.publish(BOOK_COMPONENT_ADDED, {
       bookComponentAdded: newBookComponent.id,
     })
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: newBookComponent.bookId,
     })
 
@@ -249,21 +251,21 @@ const addBookComponentHandler = async (_, { input }, ctx, info) => {
 const podAddBookComponentHandler = async (_, { input }, ctx, info) => {
   try {
     const { divisionId, bookId, componentType, afterId } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const newBookComponent = await addBookComponent(
       divisionId,
       bookId,
       componentType,
       afterId,
-      ctx.user,
+      ctx.userId,
     )
 
-    pubsub.publish(BOOK_COMPONENT_ADDED, {
+    subscriptionManager.publish(BOOK_COMPONENT_ADDED, {
       bookComponentAdded: newBookComponent.id,
     })
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: bookId,
     })
 
@@ -277,19 +279,19 @@ const podAddBookComponentHandler = async (_, { input }, ctx, info) => {
 const renameBookComponentHandler = async (_, { input }, ctx) => {
   try {
     const { id, title } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     await renameBookComponent(id, title, 'en')
 
     const updatedBookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_COMPONENT_TITLE_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_TITLE_UPDATED, {
       bookComponentTitleUpdated: updatedBookComponent.id,
     })
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBookComponent.bookId,
     })
 
@@ -305,19 +307,19 @@ const renameBookComponentHandler = async (_, { input }, ctx) => {
 // used in ketty
 const renameBookComponentTitleHandler = async (_, { id, title }, ctx) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     await renameBookComponent(id, title, 'en')
 
     const updatedBookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_COMPONENT_TITLE_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_TITLE_UPDATED, {
       bookComponentTitleUpdated: updatedBookComponent.id,
     })
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBookComponent.bookId,
     })
 
@@ -333,7 +335,7 @@ const renameBookComponentTitleHandler = async (_, { id, title }, ctx) => {
 const deleteBookComponentHandler = async (_, { input }, ctx) => {
   try {
     const { id } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
     const bookComponent = await getBookComponent(id)
 
     if (!bookComponent) {
@@ -342,13 +344,13 @@ const deleteBookComponentHandler = async (_, { input }, ctx) => {
 
     const deletedBookComponent = await deleteBookComponent(bookComponent)
 
-    pubsub.publish(BOOK_COMPONENT_DELETED, {
+    subscriptionManager.publish(BOOK_COMPONENT_DELETED, {
       bookComponentDeleted: deletedBookComponent.id,
     })
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: deletedBookComponent.id,
     })
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: bookComponent.bookId,
     })
 
@@ -364,7 +366,7 @@ const deleteBookComponentHandler = async (_, { input }, ctx) => {
 const podDeleteBookComponentHandler = async (_, { input }, ctx) => {
   try {
     const { id } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
     const bookComponent = await getBookComponent(id)
 
     if (!bookComponent) {
@@ -373,14 +375,14 @@ const podDeleteBookComponentHandler = async (_, { input }, ctx) => {
 
     const deletedBookComponent = await deleteBookComponent(bookComponent)
 
-    pubsub.publish(BOOK_COMPONENT_DELETED, {
+    subscriptionManager.publish(BOOK_COMPONENT_DELETED, {
       bookComponentDeleted: deletedBookComponent.id,
     })
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: deletedBookComponent.id,
     })
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: bookComponent.bookId,
     })
     logger.info('message BOOK_COMPONENT_DELETED broadcasted')
@@ -395,7 +397,7 @@ const podDeleteBookComponentHandler = async (_, { input }, ctx) => {
 const updateWorkflowStateHandler = async (_, { input }, ctx) => {
   try {
     const { id, workflowStages } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const bookComponentState = await BookComponentState.findOne({
       bookComponentId: id,
@@ -412,17 +414,17 @@ const updateWorkflowStateHandler = async (_, { input }, ctx) => {
     const isReviewing = find(workflowStages, { type: 'review' }).value === 0
     const updatedBookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_COMPONENT_WORKFLOW_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_WORKFLOW_UPDATED, {
       bookComponentWorkflowUpdated: updatedBookComponent.id,
     })
 
     if (isReviewing) {
-      pubsub.publish(BOOK_COMPONENT_TRACK_CHANGES_UPDATED, {
+      subscriptionManager.publish(BOOK_COMPONENT_TRACK_CHANGES_UPDATED, {
         bookComponentTrackChangesUpdated: updatedBookComponent.id,
       })
     }
 
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
@@ -435,21 +437,21 @@ const updateWorkflowStateHandler = async (_, { input }, ctx) => {
 
 const unlockBookComponentHandler = async (_, { input }, ctx) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
+    
     const { id: bookComponentId } = input
 
-    await unlockBookComponent(bookComponentId, ctx.user)
+    await unlockBookComponent(bookComponentId, ctx.userId)
 
     const updatedBookComponent = await getBookComponent(bookComponentId)
 
     // This should be replaced with book component updated, when refactor Book Builder
-    pubsub.publish(BOOK_COMPONENT_LOCK_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_LOCK_UPDATED, {
       bookComponentLockUpdated: updatedBookComponent.id,
     })
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBookComponent.bookId,
     })
 
@@ -462,21 +464,21 @@ const unlockBookComponentHandler = async (_, { input }, ctx) => {
 
 const lockBookComponentHandler = async (_, { id, tabId, userAgent }, ctx) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
-    await lockBookComponent(id, tabId, userAgent, ctx.user)
+    
+    await lockBookComponent(id, tabId, userAgent, ctx.userId)
 
     const bookComponent = await getBookComponent(id)
 
     // This should be replaced with book component updated, when refactor Book Builder
 
-    pubsub.publish(BOOK_COMPONENT_LOCK_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_LOCK_UPDATED, {
       bookComponentLockUpdated: bookComponent.id,
     })
 
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: bookComponent.id,
     })
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: bookComponent.bookId,
     })
     return bookComponent
@@ -492,12 +494,12 @@ const podLockBookComponentHandler = async (
   ctx,
 ) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
-    await lockBookComponent(id, tabId, userAgent, ctx.user)
+    
+    await lockBookComponent(id, tabId, userAgent, ctx.userId)
 
     const bookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: bookComponent.bookId,
     })
     return getBook(bookComponent.bookId)
@@ -510,7 +512,7 @@ const podLockBookComponentHandler = async (
 const updateContentHandler = async (_, { input }, ctx) => {
   try {
     const { id, content } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const { shouldNotifyWorkflowChange } = await updateContent(
       id,
@@ -520,24 +522,24 @@ const updateContentHandler = async (_, { input }, ctx) => {
 
     const updatedBookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_COMPONENT_CONTENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_CONTENT_UPDATED, {
       bookComponentContentUpdated: updatedBookComponent.id,
     })
 
     logger.info('message BOOK_COMPONENT_CONTENT_UPDATED broadcasted')
 
     if (shouldNotifyWorkflowChange) {
-      pubsub.publish(BOOK_COMPONENT_WORKFLOW_UPDATED, {
+      subscriptionManager.publish(BOOK_COMPONENT_WORKFLOW_UPDATED, {
         bookComponentWorkflowUpdated: updatedBookComponent.id,
       })
       logger.info('message BOOK_COMPONENT_WORKFLOW_UPDATED broadcasted')
     }
 
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBookComponent.bookId,
     })
 
@@ -551,7 +553,7 @@ const updateContentHandler = async (_, { input }, ctx) => {
 const updatePaginationHandler = async (_, { input }, ctx) => {
   try {
     const { id, pagination } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const currentBookComponent = await getBookComponent(id)
 
@@ -561,11 +563,11 @@ const updatePaginationHandler = async (_, { input }, ctx) => {
 
     const updatedBookComponent = await updatePagination(id, pagination)
 
-    pubsub.publish(BOOK_COMPONENT_PAGINATION_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_PAGINATION_UPDATED, {
       bookComponentPaginationUpdated: updatedBookComponent.id,
     })
 
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
@@ -579,7 +581,7 @@ const updatePaginationHandler = async (_, { input }, ctx) => {
 const updateTrackChangesHandler = async (_, { input }, ctx) => {
   try {
     const { id, trackChangesEnabled } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const currentState = await BookComponentState.findOne({
       bookComponentId: id,
@@ -595,11 +597,11 @@ const updateTrackChangesHandler = async (_, { input }, ctx) => {
 
     const updatedBookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_COMPONENT_TRACK_CHANGES_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_TRACK_CHANGES_UPDATED, {
       bookComponentTrackChangesUpdated: updatedBookComponent.id,
     })
 
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
@@ -613,7 +615,7 @@ const updateTrackChangesHandler = async (_, { input }, ctx) => {
 const updateUploadingHandler = async (_, { input }, ctx) => {
   try {
     const { id, uploading } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const currentState = await BookComponentState.findOne({
       bookComponentId: id,
@@ -629,11 +631,11 @@ const updateUploadingHandler = async (_, { input }, ctx) => {
 
     const updatedBookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_COMPONENT_UPLOADING_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPLOADING_UPDATED, {
       bookComponentUploadingUpdated: updatedBookComponent.id,
     })
 
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
@@ -647,14 +649,14 @@ const updateUploadingHandler = async (_, { input }, ctx) => {
 const updateComponentTypeHandler = async (_, { input }, ctx) => {
   try {
     const { id, componentType } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBookComponent = await updateComponentType(id, componentType)
 
-    pubsub.publish(BOOK_COMPONENT_TYPE_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_TYPE_UPDATED, {
       bookComponentTypeUpdated: updatedBookComponent.id,
     })
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
@@ -668,14 +670,14 @@ const updateComponentTypeHandler = async (_, { input }, ctx) => {
 const updateBookComponentParentIdHandler = async (_, { input }, ctx) => {
   try {
     const { id, parentComponentId } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     const updatedBookComponent = await updateBookComponentParentId(
       id,
       parentComponentId,
     )
 
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
@@ -689,16 +691,16 @@ const updateBookComponentParentIdHandler = async (_, { input }, ctx) => {
 const toggleIncludeInTOCHandler = async (_, { input }, ctx) => {
   try {
     const { id } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     await toggleIncludeInTOC(id)
 
     const updatedBookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_COMPONENT_TOC_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_TOC_UPDATED, {
       bookComponentTOCToggled: updatedBookComponent.id,
     })
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
@@ -712,15 +714,15 @@ const toggleIncludeInTOCHandler = async (_, { input }, ctx) => {
 const setBookComponentStatusHandler = async (_, { id, status }, ctx) => {
   try {
     // const { id, status } = input
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     await setStatus(id, status)
     const updatedBookComponent = await getBookComponent(id)
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: updatedBookComponent.bookId,
     })
-    pubsub.publish(BOOK_COMPONENT_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
       bookComponentUpdated: updatedBookComponent.id,
     })
 
@@ -885,10 +887,13 @@ module.exports = {
       return locked
     },
     async componentTypeOrder(bookComponent, _, ctx) {
+
+      const DivisionLoader = models.find(md => md.modelName === 'DivisionLoader')
+  
       const { componentType } = bookComponent
 
       const sortedPerDivision =
-        await ctx.connectors.DivisionLoader.model.bookComponents.load(
+        await DivisionLoader.model.bookComponents.load(
           bookComponent.divisionId,
         )
 
@@ -905,10 +910,13 @@ module.exports = {
       )
     },
     async uploading(bookComponent, _, ctx) {
-      await ctx.connectors.BookComponentStateLoader.model.state.clear()
+
+      const BookComponentStateLoader = models.find(md => md.modelName === 'BookComponentStateLoader')
+  
+      await BookComponentStateLoader.model.state.clear()
 
       const bookComponentState =
-        await ctx.connectors.BookComponentStateLoader.model.state.load(
+        await BookComponentStateLoader.model.state.load(
           bookComponent.id,
         )
 
@@ -918,10 +926,12 @@ module.exports = {
       return bookComponent.pagination
     },
     async workflowStages(bookComponent, _, ctx) {
-      ctx.connectors.BookComponentStateLoader.model.state.clear()
+      const BookComponentStateLoader = models.find(md => md.modelName === 'BookComponentStateLoader')
+      
+      await BookComponentStateLoader.model.state.clear()
 
       const bookComponentState =
-        await ctx.connectors.BookComponentStateLoader.model.state.load(
+        await BookComponentStateLoader.model.state.load(
           bookComponent.id,
         )
 
@@ -1060,83 +1070,83 @@ module.exports = {
   Subscription: {
     bookComponentAdded: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_ADDED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_ADDED)
       },
     },
     bookComponentDeleted: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_DELETED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_DELETED)
       },
     },
     bookComponentPaginationUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_PAGINATION_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_PAGINATION_UPDATED)
       },
     },
     bookComponentWorkflowUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_WORKFLOW_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_WORKFLOW_UPDATED)
       },
     },
     bookComponentTrackChangesUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_TRACK_CHANGES_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_TRACK_CHANGES_UPDATED)
       },
     },
     bookComponentTitleUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_TITLE_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_TITLE_UPDATED)
       },
     },
     bookComponentContentUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_CONTENT_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_CONTENT_UPDATED)
       },
     },
     bookComponentUploadingUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_UPLOADING_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_UPLOADING_UPDATED)
       },
     },
     bookComponentLockUpdated: {
       subscribe: async (payload, variables, context, info) => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_LOCK_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_LOCK_UPDATED)
       },
     },
     bookComponentsLockUpdated: {
       subscribe: async (payload, variables, context, info) => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENTS_LOCK_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENTS_LOCK_UPDATED)
       },
     },
     bookComponentTypeUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_TYPE_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_TYPE_UPDATED)
       },
     },
     bookComponentTOCToggled: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_TOC_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_TOC_UPDATED)
       },
     },
     bookComponentUpdated: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
+        
 
         return withFilter(
           () => {
-            return pubsub.asyncIterator(BOOK_COMPONENT_UPDATED)
+            return subscriptionManager.asyncIterator(BOOK_COMPONENT_UPDATED)
           },
           (payload, variables) => {
             const { id: clientBCId } = variables
@@ -1149,8 +1159,8 @@ module.exports = {
     },
     yjsContentUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(YJS_CONTENT_UPDATED)
+        
+        return subscriptionManager.asyncIterator(YJS_CONTENT_UPDATED)
       },
     },
   },

@@ -20,3 +20,6 @@ exports.up = async knex => {
     throw new Error(`Migration: Users: dropping deleted column`)
   }
 }
+
+
+exports.down = async () => {}

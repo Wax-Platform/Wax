@@ -6,7 +6,7 @@ const { Identity } = require('@coko/server/src/models')
 const {
   notify,
   notificationTypes: { EMAIL },
-} = require('@coko/server/src//services')
+} = require('@coko/server/src/services')
 
 const TeamMember = require('@coko/server/src/models/teamMember/teamMember.model')
 const Book = require('../models/book/book.model')

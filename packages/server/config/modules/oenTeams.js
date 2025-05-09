@@ -1,26 +1,26 @@
 module.exports = {
-  global: {
-    productionEditor: {
+  global: [
+    {
       displayName: 'Production Editor',
       role: 'productionEditor',
     },
-    admin: {
+    {
       displayName: 'Admin',
       role: 'admin',
     },
-  },
-  nonGlobal: {
-    productionEditor: {
+  ],
+  nonGlobal: [
+    {
       displayName: 'Production Editor',
       role: 'productionEditor',
     },
-    copyEditor: {
+    {
       displayName: 'Copy Editor',
       role: 'copyEditor',
     },
-    author: {
+    {
       displayName: 'Author',
       role: 'author',
     },
-  },
+  ],
 }

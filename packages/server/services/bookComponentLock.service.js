@@ -1,4 +1,4 @@
-const { pubsubManager, useTransaction, logger } = require('@coko/server')
+const { subscriptionManager, useTransaction, logger } = require('@coko/server')
 
 const { BookComponent, Lock, BookComponentState } = require('../models').models
 
@@ -13,18 +13,17 @@ const {
 const { getInactiveLocks } = require('../controllers/lock.controller')
 
 const broadcastUnlock = async (bookComponentId, bookId) => {
-  const pubsub = await pubsubManager.getPubsub()
-
-  pubsub.publish(BOOK_COMPONENT_UPDATED, {
+  
+  subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
     bookComponentUpdated: bookComponentId,
   })
 
-  pubsub.publish(BOOK_COMPONENT_LOCK_UPDATED, {
+  subscriptionManager.publish(BOOK_COMPONENT_LOCK_UPDATED, {
     bookComponentLockUpdated: bookComponentId,
   })
 
   if (bookId) {
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: bookId,
     })
   }

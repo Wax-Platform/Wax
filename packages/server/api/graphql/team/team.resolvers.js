@@ -31,14 +31,14 @@ const updateKetidaTeamMembersHandler = async (
   ctx,
 ) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
+    
     logger.info('team resolver: executing updateTeamMembers use case')
     const updatedTeam = await updateTeamMembership(teamId, members)
 
     await updateTeamMemberStatuses(teamId, status)
 
     if (updatedTeam.global === true) {
-      pubsub.publish(TEAM_MEMBERS_UPDATED, {
+      subscriptionManager.publish(TEAM_MEMBERS_UPDATED, {
         teamMembersUpdated: updatedTeam.id,
       })
 
@@ -46,7 +46,7 @@ const updateKetidaTeamMembersHandler = async (
     }
 
     if (updatedTeam.role === 'productionEditor') {
-      pubsub.publish(BOOK_PRODUCTION_EDITORS_UPDATED, {
+      subscriptionManager.publish(BOOK_PRODUCTION_EDITORS_UPDATED, {
         productionEditorsUpdated: updatedTeam.id,
       })
     }
@@ -55,13 +55,13 @@ const updateKetidaTeamMembersHandler = async (
       members.map(async userId => {
         const user = await getUser(userId)
 
-        return pubsub.publish(USER_UPDATED, {
+        return subscriptionManager.publish(USER_UPDATED, {
           userUpdated: user,
         })
       }),
     )
 
-    pubsub.publish(TEAM_MEMBERS_UPDATED, {
+    subscriptionManager.publish(TEAM_MEMBERS_UPDATED, {
       teamMembersUpdated: updatedTeam.id,
     })
     logger.info(`Update msg broadcasted`)
@@ -77,17 +77,17 @@ const updateTeamMemberStatusHandler = async (
   ctx,
 ) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
+    
     const updatedTeam = await updateTeamMemberStatus(teamMemberId, status)
 
     const teamMember = await TeamMember.findOne({ id: teamMemberId })
     const user = await getUser(teamMember.userId)
 
-    pubsub.publish(TEAM_UPDATED, {
+    subscriptionManager.publish(TEAM_UPDATED, {
       teamUpdated: updatedTeam.id,
     })
 
-    pubsub.publish(USER_UPDATED, {
+    subscriptionManager.publish(USER_UPDATED, {
       userUpdated: user,
     })
     return updatedTeam
@@ -102,7 +102,7 @@ const addTeamMembersHandler = async (
   ctx,
 ) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
+    
     logger.info('team resolver: executing addTeamMembers use case')
 
     const updatedTeam = await addTeamMembers(
@@ -111,11 +111,11 @@ const addTeamMembersHandler = async (
       status,
       bookId,
       bookComponentId,
-      ctx.user,
+      ctx.userId,
     )
 
     if (updatedTeam.global === true) {
-      pubsub.publish(TEAM_MEMBERS_UPDATED, {
+      subscriptionManager.publish(TEAM_MEMBERS_UPDATED, {
         teamMembersUpdated: updatedTeam.id,
       })
 
@@ -123,7 +123,7 @@ const addTeamMembersHandler = async (
     }
 
     if (updatedTeam.role === 'productionEditor') {
-      pubsub.publish(BOOK_PRODUCTION_EDITORS_UPDATED, {
+      subscriptionManager.publish(BOOK_PRODUCTION_EDITORS_UPDATED, {
         productionEditorsUpdated: updatedTeam.id,
       })
     }
@@ -132,13 +132,13 @@ const addTeamMembersHandler = async (
       members.map(async userId => {
         const user = await getUser(userId)
 
-        return pubsub.publish(USER_UPDATED, {
+        return subscriptionManager.publish(USER_UPDATED, {
           userUpdated: user,
         })
       }),
     )
 
-    pubsub.publish(TEAM_MEMBERS_UPDATED, {
+    subscriptionManager.publish(TEAM_MEMBERS_UPDATED, {
       teamMembersUpdated: updatedTeam.id,
     })
     logger.info(`Update msg broadcasted`)
@@ -157,20 +157,20 @@ module.exports = {
   Subscription: {
     teamMembersUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(TEAM_MEMBERS_UPDATED)
+        
+        return subscriptionManager.asyncIterator(TEAM_MEMBERS_UPDATED)
       },
     },
     productionEditorsUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_PRODUCTION_EDITORS_UPDATED)
+        
+        return subscriptionManager.asyncIterator(BOOK_PRODUCTION_EDITORS_UPDATED)
       },
     },
     teamUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(TEAM_UPDATED)
+        
+        return subscriptionManager.asyncIterator(TEAM_UPDATED)
       },
     },
   },

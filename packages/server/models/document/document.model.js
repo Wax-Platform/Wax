@@ -72,7 +72,7 @@ class Document extends BaseModel {
         throw new Error(`Document with ID ${id} not found.`)
       }
 
-      await fileStorage.deleteFiles(document.sectionsKeys)
+      await fileStorage.delete(document.sectionsKeys)
       await Embedding.query()
         .delete()
         .whereIn('storedObjectKey', document.sectionsKeys)

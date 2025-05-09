@@ -32,7 +32,7 @@ const Template = require('../../models/template/template.model')
 
 const prepareBook = require('./prepareBook')
 
-const uploadsDir = get(config, ['pubsweet-server', 'uploads'], 'uploads')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 
 const {
   epubcheckerHandler,
@@ -43,8 +43,8 @@ const {
 // const levelMapper = { 0: 'one', 1: 'two', 2: 'three' }
 
 const getURL = relativePath => {
-  const serverUrl = config.has('pubsweet-server.serverUrl')
-    ? config.get('pubsweet-server.serverUrl')
+  const serverUrl = config.has('serverUrl')
+    ? config.get('serverUrl')
     : undefined
 
   // temp code for solving docker networking for macOS

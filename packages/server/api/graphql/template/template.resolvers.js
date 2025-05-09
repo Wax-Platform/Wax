@@ -1,4 +1,4 @@
-const { logger, pubsubManager } = require('@coko/server')
+const { logger } = require('@coko/server')
 const config = require('config')
 
 const {
@@ -69,7 +69,7 @@ const createTemplateHandler = async (_, { input }, ctx) => {
       exportScripts,
     } = input
 
-    const pubsub = await pubsubManager.getPubsub()
+    
 
     logger.info('template resolver: use case createTemplate')
 
@@ -84,7 +84,7 @@ const createTemplateHandler = async (_, { input }, ctx) => {
       exportScripts,
     )
 
-    pubsub.publish(TEMPLATE_CREATED, {
+    subscriptionManager.publish(TEMPLATE_CREATED, {
       templateCreated: newTemplate.id,
     })
 
@@ -98,11 +98,11 @@ const createTemplateHandler = async (_, { input }, ctx) => {
 const cloneTemplateHandler = async (_, { input }, ctx) => {
   try {
     logger.info('template resolver: use case cloneTemplate')
-    const pubsub = await pubsubManager.getPubsub()
+    
     const { id, bookId, name, cssFile, hashed } = input
     const newTemplate = await cloneTemplate(id, name, cssFile, hashed)
 
-    pubsub.publish(TEMPLATE_CREATED, {
+    subscriptionManager.publish(TEMPLATE_CREATED, {
       templateCreated: updateTemplate.id,
     })
     logger.info('New template created msg broadcasted')
@@ -123,10 +123,10 @@ const cloneTemplateHandler = async (_, { input }, ctx) => {
 const updateTemplateHandler = async (_, { input }, ctx) => {
   try {
     logger.info('template resolver: use case updateTemplates')
-    const pubsub = await pubsubManager.getPubsub()
+    
     const updatedTemplate = await updateTemplate(input)
 
-    pubsub.publish(TEMPLATE_UPDATED, {
+    subscriptionManager.publish(TEMPLATE_UPDATED, {
       templateUpdated: updatedTemplate.id,
     })
 
@@ -141,10 +141,10 @@ const updateTemplateHandler = async (_, { input }, ctx) => {
 const deleteTemplateHandler = async (_, { id }, ctx) => {
   try {
     logger.info('template resolver: use case deleteTemplate')
-    const pubsub = await pubsubManager.getPubsub()
+    
     const deletedTemplate = await deleteTemplate(id)
 
-    pubsub.publish(TEMPLATE_DELETED, {
+    subscriptionManager.publish(TEMPLATE_DELETED, {
       templateDeleted: deletedTemplate.id,
     })
     logger.info('Template deleted msg broadcasted')
@@ -199,10 +199,10 @@ const updateTemplateCSSFileHandler = async (_, { input }, ctx) => {
     logger.info('template resolver: use case updateTemplateCSSFile')
     const { id, data, hashed, bookId } = input
 
-    const pubsub = await pubsubManager.getPubsub()
+    
     const currentTemplate = await updateTemplateCSSFile(id, data, hashed)
 
-    pubsub.publish(TEMPLATE_UPDATED, {
+    subscriptionManager.publish(TEMPLATE_UPDATED, {
       templateUpdated: currentTemplate.id,
     })
     logger.info('Template updated msg broadcasted')
@@ -289,20 +289,20 @@ module.exports = {
   Subscription: {
     templateCreated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(TEMPLATE_CREATED)
+        
+        return subscriptionManager.asyncIterator(TEMPLATE_CREATED)
       },
     },
     templateDeleted: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(TEMPLATE_DELETED)
+        
+        return subscriptionManager.asyncIterator(TEMPLATE_DELETED)
       },
     },
     templateUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(TEMPLATE_UPDATED)
+        
+        return subscriptionManager.asyncIterator(TEMPLATE_UPDATED)
       },
     },
   },

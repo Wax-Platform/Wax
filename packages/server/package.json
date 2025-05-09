@@ -23,11 +23,12 @@
     "pg": "8"
   },
   "dependencies": {
-    "@coko/server": "3.13.1",
+    "@coko/server": "4.9.0",
     "@dqbd/tiktoken": "^1.0.14",
     "@pubsweet/models": "^0.3.26",
     "archiver": "^3.1.1",
     "axios": "^1.6.2",
+    "aws-sdk": "^2.1692.0",
     "bluebird": "^3.7.2",
     "cheerio": "^1.0.0-rc.2",
     "config": "^3.2.5",

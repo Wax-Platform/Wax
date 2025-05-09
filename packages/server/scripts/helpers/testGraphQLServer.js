@@ -24,8 +24,8 @@ const { shield } = require('graphql-shield')
 //   ? config.get('pubsweet-server.hostname')
 //   : 'localhost'
 
-const extraApolloConfig = config.has('pubsweet-server.apollo')
-  ? config.get('pubsweet-server.apollo')
+const extraApolloConfig = config.has('apollo')
+  ? config.get('apollo')
   : {}
 
 const testGraphQLServer = testUserContext => {

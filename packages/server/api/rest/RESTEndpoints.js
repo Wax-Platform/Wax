@@ -1,4 +1,4 @@
-const { pubsubManager, logger } = require('@coko/server')
+const { subscriptionManager, logger } = require('@coko/server')
 const fs = require('fs-extra')
 const config = require('config')
 const mime = require('mime-types')
@@ -7,7 +7,7 @@ const { NotFoundError } = require('objection')
 const express = require('express')
 const path = require('node:path')
 
-const uploadsDir = get(config, ['pubsweet-server', 'uploads'], 'uploads')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 const { readFile } = require('../../utilities/filesystem')
 const { xsweetImagesHandler } = require('../../utilities/image')
 
@@ -33,7 +33,7 @@ const {
 const RESTEndpoints = app => {
   app.use('/api/xsweet', async (req, res) => {
     try {
-      const pubsub = await pubsubManager.getPubsub()
+      
       const { body } = req
 
       const {
@@ -75,15 +75,15 @@ const RESTEndpoints = app => {
       const belongingBook = await Book.findById(updatedBookComponent.bookId)
       await ServiceCallbackToken.deleteById(serviceCallbackTokenId)
 
-      pubsub.publish(BOOK_COMPONENT_UPLOADING_UPDATED, {
+      subscriptionManager.publish(BOOK_COMPONENT_UPLOADING_UPDATED, {
         bookComponentUploadingUpdated: updatedBookComponent.id,
       })
 
-      pubsub.publish(BOOK_UPDATED, {
+      subscriptionManager.publish(BOOK_UPDATED, {
         bookUpdated: belongingBook.id,
       })
     } catch (error) {
-      const pubsub = await pubsubManager.getPubsub()
+      
       const { body } = req
 
       const { objectId: bookComponentId } = body
@@ -95,11 +95,11 @@ const RESTEndpoints = app => {
 
         const belongingBook = await Book.findById(bookComp.bookId)
 
-        pubsub.publish(BOOK_COMPONENT_UPDATED, {
+        subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
           bookComponentUpdated: bookComponentId,
         })
 
-        pubsub.publish(BOOK_UPDATED, {
+        subscriptionManager.publish(BOOK_UPDATED, {
           bookUpdated: belongingBook.id,
         })
       }

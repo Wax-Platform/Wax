@@ -3,7 +3,7 @@ const config = require('config')
 
 const seedAdmin = require('../seeds/admin')
 
-const adminUser = config.get('pubsweet-server.admin')
+const adminUser = config.get('admin')
 
 const run = async () => {
   try {

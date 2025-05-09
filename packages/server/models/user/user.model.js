@@ -1,3 +1,3 @@
-const UserModel = require('@coko/server/src/models/user/user.model')
+const { User: UserModel } = require('@coko/server')
 
 module.exports = UserModel
