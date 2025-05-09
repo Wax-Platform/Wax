@@ -13,7 +13,6 @@ const {
 const { getInactiveLocks } = require('../controllers/lock.controller')
 
 const broadcastUnlock = async (bookComponentId, bookId) => {
-  
   subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
     bookComponentUpdated: bookComponentId,
   })
