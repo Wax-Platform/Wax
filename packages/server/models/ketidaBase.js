@@ -2,11 +2,42 @@
   An extension of coko server's base model with some bells and whistles.
   All other Ketida models will (and should) extend this class.
 */
-
+const { AjvValidator } = require('objection')
+const addFormats = require('ajv-formats')
 const { BaseModel } = require('@coko/server')
 // const each = require('lodash/each')
 
 class KetidaBase extends BaseModel {
+  static createValidator() {
+  return new AjvValidator({
+    onCreateAjv: ajv => {
+
+      // ajv.opts.strictSchema = false;
+
+      // // Enable default values from the schema
+      // ajv.opts.useDefaults = true;
+
+      // // Optional: Enable type coercion (converts strings to numbers, etc.)
+      // ajv.opts.coerceTypes = true;
+
+      // ajv.options.strict = false   
+
+
+      
+
+      // Add custom formats if needed
+      // addFormats(ajv);
+      // Add custom formats if needed
+      addFormats(ajv);
+
+    },
+    options: {
+        strict: false,
+        strictSchema: false,
+        strictTypes: false,
+      },
+  })
+}
   $beforeInsert() {
     super.$beforeInsert()
     this.deleted = false

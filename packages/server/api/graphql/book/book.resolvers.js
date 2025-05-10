@@ -155,11 +155,13 @@ const createBookHandler = async (_, { input }, ctx) => {
           userId: ctx.userId,
         },
       })
+      console.log('dddddddddddddddddddd')
 
       const updatedUser = await getUser(ctx.userId)
 
       subscriptionManager.publish(USER_UPDATED, { userUpdated: updatedUser })
 
+      console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
       newUserTeam = await getObjectTeam('owner', newBook.id, false)
     } else {
       newBook = await createBook({ collectionId, title })

@@ -59,7 +59,7 @@ class BookComponentState extends Base {
               },
               //  TODO FOREIGN userId:
               content: {
-                type: 'String',
+                type: 'string',
                 minLength: 1,
               },
             },

@@ -1,5 +1,4 @@
-const { useTransaction, logger } = require('@coko/server')
-const { Identity, User } = require('@coko/server/src/models')
+const { useTransaction, logger, Identity, User } = require('@coko/server')
 
 const {
   notify,
