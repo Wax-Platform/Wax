@@ -11,25 +11,7 @@ class KetidaBase extends BaseModel {
   static createValidator() {
   return new AjvValidator({
     onCreateAjv: ajv => {
-
-      // ajv.opts.strictSchema = false;
-
-      // // Enable default values from the schema
-      // ajv.opts.useDefaults = true;
-
-      // // Optional: Enable type coercion (converts strings to numbers, etc.)
-      // ajv.opts.coerceTypes = true;
-
-      // ajv.options.strict = false   
-
-
-      
-
-      // Add custom formats if needed
-      // addFormats(ajv);
-      // Add custom formats if needed
-      addFormats(ajv);
-
+      addFormats(ajv)
     },
     options: {
         strict: false,

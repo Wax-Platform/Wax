@@ -15,6 +15,8 @@ const { bookInvite, bookComponentInvite } = require('./helpers/emailTemplates')
 
 const { Team } = require('../models').models
 
+const TEAM_CONTROLLER = `[TEAM CONTROLLER] -`
+
 const getObjectTeam = async (
   role,
   objectId,
@@ -245,9 +247,53 @@ const addTeamMembers = async (
   }
 }
 
+const getTeams = async (where = {}, options = {}) => {
+  try {
+    const { trx, ...restOptions } = options
+    return useTransaction(
+      async tr => {
+        logger.info(
+          `${TEAM_CONTROLLER} getTeams: fetching all teams based on where clause ${where} and provided options ${restOptions}`,
+        )
+        return Team.find(where, { trx: tr, ...restOptions })
+      },
+      { trx, passedTrxOnly: true },
+    )
+  } catch (e) {
+    logger.error(`${TEAM_CONTROLLER} getTeams: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+const getObjectTeams = async (objectId, objectType, options = {}) => {
+  try {
+    logger.info(
+      `${TEAM_CONTROLLER} getObjectTeams: fetching all teams of object with id ${objectId} and type ${objectType}`,
+    )
+    return getTeams({ objectId, objectType }, options)
+  } catch (e) {
+    logger.error(`${TEAM_CONTROLLER} getObjectTeams: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+const getGlobalTeams = async (options = {}) => {
+  try {
+    logger.info(
+      `${TEAM_CONTROLLER} getGlobalTeams: fetching all teams with flag global`,
+    )
+    return getTeams({ global: true }, options)
+  } catch (e) {
+    logger.error(`${TEAM_CONTROLLER} getGlobalTeams: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
 module.exports = {
   createTeam,
   getObjectTeam,
+  getObjectTeams,
+  getGlobalTeams,
   deleteTeam,
   updateTeamMemberStatus,
   updateTeamMemberStatuses,

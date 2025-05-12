@@ -14,6 +14,7 @@ const vanillaPermissions = require('./permissions/vanilla.permissions')
 const booksprintPermissions = require('./permissions/booksprint.permissions')
 const oenPermissions = require('./permissions/oen.permissions')
 const podPermissions = require('./permissions/pod.permissions')
+const { fileStorage } = require('./custom-environment-variables')
 
 const flavour =
   process.env.WAX_FLAVOUR && process.env.WAX_FLAVOUR === 'BOOKSPRINTS'

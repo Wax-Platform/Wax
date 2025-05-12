@@ -1,4 +1,4 @@
-const { logger, pubsubManager } = require('@coko/server')
+const { logger, subscriptionManager } = require('@coko/server')
 
 const { CUSTOM_TAGS_UPDATED } = require('./constants')
 

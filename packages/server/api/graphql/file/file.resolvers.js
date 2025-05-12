@@ -1,5 +1,5 @@
-const { logger, fileStorage } = require('@coko/server')
-const { pubsubManager } = require('@coko/server')
+const { logger, fileStorage, subscriptionManager } = require('@coko/server')
+
 const map = require('lodash/map')
 
 const { BookComponent } = require('../../../models').models

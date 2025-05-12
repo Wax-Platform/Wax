@@ -1,5 +1,4 @@
-const { pubsubManager } = require('@coko/server')
-const { logger } = require('@coko/server')
+const { logger, subscriptionManager  } = require('@coko/server')
 
 const {
   subscriptions: { USER_UPDATED },
@@ -17,6 +16,8 @@ const {
   updateTeamMemberStatus,
   updateTeamMemberStatuses,
   addTeamMembers,
+  getGlobalTeams,
+  getObjectTeams,
 } = require('../../../controllers/team.controller')
 
 const {
@@ -148,7 +149,32 @@ const addTeamMembersHandler = async (
   }
 }
 
+const getObjectTeamsResolver = async (_, { objectId, objectType }, ctx) => {
+  try {
+    logger.info(`TEAM_RESOLVER getObjectTeams`)
+    return getObjectTeams(objectId, objectType)
+  } catch (e) {
+    logger.error(`TEAM_RESOLVER getObjectTeams: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+const getGlobalTeamsResolver = async (_, { where }, ctx) => {
+  try {
+    logger.info(`TEAM_RESOLVER getGlobalTeams`)
+    return getGlobalTeams()
+  } catch (e) {
+    logger.error(`TEAM_RESOLVER getGlobalTeams: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+
 module.exports = {
+  Query: {
+    getGlobalTeams: getGlobalTeamsResolver,
+    getObjectTeams: getObjectTeamsResolver,
+  },
   Mutation: {
     updateKetidaTeamMembers: updateKetidaTeamMembersHandler,
     updateTeamMemberStatus: updateTeamMemberStatusHandler,

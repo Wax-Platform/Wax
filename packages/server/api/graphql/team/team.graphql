@@ -6,6 +6,11 @@ type TeamSub {
   members: [TeamMember!]
 }
 
+type TeamsResponse {
+  result: [Team!]!
+  totalCount: Int
+}
+
 extend type Mutation {
   updateKetidaTeamMembers(teamId: ID!, members: [ID!]!, status: String): Team!
   updateTeamMemberStatus(teamMemberId: ID!, status: String!): Team!
@@ -22,4 +27,10 @@ extend type Subscription {
   teamMembersUpdated: ID!
   productionEditorsUpdated: ID!
   teamUpdated: ID!
+}
+
+
+extend type Query {
+  getGlobalTeams: TeamsResponse!
+  getObjectTeams(objectId: ID!, objectType: String!): TeamsResponse!
 }
