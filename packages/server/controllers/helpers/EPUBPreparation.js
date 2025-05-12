@@ -11,8 +11,6 @@ const config = require('config')
 
 const beautify = require('js-beautify').html
 
-const { download } = fileStorage
-
 const { epubDecorator, fixFontFaceUrls } = require('./converters')
 const { writeFile, readFile } = require('../../utilities/filesystem')
 
@@ -218,19 +216,19 @@ const transferAssets = async (imagesParam, stylesheetsParam, fontsParam) => {
     await Promise.all(
       map(imagesParam, async image => {
         const { key, target } = image
-        return download(key, target)
+        return fileStorage.download(key, target)
       }),
     )
     await Promise.all(
       map(stylesheetsParam, async stylesheet => {
         const { key, target } = stylesheet
-        return download(key, target)
+        return fileStorage.download(key, target)
       }),
     )
     await Promise.all(
       map(fontsParam, async font => {
         const { key, target } = font
-        return download(key, target)
+        return fileStorage.download(key, target)
       }),
     )
     const stylesheetContent = await readFile(stylesheets[0].target)

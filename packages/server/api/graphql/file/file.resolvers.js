@@ -4,8 +4,6 @@ const map = require('lodash/map')
 
 const { BookComponent } = require('../../../models').models
 
-const { getURL } = fileStorage
-
 const {
   updateFile,
   deleteFiles,
@@ -90,8 +88,6 @@ const getFileHandler = async (_, { id }, ctx) => {
 
 const uploadFilesHandler = async (_, { files, entityId }, ctx) => {
   try {
-    
-
     const uploadedFiles = await Promise.all(
       map(files, async file => {
         const { createReadStream, filename } = await file
@@ -114,7 +110,7 @@ const uploadFilesHandler = async (_, { files, entityId }, ctx) => {
 const updateFileHandler = async (_, { input }, ctx) => {
   try {
     const { id, name, alt } = input
-    
+
     const updatedFile = await updateFile(id, { name, alt })
     subscriptionManager.publish(FILE_UPDATED, {
       fileUpdated: updatedFile.id,
@@ -128,7 +124,6 @@ const updateFileHandler = async (_, { input }, ctx) => {
 
 const deleteFilesHandler = async (_, { ids, remoteToo }, ctx) => {
   try {
-    
     let deletedFiles
 
     if (remoteToo) {
@@ -161,7 +156,7 @@ module.exports = {
   },
   File: {
     async url(file, { size }, ctx) {
-      return getURL(file.getStoredObjectBasedOnType(size).key)
+      return fileStorage.getURL(file.getStoredObjectBasedOnType(size).key)
     },
     // async mimetype(file, { target }, ctx) {
     //   if (target && target === 'editor') {
@@ -184,19 +179,16 @@ module.exports = {
   Subscription: {
     filesUploaded: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(FILES_UPLOADED)
       },
     },
     filesDeleted: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(FILES_DELETED)
       },
     },
     fileUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(FILE_UPDATED)
       },
     },

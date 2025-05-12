@@ -1,4 +1,4 @@
-const { logger } = require('@coko/server')
+const { logger, subscriptionManager } = require('@coko/server')
 const config = require('config')
 
 const {
@@ -69,8 +69,6 @@ const createTemplateHandler = async (_, { input }, ctx) => {
       exportScripts,
     } = input
 
-    
-
     logger.info('template resolver: use case createTemplate')
 
     const newTemplate = await createTemplate(
@@ -98,7 +96,7 @@ const createTemplateHandler = async (_, { input }, ctx) => {
 const cloneTemplateHandler = async (_, { input }, ctx) => {
   try {
     logger.info('template resolver: use case cloneTemplate')
-    
+
     const { id, bookId, name, cssFile, hashed } = input
     const newTemplate = await cloneTemplate(id, name, cssFile, hashed)
 
@@ -123,7 +121,7 @@ const cloneTemplateHandler = async (_, { input }, ctx) => {
 const updateTemplateHandler = async (_, { input }, ctx) => {
   try {
     logger.info('template resolver: use case updateTemplates')
-    
+
     const updatedTemplate = await updateTemplate(input)
 
     subscriptionManager.publish(TEMPLATE_UPDATED, {
@@ -141,7 +139,7 @@ const updateTemplateHandler = async (_, { input }, ctx) => {
 const deleteTemplateHandler = async (_, { id }, ctx) => {
   try {
     logger.info('template resolver: use case deleteTemplate')
-    
+
     const deletedTemplate = await deleteTemplate(id)
 
     subscriptionManager.publish(TEMPLATE_DELETED, {
@@ -199,7 +197,6 @@ const updateTemplateCSSFileHandler = async (_, { input }, ctx) => {
     logger.info('template resolver: use case updateTemplateCSSFile')
     const { id, data, hashed, bookId } = input
 
-    
     const currentTemplate = await updateTemplateCSSFile(id, data, hashed)
 
     subscriptionManager.publish(TEMPLATE_UPDATED, {
@@ -289,19 +286,16 @@ module.exports = {
   Subscription: {
     templateCreated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(TEMPLATE_CREATED)
       },
     },
     templateDeleted: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(TEMPLATE_DELETED)
       },
     },
     templateUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(TEMPLATE_UPDATED)
       },
     },

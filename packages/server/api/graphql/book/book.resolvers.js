@@ -29,8 +29,6 @@ const { getObjectTeam } = require('../../../controllers/team.controller')
 
 const { isAdmin } = require('../../../controllers/user.controller')
 
-const { getURL } = fileStorage
-
 const {
   pagedPreviewerLink,
 } = require('../../../controllers/microServices.controller')
@@ -155,13 +153,11 @@ const createBookHandler = async (_, { input }, ctx) => {
           userId: ctx.userId,
         },
       })
-      console.log('dddddddddddddddddddd')
 
       const updatedUser = await getUser(ctx.userId)
 
       subscriptionManager.publish(USER_UPDATED, { userUpdated: updatedUser })
 
-      console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
       newUserTeam = await getObjectTeam('owner', newBook.id, false)
     } else {
       newBook = await createBook({ collectionId, title })
@@ -651,7 +647,7 @@ module.exports = {
                 const coverFile = fileId && (await File.findById(fileId))
 
                 if (coverFile) {
-                  const coverUrl = await getURL(
+                  const coverUrl = await fileStorage.getURL(
                     coverFile.getStoredObjectBasedOnType('original').key,
                   )
 
@@ -683,7 +679,9 @@ module.exports = {
           const thumbnailFile = await File.findById(book.thumbnailId)
 
           if (thumbnailFile) {
-            return getURL(thumbnailFile.getStoredObjectBasedOnType('small').key)
+            return fileStorage.getURL(
+              thumbnailFile.getStoredObjectBasedOnType('small').key,
+            )
           }
 
           return null

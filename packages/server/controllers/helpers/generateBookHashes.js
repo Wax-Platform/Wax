@@ -9,8 +9,6 @@ const crypto = require('crypto')
 const Template = require('../../models/template/template.model')
 const Book = require('../../models/book/book.model')
 
-const { download } = fileStorage
-
 const createBookHTML = require('./createBookHTML')
 const generateHash = require('./generateHash')
 const prepareBook = require('./prepareBook')
@@ -56,7 +54,7 @@ const generateBookHashes = async (
 
   await fs.ensureDir(dir)
 
-  await download(stylesheet.key, tempStylesheetPath)
+  await fileStorage.download(stylesheet.key, tempStylesheetPath)
 
   const stylesheetHash = await generateHash(fs.readFileSync(tempStylesheetPath))
 

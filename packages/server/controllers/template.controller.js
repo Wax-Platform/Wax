@@ -14,8 +14,6 @@ const { Template, File, ExportProfile } = require('../models').models
 
 const { execute, persistTemplates } = require('../scripts/helpers/templates')
 
-const { download } = fileStorage
-
 const {
   createFile,
   deleteFiles: deleteFilesController,
@@ -279,7 +277,7 @@ const cloneTemplate = async (id, name, cssFile, hashed, options = {}) => {
             if (mimetype === 'text/css') {
               fs.writeFileSync(filepath, cssFile)
             } else {
-              await download(key, filepath)
+              await fileStorage.download(key, filepath)
             }
 
             const fileStream = fs.createReadStream(filepath)

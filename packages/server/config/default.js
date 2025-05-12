@@ -14,7 +14,6 @@ const vanillaPermissions = require('./permissions/vanilla.permissions')
 const booksprintPermissions = require('./permissions/booksprint.permissions')
 const oenPermissions = require('./permissions/oen.permissions')
 const podPermissions = require('./permissions/pod.permissions')
-const { fileStorage } = require('./custom-environment-variables')
 
 const flavour =
   process.env.WAX_FLAVOUR && process.env.WAX_FLAVOUR === 'BOOKSPRINTS'
@@ -108,7 +107,7 @@ module.exports = {
     user: 'dev_user',
     password: 'dev_user_password',
   },
-  devServerIgnore: ['./templates/*'],
+  devServerIgnore: ['./templates/*', './uploads/*'],
   onStartup: [
     {
       label: 'Seed Admin',
