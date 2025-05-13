@@ -172,11 +172,10 @@ const Header = props => {
   const navItemsLeft = []
 
   if (showBackToBook) {
+    const match = location.pathname.match(/^\/document\/([^/]+)\/[^/]+/)
+    const bookComponentId = match?.[1] || null
 
-    const match = location.pathname.match(/^\/document\/([^/]+)\/[^/]+/);
-    const bookComponentId = match?.[1] || null;
-      
-    const to = bookComponentId ? `/document/${bookComponentId}` : "/"
+    const to = bookComponentId ? `/document/${bookComponentId}` : '/'
 
     navItemsLeft.push(
       <UnstyledLink

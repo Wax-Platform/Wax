@@ -1,11 +1,6 @@
-/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-restricted-syntax */
 const { useTransaction, logger, fileStorage } = require('@coko/server')
 const crypto = require('crypto')
-const { emptyUndefinedOrNull } = require('@coko/server/src/helpers')
-const config = require('config')
-const AWS = require('aws-sdk')
-const { list } = require('@coko/server/src/services/fileStorage')
 const { Document, Embedding } = require('../models').models
 const { splitFileContent } = require('./helpers/fileChunks')
 
@@ -27,7 +22,7 @@ const createDocument = async ({ file, maxLng, bookId }, options = {}) => {
           const extension = filename.split('.').pop()
           const originalDirName = filename.replace(`.${extension}`, '')
           logger.info(`EXTENSION: ${JSON.stringify(extension)}`)
-          const allObjects = await list()
+          const allObjects = await fileStorage.list()
 
           const existingKeys = allObjects.Contents.map(so => so.Key)
 
@@ -136,55 +131,7 @@ const deleteFolder = async id => {
 }
 
 const getFileContents = async objectKey => {
-  const {
-    accessKeyId,
-    secretAccessKey,
-    bucket,
-    protocol,
-    host,
-    port,
-    s3ForcePathStyle,
-  } = config.get('fileStorage')
-
-  if (!protocol) {
-    throw new Error(
-      'Missing required protocol param for initializing file storage',
-    )
-  }
-
-  if (!host) {
-    throw new Error('Missing required host param for initializing file storage')
-  }
-
-  if (!bucket) {
-    throw new Error(
-      'Missing required bucket param for initializing file storage',
-    )
-  }
-
-  const serverUrl = `${protocol}://${host}${port ? `:${port}` : ''}`
-
-  const s3 = new AWS.S3({
-    accessKeyId,
-    signatureVersion: 'v4',
-    secretAccessKey,
-    s3ForcePathStyle: !emptyUndefinedOrNull(s3ForcePathStyle)
-      ? JSON.parse(s3ForcePathStyle)
-      : true,
-    endpoint: serverUrl,
-  })
-
-  return new Promise((resolve, reject) => {
-    s3.getObject({ Bucket: bucket, Key: objectKey }, (err, data) => {
-      if (err) {
-        logger.error(err)
-        reject(err)
-      } else {
-        const storedObject = data.Body.toString('utf-8')
-        resolve(storedObject)
-      }
-    })
-  })
+  return fileStorage.getFileContents(objectKey)
 }
 
 module.exports = {

@@ -131,9 +131,9 @@ const Footer = props => {
       })
   }
 
-  const handleClickSave = () => {
-    setIsCreateModalOpen(true)
-  }
+  // const handleClickSave = () => {
+  //   setIsCreateModalOpen(true)
+  // }
 
   const handleCreateInputChange = val => {
     setCreateInput(val)

@@ -2,8 +2,8 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import styled from 'styled-components'
-import { th, grid } from '@coko/client'
-import { Link, useParams } from 'react-router-dom'
+import { grid } from '@coko/client'
+// import { Link } from 'react-router-dom'
 import { SettingOutlined } from '@ant-design/icons'
 import { Tooltip as AntTooltip } from 'antd'
 import { Button } from '../common'
@@ -68,28 +68,27 @@ const StyledButton = styled(Button)`
   }
 `
 
-const StyledLink = styled(Link)`
-  block-size: 34px;
-  border: 1px solid ${th('colorBorder')};
-  color: inherit;
-  display: grid;
-  font-size: 18px;
-  inline-size: 34px;
-  place-content: center;
+// const StyledLink = styled(Link)`
+//   block-size: 34px;
+//   border: 1px solid ${th('colorBorder')};
+//   color: inherit;
+//   display: grid;
+//   font-size: 18px;
+//   inline-size: 34px;
+//   place-content: center;
 
-  &:hover {
-    color: inherit;
-  }
-`
+//   &:hover {
+//     color: inherit;
+//   }
+// `
 
 const BookSettings = props => {
   const {
     viewInformation,
     toggleInformation,
-    showAiAssistantLink,
-    showKnowledgeBaseLink,
+    // showAiAssistantLink,
+    // showKnowledgeBaseLink,
   } = props
-
 
   return (
     <Wrapper>

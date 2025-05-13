@@ -1,9 +1,5 @@
 const { logger, useTransaction } = require('@coko/server')
 
-const {
-  connectToFileStorage,
-} = require('@coko/server/src/services/fileStorage')
-
 const Template = require('../../models/template/template.model')
 const ExportProfile = require('../../models/exportProfile/exportProfile.model')
 const File = require('../../models/file/file.model')
@@ -37,8 +33,6 @@ const deleteTemplate = async id => {
 
       const files = await File.find({ objectId: template.id }, { trx })
       const fileIds = files.result.map(file => file.id)
-
-      await connectToFileStorage()
 
       logger.info(
         `deleting files with ids ${fileIds} associated with template id ${template.id}`,

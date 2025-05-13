@@ -8,7 +8,7 @@ const {
 
 const canAddBooks = async ctx => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const isAuthenticatedUser = await isAuthenticated(userId)
 
     if (!isAuthenticatedUser) {
@@ -29,7 +29,7 @@ const canAddBooks = async ctx => {
 
 const canAssignMembers = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const bookId = args.bookId || args.id
 
     const isAuthenticatedUser = await isAuthenticated(userId)
@@ -57,7 +57,7 @@ const canAssignMembers = async (ctx, args) => {
 
 const canInteractWithBooks = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const bookId = args.bookId || args.id
     const isAuthenticatedUser = await isAuthenticated(userId)
 
@@ -92,7 +92,7 @@ const canViewAddTeamMember = async () => {
 
 const canRemoveTeamMember = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const bookId = args.bookId || args.id
 
     const isAuthenticatedUser = await isAuthenticated(userId)
@@ -120,7 +120,7 @@ const canRemoveTeamMember = async (ctx, args) => {
 
 const canViewFragmentEdit = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const { workflowStages } = args
     const bookId = args.bookId || args.id
     const isAuthenticatedUser = await isAuthenticated(userId)
@@ -165,7 +165,7 @@ const canViewFragmentEdit = async (ctx, args) => {
 
 const canEditFull = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const { workflowStages } = args
     const bookId = args.bookId || args.id
     const isAuthenticatedUser = await isAuthenticated(userId)
@@ -210,7 +210,7 @@ const canEditFull = async (ctx, args) => {
 
 const canEditReview = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const { workflowStages } = args
     const bookId = args.bookId || args.id
     const isAuthenticatedUser = await isAuthenticated(userId)
@@ -256,7 +256,7 @@ const canEditSelection = async (ctx, args) => {
 
 const canAccessBook = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const { type } = args
     const isAuthenticatedUser = await isAuthenticated(userId)
 
@@ -297,7 +297,7 @@ const canAccessBook = async (ctx, args) => {
 
 const canViewTeamManager = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const isAuthenticatedUser = await isAuthenticated(userId)
 
     if (!isAuthenticatedUser) {
@@ -329,7 +329,7 @@ const canViewTeamManager = async (ctx, args) => {
 
 const canInteractWithBookComponents = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const { id: bookId } = args // args contains the book object
     const isAuthenticatedUser = await isAuthenticated(userId)
 
@@ -362,7 +362,7 @@ const canInteractWithBookComponents = async (ctx, args) => {
 
 const canInteract = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const { id: bookId } = args // args contains the book object
     const isAuthenticatedUser = await isAuthenticated(userId)
 
@@ -398,7 +398,7 @@ const canInteractWithFragments = async () => {
 
 const canChangeProgress = async (ctx, args) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const bookId = args.bookId || args.id
     const isAuthenticatedUser = await isAuthenticated(userId)
 

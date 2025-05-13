@@ -25,3 +25,29 @@ exports.up = async knex => {
     )
   }
 }
+
+exports.down = async knex => {
+  try {
+    const tableExists = await knex.schema.hasTable('files')
+
+    if (tableExists) {
+      const hasStoredObjects = await knex.schema.hasColumn(
+        'files',
+        'storedObjects',
+      )
+
+      if (hasStoredObjects) {
+        await knex.schema.alterTable('files', table => {
+          table.dropColumn('storedObjects')
+        })
+      }
+    }
+
+    return true
+  } catch (e) {
+    logger.error(e)
+    throw new Error(
+      `Migration: Files: removing storedObjects column from files table failed`,
+    )
+  }
+}

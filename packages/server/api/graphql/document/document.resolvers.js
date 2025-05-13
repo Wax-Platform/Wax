@@ -1,4 +1,4 @@
-const { logger, pubsubManager } = require('@coko/server')
+const { logger, subscriptionManager } = require('@coko/server')
 
 const {
   createDocument,
@@ -10,14 +10,13 @@ const {
 const { KB_UPDATED } = require('./constants')
 const { Document } = require('../../../models')
 
-const { getPubsub } = pubsubManager
-
 const createDocumentResolver = async (_, { file, maxLng, bookId }, ctx) => {
   try {
     const document = await createDocument({ file, maxLng, bookId })
 
-    const pubsub = await getPubsub()
-    pubsub.publish(`${KB_UPDATED}.${bookId}`, { kbUpdated: document.id })
+    subscriptionManager.publish(`${KB_UPDATED}.${bookId}`, {
+      kbUpdated: document.id,
+    })
 
     return document
   } catch (error) {
@@ -38,8 +37,7 @@ const deleteFolderResolver = async (_, { id, bookId }, context) => {
   try {
     await deleteFolder(id)
 
-    const pubsub = await getPubsub()
-    pubsub.publish(`${KB_UPDATED}.${bookId}`, { kbUpdated: id })
+    subscriptionManager.publish(`${KB_UPDATED}.${bookId}`, { kbUpdated: id })
 
     return true
   } catch (error) {
@@ -81,8 +79,7 @@ module.exports = {
   Subscription: {
     kbUpdated: {
       subscribe: async (_payload, vars) => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(`${KB_UPDATED}.${vars.bookId}`)
+        return subscriptionManager.asyncIterator(`${KB_UPDATED}.${vars.bookId}`)
       },
     },
   },

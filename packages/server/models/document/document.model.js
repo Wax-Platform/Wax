@@ -1,6 +1,5 @@
 /* eslint-disable global-require */
 const { logger, fileStorage, BaseModel } = require('@coko/server')
-const { Model } = require('objection')
 const Embedding = require('../embeddings/embedding.model')
 
 class Document extends BaseModel {
@@ -37,7 +36,7 @@ class Document extends BaseModel {
     const Book = require('../book/book.model')
     return {
       book: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Book,
         join: {
           from: 'documents.bookId',
@@ -72,7 +71,7 @@ class Document extends BaseModel {
         throw new Error(`Document with ID ${id} not found.`)
       }
 
-      await fileStorage.deleteFiles(document.sectionsKeys)
+      await fileStorage.delete(document.sectionsKeys)
       await Embedding.query()
         .delete()
         .whereIn('storedObjectKey', document.sectionsKeys)

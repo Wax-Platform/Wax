@@ -57,7 +57,7 @@ export default (ydoc, { debounceMs = 1000 } = {}) => {
   const htmlText = ydoc.getText('html')
   let prevDoc = null
 
-  const updateHTML = (view) => {
+  const updateHTML = view => {
     const serializer = DOMSerializer.fromSchema(view.state.schema)
     const fragment = serializer.serializeFragment(view.state.doc.content)
     const container = document.createElement('div')
@@ -83,10 +83,10 @@ export default (ydoc, { debounceMs = 1000 } = {}) => {
       })
 
       return {
-        update(view) {
-          if (!prevDoc || !view.state.doc.eq(prevDoc)) {
-            prevDoc = view.state.doc
-            debouncedUpdate(view)
+        update(v) {
+          if (!prevDoc || !v.state.doc.eq(prevDoc)) {
+            prevDoc = v.state.doc
+            debouncedUpdate(v)
           }
         },
         destroy() {

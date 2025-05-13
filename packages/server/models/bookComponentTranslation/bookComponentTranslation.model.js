@@ -4,7 +4,7 @@
   Define notes schema more accurately
 */
 
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const Translation = require('../translation')
 
@@ -26,7 +26,7 @@ class BookComponentTranslation extends Translation {
     /* eslint-enable global-require */
     return {
       bookComponent: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: BookComponent,
         join: {
           from: 'BookComponentTranslation.bookComponentId',

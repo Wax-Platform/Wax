@@ -8,7 +8,7 @@ const seedAdmin = require('../../../scripts/seeds/admin')
 const seedGlobalTeams = require('../../../scripts/seeds/globalTeams')
 const seedApplicationParams = require('../../../scripts/seeds/applicationParameters')
 const clearDb = require('../../../scripts/helpers/_clearDB')
-const testGraphQLServer = require('../../../scripts/helpers/testGraphQLServer')
+// const testGraphQLServer = require('../../../scripts/helpers/testGraphQLServer')
 
 const createBookGraphQL = async (
   testServer,
@@ -45,7 +45,7 @@ describe('Book GraphQL Query', () => {
       givenNames: 'Admin',
       surname: 'Adminius',
     })
-    testServer = await testGraphQLServer(user.id)
+    // testServer = await testGraphQLServer(user.id)
   })
 
   it('creates a book with just a title', async () => {

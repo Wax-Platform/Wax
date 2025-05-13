@@ -1,8 +1,8 @@
-const { Model } = require('objection')
+const { BaseModel, modelJsonSchemaTypes } = require('@coko/server')
 
 const Translation = require('../translation')
 
-const { arrayOfStringsNotEmpty, id, string } = require('../helpers').schema
+const { arrayOfStrings, id, stringNullable } = modelJsonSchemaTypes
 
 class BookTranslation extends Translation {
   constructor(properties) {
@@ -20,7 +20,7 @@ class BookTranslation extends Translation {
     /* eslint-enable global-require */
     return {
       book: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Book,
         join: {
           from: 'BookTranslation.bookId',
@@ -35,13 +35,13 @@ class BookTranslation extends Translation {
       type: 'object',
       required: ['bookId'],
       properties: {
-        abstractContent: string,
-        abstractTitle: string,
-        alternativeTitle: string,
+        abstractContent: stringNullable,
+        abstractTitle: stringNullable,
+        alternativeTitle: stringNullable,
         bookId: id,
-        keywords: arrayOfStringsNotEmpty,
-        subtitle: string,
-        title: string,
+        keywords: arrayOfStrings,
+        subtitle: stringNullable,
+        title: stringNullable,
       },
     }
   }

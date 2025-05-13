@@ -1,7 +1,7 @@
 const {
   useTransaction,
   logger,
-  pubsubManager,
+  subscriptionManager,
   fileStorage,
 } = require('@coko/server')
 
@@ -24,7 +24,7 @@ const {
 
 const { getUser } = require('@coko/server/src/models/user/user.controller')
 
-const { DocTreeManager } = require('@pubsweet/models')
+const DocTreeManager = require('../models/docTreeManager/docTreeManager.model')
 
 const {
   createFile,
@@ -411,9 +411,7 @@ const createBook = async (data = {}) => {
           const configNonGlobalTeams = config.get('teams.nonGlobal')
 
           await Promise.all(
-            Object.keys(configNonGlobalTeams).map(async k => {
-              const teamData = configNonGlobalTeams[k]
-
+            configNonGlobalTeams.map(async teamData => {
               const exists = await getObjectTeam(teamData.role, bookId, false, {
                 trx: tr,
               })
@@ -898,8 +896,6 @@ const deleteBook = async (bookId, options = {}) => {
           },
         )
 
-        const pubsub = await pubsubManager.getPubsub()
-
         if (associatedTeams.length > 0) {
           await Promise.all(
             map(associatedTeams, async team => {
@@ -911,7 +907,7 @@ const deleteBook = async (bookId, options = {}) => {
                 teamMembers.map(async teamMember => {
                   const updatedUser = await getUser(teamMember.userId)
 
-                  return pubsub.publish('USER_UPDATED', {
+                  return subscriptionManager.publish('USER_UPDATED', {
                     userUpdated: updatedUser,
                   })
                 }),

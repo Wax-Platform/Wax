@@ -1,4 +1,4 @@
-exports.up = knex => {
+exports.up = async knex => {
   return knex.raw(`
     ALTER TABLE embeddings
     ADD COLUMN embedding VECTOR(1536);

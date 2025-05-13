@@ -1,4 +1,4 @@
-const { BookComponent } = require('@pubsweet/models')
+const BookComponent = require('../../../models/bookComponent/bookComponent.model')
 
 const {
   updateTreePosition,

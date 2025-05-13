@@ -12,7 +12,7 @@
   Get book components & relation
 */
 
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const Base = require('../ketidaBase')
 const { arrayOfIds, id, stringNotEmpty } = require('../helpers').schema
@@ -47,7 +47,7 @@ class Division extends Base {
 
     return {
       book: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Book,
         join: {
           from: 'Division.bookId',
@@ -55,7 +55,7 @@ class Division extends Base {
         },
       },
       // bookComponents: {
-      //   relation: Model.HasManyRelation,
+      //   relation: BaseModel.HasManyRelation,
       //   modelClass: BookComponent,
       //   join: {
       //     from: 'Division.id',

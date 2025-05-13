@@ -6,8 +6,6 @@ const map = require('lodash/map')
 
 const { getObjectKey } = require('../file.controller')
 
-const { download } = fileStorage
-
 const { generatePagedjsContainer } = require('./htmlGenerators')
 const { writeFile } = require('../../utilities/filesystem')
 const { fileStorageImageGatherer } = require('../../utilities/image')
@@ -81,7 +79,7 @@ const ICMLPreparation = async (book, tempFolderPath) => {
     await Promise.all(
       map(images, async image => {
         const { key, target } = image
-        return download(key, target)
+        return fileStorage.download(key, target)
       }),
     )
     const output = cheerio.load(generatePagedjsContainer(book.title))

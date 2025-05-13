@@ -53,7 +53,8 @@ export const KnowledgeBasePage = ({ bookId }) => {
   )
 }
 
-export default props => {
+/* eslint-disable-next-line react/function-component-definition, func-names */
+export default function (props) {
   const { loading, data: dataBooks } = useQuery(GET_BOOKS, {
     fetchPolicy: 'network-only',
     variables: {
@@ -75,4 +76,3 @@ export default props => {
 
   return <KnowledgeBasePage {...props} bookId={book.id} />
 }
-

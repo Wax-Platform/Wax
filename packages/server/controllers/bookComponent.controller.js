@@ -1,4 +1,4 @@
-const { logger, useTransaction, pubsubManager } = require('@coko/server')
+const { logger, useTransaction, subscriptionManager } = require('@coko/server')
 const { NotFoundError, raw } = require('objection')
 const config = require('config')
 const findIndex = require('lodash/findIndex')
@@ -141,7 +141,6 @@ const addBookComponent = async (
   options = {},
 ) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
     logger.info('bookComponent resolver: executing addBookComponent use case')
     const { trx } = options
     return useTransaction(
@@ -320,9 +319,7 @@ const addBookComponent = async (
         const configNonGlobalTeams = config.get('teams.nonGlobal')
 
         await Promise.all(
-          Object.keys(configNonGlobalTeams).map(async k => {
-            const teamData = configNonGlobalTeams[k]
-
+          configNonGlobalTeams.map(async teamData => {
             const exists = await getObjectTeam(
               teamData.role,
               createdBookComponent.id,
@@ -344,7 +341,7 @@ const addBookComponent = async (
                 },
               )
 
-              pubsub.publish(TEAM_MEMBERS_UPDATED, {
+              subscriptionManager.publish(TEAM_MEMBERS_UPDATED, {
                 teamMembersUpdated: createdTeam.id,
               })
 
@@ -353,7 +350,7 @@ const addBookComponent = async (
                   trx: tr,
                 })
 
-                pubsub.publish(TEAM_MEMBERS_UPDATED, {
+                subscriptionManager.publish(TEAM_MEMBERS_UPDATED, {
                   teamMembersUpdated: createdTeam.id,
                 })
               }
@@ -375,8 +372,6 @@ const addBookComponent = async (
 
 const updateContent = async (bookComponentId, content, languageIso) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
-
     const bookComponentTranslation = await BookComponentTranslation.findOne({
       bookComponentId,
       languageIso,
@@ -453,7 +448,7 @@ const updateContent = async (bookComponentId, content, languageIso) => {
       }
     }
 
-    pubsub.publish(YJS_CONTENT_UPDATED, {
+    subscriptionManager.publish(YJS_CONTENT_UPDATED, {
       yjsContentUpdated: bookComponentId,
     })
 

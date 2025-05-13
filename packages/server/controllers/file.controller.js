@@ -10,8 +10,6 @@ const forEach = require('lodash/forEach')
 const find = require('lodash/find')
 const { File, BookComponent } = require('../models').models
 
-const { getURL } = fileStorage
-
 const { imageFinder } = require('../utilities/image')
 
 const updateFile = async (id, data, options = {}) => {
@@ -148,7 +146,7 @@ const getFileURL = async (id, type = 'original', options = {}) => {
 
     const { key } = file.getStoredObjectBasedOnType(type)
 
-    return getURL(key)
+    return fileStorage.getURL(key)
   } catch (e) {
     throw new Error(e)
   }
@@ -193,11 +191,11 @@ const getContentFiles = async (fileIds, options = {}) => {
             const { key } = file.getStoredObjectBasedOnType('original')
 
             if (mimetype.match(/^image\//)) {
-              file.url = await getURL(keyMedium)
+              file.url = await fileStorage.getURL(keyMedium)
               return file
             }
 
-            file.url = await getURL(key)
+            file.url = await fileStorage.getURL(key)
             /* eslint-enable no-param-reassign */
 
             return file

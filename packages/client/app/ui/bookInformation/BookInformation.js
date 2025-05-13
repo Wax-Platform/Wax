@@ -87,7 +87,7 @@ const BookInformation = props => {
     toggleInformation,
     showAiAssistantLink,
     showKnowledgeBaseLink,
-    bookId,
+    // bookId,
     bookComponentId,
   } = props
 

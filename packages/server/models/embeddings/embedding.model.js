@@ -1,5 +1,4 @@
 const { BaseModel, logger } = require('@coko/server')
-const { Model } = require('objection')
 const { callOn } = require('../../utilities/utils')
 
 class Embedding extends BaseModel {
@@ -32,7 +31,7 @@ class Embedding extends BaseModel {
     const Book = require('../book/book.model')
     return {
       book: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Book,
         join: {
           from: 'documents.bookId',

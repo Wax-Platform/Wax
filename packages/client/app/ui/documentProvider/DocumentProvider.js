@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 
 import React, { useState } from 'react'
+
 const DocumentContext = React.createContext({
   title: null,
   setTitle: () => {},

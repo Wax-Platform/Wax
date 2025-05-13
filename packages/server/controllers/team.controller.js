@@ -6,7 +6,7 @@ const { Identity } = require('@coko/server/src/models')
 const {
   notify,
   notificationTypes: { EMAIL },
-} = require('@coko/server/src//services')
+} = require('@coko/server/src/services')
 
 const TeamMember = require('@coko/server/src/models/teamMember/teamMember.model')
 const Book = require('../models/book/book.model')
@@ -14,6 +14,8 @@ const BookComponent = require('../models/bookComponent/bookComponent.model')
 const { bookInvite, bookComponentInvite } = require('./helpers/emailTemplates')
 
 const { Team } = require('../models').models
+
+const TEAM_CONTROLLER = `[TEAM CONTROLLER] -`
 
 const getObjectTeam = async (
   role,
@@ -245,9 +247,40 @@ const addTeamMembers = async (
   }
 }
 
+const getTeams = async (where = {}, options = {}) => {
+  try {
+    const { trx, ...restOptions } = options
+    return useTransaction(
+      async tr => {
+        logger.info(
+          `${TEAM_CONTROLLER} getTeams: fetching all teams based on where clause ${where} and provided options ${restOptions}`,
+        )
+        return Team.find(where, { trx: tr, ...restOptions })
+      },
+      { trx, passedTrxOnly: true },
+    )
+  } catch (e) {
+    logger.error(`${TEAM_CONTROLLER} getTeams: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+const getObjectTeams = async (objectId, objectType, options = {}) => {
+  try {
+    logger.info(
+      `${TEAM_CONTROLLER} getObjectTeams: fetching all teams of object with id ${objectId} and type ${objectType}`,
+    )
+    return getTeams({ objectId, objectType }, options)
+  } catch (e) {
+    logger.error(`${TEAM_CONTROLLER} getObjectTeams: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
 module.exports = {
   createTeam,
   getObjectTeam,
+  getObjectTeams,
   deleteTeam,
   updateTeamMemberStatus,
   updateTeamMemberStatuses,

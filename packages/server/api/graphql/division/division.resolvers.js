@@ -1,8 +1,10 @@
-const { pubsubManager, logger } = require('@coko/server')
+const { subscriptionManager, logger } = require('@coko/server')
 
 const { BOOK_COMPONENT_ORDER_UPDATED } = require('./constants')
 
 const { BOOK_UPDATED } = require('../book/constants')
+
+const { models } = require('../../../models/dataloader')
 
 const {
   updateBookComponentOrder,
@@ -16,7 +18,6 @@ const updateBookComponentOrderHandler = async (
   ctx,
 ) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
     logger.info(
       'division resolver: executing updateBookComponentOrder use case',
     )
@@ -27,11 +28,11 @@ const updateBookComponentOrderHandler = async (
       index,
     )
 
-    pubsub.publish(BOOK_COMPONENT_ORDER_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_ORDER_UPDATED, {
       bookComponentOrderUpdated: book.id,
     })
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: book.id,
     })
 
@@ -47,7 +48,6 @@ const updateBookComponentsOrderHandler = async (
   ctx,
 ) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
     logger.info(
       'division resolver: executing updateBookComponentsOrder use case',
     )
@@ -57,11 +57,11 @@ const updateBookComponentsOrderHandler = async (
       bookComponents,
     )
 
-    pubsub.publish(BOOK_COMPONENT_ORDER_UPDATED, {
+    subscriptionManager.publish(BOOK_COMPONENT_ORDER_UPDATED, {
       bookComponentOrderUpdated: book.id,
     })
 
-    pubsub.publish(BOOK_UPDATED, {
+    subscriptionManager.publish(BOOK_UPDATED, {
       bookUpdated: book.id,
     })
 
@@ -78,9 +78,13 @@ module.exports = {
   },
   Division: {
     async bookComponents(divisionId, _, ctx) {
-      await ctx.connectors.DivisionLoader.model.bookComponents.clear()
+      const DivisionLoader = models.find(
+        md => md.modelName === 'DivisionLoader',
+      )
 
-      return ctx.connectors.DivisionLoader.model.bookComponents.load(divisionId)
+      await DivisionLoader.model.bookComponents.clear()
+
+      return DivisionLoader.model.bookComponents.load(divisionId)
     },
     async label(divisionId, _, ctx) {
       const dbDivision = await getDivision(divisionId)
@@ -93,8 +97,7 @@ module.exports = {
   Subscription: {
     bookComponentOrderUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(BOOK_COMPONENT_ORDER_UPDATED)
+        return subscriptionManager.asyncIterator(BOOK_COMPONENT_ORDER_UPDATED)
       },
     },
   },

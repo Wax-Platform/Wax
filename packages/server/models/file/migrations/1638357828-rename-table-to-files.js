@@ -16,3 +16,20 @@ exports.up = async knex => {
     )
   }
 }
+
+exports.down = async knex => {
+  try {
+    const tableExists = await knex.schema.hasTable('files')
+
+    if (tableExists) {
+      return knex.schema.renameTable('files', 'file')
+    }
+
+    return false
+  } catch (e) {
+    logger.error(e)
+    throw new Error(
+      `Migration: Files: renaming files table to file table failed`,
+    )
+  }
+}

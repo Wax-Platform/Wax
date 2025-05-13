@@ -2,7 +2,7 @@
   BookCollection: A collection of books
 */
 
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const Base = require('../ketidaBase')
 
@@ -23,7 +23,7 @@ class BookCollection extends Base {
 
     return {
       books: {
-        relation: Model.HasManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: Book,
         join: {
           from: 'BookCollection.id',

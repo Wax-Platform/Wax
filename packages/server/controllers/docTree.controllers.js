@@ -1,11 +1,7 @@
-const {
-  DocTreeManager,
-  BookComponent,
-  Team,
-  TeamMember,
-} = require('@pubsweet/models')
+const { uuid: uuidv4, Team, TeamMember } = require('@coko/server')
 
-const { uuid: uuidv4 } = require('@coko/server')
+const DocTreeManager = require('../models/docTreeManager/docTreeManager.model')
+const BookComponent = require('../models/bookComponent/bookComponent.model')
 
 const {
   getBookComponent,
@@ -57,7 +53,7 @@ const deleteResourceRecursively = async (id, ctx) => {
       if (team) {
         await TeamMember.query().delete().where({
           teamId: team.id,
-          userId: ctx.user,
+          userId: ctx.userId,
         })
       }
 
@@ -70,7 +66,7 @@ const deleteResourceRecursively = async (id, ctx) => {
       if (teamViewer) {
         await TeamMember.query().delete().where({
           teamId: teamViewer.id,
-          userId: ctx.user,
+          userId: ctx.userId,
         })
       }
     }
@@ -142,12 +138,12 @@ const DocTreeNested = async (folderId, userId) => {
 }
 
 const getDocTree = async (_, { folderId }, ctx) => {
-  return JSON.stringify(await DocTreeNested(folderId, ctx.user))
+  return JSON.stringify(await DocTreeNested(folderId, ctx.userId))
 }
 
 /* eslint-disable-next-line no-empty-pattern */
 const getSharedDocTree = async (_, {}, ctx) => {
-  const bookComponents = await BookComponent.getSharedBookComponents(ctx.user)
+  const bookComponents = await BookComponent.getSharedBookComponents(ctx.userId)
   let children = []
 
   if (bookComponents.length > 0) {
@@ -173,12 +169,12 @@ const getSharedDocTree = async (_, {}, ctx) => {
 
 const addResource = async (_, { id, bookId, divisionId, isFolder }, ctx) => {
   if (isFolder) {
-    return DocTreeManager.createNewFolderResource({ id, userId: ctx.user })
+    return DocTreeManager.createNewFolderResource({ id, userId: ctx.userId })
   }
 
   return DocTreeManager.createNewDocumentResource({
     id,
-    userId: ctx.user,
+    userId: ctx.userId,
     bookComponent: {
       bookId,
       componentType: 'chapter',
@@ -197,7 +193,7 @@ const deleteResource = async (_, { id }, ctx) => {
 
   const isUserTheOwnerOfTheDoc = await BookComponent.isMyBookComponent(
     deleteResourceItem.bookComponentId,
-    ctx.user,
+    ctx.userId,
   )
 
   if (isUserTheOwnerOfTheDoc) {
@@ -226,7 +222,7 @@ const deleteResource = async (_, { id }, ctx) => {
     if (team) {
       await TeamMember.query().delete().where({
         teamId: team.id,
-        userId: ctx.user,
+        userId: ctx.userId,
       })
     }
   }
@@ -235,7 +231,6 @@ const deleteResource = async (_, { id }, ctx) => {
 }
 
 const renameResource = async (_, { id, title, lockRename }, ctx) => {
-
   const { renameLock } = await DocTreeManager.query()
     .findOne({ id })
     .returning('*')

@@ -6,7 +6,7 @@
   Read valid component type values from config and make it an enum
 */
 
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const { uuid } = require('@coko/server')
 
@@ -33,7 +33,7 @@ class BookComponent extends Base {
     /* eslint-enable global-require */
     return {
       book: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Book,
         join: {
           from: 'BookComponent.bookId',
@@ -41,7 +41,7 @@ class BookComponent extends Base {
         },
       },
       division: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Division,
         join: {
           from: 'BookComponent.divisionId',
@@ -49,7 +49,7 @@ class BookComponent extends Base {
         },
       },
       bookComponentState: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: BookComponentState,
         join: {
           from: 'BookComponent.id',

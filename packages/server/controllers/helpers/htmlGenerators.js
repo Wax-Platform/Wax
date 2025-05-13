@@ -52,7 +52,7 @@ const generateContainer = (
     runningHeadersRight,
     pagination,
     division,
-    number,
+    // number,
     includeInTOC,
   } = bookComponent
 
@@ -77,11 +77,11 @@ const generateContainer = (
       <header><h1 class="component-title">${title}</h1></header></section>`,
     )
   } else {
-    let componentNumber
+    // let componentNumber
 
-    if (componentType === 'chapter' || componentType === 'part') {
-      componentNumber = `<span class="${componentType}-number">${number}</span>`
-    }
+    // if (componentType === 'chapter' || componentType === 'part') {
+    //   componentNumber = `<span class="${componentType}-number">${number}</span>`
+    // }
 
     output = cheerio.load(
       `<section id="comp-number-${id}" class="component-${division} ${
@@ -93,7 +93,7 @@ const generateContainer = (
       }${runningHeadersGenerator(
         runningHeadersLeft,
         runningHeadersRight,
-      )}</section>`, //<header>${componentNumber || ''}</header>
+      )}</section>`, // <header>${componentNumber || ''}</header>
     )
   }
 

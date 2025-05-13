@@ -52,7 +52,9 @@ const bookComponentInvite = context => {
     const link = `${clientUrl}/document/${bookComponentId}`
 
     const content = `
-        <p>${sharerName} (${sharerEmail}) has invited you to ${status} the following chapter: <a href="${link}">${bookComponentTitle || 'Untitled'}</a>.</p>
+        <p>${sharerName} (${sharerEmail}) has invited you to ${status} the following chapter: <a href="${link}">${
+      bookComponentTitle || 'Untitled'
+    }</a>.</p>
         <p></p>
         <p>
           If you cannot click the link above, paste the following into your browser to continue:
@@ -62,7 +64,9 @@ const bookComponentInvite = context => {
       `
 
     const text = `
-      Chapter shared with you: ${bookComponentTitle || 'Untitled'}!\nCopy and paste the following link into your browser to view the chapter.\n\n${link}`
+      Chapter shared with you: ${
+        bookComponentTitle || 'Untitled'
+      }!\nCopy and paste the following link into your browser to view the chapter.\n\n${link}`
 
     const data = {
       content,

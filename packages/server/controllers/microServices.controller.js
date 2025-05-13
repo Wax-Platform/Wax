@@ -6,11 +6,9 @@ const crypto = require('crypto')
 const get = require('lodash/get')
 const FormData = require('form-data')
 
-const uploadsDir = get(config, ['pubsweet-server', 'uploads'], 'uploads')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 
 const ServiceCallbackToken = require('../models/serviceCallbackToken/serviceCallbackToken.model')
-
-const { getURL, upload, deleteFiles: fileStorageDeleteFiles } = fileStorage
 
 const {
   zipper,
@@ -52,9 +50,12 @@ const epubcheckerHandler = async epubPath => {
     const deconstruct = epubPath.split('/')
     const epubName = deconstruct[deconstruct.length - 1]
 
-    const storedObjects = await upload(fs.createReadStream(epubPath), epubName)
+    const storedObjects = await fileStorage.upload(
+      fs.createReadStream(epubPath),
+      epubName,
+    )
 
-    const EPUBPath = await getURL(storedObjects[0].key)
+    const EPUBPath = await fileStorage.getURL(storedObjects[0].key)
 
     return new Promise((resolve, reject) => {
       callMicroservice(EPUBCHECKER, {
@@ -63,11 +64,11 @@ const epubcheckerHandler = async epubPath => {
         data: { EPUBPath },
       })
         .then(async ({ data }) => {
-          await fileStorageDeleteFiles([storedObjects[0].key])
+          await fileStorage.deleteFiles([storedObjects[0].key])
           return resolve(data)
         })
         .catch(async err => {
-          await fileStorageDeleteFiles([storedObjects[0].key])
+          await fileStorage.deleteFiles([storedObjects[0].key])
           const { response } = err
 
           if (!response) {
@@ -218,7 +219,7 @@ const xsweetHandler = async (bookComponentId, filePath) => {
     const { responseToken, id: serviceCallbackTokenId } = serviceCallbackToken
     form.append('responseToken', responseToken)
     form.append('serviceCallbackTokenId', serviceCallbackTokenId)
-    const serverUrl = config.get('pubsweet-server.serverUrl')
+    const serverUrl = config.get('serverUrl')
 
     form.append('callbackURL', `${serverUrl}/api/xsweet`)
 

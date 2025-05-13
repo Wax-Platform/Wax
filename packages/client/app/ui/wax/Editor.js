@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types, react/jsx-no-constructed-context-values */
-import React, { useEffect, useState, useMemo, useRef, useContext } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { Wax } from 'wax-prosemirror-core'
 import { isEqual } from 'lodash'
 import styled from 'styled-components'
@@ -17,7 +17,6 @@ const SpinnerWrapper = styled.div`
   top: 50%;
   z-index: 999;
 `
-
 
 const EditorWrapper = ({
   bookId,
@@ -215,8 +214,8 @@ const EditorWrapper = ({
         },
       },
       TitleService: {
-        updateTitle:(title) => {
-          setTitle(title)
+        updateTitle: t => {
+          setTitle(t)
         },
       },
       CommentsService: {
@@ -291,8 +290,11 @@ const EditorWrapper = ({
 
   useEffect(() => {
     if (editorRef.current) {
-      const { right, left } = document.getElementsByClassName('ProseMirror')[0].getBoundingClientRect()
-      setPosition( (right - left))
+      const { right, left } = document
+        .getElementsByClassName('ProseMirror')[0]
+        .getBoundingClientRect()
+
+      setPosition(right - left)
     }
   }, [editorRef.current])
 
@@ -313,17 +315,17 @@ const EditorWrapper = ({
         autoFocus
         config={selectedWaxConfig}
         customProps={luluWax}
+        documentTitle={documentTitle}
         fileUpload={onImageUpload}
         layout={LuluLayout}
         readonly={isReadOnly}
         ref={editorRef}
         user={userObject}
-        documentTitle={documentTitle}
       />
       <SpinnerWrapper
         // showFilemanager={showFilemanager}
-        showSpinner={showSpinner}
         position={position}
+        showSpinner={showSpinner}
       >
         <Result
           icon={<Spin size={18} spinning />}

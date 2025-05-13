@@ -1,11 +1,12 @@
 const { logger, useTransaction } = require('@coko/server')
-const { Template } = require('@pubsweet/models')
+const Template = require('../template.model')
 
 exports.up = async () => {
   try {
     return useTransaction(async trx => {
       const templates = await Template.query(trx)
-      return Promise.all(
+
+      await Promise.all(
         templates.map(async template => {
           const { name: storedName, id } = template
           return Template.patchAndFetchById(
@@ -25,3 +26,5 @@ exports.up = async () => {
     )
   }
 }
+
+exports.down = async () => {}

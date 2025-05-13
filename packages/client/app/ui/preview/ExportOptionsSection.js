@@ -46,14 +46,14 @@ const exportSizeOptions = [
 
 // #region styled
 
-const MultiSelect = styled(Select)`
-  min-width: 150px;
-`
+// const MultiSelect = styled(Select)`
+//   min-width: 150px;
+// `
 
-const FrontmatterOption = styled(ExportOption)`
-  align-items: baseline;
-  flex-wrap: nowrap;
-`
+// const FrontmatterOption = styled(ExportOption)`
+//   align-items: baseline;
+//   flex-wrap: nowrap;
+// `
 
 const TemplateOption = styled(ExportOption)`
   &:nth-last-child(2)::after {
@@ -75,7 +75,7 @@ const ExportOptionsSection = props => {
     newProfile,
     onChange,
     selectedProfile,
-    selectedContent,
+    // selectedContent,
     selectedFormat,
     selectedSize,
     selectedTemplate,
@@ -90,7 +90,7 @@ const ExportOptionsSection = props => {
     onProfileRename,
     profiles,
     previewLoading,
-    hasCover,
+    // hasCover,
     lastUpdated,
     exportOptions,
     handleFormatChange,
@@ -105,26 +105,26 @@ const ExportOptionsSection = props => {
     { label: t('format.webDownload.options.epub'), value: 'epub' },
   ]
 
-  const makeContentOptions = (isPdf, isEpub, cover) => [
-    {
-      value: 'includeCoverPage',
-      label: t('frontMatter.options.cover'),
-      disabled: isPdf || !cover,
-    },
-    {
-      value: 'includeTitlePage',
-      label: t('frontMatter.options.titlePage'),
-    },
-    // {
-    //   value: 'includeCopyrights',
-    //   label: t('frontMatter.options.copyrightPage'),
-    // },
-    // {
-    //   value: 'includeTOC',
-    //   label: t('frontMatter.options.tableOfContents'),
-    //   disabled: isEpub,
-    // },
-  ]
+  // const makeContentOptions = (isPdf, isEpub, cover) => [
+  //   {
+  //     value: 'includeCoverPage',
+  //     label: t('frontMatter.options.cover'),
+  //     disabled: isPdf || !cover,
+  //   },
+  //   {
+  //     value: 'includeTitlePage',
+  //     label: t('frontMatter.options.titlePage'),
+  //   },
+  //   // {
+  //   //   value: 'includeCopyrights',
+  //   //   label: t('frontMatter.options.copyrightPage'),
+  //   // },
+  //   // {
+  //   //   value: 'includeTOC',
+  //   //   label: t('frontMatter.options.tableOfContents'),
+  //   //   disabled: isEpub,
+  //   // },
+  // ]
 
   const isbnOptions = [
     ...isbns.map(isbnItem => {
@@ -140,7 +140,7 @@ const ExportOptionsSection = props => {
   const isPdf = selectedFormat === 'pdf'
   const isEpub = selectedFormat === 'epub'
   const isWeb = selectedFormat === 'web'
-  const contentOptions = makeContentOptions(isPdf, isEpub, hasCover)
+  // const contentOptions = makeContentOptions(isPdf, isEpub, hasCover)
   // const contentValue = selectedContent
   // if (isEpub && !contentValue.includes('includeTOC'))
   //   contentValue.push('includeTOC')
@@ -164,9 +164,9 @@ const ExportOptionsSection = props => {
     handleChange({ isbn: value })
   }
 
-  const handleContentChange = value => {
-    handleChange({ content: value })
-  }
+  // const handleContentChange = value => {
+  //   handleChange({ content: value })
+  // }
 
   const handleTemplateClick = value => {
     handleChange({ template: value })
@@ -308,7 +308,7 @@ const ExportOptionsSection = props => {
 ExportOptionsSection.propTypes = {
   disabled: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired,
-  selectedContent: PropTypes.arrayOf(PropTypes.string),
+  // selectedContent: PropTypes.arrayOf(PropTypes.string),
   selectedFormat: PropTypes.string.isRequired,
   selectedSize: PropTypes.string,
   selectedIsbn: PropTypes.string,
@@ -341,7 +341,7 @@ ExportOptionsSection.propTypes = {
 ExportOptionsSection.defaultProps = {
   selectedSize: null,
   selectedIsbn: null,
-  selectedContent: null,
+  // selectedContent: null,
   selectedTemplate: null,
   templates: [],
   newProfile: false,

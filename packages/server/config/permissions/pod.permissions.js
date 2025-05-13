@@ -113,7 +113,7 @@ const canInteractWithBookAndRelevantAssets = async (userId, bookId) => {
 
 const isAuthenticatedRule = rule()(async (parent, args, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
     return isAuthenticated(userId)
   } catch (e) {
@@ -123,7 +123,7 @@ const isAuthenticatedRule = rule()(async (parent, args, ctx, info) => {
 
 const createBookRule = rule()(async (parent, args, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
     const isAuthenticatedUser = await isAuthenticated(userId)
 
@@ -146,7 +146,7 @@ const createBookRule = rule()(async (parent, args, ctx, info) => {
 const modifyBooksInDashboardRule = rule()(
   async (parent, { id: bookId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       const isAuthenticatedUser = await isAuthenticated(userId)
@@ -173,7 +173,7 @@ const modifyBooksInDashboardRule = rule()(
 const interactWithExportProfileRule = rule()(
   async (parent, { id }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       const isAuthenticatedUser = await isAuthenticated(userId)
@@ -207,7 +207,7 @@ const interactWithExportProfileRule = rule()(
 const createExportProfileRule = rule()(
   async (parent, { input: { bookId } }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       const isAuthenticatedUser = await isAuthenticated(userId)
@@ -233,7 +233,7 @@ const createExportProfileRule = rule()(
 
 const getBookRule = rule()(async (_, { id: bookId }, ctx) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
     /* eslint-disable global-require */
     const Book = require('../../models/book/book.model')
@@ -256,7 +256,7 @@ const getBookRule = rule()(async (_, { id: bookId }, ctx) => {
 const uploadFilesRules = rule()(
   async (parent, { entityId: bookId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
       return canEditBookAndRelevantAssets(userId, bookId)
     } catch (e) {
@@ -268,7 +268,7 @@ const uploadFilesRules = rule()(
 const getBookComponentRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!bookComponentId) {
@@ -290,7 +290,7 @@ const getBookComponentRule = rule()(
 
 const updateMetadataRule = rule()(async (parent, { bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     if (!bookId) {
@@ -306,7 +306,7 @@ const updateMetadataRule = rule()(async (parent, { bookId }, ctx, info) => {
 const exportBookRule = rule()(
   async (parent, { input: { bookId, fileExtension } }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!bookId) {
@@ -327,7 +327,7 @@ const exportBookRule = rule()(
 const ingestWordFileRule = rule()(
   async (parent, { bookComponentFiles }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
       const { bookId } = bookComponentFiles[0]
 
@@ -345,7 +345,7 @@ const ingestWordFileRule = rule()(
 const addBookComponentRule = rule()(
   async (parent, { input: { bookId } }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!bookId) {
@@ -362,7 +362,7 @@ const addBookComponentRule = rule()(
 const deleteBookComponentRule = rule()(
   async (parent, { input: { id: bookComponentId } }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!bookComponentId) {
@@ -385,7 +385,7 @@ const deleteBookComponentRule = rule()(
 const updateTrackChangesRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!bookComponentId) {
@@ -408,7 +408,7 @@ const updateTrackChangesRule = rule()(
 const setBookComponentStatusRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!bookComponentId) {
@@ -431,7 +431,7 @@ const setBookComponentStatusRule = rule()(
 const updateBookComponentOrderRule = rule()(
   async (parent, { targetDivisionId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!targetDivisionId) {
@@ -455,7 +455,7 @@ const updateBookComponentOrderRule = rule()(
 const unlockBookComponentRule = rule()(
   async (parent, { input: { id: bookComponentId, lock } }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       const belongsToAdminTeam = await isAdmin(userId)
@@ -479,7 +479,7 @@ const unlockBookComponentRule = rule()(
 const updateContentRule = rule()(
   async (parent, { input: { id } }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!id) {
@@ -502,7 +502,7 @@ const updateContentRule = rule()(
 const renameBookComponentRule = rule()(
   async (parent, { input: { id } }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!id) {
@@ -525,7 +525,7 @@ const renameBookComponentRule = rule()(
 const interactWithBookComponentRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       if (!bookComponentId) {
@@ -548,7 +548,7 @@ const interactWithBookComponentRule = rule()(
 const updateTeamMemberStatusRule = rule()(
   async (parent, { teamMemberId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
 
       const isAuthenticatedUser = await isAuthenticated(userId)
@@ -587,7 +587,7 @@ const updateTeamMemberStatusRule = rule()(
 
 const addTeamMembersRule = rule()(async (parent, { teamId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
     const isAuthenticatedUser = await isAuthenticated(userId)
 
@@ -619,7 +619,7 @@ const addTeamMembersRule = rule()(async (parent, { teamId }, ctx, info) => {
 
 const renameBookRule = rule()(async (parent, { id: bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     return canEditBookAndRelevantAssets(userId, bookId)
@@ -630,7 +630,7 @@ const renameBookRule = rule()(async (parent, { id: bookId }, ctx, info) => {
 
 const updateSubtitleRule = rule()(async (parent, { id: bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     return canEditBookAndRelevantAssets(userId, bookId)
@@ -641,7 +641,7 @@ const updateSubtitleRule = rule()(async (parent, { id: bookId }, ctx, info) => {
 
 const getBookExportProfilesRule = rule()(async (_, { bookId }, ctx, __) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     return canInteractWithBookAndRelevantAssets(userId, bookId)
@@ -652,7 +652,7 @@ const getBookExportProfilesRule = rule()(async (_, { bookId }, ctx, __) => {
 
 const teamRule = rule()(async (parent, { id: teamId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     const isAuthenticatedUser = await isAuthenticated(userId)
@@ -675,7 +675,7 @@ const teamRule = rule()(async (parent, { id: teamId }, ctx, info) => {
 
 // const teamsRule = rule()(async (parent, __, ctx, info) => {
 //   try {
-//     const { user: userId } = ctx
+//     const { userId } = ctx
 
 //     const isAuthenticatedUser = await isAuthenticated(userId)
 
@@ -691,7 +691,7 @@ const teamRule = rule()(async (parent, { id: teamId }, ctx, info) => {
 
 const getObjectTeamsRule = rule()(async (parent, { objectId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     return canInteractWithBookAndRelevantAssets(userId, objectId)
@@ -703,7 +703,7 @@ const getObjectTeamsRule = rule()(async (parent, { objectId }, ctx, info) => {
 const uploadBookThumbnailRule = rule()(
   async (parent, { bookId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       if (!userId) return false
       return canEditBookAndRelevantAssets(userId, bookId)
     } catch (e) {
@@ -714,7 +714,7 @@ const uploadBookThumbnailRule = rule()(
 
 const updateApplicationParametersRule = rule(async (_, __, ctx) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     const isAuthenticatedUser = await isAuthenticated(userId)
@@ -737,7 +737,7 @@ const updateApplicationParametersRule = rule(async (_, __, ctx) => {
 
 const uploadToLuluRule = rule()(async (_, { id: exportProfileId }, ctx) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     const isAuthenticatedUser = await isAuthenticated(userId)
@@ -761,7 +761,7 @@ const uploadToLuluRule = rule()(async (_, { id: exportProfileId }, ctx) => {
 
 const updateBookSettingsRule = rule()(async (parent, { bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     if (!userId) return false
 
     const isAuthenticatedUser = await isAuthenticated(userId)

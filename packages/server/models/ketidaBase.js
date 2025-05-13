@@ -1,8 +1,7 @@
 /*
-  An extension of pubsweet's base model with some bells and whistles.
+  An extension of coko server's base model with some bells and whistles.
   All other Ketida models will (and should) extend this class.
 */
-
 const { BaseModel } = require('@coko/server')
 // const each = require('lodash/each')
 

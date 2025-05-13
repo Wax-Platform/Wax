@@ -1,5 +1,4 @@
-const { withFilter } = require('graphql-subscriptions')
-const { pubsubManager, logger } = require('@coko/server')
+const { subscriptionManager, logger, withFilter } = require('@coko/server')
 
 const { subscriptions, labels } = require('./constants')
 
@@ -53,11 +52,9 @@ const createExportProfileHandler = async (_, { input }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} createExportProfileHandler`)
 
-    const pubsub = await pubsubManager.getPubsub()
-
     const newExportProfile = await createExportProfile(input)
 
-    pubsub.publish(EXPORT_PROFILE_CREATED, {
+    subscriptionManager.publish(EXPORT_PROFILE_CREATED, {
       exportProfileCreated: newExportProfile.id,
     })
 
@@ -74,11 +71,9 @@ const updateExportProfileHandler = async (_, { id, data }) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} updateExportProfileHandler`)
 
-    const pubsub = await pubsubManager.getPubsub()
-
     const updatedExportProfile = await updateExportProfile(id, data)
 
-    pubsub.publish(EXPORT_PROFILE_UPDATED, {
+    subscriptionManager.publish(EXPORT_PROFILE_UPDATED, {
       exportProfileUpdated: updatedExportProfile.id,
     })
 
@@ -95,11 +90,9 @@ const deleteExportProfileHandler = async (_, { id }) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} deleteExportProfileHandler`)
 
-    const pubsub = await pubsubManager.getPubsub()
-
     await deleteExportProfile(id)
 
-    pubsub.publish(EXPORT_PROFILE_DELETED, {
+    subscriptionManager.publish(EXPORT_PROFILE_DELETED, {
       exportProfileDeleted: id,
     })
 
@@ -116,14 +109,12 @@ const createLuluProjectHandler = async (_, { exportProfileId }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} createLuluProjectHandler`)
 
-    const pubsub = await pubsubManager.getPubsub()
-
     const updatedExportProfile = await createLuluProject(
-      ctx.user,
+      ctx.userId,
       exportProfileId,
     )
 
-    pubsub.publish(EXPORT_PROFILE_UPDATED, {
+    subscriptionManager.publish(EXPORT_PROFILE_UPDATED, {
       exportProfileUpdated: updatedExportProfile.id,
     })
 
@@ -140,14 +131,12 @@ const updateLuluProjectHandler = async (_, { exportProfileId }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} updateLuluProjectHandler`)
 
-    const pubsub = await pubsubManager.getPubsub()
-
     const updatedExportProfile = await updateLuluProject(
-      ctx.user,
+      ctx.userId,
       exportProfileId,
     )
 
-    pubsub.publish(EXPORT_PROFILE_UPDATED, {
+    subscriptionManager.publish(EXPORT_PROFILE_UPDATED, {
       exportProfileUpdated: updatedExportProfile.id,
     })
 
@@ -164,15 +153,13 @@ const uploadToProviderHandler = async (_, { providerLabel, id }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} uploadToProviderHandler`)
 
-    const pubsub = await pubsubManager.getPubsub()
-
     const updatedExportProfile = await uploadToProvider(
       providerLabel,
       id,
-      ctx.user,
+      ctx.userId,
     )
 
-    pubsub.publish(EXPORT_PROFILE_UPDATED, {
+    subscriptionManager.publish(EXPORT_PROFILE_UPDATED, {
       exportProfileUpdated: updatedExportProfile.id,
     })
 
@@ -189,11 +176,9 @@ const uploadToLuluHandler = async (_, { id }, ctx) => {
   try {
     logger.info(`${EXPORT_PROFILE_RESOLVER} uploadToLuluHandler`)
 
-    const updatedExportProfile = await uploadToLulu(id, ctx.user)
+    const updatedExportProfile = await uploadToLulu(id, ctx.userId)
 
-    const pubsub = await pubsubManager.getPubsub()
-
-    pubsub.publish(EXPORT_PROFILE_UPDATED, {
+    subscriptionManager.publish(EXPORT_PROFILE_UPDATED, {
       exportProfileUpdated: updatedExportProfile.id,
     })
 
@@ -272,11 +257,9 @@ module.exports = {
   Subscription: {
     exportProfileUpdated: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
-
         return withFilter(
           () => {
-            return pubsub.asyncIterator(EXPORT_PROFILE_UPDATED)
+            return subscriptionManager.asyncIterator(EXPORT_PROFILE_UPDATED)
           },
           async (payload, variables) => {
             const { bookId } = variables
@@ -291,11 +274,9 @@ module.exports = {
     },
     exportProfileCreated: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
-
         return withFilter(
           () => {
-            return pubsub.asyncIterator(EXPORT_PROFILE_CREATED)
+            return subscriptionManager.asyncIterator(EXPORT_PROFILE_CREATED)
           },
           async (payload, variables) => {
             const { bookId } = variables
@@ -310,11 +291,9 @@ module.exports = {
     },
     exportProfileDeleted: {
       subscribe: async (...args) => {
-        const pubsub = await pubsubManager.getPubsub()
-
         return withFilter(
           () => {
-            return pubsub.asyncIterator(EXPORT_PROFILE_DELETED)
+            return subscriptionManager.asyncIterator(EXPORT_PROFILE_DELETED)
           },
           async (payload, variables) => {
             const { bookId } = variables

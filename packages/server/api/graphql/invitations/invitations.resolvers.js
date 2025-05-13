@@ -11,7 +11,7 @@ const { getIdentityByToken } = require('../../../controllers/user.controller')
 
 const sendInvitationsHandler = async (_, invitationData, ctx) => {
   try {
-    return sendInvitations(invitationData, ctx.user)
+    return sendInvitations(invitationData, ctx.userId)
   } catch (e) {
     throw new Error(e)
   }

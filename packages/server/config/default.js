@@ -1,5 +1,3 @@
-const path = require('path')
-
 const components = require('./components')
 const vanillaAuthorizations = require('./modules/vanillaAuthorizations')
 const booksprintsAuthorizations = require('./modules/booksprintAuthorizations')
@@ -60,15 +58,12 @@ if (featurePODEnabled) {
 }
 
 module.exports = {
-  authsome: {
-    mode: path.join(__dirname, 'authsome.js'),
-  },
   authorization:
     flavour === 'BOOKSPRINTS'
       ? booksprintsAuthorizations
       : vanillaAuthorizations,
   bookBuilder,
-  'password-reset': {
+  passwordReset: {
     pathToPage: '/password-reset',
   },
   featureBookStructure: false,
@@ -76,42 +71,119 @@ module.exports = {
   featureUploadDOCXFiles: true,
   permissions: flavorPermissions,
   filters,
-  pubsweet: {
-    components,
-  },
-  'pubsweet-server': {
-    useGraphQLServer: true,
-    useJobQueue: true,
-    useFileStorage: true,
-    serveClient: false,
-    graphiql: true,
-    tokenExpiresIn: '360 days',
-    host: 'localhost',
-    port: 3000,
-    uploads: 'uploads',
-    emailVerificationTokenExpiry: {
-      amount: 24,
-      unit: 'hours',
-    },
-    passwordResetTokenExpiry: {
-      amount: 24,
-      unit: 'hours',
-    },
-    pool: { min: 0, max: 100, idleTimeoutMillis: 1000 },
-    cron: {
-      path: path.join(__dirname, '..', 'services', 'cron.service.js'),
-    },
-    mailer: {
-      from: 'nobody@cokotest.com',
-      transport: {
-        host: 'smtp.ethereal.email',
-        auth: {
-          user: 'trinity.rosenbaum91@ethereal.email',
-          pass: 'e4v9TTA2sEfA3JQAc2',
-        },
-      },
-    },
-  },
+  components,
+  useGraphQLServer: true,
+  useFileStorage: true,
+  tokenExpiresIn: '360 days',
+  pool: { min: 0, max: 100, idleTimeoutMillis: 1000 },
   teams: flavorTeams,
   tempDirectoryCleanUp: true,
+  devServerIgnore: ['./templates/*', './uploads/*'],
+  onStartup: [
+    {
+      label: 'Seed Admin',
+      execute: async () => {
+        /* eslint-disable global-require */
+        const config = require('config')
+        const seedAdmin = require('../scripts/seeds/admin')
+        /* eslint-enable global-require */
+
+        const adminUser = config.get('admin')
+        await seedAdmin({ ...adminUser })
+      },
+    },
+    {
+      label: 'Seed Application Parameters',
+      execute: async () => {
+        /* eslint-disable global-require */
+        const seedApplicationParameters = require('../scripts/seeds/applicationParameters')
+        /* eslint-enable global-require */
+
+        await seedApplicationParameters()
+      },
+    },
+    {
+      label: 'Seed Templates',
+      execute: async () => {
+        /* eslint-disable global-require */
+        const seedTemplates = require('../scripts/seeds/templates')
+        /* eslint-enable global-require */
+
+        await seedTemplates()
+      },
+    },
+    {
+      label: 'Clean up Locks',
+      execute: async () => {
+        /* eslint-disable global-require */
+        const {
+          cleanUpLocks,
+        } = require('../services/bookComponentLock.service')
+        /* eslint-enable global-require */
+
+        await cleanUpLocks()
+      },
+    },
+    {
+      label: 'Start YJS Service',
+      execute: async () => {
+        /* eslint-disable global-require */
+        const { startWSServer } = require('../startWebSocketServer')
+        /* eslint-enable global-require */
+
+        await startWSServer()
+      },
+    },
+    {
+      label: 'Check Scripts Validation',
+      execute: async () => {
+        /* eslint-disable global-require */
+        const config = require('config')
+        const isEmpty = require('lodash/isEmpty')
+        /* eslint-enable global-require */
+
+        const hasScripts =
+          config.has('export') &&
+          config.has('export.scripts') &&
+          !isEmpty(config.get('export.scripts'))
+
+        try {
+          if (hasScripts) {
+            const scripts = config.get('export.scripts')
+            const errors = []
+
+            for (let i = 0; i < scripts.length; i += 1) {
+              for (let j = i + 1; j < scripts.length; j += 1) {
+                if (
+                  scripts[i].label === scripts[j].label &&
+                  scripts[i].filename !== scripts[j].filename &&
+                  scripts[i].scope === scripts[j].scope
+                ) {
+                  errors.push(
+                    `your have provided the same label (${scripts[i].label}) for two different scripts`,
+                  )
+                }
+
+                if (
+                  scripts[i].label === scripts[j].label &&
+                  scripts[i].filename === scripts[j].filename &&
+                  scripts[i].scope === scripts[j].scope
+                ) {
+                  errors.push(
+                    `your have declared the script with label (${scripts[i].label}) twice`,
+                  )
+                }
+              }
+            }
+
+            if (errors.length !== 0) {
+              throw new Error(errors)
+            }
+          }
+        } catch (e) {
+          throw new Error(e)
+        }
+      },
+    },
+  ],
 }

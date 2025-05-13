@@ -1,4 +1,3 @@
-const { Model } = require('objection')
 const { BaseModel } = require('@coko/server')
 const { id, string } = require('../helpers').schema
 
@@ -19,7 +18,7 @@ class Comments extends BaseModel {
     /* eslint-enable global-require */
     return {
       book: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Book,
         join: {
           from: 'Comments.bookId',
@@ -27,7 +26,7 @@ class Comments extends BaseModel {
         },
       },
       chapter: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: BookComponent,
         join: {
           from: 'Comments.componentId',

@@ -1,3 +1,3 @@
-const TeamModel = require('@coko/server/src/models/team/team.model')
+const { Team: TeamModel } = require('@coko/server')
 
 module.exports = TeamModel

@@ -166,7 +166,7 @@ const canInteractWithBookAndRelevantAssets = async (userId, bookId) => {
 
 const isAuthenticatedRule = rule()(async (parent, args, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     return isAuthenticated(userId)
   } catch (e) {
     throw new Error(e.message)
@@ -175,7 +175,7 @@ const isAuthenticatedRule = rule()(async (parent, args, ctx, info) => {
 
 const isAdminRule = rule()(async (parent, args, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const isAuthenticatedUser = await isAuthenticated(userId)
 
     if (!isAuthenticatedUser) {
@@ -190,7 +190,7 @@ const isAdminRule = rule()(async (parent, args, ctx, info) => {
 
 const createBookRule = rule()(async (parent, args, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     const isAuthenticatedUser = await isAuthenticated(userId)
 
     if (!isAuthenticatedUser) {
@@ -212,7 +212,7 @@ const createBookRule = rule()(async (parent, args, ctx, info) => {
 const modifyBooksInDashboardRule = rule()(
   async (parent, { id: bookId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
       const isAuthenticatedUser = await isAuthenticated(userId)
 
       if (!isAuthenticatedUser) {
@@ -246,7 +246,7 @@ const modifyBooksInDashboardRule = rule()(
 
 const getBookRule = rule()(async (parent, { id: bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
 
     return canInteractWithBookAndRelevantAssets(userId, bookId)
   } catch (e) {
@@ -257,7 +257,7 @@ const getBookRule = rule()(async (parent, { id: bookId }, ctx, info) => {
 const interactWithBookFilesRule = rule()(
   async (parent, { entityId: bookId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       return canInteractWithBookAndRelevantAssets(userId, bookId)
     } catch (e) {
@@ -268,7 +268,7 @@ const interactWithBookFilesRule = rule()(
 
 const updateFileRule = rule()(async (parent, { id: fileId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     /* eslint-disable global-require */
     const File = require('../../models/file/file.model')
     /* eslint-enable global-require */
@@ -287,7 +287,7 @@ const updateFileRule = rule()(async (parent, { id: fileId }, ctx, info) => {
 
 const deleteFilesRule = rule()(async (parent, { ids }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
     /* eslint-disable global-require */
     const File = require('../../models/file/file.model')
     /* eslint-enable global-require */
@@ -317,7 +317,7 @@ const deleteFilesRule = rule()(async (parent, { ids }, ctx, info) => {
 const getBookComponentRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       if (!bookComponentId) {
         throw new Error('bookComponent id should be provided')
@@ -338,7 +338,7 @@ const getBookComponentRule = rule()(
 
 const updateMetadataRule = rule()(async (parent, { id: bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
 
     if (!bookId) {
       throw new Error('book id should be provided')
@@ -353,7 +353,7 @@ const updateMetadataRule = rule()(async (parent, { id: bookId }, ctx, info) => {
 const updateRunningHeadersRule = rule()(
   async (parent, { id: bookId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       if (!bookId) {
         throw new Error('book id should be provided')
@@ -368,7 +368,7 @@ const updateRunningHeadersRule = rule()(
 
 const exportBookRule = rule()(async (parent, { bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
 
     if (!bookId) {
       throw new Error('book id should be provided')
@@ -382,7 +382,7 @@ const exportBookRule = rule()(async (parent, { bookId }, ctx, info) => {
 
 const ingestWordFileRule = rule()(async (parent, { bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
 
     if (!bookId) {
       throw new Error('book id should be provided')
@@ -396,7 +396,7 @@ const ingestWordFileRule = rule()(async (parent, { bookId }, ctx, info) => {
 
 const addBookComponentRule = rule()(async (parent, { bookId }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
 
     if (!bookId) {
       throw new Error('book id should be provided')
@@ -411,7 +411,7 @@ const addBookComponentRule = rule()(async (parent, { bookId }, ctx, info) => {
 const deleteBookComponentRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       if (!bookComponentId) {
         throw new Error('bookComponent id should be provided')
@@ -433,7 +433,7 @@ const deleteBookComponentRule = rule()(
 const updatePaginationRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       if (!bookComponentId) {
         throw new Error('bookComponent id should be provided')
@@ -455,7 +455,7 @@ const updatePaginationRule = rule()(
 const updateTrackChangesRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       if (!bookComponentId) {
         throw new Error('bookComponent id should be provided')
@@ -477,7 +477,7 @@ const updateTrackChangesRule = rule()(
 const updateComponentTypeRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       if (!bookComponentId) {
         throw new Error('bookComponent id should be provided')
@@ -499,7 +499,7 @@ const updateComponentTypeRule = rule()(
 const toggleIncludeInTOCRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       if (!bookComponentId) {
         throw new Error('bookComponent id should be provided')
@@ -521,7 +521,7 @@ const toggleIncludeInTOCRule = rule()(
 const updateBookComponentOrderRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       if (!bookComponentId) {
         throw new Error('bookComponent id should be provided')
@@ -543,7 +543,7 @@ const updateBookComponentOrderRule = rule()(
 const updateKetidaTeamMembersRule = rule()(
   async (parent, { teamId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       /* eslint-disable global-require */
       const Team = require('../../models/team/team.model')
@@ -568,7 +568,7 @@ const updateKetidaTeamMembersRule = rule()(
 
 const unlockBookComponentRule = rule()(async (parent, { lock }, ctx, info) => {
   try {
-    const { user: userId } = ctx
+    const { userId } = ctx
 
     const belongsToAdminTeam = await isAdminRule()
 
@@ -590,7 +590,7 @@ const unlockBookComponentRule = rule()(async (parent, { lock }, ctx, info) => {
 const interactWithBookComponentRule = rule()(
   async (parent, { id: bookComponentId }, ctx, info) => {
     try {
-      const { user: userId } = ctx
+      const { userId } = ctx
 
       const belongsToAdminTeam = await isAdminRule()
 
@@ -659,11 +659,7 @@ const permissions = {
     currentUser: isAuthenticatedRule,
     team: isAuthenticatedRule,
     teams: isAuthenticatedRule,
-    getGlobalTeams: isAdminRule,
     getObjectTeams: isAuthenticatedRule,
-    getWaxRules: isAuthenticatedRule,
-    getDashBoardRules: isAuthenticatedRule,
-    getBookBuilderRules: isAuthenticatedRule,
     getApplicationParameters: isAuthenticatedRule,
     getBook: getBookRule,
     getPagedPreviewerLink: isAuthenticatedRule,

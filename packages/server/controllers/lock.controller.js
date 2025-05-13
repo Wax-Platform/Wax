@@ -6,8 +6,7 @@ const { Lock } = require('../models').models
 
 const timePadding = 0.3
 
-const heartbeatIntervalInSeconds =
-  (config['pubsweet-server'].wsHeartbeatInterval || 5000) / 1000
+const heartbeatIntervalInSeconds = (config.wsHeartbeatInterval || 5000) / 1000
 
 const inactiveLockTimeFactor = heartbeatIntervalInSeconds + timePadding
 

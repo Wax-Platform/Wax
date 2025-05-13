@@ -1,4 +1,4 @@
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const { string } = require('../helpers').schema
 
@@ -22,7 +22,7 @@ class FileTranslation extends Translation {
 
     return {
       file: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: File,
         join: {
           from: 'FileTranslation.fileId',

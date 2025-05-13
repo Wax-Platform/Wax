@@ -1,4 +1,4 @@
-const { logger, pubsubManager } = require('@coko/server')
+const { logger, subscriptionManager } = require('@coko/server')
 
 const { BookCollectionTranslation } = require('../../../models').models
 
@@ -40,7 +40,6 @@ const getBookCollectionsHandler = async (_, __, ctx) => {
 
 const createBookCollectionHandler = async (_, { input }, ctx) => {
   try {
-    const pubsub = await pubsubManager.getPubsub()
     const { title, languageIso } = input
 
     logger.info(
@@ -53,7 +52,7 @@ const createBookCollectionHandler = async (_, { input }, ctx) => {
       'book collection resolver: broadcasting new book collection to clients',
     )
 
-    pubsub.publish(COLLECTION_ADDED, {
+    subscriptionManager.publish(COLLECTION_ADDED, {
       collectionAdded: createdBookCollection.id,
     })
 
@@ -82,7 +81,7 @@ module.exports = {
     async books(bookCollection, { ascending, sortKey, archived }, ctx, info) {
       const { result: books } = await getBooks({
         collectionId: bookCollection.id,
-        userId: ctx.user,
+        userId: ctx.userId,
         options: {
           showArchived: archived,
           orderBy: { column: sortKey, order: ascending ? 'asc' : 'desc' },
@@ -95,8 +94,7 @@ module.exports = {
   Subscription: {
     collectionAdded: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(COLLECTION_ADDED)
+        return subscriptionManager.asyncIterator(COLLECTION_ADDED)
       },
     },
   },

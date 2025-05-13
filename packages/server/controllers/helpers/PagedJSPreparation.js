@@ -5,7 +5,6 @@ const config = require('config')
 const find = require('lodash/find')
 const map = require('lodash/map')
 
-const { download } = fileStorage
 const { getFileURL } = require('../file.controller')
 
 const { generatePagedjsContainer } = require('./htmlGenerators')
@@ -108,13 +107,13 @@ const PagedJSPreparation = async (
     await Promise.all(
       map(stylesheets, async stylesheet => {
         const { key, target } = stylesheet
-        return download(key, target)
+        return fileStorage.download(key, target)
       }),
     )
     await Promise.all(
       map(fonts, async font => {
         const { key, target } = font
-        return download(key, target)
+        return fileStorage.download(key, target)
       }),
     )
 

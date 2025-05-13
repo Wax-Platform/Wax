@@ -1,36 +1,50 @@
 const { logger } = require('@coko/server')
-const { Book } = require('@pubsweet/models')
 
 exports.up = async knex => {
   try {
     const tableExists = await knex.schema.hasTable('book')
 
-    if (tableExists) {
-      const hasColumnPodMetadata = await knex.schema.hasColumn(
-        'book',
-        'pod_metadata',
-      )
+    if (!tableExists) return
 
-      if (hasColumnPodMetadata) {
-        await Book.query()
-          .whereRaw("TRIM(pod_metadata->>'isbn') != ''")
-          .patch({
-            'podMetadata:isbns': knex.raw(
-              "json_build_array(json_build_object('label', '', 'isbn', pod_metadata->'isbn')) ",
-            ),
-          })
-        await Book.query()
-          .whereRaw("TRIM(pod_metadata->>'isbn') = ''")
-          .patch({ 'podMetadata:isbns': knex.raw('json_build_array()') })
-        await Book.query().patch({
-          podMetadata: knex.raw("pod_metadata - 'isbn'"),
-        })
-      }
-    }
+    const hasColumnPodMetadata = await knex.schema.hasColumn(
+      'book',
+      'pod_metadata',
+    )
 
-    return false
+    if (!hasColumnPodMetadata) return
+
+    // Patch rows where ISBN is not empty
+    await knex('book')
+      .whereRaw("TRIM(pod_metadata->>'isbn') != ''")
+      .update({
+        pod_metadata: knex.raw(
+          `jsonb_set(
+            pod_metadata,
+            '{isbns}',
+            jsonb_build_array(
+              jsonb_build_object('label', '', 'isbn', pod_metadata->'isbn')
+            )
+          )`,
+        ),
+      })
+
+    // Patch rows where ISBN is empty
+    await knex('book')
+      .whereRaw("TRIM(pod_metadata->>'isbn') = ''")
+      .update({
+        pod_metadata: knex.raw(
+          `jsonb_set(pod_metadata, '{isbns}', '[]'::jsonb)`,
+        ),
+      })
+
+    // Remove original `isbn` field from pod_metadata
+    await knex('book').update({
+      pod_metadata: knex.raw(`pod_metadata - 'isbn'`),
+    })
   } catch (e) {
     logger.error(e)
     throw new Error('Migration: Book: conversion to ISBN lists failed')
   }
 }
+
+exports.down = async () => {}

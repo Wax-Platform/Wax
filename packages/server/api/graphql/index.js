@@ -1,5 +1,4 @@
 const merge = require('lodash/merge')
-const authorize = require('./authorize')
 const applicationParameter = require('./applicationParameter')
 const book = require('./book')
 const bookComponent = require('./bookComponent')
@@ -20,7 +19,6 @@ const docTree = require('./docTree')
 
 module.exports = {
   typeDefs: [
-    authorize.typeDefs,
     applicationParameter.typeDefs,
     book.typeDefs,
     bookComponent.typeDefs,
@@ -41,7 +39,6 @@ module.exports = {
   ].join(' '),
   resolvers: merge(
     {},
-    authorize.resolvers,
     applicationParameter.resolvers,
     book.resolvers,
     bookComponent.resolvers,

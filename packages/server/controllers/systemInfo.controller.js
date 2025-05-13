@@ -51,9 +51,7 @@ const gatherServiceInfo = () => {
 
     serviceInfo.push({
       displayName: 'File Storage service',
-      healthcheckURL: `${fileStorage.protocol}://${fileStorage.host}${
-        fileStorage.port ? `:${fileStorage.port}` : ''
-      }/minio/health/live`,
+      healthcheckURL: `${fileStorage.url}/minio/health/live`,
     })
 
     return serviceInfo

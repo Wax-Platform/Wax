@@ -1,9 +1,5 @@
 const { logger } = require('@coko/server')
 
-const {
-  connectToFileStorage,
-} = require('@coko/server/src/services/fileStorage')
-
 const Template = require('../../models/template/template.model')
 const { deleteFiles } = require('../../controllers/file.controller')
 const File = require('../../models/file/file.model')
@@ -11,8 +7,6 @@ const File = require('../../models/file/file.model')
 const deleteTemplates = async () => {
   try {
     const templates = await Template.query()
-
-    await connectToFileStorage()
 
     await Promise.all(
       templates.map(async template => {

@@ -1,4 +1,4 @@
-const { logger, pubsubManager } = require('@coko/server')
+const { logger, subscriptionManager } = require('@coko/server')
 
 const { CUSTOM_TAGS_UPDATED } = require('./constants')
 
@@ -19,7 +19,7 @@ const getCustomTagsHandler = async (_, input, ctx) => {
 const addCustomTagHandler = async (_, { input }, ctx) => {
   try {
     logger.info('custom tags resolver: executing addCustomTag use case')
-    const pubsub = await pubsubManager.getPubsub()
+
     const { label, tagType } = input
 
     const newCustomTag = await addCustomTag(label, tagType)
@@ -28,7 +28,7 @@ const addCustomTagHandler = async (_, { input }, ctx) => {
 
     updatedCustomTags.forEach(tag => subPayload.push(tag.id))
 
-    pubsub.publish(CUSTOM_TAGS_UPDATED, {
+    subscriptionManager.publish(CUSTOM_TAGS_UPDATED, {
       customTagsUpdated: subPayload,
     })
     logger.info('custom tags resolver: broadcasting new custom tag to clients')
@@ -48,8 +48,7 @@ module.exports = {
   Subscription: {
     customTagsUpdated: {
       subscribe: async () => {
-        const pubsub = await pubsubManager.getPubsub()
-        return pubsub.asyncIterator(CUSTOM_TAGS_UPDATED)
+        return subscriptionManager.asyncIterator(CUSTOM_TAGS_UPDATED)
       },
     },
   },

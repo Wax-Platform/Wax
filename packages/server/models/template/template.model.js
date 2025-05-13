@@ -1,4 +1,4 @@
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 const remove = require('lodash/remove')
 const Base = require('../ketidaBase')
 
@@ -50,7 +50,7 @@ class Template extends Base {
     /* eslint-enable global-require */
     return {
       files: {
-        relation: Model.HasManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: File,
         join: {
           from: 'template.id',
@@ -58,7 +58,7 @@ class Template extends Base {
         },
       },
       thumbnail: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: File,
         join: {
           from: 'template.thumbnail_id',

@@ -14,3 +14,5 @@ exports.up = async knex => {
     throw new Error(e)
   }
 }
+
+exports.down = async () => {}

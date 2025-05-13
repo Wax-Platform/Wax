@@ -1,18 +1,14 @@
-const { Model, ValidationError } = require('objection')
+const { ValidationError } = require('objection')
 const { get, isEmpty } = require('lodash')
 
-const { uuid } = require('@coko/server')
+const { uuid, BaseModel, modelJsonSchemaTypes } = require('@coko/server')
 
 const Base = require('../ketidaBase')
 
-const {
-  booleanDefaultFalse,
-  id,
-  string,
-  year,
-  booleanDefaultTrue,
-  dateOrNull,
-} = require('../helpers').schema
+const { booleanDefaultFalse, id, string, year, booleanDefaultTrue } =
+  require('../helpers').schema
+
+const { dateNullable } = modelJsonSchemaTypes
 
 const outlineItem = {
   type: 'object',
@@ -25,7 +21,6 @@ const outlineItem = {
     parentId: id,
     children: {
       type: 'array',
-      additionalProperties: false,
       default: [],
       items: {
         $ref: 'outline_item',
@@ -55,7 +50,6 @@ const levelItem = {
     displayName: string,
     contentStructure: {
       type: 'array',
-      additionalProperties: false,
       default: [],
       items: contentStructureItem,
     },
@@ -72,13 +66,11 @@ const bookStructure = {
     levels: {
       type: 'array',
       default: [],
-      additionalProperties: false,
       items: levelItem,
     },
     outline: {
       type: 'array',
       default: [],
-      additionalProperties: false,
       items: outlineItem,
     },
     finalized: booleanDefaultFalse,
@@ -97,7 +89,7 @@ const isbnItem = {
 }
 
 const podMetadata = {
-  type: ['object'],
+  type: 'object',
   additionalProperties: false,
   properties: {
     authors: string,
@@ -105,7 +97,6 @@ const podMetadata = {
     copyrightLicense: string,
     isbns: {
       type: 'array',
-      additionalProperties: false,
       default: [],
       items: isbnItem,
       uniqueItems: true,
@@ -126,10 +117,10 @@ const podMetadata = {
       },
     },
     ncCopyrightHolder: string,
-    ncCopyrightYear: dateOrNull,
+    ncCopyrightYear: dateNullable,
     publicDomainType: string,
     saCopyrightHolder: string,
-    saCopyrightYear: dateOrNull,
+    saCopyrightYear: dateNullable,
     topPage: string,
   },
 }
@@ -175,7 +166,6 @@ const statusFieldSchema = {
 // }
 const cover = {
   type: 'array',
-  additionalProperties: false,
   items: {
     type: 'object',
     properties: {
@@ -190,8 +180,8 @@ const webPublishInfo = {
   additionalProperties: false,
   properties: {
     published: { type: 'boolean', default: false },
-    firstPublished: dateOrNull,
-    lastUpdated: dateOrNull,
+    firstPublished: dateNullable,
+    lastUpdated: dateNullable,
     profileId: id,
     publicUrl: { type: 'string', default: null },
   },
@@ -221,7 +211,7 @@ class Book extends Base {
     /* eslint-enable global-require */
     return {
       bookCollection: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: BookCollection,
         join: {
           from: 'Book.collectionId',
@@ -229,7 +219,7 @@ class Book extends Base {
         },
       },
       exportProfiles: {
-        relation: Model.HasManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: ExportProfile,
         join: {
           from: 'book.id',

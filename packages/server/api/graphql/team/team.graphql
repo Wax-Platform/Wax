@@ -23,3 +23,7 @@ extend type Subscription {
   productionEditorsUpdated: ID!
   teamUpdated: ID!
 }
+
+extend type Query {
+  getObjectTeams(objectId: ID!, objectType: String!): Teams!
+}

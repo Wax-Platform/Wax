@@ -64,8 +64,6 @@ temp/
 # Container data
 data/
 minio/
-
-# Pubsweet
 uploads/
 
 # IDE

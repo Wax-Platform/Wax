@@ -9,7 +9,7 @@
     writing it in localstorage?)
 */
 
-const { Model } = require('objection')
+const { BaseModel } = require('@coko/server')
 
 const Base = require('../ketidaBase')
 
@@ -32,7 +32,7 @@ class BookComponentState extends Base {
     /* eslint-enable global-require */
     return {
       bookComponent: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: BookComponent,
         join: {
           from: 'BookComponentState.bookComponentId',
@@ -59,7 +59,7 @@ class BookComponentState extends Base {
               },
               //  TODO FOREIGN userId:
               content: {
-                type: 'String',
+                type: 'string',
                 minLength: 1,
               },
             },

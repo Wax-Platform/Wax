@@ -3,13 +3,13 @@ import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Switch, Form } from 'antd'
-import { useMutation, useSubscription } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import { useCurrentUser, grid } from '@coko/client'
 import { DeleteOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 
 import {
-  BOOK_SETTINGS_UPDATED_SUBSCRIPTION,
+  // BOOK_SETTINGS_UPDATED_SUBSCRIPTION,
   UPDATE_SETTINGS,
 } from '../../../graphql'
 import { isAdmin, isOwner } from '../../../helpers/permissions'
@@ -232,7 +232,7 @@ const SettingsForm = ({
     await refetchBookSettings({ id: bookId })
 
     // setTimeout(() => {
-      toggleInformation(toggleName)
+    toggleInformation(toggleName)
     // }, 500)
   }
 
@@ -620,7 +620,7 @@ const SettingsForm = ({
               loading={updateLoading}
               onClick={() => {
                 // setTimeout(() => {
-                  toggleInformation(toggleName)
+                toggleInformation(toggleName)
                 // }, 500)
               }}
               type="primary"
