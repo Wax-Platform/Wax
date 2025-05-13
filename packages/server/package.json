@@ -8,11 +8,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "create:admin": "node ./scripts/runners/createAdmin.js",
-    "create:collection": "node ./scripts/runners/createCollection.js",
     "cz": "git-cz",
-    "delete:templates": "node ./scripts/runners/deleteTemplates.js",
-    "exec:fixUploading": "node ./scripts/runners/unfreezeUploads.js",
     "seed:templates": "node ./scripts/runners/createTemplates.js",
     "test": "jest"
   },
