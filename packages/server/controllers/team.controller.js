@@ -277,23 +277,10 @@ const getObjectTeams = async (objectId, objectType, options = {}) => {
   }
 }
 
-const getGlobalTeams = async (options = {}) => {
-  try {
-    logger.info(
-      `${TEAM_CONTROLLER} getGlobalTeams: fetching all teams with flag global`,
-    )
-    return getTeams({ global: true }, options)
-  } catch (e) {
-    logger.error(`${TEAM_CONTROLLER} getGlobalTeams: ${e.message}`)
-    throw new Error(e)
-  }
-}
-
 module.exports = {
   createTeam,
   getObjectTeam,
   getObjectTeams,
-  getGlobalTeams,
   deleteTeam,
   updateTeamMemberStatus,
   updateTeamMemberStatuses,

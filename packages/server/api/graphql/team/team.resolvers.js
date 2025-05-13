@@ -1,4 +1,4 @@
-const { logger, subscriptionManager  } = require('@coko/server')
+const { logger, subscriptionManager } = require('@coko/server')
 
 const {
   subscriptions: { USER_UPDATED },
@@ -16,7 +16,6 @@ const {
   updateTeamMemberStatus,
   updateTeamMemberStatuses,
   addTeamMembers,
-  getGlobalTeams,
   getObjectTeams,
 } = require('../../../controllers/team.controller')
 
@@ -32,7 +31,6 @@ const updateKetidaTeamMembersHandler = async (
   ctx,
 ) => {
   try {
-    
     logger.info('team resolver: executing updateTeamMembers use case')
     const updatedTeam = await updateTeamMembership(teamId, members)
 
@@ -78,7 +76,6 @@ const updateTeamMemberStatusHandler = async (
   ctx,
 ) => {
   try {
-    
     const updatedTeam = await updateTeamMemberStatus(teamMemberId, status)
 
     const teamMember = await TeamMember.findOne({ id: teamMemberId })
@@ -103,7 +100,6 @@ const addTeamMembersHandler = async (
   ctx,
 ) => {
   try {
-    
     logger.info('team resolver: executing addTeamMembers use case')
 
     const updatedTeam = await addTeamMembers(
@@ -159,20 +155,8 @@ const getObjectTeamsResolver = async (_, { objectId, objectType }, ctx) => {
   }
 }
 
-const getGlobalTeamsResolver = async (_, { where }, ctx) => {
-  try {
-    logger.info(`TEAM_RESOLVER getGlobalTeams`)
-    return getGlobalTeams()
-  } catch (e) {
-    logger.error(`TEAM_RESOLVER getGlobalTeams: ${e.message}`)
-    throw new Error(e)
-  }
-}
-
-
 module.exports = {
   Query: {
-    getGlobalTeams: getGlobalTeamsResolver,
     getObjectTeams: getObjectTeamsResolver,
   },
   Mutation: {
@@ -183,19 +167,18 @@ module.exports = {
   Subscription: {
     teamMembersUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(TEAM_MEMBERS_UPDATED)
       },
     },
     productionEditorsUpdated: {
       subscribe: async () => {
-        
-        return subscriptionManager.asyncIterator(BOOK_PRODUCTION_EDITORS_UPDATED)
+        return subscriptionManager.asyncIterator(
+          BOOK_PRODUCTION_EDITORS_UPDATED,
+        )
       },
     },
     teamUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(TEAM_UPDATED)
       },
     },

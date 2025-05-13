@@ -629,7 +629,6 @@ const permissions = {
     currentUser: isAuthenticatedRule,
     team: isAuthenticatedRule,
     teams: isAuthenticatedRule,
-    getGlobalTeams: isAdminRule,
     getObjectTeams: isAuthenticatedRule,
     getApplicationParameters: isAuthenticatedRule,
     getBook: getBookRule,

@@ -25,6 +25,5 @@ extend type Subscription {
 }
 
 extend type Query {
-  getGlobalTeams: Teams!
   getObjectTeams(objectId: ID!, objectType: String!): Teams!
 }
