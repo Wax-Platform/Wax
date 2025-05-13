@@ -14,8 +14,6 @@ module.exports = {
     email: 'ADMIN_EMAIL',
   },
   port: 'SERVER_PORT',
-  protocol: 'SERVER_PROTOCOL',
-  host: 'SERVER_HOST',
   secret: 'PUBSWEET_SECRET',
   serverUrl: 'SERVER_URL',
   WSServerPort: 'WS_SERVER_PORT',
@@ -67,9 +65,6 @@ module.exports = {
     maximumWidthForSmallImages: 'MAXIMUM_WIDTH_FOR_SMALL_IMAGES',
     maximumWidthForMediumImages: 'MAXIMUM_WIDTH_FOR_MEDIUM_IMAGES',
     s3SeparateDeleteOperations: 'S3_SEPARATE_DELETE_OPERATIONS',
-  },
-  'passwordReset': {
-    pathToPage: 'PASSWORD_RESET_PATH_TO_PAGE',
   },
   mailer: {
     from: 'MAILER_SENDER',
