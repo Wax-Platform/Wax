@@ -13,7 +13,5 @@ USER node
 RUN yarn cache clean
 RUN yarn install --frozen-lockfile --production=false
 
-RUN yarn cypress cache clear
-
 COPY --chown=node:node app app
 COPY --chown=node:node static static
