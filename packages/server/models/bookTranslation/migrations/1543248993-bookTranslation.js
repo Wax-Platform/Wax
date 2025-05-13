@@ -22,7 +22,7 @@ exports.up = async knex =>
     table.text('abstract_content')
     table.text('abstract_title')
     table.text('alternative_title')
-    table.specificType('keywords', 'text[]')
+    table.text('keywords')
     table.text('subtitle')
     table.text('title').notNullable()
 

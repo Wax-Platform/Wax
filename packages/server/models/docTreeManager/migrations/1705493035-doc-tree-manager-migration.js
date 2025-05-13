@@ -1,10 +1,6 @@
 exports.up = async knex => {
   await knex.schema.createTable('doc_tree_manager', table => {
-    table
-      .uuid('id')
-      .primary()
-      .notNullable()
-      .defaultTo(knex.raw('public.gen_random_uuid()'))
+    table.uuid('id').primary()
     table
       .timestamp('created', { useTz: true })
       .notNullable()

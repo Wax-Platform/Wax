@@ -10,6 +10,7 @@ exports.up = async knex => {
     throw new Error(`Migration: Book: adding podMetadata failed`)
   }
 }
+
 exports.down = async knex => {
   try {
     return knex.schema.alterTable('Book', table => {
@@ -20,4 +21,3 @@ exports.down = async knex => {
     throw new Error(`Migration: Book: removing podMetadata failed`)
   }
 }
-
