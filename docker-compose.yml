@@ -4,7 +4,7 @@ services:
     build:
       context: ./packages/client
       dockerfile: Dockerfile-development
-    command: ['node_modules/.bin/coko-client-dev']
+    command: ['node_modules/.bin/coko-client-dev-js']
     ports:
       - ${CLIENT_PORT:-4000}:${CLIENT_PORT:-4000}
     environment:
