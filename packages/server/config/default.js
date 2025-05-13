@@ -74,39 +74,10 @@ module.exports = {
   components,
   useGraphQLServer: true,
   useFileStorage: true,
-  graphiql: true,
   tokenExpiresIn: '360 days',
-  port: 3000,
-  emailVerificationTokenExpiry: {
-    amount: 24,
-    unit: 'hours',
-  },
-  passwordResetTokenExpiry: {
-    amount: 24,
-    unit: 'hours',
-  },
   pool: { min: 0, max: 100, idleTimeoutMillis: 1000 },
-  // cron: {
-  //   path: path.join(__dirname, '..', 'services', 'cron.service.js'),
-  // },
-  mailer: {
-    from: 'nobody@cokotest.com',
-    transport: {
-      host: 'smtp.ethereal.email',
-      auth: {
-        user: 'trinity.rosenbaum91@ethereal.email',
-        pass: 'e4v9TTA2sEfA3JQAc2',
-      },
-    },
-  },
   teams: flavorTeams,
   tempDirectoryCleanUp: true,
-  db: {
-    host: 'db',
-    database: 'wax_dev',
-    user: 'dev_user',
-    password: 'dev_user_password',
-  },
   devServerIgnore: ['./templates/*', './uploads/*'],
   onStartup: [
     {
