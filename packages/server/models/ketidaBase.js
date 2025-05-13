@@ -9,17 +9,18 @@ const { BaseModel } = require('@coko/server')
 
 class KetidaBase extends BaseModel {
   static createValidator() {
-  return new AjvValidator({
-    onCreateAjv: ajv => {
-      addFormats(ajv)
-    },
-    options: {
+    return new AjvValidator({
+      onCreateAjv: ajv => {
+        addFormats(ajv)
+      },
+      options: {
         strict: false,
         strictSchema: false,
         strictTypes: false,
       },
-  })
-}
+    })
+  }
+
   $beforeInsert() {
     super.$beforeInsert()
     this.deleted = false
