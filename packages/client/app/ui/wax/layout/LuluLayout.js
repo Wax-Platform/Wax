@@ -545,8 +545,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
     setSelectedChapterId,
     setIsCurrentDocumentMine,
     setUploading,
-    isUploading
+    isUploading,
   } = customProps
+
   const params = useParams()
   const { bookComponentId } = params
 
@@ -748,14 +749,14 @@ const LuluLayout = ({ customProps, ...rest }) => {
                   bodyDivisionId={bodyDivisionId}
                   bookId={bookId}
                   deleteResource={deleteResource}
+                  documentTitle={rest.documentTitle}
                   getDocTreeData={getDocTreeData}
+                  isUploading={isUploading}
                   onUploadChapter={onUploadChapter}
                   renameResource={renameResource}
                   reorderResource={reorderResource}
                   setIsCurrentDocumentMine={setIsCurrentDocumentMine}
                   setSelectedChapterId={setSelectedChapterId}
-                  documentTitle={rest.documentTitle}
-                  isUploading={isUploading}
                   setUploading={setUploading}
                 />
               </LeftPanelWrapper>

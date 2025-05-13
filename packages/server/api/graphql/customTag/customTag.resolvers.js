@@ -19,7 +19,7 @@ const getCustomTagsHandler = async (_, input, ctx) => {
 const addCustomTagHandler = async (_, { input }, ctx) => {
   try {
     logger.info('custom tags resolver: executing addCustomTag use case')
-    
+
     const { label, tagType } = input
 
     const newCustomTag = await addCustomTag(label, tagType)
@@ -48,7 +48,6 @@ module.exports = {
   Subscription: {
     customTagsUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(CUSTOM_TAGS_UPDATED)
       },
     },

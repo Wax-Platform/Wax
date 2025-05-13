@@ -313,8 +313,6 @@ const addBookComponent = async (
               {},
               { trx: tr },
             )
-
-            console.log('77777777777777777777777777')
           }
         }
 

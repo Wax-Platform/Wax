@@ -6,7 +6,10 @@ exports.up = async knex => {
 
     if (!tableExists) return
 
-    const hasColumnPodMetadata = await knex.schema.hasColumn('book', 'pod_metadata')
+    const hasColumnPodMetadata = await knex.schema.hasColumn(
+      'book',
+      'pod_metadata',
+    )
 
     if (!hasColumnPodMetadata) return
 
@@ -21,7 +24,7 @@ exports.up = async knex => {
             jsonb_build_array(
               jsonb_build_object('label', '', 'isbn', pod_metadata->'isbn')
             )
-          )`
+          )`,
         ),
       })
 
@@ -30,7 +33,7 @@ exports.up = async knex => {
       .whereRaw("TRIM(pod_metadata->>'isbn') = ''")
       .update({
         pod_metadata: knex.raw(
-          `jsonb_set(pod_metadata, '{isbns}', '[]'::jsonb)`
+          `jsonb_set(pod_metadata, '{isbns}', '[]'::jsonb)`,
         ),
       })
 
@@ -38,7 +41,6 @@ exports.up = async knex => {
     await knex('book').update({
       pod_metadata: knex.raw(`pod_metadata - 'isbn'`),
     })
-
   } catch (e) {
     logger.error(e)
     throw new Error('Migration: Book: conversion to ISBN lists failed')

@@ -21,4 +21,3 @@ exports.down = async knex => {
     throw new Error(`Migration: Book: removing collectionId optional failed`)
   }
 }
-

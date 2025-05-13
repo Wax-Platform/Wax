@@ -33,6 +33,4 @@ exports.up = async knex => {
   })
 }
 
-exports.down = async knex =>
-  knex.schema.dropTable('service_callback_token')
-
+exports.down = async knex => knex.schema.dropTable('service_callback_token')

@@ -7,7 +7,7 @@ module.exports = {
     {
       displayName: 'Production Editor',
       role: 'productionEditor',
-    }
+    },
   ],
   nonGlobal: [
     {

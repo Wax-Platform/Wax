@@ -40,7 +40,6 @@ const getBookCollectionsHandler = async (_, __, ctx) => {
 
 const createBookCollectionHandler = async (_, { input }, ctx) => {
   try {
-    
     const { title, languageIso } = input
 
     logger.info(
@@ -95,7 +94,6 @@ module.exports = {
   Subscription: {
     collectionAdded: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(COLLECTION_ADDED)
       },
     },

@@ -7,4 +7,3 @@ exports.down = async knex =>
   knex.schema.table('lock', table => {
     table.dropColumn('userAgent')
   })
-

@@ -151,6 +151,7 @@ const ProducerPage = ({ bookId }) => {
 
   const [currentBookComponentContent, setCurrentBookComponentContent] =
     useState(null)
+
   const [showSpinner, setShowSpinner] = useState(false)
 
   // const token = localStorage.getItem('token')
@@ -221,7 +222,10 @@ const ProducerPage = ({ bookId }) => {
         }
       },
       onCompleted: data => {
-        if (data.getBookComponent.content && data.getBookComponent.yState === null ) {
+        if (
+          data.getBookComponent.content &&
+          data.getBookComponent.yState === null
+        ) {
           setCurrentBookComponentContent(data.getBookComponent.content)
         } else {
           setCurrentBookComponentContent('')
@@ -947,7 +951,7 @@ const ProducerPage = ({ bookId }) => {
 
     if (selectedChapterId) {
       setShowSpinner(true)
-      setTimeout(() => {    
+      setTimeout(() => {
         createYjsProvider({
           currentUser,
           identifier: selectedChapterId,
@@ -960,7 +964,6 @@ const ProducerPage = ({ bookId }) => {
       setTimeout(() => {
         setShowSpinner(false)
       }, 1200)
-
     }
 
     return () => wsProvider?.disconnect()
@@ -991,8 +994,7 @@ const ProducerPage = ({ bookId }) => {
   // }, [applicationParametersLoading, loading, bookComponentLoading])
 
   const chaptersActionInProgress =
-    ingestWordFileInProgress ||
-    setBookComponentStatusInProgress
+    ingestWordFileInProgress || setBookComponentStatusInProgress
 
   const isAIEnabled = find(
     applicationParametersData?.getApplicationParameters,
@@ -1052,6 +1054,7 @@ const ProducerPage = ({ bookId }) => {
       getBookSettings={getBookSettings}
       getDocTreeData={getDocTreeData}
       isReadOnly={isReadOnly}
+      isUploading={isUploading}
       kbOn={bookQueryData?.getBook.bookSettings.knowledgeBaseOn}
       onChapterClick={onChapterClick}
       onImageUpload={handleImageUpload}
@@ -1067,15 +1070,14 @@ const ProducerPage = ({ bookId }) => {
       setIsCurrentDocumentMine={setIsCurrentDocumentMine}
       setSelectedChapterId={setSelectedChapterId}
       settings={bookQueryData?.getBook.bookSettings}
+      setUploading={setUploading}
       setViewMetadata={setViewMetadata}
+      showSpinner={showSpinner}
       title={bookQueryData?.getBook.title}
       user={currentUser}
       viewMetadata={viewMetadata}
       wsProvider={wsProvider}
       ydoc={ydoc}
-      isUploading={isUploading}
-      setUploading={setUploading}
-      showSpinner={showSpinner}
     />
   )
 }

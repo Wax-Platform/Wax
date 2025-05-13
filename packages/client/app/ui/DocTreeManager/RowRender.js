@@ -4,7 +4,7 @@
 /* stylelint-disable no-descending-specificity, declaration-no-important */
 
 import React, { useState, useContext, useEffect } from 'react'
-import { useHistory, useParams } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
   FolderAddOutlined,
@@ -98,7 +98,7 @@ const IconTitleContainer = styled.div`
   }
 `
 
-let lock = false
+// const lock = false
 
 const RowRender = row => {
   const {
@@ -151,19 +151,19 @@ const RowRender = row => {
     //     lock = false
     //   }, 1500)
 
-      if (e.target.type === 'text') {
-        e.preventDefault()
-        return false
-      }
+    if (e.target.type === 'text') {
+      e.preventDefault()
+      return false
+    }
 
-      if (!isFolder) {
-        setSelectedChapterId(bookComponentId)
-        setIsCurrentDocumentMine(myFiles)
-        setTitle(title)
+    if (!isFolder) {
+      setSelectedChapterId(bookComponentId)
+      setIsCurrentDocumentMine(myFiles)
+      setTitle(title)
 
-        history.push(`/document/${bookComponentId}`, { replace: true })
-        setActive()
-      }
+      history.push(`/document/${bookComponentId}`, { replace: true })
+      setActive()
+    }
   }
 
   return (
@@ -181,7 +181,9 @@ const RowRender = row => {
               onChange={e => setUpdateName(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter' || e.keyCode === 13) {
-                  renameResource({ variables: { id, title: updatedName, lockRename: true } })
+                  renameResource({
+                    variables: { id, title: updatedName, lockRename: true },
+                  })
                   setTitle(updatedName)
                   setRename(false)
                 }
@@ -191,13 +193,17 @@ const RowRender = row => {
             />
             <StyledApplyButton
               onClick={() => {
-                renameResource({ variables: { id, title: updatedName, lockRename: true } })
+                renameResource({
+                  variables: { id, title: updatedName, lockRename: true },
+                })
                 setTitle(updatedName)
                 setRename(false)
               }}
               onMouseDown={e => {
                 e.preventDefault()
-                renameResource({ variables: { id, title: updatedName, lockRename: true } })
+                renameResource({
+                  variables: { id, title: updatedName, lockRename: true },
+                })
                 setTitle(updatedName)
                 setRename(false)
               }}

@@ -11,4 +11,3 @@ exports.down = async knex =>
     table.dropColumn('runningHeadersLeft')
     table.dropColumn('includeInTOC')
   })
-

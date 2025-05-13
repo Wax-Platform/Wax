@@ -31,7 +31,6 @@ const getApplicationParametersHandler = async (_, args, ctx) => {
 const updateApplicationParametersHandler = async (_, { input }, ctx) => {
   try {
     const { context, area, config } = input
-    
 
     logger.info(
       'application parameters resolver: executing updateApplicationParameters use case',
@@ -108,7 +107,6 @@ module.exports = {
   Subscription: {
     updateApplicationParameters: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(UPDATE_APPLICATION_PARAMETERS)
       },
     },

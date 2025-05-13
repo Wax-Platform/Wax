@@ -268,7 +268,10 @@ const routes = (
                           </Authenticated>
                         </Route>
 
-                        <Route exact path="/document/:bookComponentId/knowledge-base">
+                        <Route
+                          exact
+                          path="/document/:bookComponentId/knowledge-base"
+                        >
                           <Authenticated>
                             <KnowledgeBasePage />
                           </Authenticated>

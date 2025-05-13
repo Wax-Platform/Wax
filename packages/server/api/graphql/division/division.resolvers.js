@@ -18,7 +18,6 @@ const updateBookComponentOrderHandler = async (
   ctx,
 ) => {
   try {
-    
     logger.info(
       'division resolver: executing updateBookComponentOrder use case',
     )
@@ -49,7 +48,6 @@ const updateBookComponentsOrderHandler = async (
   ctx,
 ) => {
   try {
-    
     logger.info(
       'division resolver: executing updateBookComponentsOrder use case',
     )
@@ -80,8 +78,10 @@ module.exports = {
   },
   Division: {
     async bookComponents(divisionId, _, ctx) {
-      const DivisionLoader = models.find(md => md.modelName === 'DivisionLoader')
-      
+      const DivisionLoader = models.find(
+        md => md.modelName === 'DivisionLoader',
+      )
+
       await DivisionLoader.model.bookComponents.clear()
 
       return DivisionLoader.model.bookComponents.load(divisionId)
@@ -97,7 +97,6 @@ module.exports = {
   Subscription: {
     bookComponentOrderUpdated: {
       subscribe: async () => {
-        
         return subscriptionManager.asyncIterator(BOOK_COMPONENT_ORDER_UPDATED)
       },
     },

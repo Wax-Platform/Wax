@@ -1,5 +1,5 @@
-exports.up = async (knex) => {
-  await knex.schema.createTable('template', (table) => {
+exports.up = async knex => {
+  await knex.schema.createTable('template', table => {
     // base
     table.uuid('id').primary()
     table.text('type').notNullable()
@@ -21,6 +21,6 @@ exports.up = async (knex) => {
   })
 }
 
-exports.down = async (knex) => {
+exports.down = async knex => {
   await knex.schema.dropTable('template')
 }

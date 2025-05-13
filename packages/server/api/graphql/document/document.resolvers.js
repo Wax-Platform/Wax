@@ -14,7 +14,9 @@ const createDocumentResolver = async (_, { file, maxLng, bookId }, ctx) => {
   try {
     const document = await createDocument({ file, maxLng, bookId })
 
-    subscriptionManager.publish(`${KB_UPDATED}.${bookId}`, { kbUpdated: document.id })
+    subscriptionManager.publish(`${KB_UPDATED}.${bookId}`, {
+      kbUpdated: document.id,
+    })
 
     return document
   } catch (error) {
@@ -35,7 +37,6 @@ const deleteFolderResolver = async (_, { id, bookId }, context) => {
   try {
     await deleteFolder(id)
 
-    const pubsub = await getPubsub()
     subscriptionManager.publish(`${KB_UPDATED}.${bookId}`, { kbUpdated: id })
 
     return true
@@ -78,7 +79,6 @@ module.exports = {
   Subscription: {
     kbUpdated: {
       subscribe: async (_payload, vars) => {
-        
         return subscriptionManager.asyncIterator(`${KB_UPDATED}.${vars.bookId}`)
       },
     },

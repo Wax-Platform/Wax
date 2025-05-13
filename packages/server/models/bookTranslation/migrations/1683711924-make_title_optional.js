@@ -18,7 +18,8 @@ exports.down = async knex => {
     })
   } catch (e) {
     logger.error(e)
-    throw new Error(`Migration: Book Translation: removing title optional failed`)
+    throw new Error(
+      `Migration: Book Translation: removing title optional failed`,
+    )
   }
 }
-

@@ -1,10 +1,7 @@
 exports.up = knex =>
   knex.schema.createTable('book_component_state', table => {
     // base
-    table
-      .uuid('id')
-      .primary()
-      .notNullable()
+    table.uuid('id').primary().notNullable()
     table.text('type').notNullable()
     table
       .timestamp('created', { useTz: true })
@@ -30,4 +27,3 @@ exports.up = knex =>
   })
 
 exports.down = knex => knex.schema.dropTable('book_component_state')
-

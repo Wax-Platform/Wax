@@ -32,8 +32,7 @@ exports.up = async knex => {
       return
     }
 
-    return knex('book_settings').insert(filteredBookSettingsWithoutUndefined)
-    
+    await knex('book_settings').insert(filteredBookSettingsWithoutUndefined)
   } catch (e) {
     logger.error(e)
     throw new Error(`Migration: Book Settings: existing books migration failed`)
@@ -41,4 +40,3 @@ exports.up = async knex => {
 }
 
 exports.down = async () => {}
-

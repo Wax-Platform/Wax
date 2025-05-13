@@ -7,9 +7,7 @@ exports.up = async knex => {
     })
   } catch (e) {
     logger.error(e)
-    throw new Error(
-      'Migration: Doc tree manager: add renameLock column failed',
-    )
+    throw new Error('Migration: Doc tree manager: add renameLock column failed')
   }
 }
 

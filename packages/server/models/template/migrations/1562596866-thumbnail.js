@@ -7,4 +7,3 @@ exports.down = async knex =>
   knex.schema.table('template', table => {
     table.dropColumn('thumbnailId')
   })
-

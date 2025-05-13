@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import React, { useContext, useEffect, useState } from 'react'
 import { useQuery, useLazyQuery } from '@apollo/client'
 import { useParams } from 'react-router-dom'
@@ -8,7 +10,7 @@ import { CssAssistantContext } from '../ui/AiPDFDesigner/hooks/CssAssistantConte
 const AiPDFDesignerPage = ({ bookId }) => {
   const { bookComponentId } = useParams()
   const { setPassedContent } = useContext(CssAssistantContext)
- 
+
   const [bookTitle, setBookTitle] = useState('')
 
   const { data: bookQueryData } = useQuery(GET_ENTIRE_BOOK, {
@@ -35,7 +37,7 @@ const AiPDFDesignerPage = ({ bookId }) => {
 
       // console.log(chaptersIds)
       const chaptersIds = [bookComponentId]
-      
+
       setPassedContent('')
       Promise.all(
         chaptersIds.map((chapterId, i) =>

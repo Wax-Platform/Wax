@@ -142,20 +142,24 @@ const StyledMainButton = styled(Button)`
 
 const StyledUploadMainButton = styled(StyledMainButton)`
   @keyframes blink {
-    0%   { opacity: 1; }
-    50%  { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
   }
 
   animation: ${props =>
     props.animation === 'true' ? ' blink 1s infinite;' : 'unset;'};
-  
-  pointer-events: ${props =>
-    props.animation === 'true' ? ' none;' : 'auto;'};
-}
-` 
 
-
+  pointer-events: ${props => (props.animation === 'true' ? ' none;' : 'auto;')};
+`
 
 const StyledMainButtonExpand = styled(StyledMainButton)`
   svg {
@@ -328,9 +332,12 @@ const DocTreeManager = ({
   useEffect(async () => {
     if (documentTitle) {
       const myDocs = findChildNodeByBookComponentId(gData, bookComponentId)
+
       if (myDocs) {
-        const renamed = await renameResourceFn({ variables: { id: myDocs.id, title: documentTitle, lockRename: false } })
-        
+        const renamed = await renameResourceFn({
+          variables: { id: myDocs.id, title: documentTitle, lockRename: false },
+        })
+
         if (renamed.data.renameResource) {
           setTitle(documentTitle)
         }
@@ -392,7 +399,7 @@ const DocTreeManager = ({
     currentIdentifier,
   )
 
-  if (gData.length == 0) return null
+  if (gData.length === 0) return null
 
   return (
     <DocTreeManagerWrapper>
@@ -420,7 +427,11 @@ const DocTreeManager = ({
         >
           <FileAddOutlined style={{ fontSize: '24px' }} />
         </StyledMainButton>
-        <StyledUploadMainButton animation={isUploading.toString()} onClick={onUploadChapter} title="Upload a Document">
+        <StyledUploadMainButton
+          animation={isUploading.toString()}
+          onClick={onUploadChapter}
+          title="Upload a Document"
+        >
           <CloudUploadOutlined style={{ fontSize: '24px' }} />
         </StyledUploadMainButton>
         <StyledMainButtonExpand
@@ -437,8 +448,6 @@ const DocTreeManager = ({
       </ControlsWrappers>
       <FilesWrapper defaultState={defaultState} expand={expandFilesArea}>
         <Tree
-          expandedKeys={expandedKeys}                       // controlled prop
-          onExpand={(newKeys) => setExpandedKeys(newKeys)}  // update state
           allowDrop={node => {
             if (
               (node.dropPosition <= 0 && node.dropNode.isRoot) ||
@@ -452,10 +461,12 @@ const DocTreeManager = ({
           blockNode
           className="draggable-tree"
           // defaultExpandAll
-          draggable
-          key="myDocs"
           // defaultExpandedKeys={expandedKeys}
+          draggable
+          expandedKeys={expandedKeys} // controlled prop
+          key="myDocs"
           onDrop={onDrop}
+          onExpand={newKeys => setExpandedKeys(newKeys)} // update state
           titleRender={rowProps => {
             return (
               <RowRender

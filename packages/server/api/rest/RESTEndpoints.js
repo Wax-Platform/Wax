@@ -33,7 +33,6 @@ const {
 const RESTEndpoints = app => {
   app.use('/api/xsweet', async (req, res) => {
     try {
-      
       const { body } = req
 
       const {
@@ -83,7 +82,6 @@ const RESTEndpoints = app => {
         bookUpdated: belongingBook.id,
       })
     } catch (error) {
-      
       const { body } = req
 
       const { objectId: bookComponentId } = body

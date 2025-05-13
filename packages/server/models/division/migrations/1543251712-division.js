@@ -13,11 +13,7 @@ exports.up = async knex => {
     table.boolean('deleted').defaultTo(false)
 
     // foreign
-    table
-      .uuid('book_id')
-      .notNullable()
-      .references('id')
-      .inTable('book')
+    table.uuid('book_id').notNullable().references('id').inTable('book')
     table.jsonb('book_components').notNullable()
 
     // own
@@ -26,4 +22,3 @@ exports.up = async knex => {
 }
 
 exports.down = async knex => knex.schema.dropTable('division')
-

@@ -7,4 +7,3 @@ exports.down = async knex =>
   knex.schema.table('book_component_state', table => {
     table.dropColumn('status')
   })
-

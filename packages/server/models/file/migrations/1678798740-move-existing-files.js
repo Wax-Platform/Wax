@@ -1,7 +1,7 @@
 const { logger } = require('@coko/server')
 const path = require('path')
 
-const File= require('../../file/file.model')
+const File = require('../file.model')
 const FileTranslation = require('../../fileTranslation/fileTranslation.model')
 
 exports.up = async knex => {
@@ -187,6 +187,5 @@ exports.up = async knex => {
     )
   }
 }
-
 
 exports.down = async () => {}
