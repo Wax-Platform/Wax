@@ -13,7 +13,7 @@ exports.up = async knex => {
     table.boolean('deleted').defaultTo(false)
 
     // foreign
-    table.uuid('user_id').notNullable() // references user (TODO: add reference when user table exists)
+    table.uuid('user_id').notNullable().references('id').inTable('users')
 
     // own
     table.uuid('foreign_id').notNullable() // no reference as we don't know which table
@@ -24,4 +24,3 @@ exports.up = async knex => {
 exports.down = async knex => {
   await knex.schema.dropTable('lock')
 }
-

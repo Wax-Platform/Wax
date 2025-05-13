@@ -7,16 +7,11 @@ exports.up = async knex => {
       .timestamp('created', { useTz: true })
       .notNullable()
       .defaultTo(knex.fn.now())
-    table
-      .timestamp('updated', { useTz: true })
-      .notNullable()
-      .defaultTo(knex.fn.now())
+    table.timestamp('updated', { useTz: true })
 
     // ketida base
     table.boolean('deleted').defaultTo(false)
   })
 }
 
-exports.down = async knex =>
-  knex.schema.dropTable('book_collection')
-
+exports.down = async knex => knex.schema.dropTable('book_collection')

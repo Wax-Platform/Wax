@@ -1,16 +1,21 @@
 const { logger, useTransaction } = require('@coko/server')
+const Template = require('../template.model')
 
 exports.up = async () => {
   try {
     return useTransaction(async trx => {
-      const templates = await trx('template').select('id', 'name')
+      const templates = await Template.query(trx)
 
       await Promise.all(
         templates.map(async template => {
-          const { id, name } = template
-          await trx('template')
-            .where({ id })
-            .update({ name: name.toLowerCase() })
+          const { name: storedName, id } = template
+          return Template.patchAndFetchById(
+            id,
+            {
+              name: storedName.toLowerCase(),
+            },
+            { trx },
+          )
         }),
       )
     })
