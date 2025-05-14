@@ -19,3 +19,5 @@ RUN yarn install --frozen-lockfile --production=true
 RUN yarn cache clean
 
 COPY --chown=node:node . .
+
+CMD ["yarn", "coko-server", "start"]
