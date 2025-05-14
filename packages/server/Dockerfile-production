@@ -19,6 +19,3 @@ RUN yarn install --frozen-lockfile --production=true
 RUN yarn cache clean
 
 COPY --chown=node:node . .
-
-ENTRYPOINT ["sh", "./scripts/setupProdServer.sh"]
-CMD ["node", "./startServer.js"]

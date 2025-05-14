@@ -19,6 +19,7 @@ services:
     ports:
       - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
       - ${WS_SERVER_PORT:-3333}:${WS_SERVER_PORT:-3333}
+    command: ['yarn', 'coko-server', 'start']
     environment:
       - NODE_ENV=production
       - WAX_FLAVOUR=${WAX_FLAVOUR}
