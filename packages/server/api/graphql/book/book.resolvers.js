@@ -35,6 +35,8 @@ const {
 
 const File = require('../../../models/file/file.model')
 
+const BookComponent = require('../../../models/bookComponent/bookComponent.model')
+
 const {
   getBook,
   getBooks,
@@ -286,7 +288,7 @@ const updatePODMetadataHandler = async (_, { bookId, metadata }, ctx) => {
 
 const exportBookHandler = async (_, { input }, ctx) => {
   const {
-    bookId,
+    // bookId,
     bookComponentId,
     previewer,
     templateId,
@@ -295,18 +297,21 @@ const exportBookHandler = async (_, { input }, ctx) => {
     additionalExportOptions = {},
   } = input
 
+  const bookComponent = await BookComponent.findById(bookComponentId)
+
+
   logger.info('book resolver: executing exportBook use case')
 
   return previewer === 'web'
     ? createWebPreview(
-        bookId,
+        bookComponent.bookId,
         bookComponentId,
         templateId,
         ctx.userId,
         additionalExportOptions,
       )
     : exportBook(
-        bookId,
+        bookComponent.bookId,
         bookComponentId,
         templateId,
         previewer,
