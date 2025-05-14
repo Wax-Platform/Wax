@@ -6,7 +6,6 @@
 // } = require('../../data-model')
 
 // const { BookCollection, Lock } = require('../../data-model/src').models
-// const { dbCleaner } = require('pubsweet-server/test')
 
 // let collection, user
 

@@ -23,7 +23,7 @@ services:
     environment:
       - NODE_ENV=production
       - WAX_FLAVOUR=${WAX_FLAVOUR}
-      - PUBSWEET_SECRET=${PUBSWEET_SECRET}
+      - SECRET=${SECRET}
       - SERVER_URL=${SERVER_URL}
       - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL}
       - CLIENT_URL=${CLIENT_URL}
