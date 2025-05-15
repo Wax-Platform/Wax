@@ -957,11 +957,11 @@ const ProducerPage = ({ bookId }) => {
             bookComponentId: selectedChapterId,
           },
         })
-      }, 500)
+      }, 2000)
 
       setTimeout(() => {
         setShowSpinner(false)
-      }, 1200)
+      }, 2500)
     }
 
     return () => wsProvider?.disconnect()
@@ -1017,9 +1017,8 @@ const ProducerPage = ({ bookId }) => {
     .flat()
     .filter(member => !!member)
 
-  if (!wsProvider || currentBookComponentContent === null || bookComponentLoading) return null
+  if (!wsProvider || currentBookComponentContent === null) return null
 
-  console.log(currentBookComponentContent, 'producer page ')
   return (
     <Editor
       addComments={handleAddingComments}
