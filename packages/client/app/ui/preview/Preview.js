@@ -138,7 +138,7 @@ Preview.propTypes = {
   createProfile: PropTypes.func.isRequired,
   currentOptions: PropTypes.shape({
     format: PropTypes.oneOf(['pdf', 'web']),
-    size: PropTypes.oneOf(['8.5x11', '6x9', '5.5x8.5','5.8x8.2','8.2x11.7']),
+    size: PropTypes.oneOf(['8.5x11', '6x9', '5.5x8.5','5.8x8.3','8.3x11.7']),
     content: PropTypes.arrayOf(
       PropTypes.oneOf([
         'includeTitlePage',
@@ -153,7 +153,7 @@ Preview.propTypes = {
   }).isRequired,
   newProfileOptions: PropTypes.shape({
     format: PropTypes.oneOf(['pdf', 'epub', 'web']),
-    size: PropTypes.oneOf(['8.5x11', '6x9', '5.5x8.5','5.8x8.2','8.2x11.7']),
+    size: PropTypes.oneOf(['8.5x11', '6x9', '5.5x8.5','5.8x8.3','8.3x11.7']),
     content: PropTypes.arrayOf(
       PropTypes.oneOf([
         'includeTitlePage',
@@ -170,7 +170,7 @@ Preview.propTypes = {
     label: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
     format: PropTypes.oneOf(['pdf', 'epub', 'web']),
-    size: PropTypes.oneOf(['8.5x11', '6x9', '5.5x8.5','5.8x8.2','8.2x11.7']),
+    size: PropTypes.oneOf(['8.5x11', '6x9', '5.5x8.5','5.8x8.3','8.3x11.7']),
     content: PropTypes.arrayOf(
       PropTypes.oneOf([
         'includeTitlePage',

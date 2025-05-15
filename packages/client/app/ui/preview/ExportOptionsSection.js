@@ -29,11 +29,11 @@ const exportFormatOptions = [
 
 const exportSizeOptions = [
   {
-    value: '8.2x11.7',
+    value: '8.3x11.7',
     label: 'A4: 210 mm × 297 mm',
   },
   {
-    value: '5.8x8.2',
+    value: '5.8x8.3',
     label: 'A5: 148 mm × 210 mm',
   },
   {
