@@ -34,7 +34,6 @@ const StyledSpin = styled(Spin)`
   display: ${spinning => (spinning ? 'grid' : 'none')};
   height: 100vh;
   place-content: center;
-
 `
 
 // #endregion styled
@@ -92,7 +91,7 @@ const Preview = props => {
   return (
     <Page>
       <Wrapper $showSettings={showSettings}>
-        <StyledSpin spinning={previewLink === null} />
+        {previewLink === null && (<StyledSpin spinning={true} />)}
         {previewLink !== null && (
           <PreviewDisplay
             isEpub={options.format === 'epub'}
