@@ -88,7 +88,8 @@ const Preview = props => {
   return (
     <Page>
       <Wrapper $showSettings={showSettings}>
-        <StyledSpin spinning={previewLink === null && loadingPreview === false}>
+        <StyledSpin spinning={previewLink === null && loadingPreview === false} />
+        {previewLink !== null && loadingPreview === true && (
           <PreviewDisplay
             isEpub={options.format === 'epub'}
             isPdf={options.format === 'pdf'}
@@ -99,7 +100,8 @@ const Preview = props => {
             spread={spread}
             zoom={zoom}
           />
-        </StyledSpin>
+        )}
+
 
         <PreviewSettings
           activeTabKey={activeTabKey}
