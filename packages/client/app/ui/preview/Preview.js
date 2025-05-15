@@ -88,7 +88,7 @@ const Preview = props => {
   return (
     <Page>
       <Wrapper $showSettings={showSettings}>
-        <StyledSpin spinning={previewLink === null}>
+        <StyledSpin spinning={previewLink === null && loadingPreview === false}>
           <PreviewDisplay
             isEpub={options.format === 'epub'}
             isPdf={options.format === 'pdf'}
