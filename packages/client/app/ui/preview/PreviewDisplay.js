@@ -87,7 +87,7 @@ const PreviewDisplay = props => {
 
   // This and the Veil are to hide the flashing effect of the pagedjs previewer
   useEffect(() => {
-    if (previewLink) {
+    if (loading) {
       setIFrameLoading(true)
     }
 
@@ -96,7 +96,7 @@ const PreviewDisplay = props => {
         setIFrameLoading(false)
       }, 1500)
     }
-  }, [previewLink])
+  }, [loading])
 
   // !previewLink case?
   const showEpub = isEpub

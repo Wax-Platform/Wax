@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import { Page } from '../common'
+import { Page, Spin } from '../common'
 
 import PreviewDisplay from './PreviewDisplay'
 import PreviewSettings from './PreviewSettings'
@@ -27,6 +27,12 @@ const Wrapper = styled.div`
     width: ${({ $showSettings }) => ($showSettings ? '550px' : '0')};
   }
 `
+
+const StyledSpin = styled(Spin)`
+  /* stylelint-disable-next-line declaration-no-important */
+  max-height: 80% !important;
+`
+
 // #endregion styled
 
 const Preview = props => {
@@ -82,16 +88,18 @@ const Preview = props => {
   return (
     <Page>
       <Wrapper $showSettings={showSettings}>
-        <PreviewDisplay
-          isEpub={options.format === 'epub'}
-          isPdf={options.format === 'pdf'}
-          loading={loadingPreview}
-          noPreview={!loadingPreview && !previewLink}
-          onOptionsChange={handleOptionsChange}
-          previewLink={previewLink}
-          spread={spread}
-          zoom={zoom}
-        />
+        <StyledSpin spinning={previewLink === null}>
+          <PreviewDisplay
+            isEpub={options.format === 'epub'}
+            isPdf={options.format === 'pdf'}
+            loading={loadingPreview}
+            noPreview={!loadingPreview && !previewLink}
+            onOptionsChange={handleOptionsChange}
+            previewLink={previewLink}
+            spread={spread}
+            zoom={zoom}
+          />
+        </StyledSpin>
 
         <PreviewSettings
           activeTabKey={activeTabKey}
