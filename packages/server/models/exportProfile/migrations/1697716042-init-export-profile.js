@@ -36,7 +36,7 @@ exports.up = async knex => {
         })
         .notNullable()
       table
-        .enu('trimSize', ['8.5x11', '6x9', '5.5x8.5'], {
+        .enu('trimSize', ['8.5x11', '6x9', '5.5x8.5', '5.8x8.2', '8.2x11.7'], {
           useNative: true,
           enumName: 'export_profile_trim_size_type',
         })

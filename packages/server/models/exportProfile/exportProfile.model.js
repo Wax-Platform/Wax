@@ -8,7 +8,7 @@ const format = {
 }
 
 const trimSize = {
-  enum: ['8.5x11', '6x9', '5.5x8.5', null],
+  enum: ['8.5x11', '6x9', '5.5x8.5','5.8x8.2','8.2x11.7', null],
 }
 
 const providerItem = {
