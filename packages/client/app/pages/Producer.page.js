@@ -957,11 +957,11 @@ const ProducerPage = ({ bookId }) => {
             bookComponentId: selectedChapterId,
           },
         })
-      }, 2000)
+      }, 500)
 
       setTimeout(() => {
         setShowSpinner(false)
-      }, 2500)
+      }, 1200)
     }
 
     return () => wsProvider?.disconnect()
