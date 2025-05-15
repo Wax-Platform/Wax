@@ -1019,6 +1019,7 @@ const ProducerPage = ({ bookId }) => {
 
   if (!wsProvider || currentBookComponentContent === null) return null
 
+  console.log(currentBookComponentContent, 'producer page ')
   return (
     <Editor
       addComments={handleAddingComments}

@@ -178,6 +178,7 @@ const EditorWrapper = ({
   }, [aiOn])
 
   useEffect(() => {
+    console.log(bookComponentContent, 'editor page ')
     setSelectedWaxConfig({
       ...selectedWaxConfig,
       MenuService: selectedWaxConfig.MenuService.map(service => {
