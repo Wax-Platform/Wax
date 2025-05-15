@@ -31,6 +31,9 @@ const Wrapper = styled.div`
 const StyledSpin = styled(Spin)`
   /* stylelint-disable-next-line declaration-no-important */
   max-height: 80% !important;
+  display: grid;
+  height: 100vh;
+  place-content: center;
 `
 
 // #endregion styled
