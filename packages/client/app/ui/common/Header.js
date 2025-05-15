@@ -171,11 +171,12 @@ const Header = props => {
 
   const navItemsLeft = []
 
-  if (showBackToBook) {
-    const match = location.pathname.match(/^\/document\/([^/]+)\/[^/]+/)
-    const bookComponentId = match?.[1] || null
+  const match = location.pathname.match(/^\/document\/([^/]+)\/[^/]+/)
+  const bookComponentId = match?.[1] || null
 
-    const to = bookComponentId ? `/document/${bookComponentId}` : '/'
+  const to = bookComponentId ? `/document/${bookComponentId}` : '/'
+  
+  if (showBackToBook) {
 
     navItemsLeft.push(
       <UnstyledLink
@@ -192,7 +193,7 @@ const Header = props => {
   return (
     <StyledHeader role="banner" {...rest}>
       <BrandingContainer>
-        <UnstyledLink data-test="header-logo-link" to={homeURL}>
+        <UnstyledLink data-test="header-logo-link" to={to}>
           {brandLogoURL ? (
             <BrandLogo alt={brandLabel} src={brandLogoURL} />
           ) : (

@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 
 // import useWebSocket from 'react-use-websocket'
-import {
-  useHistory,
-  // useParams
-} from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import {
   useQuery,
   useLazyQuery,
@@ -115,11 +112,12 @@ const ProducerPage = ({ bookId }) => {
   // #region INITIALIZATION SECTION START
   const { createYjsProvider, wsProvider, ydoc } = useContext(YjsContext)
   const history = useHistory()
+  const { bookComponentId } = useParams()
   const { currentUser } = useCurrentUser()
   const [tabId] = useState(uuid())
 
   const [selectedChapterId, setSelectedChapterId] = useState(
-    () => localStorage.getItem(`${bookId}-selected-chapter`) || undefined,
+    () => bookComponentId || undefined,
   )
 
   const [isUploading, setUploading] = useState(false)
