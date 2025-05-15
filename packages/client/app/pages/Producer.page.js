@@ -229,6 +229,26 @@ const ProducerPage = ({ bookId }) => {
           setCurrentBookComponentContent('')
         }
 
+            if (wsProvider) {
+              wsProvider?.disconnect()
+            }
+
+              setShowSpinner(true)
+              setTimeout(() => {
+                createYjsProvider({
+                  currentUser,
+                  identifier: selectedChapterId,
+                  object: {
+                    bookComponentId: selectedChapterId,
+                  },
+                })
+              }, 500)
+
+              setTimeout(() => {
+                setShowSpinner(false)
+              }, 1200)
+
+
         getComments({
           variables: {
             bookId,
@@ -942,30 +962,30 @@ const ProducerPage = ({ bookId }) => {
   //   selectedChapterId !== undefined && editorMode && editorMode !== 'preview',
   // )
 
-  useEffect(() => {
-    if (wsProvider) {
-      wsProvider?.disconnect()
-    }
+  // useEffect(() => {
+  //   if (wsProvider) {
+  //     wsProvider?.disconnect()
+  //   }
 
-    if (selectedChapterId) {
-      setShowSpinner(true)
-      setTimeout(() => {
-        createYjsProvider({
-          currentUser,
-          identifier: selectedChapterId,
-          object: {
-            bookComponentId: selectedChapterId,
-          },
-        })
-      }, 500)
+  //   if (selectedChapterId) {
+  //     setShowSpinner(true)
+  //     setTimeout(() => {
+  //       createYjsProvider({
+  //         currentUser,
+  //         identifier: selectedChapterId,
+  //         object: {
+  //           bookComponentId: selectedChapterId,
+  //         },
+  //       })
+  //     }, 500)
 
-      setTimeout(() => {
-        setShowSpinner(false)
-      }, 1200)
-    }
+  //     setTimeout(() => {
+  //       setShowSpinner(false)
+  //     }, 1200)
+  //   }
 
-    return () => wsProvider?.disconnect()
-  }, [selectedChapterId])
+  //   return () => wsProvider?.disconnect()
+  // }, [selectedChapterId])
 
   // WEBSOCKET SECTION END
 
