@@ -45,6 +45,7 @@ class YjsService extends Service {
     const yXmlFragment = ydoc.getXmlFragment(yjsType || 'prosemirror')
 
     if (content !== '') {
+      console.log(content)
       this.app.PmPlugins.add('ySyncContentPlugin', ySyncContentPlugin(content))
     }
 
