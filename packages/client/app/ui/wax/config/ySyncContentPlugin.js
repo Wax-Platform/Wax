@@ -27,8 +27,10 @@ export default (content = '<p>hello</p>') => {
       },
     },
     view: view => {
+      let hasInserted = false
       return {
         update: editorView => {
+          if (hasInserted) return
           const pluginState = getSyncContentPlugin.getState(editorView.state)
 
           if (pluginState.inserted) return
@@ -49,6 +51,7 @@ export default (content = '<p>hello</p>') => {
 
           if (editorView.dispatch) {
             editorView.dispatch(view.state.tr.setMeta('inserted', true))
+            hasInserted = true
           }
         },
       }
