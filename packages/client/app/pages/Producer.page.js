@@ -359,11 +359,11 @@ const ProducerPage = ({ bookId }) => {
   }, [hasMembership])
 
   useEffect(() => {
-    if (!selectedChapterId) {
-      localStorage.removeItem(`${bookId}-selected-chapter`)
-    } else {
-      localStorage.setItem(`${bookId}-selected-chapter`, selectedChapterId)
-    }
+    // if (!selectedChapterId) {
+    //   localStorage.removeItem(`${bookId}-selected-chapter`)
+    // } else {
+    //   localStorage.setItem(`${bookId}-selected-chapter`, selectedChapterId)
+    // }
 
     setSavedComments(null)
   }, [selectedChapterId])
@@ -1017,7 +1017,7 @@ const ProducerPage = ({ bookId }) => {
     .flat()
     .filter(member => !!member)
 
-  if (!wsProvider || currentBookComponentContent === null) return null
+  if (!wsProvider || currentBookComponentContent === null || bookComponentLoading) return null
 
   console.log(currentBookComponentContent, 'producer page ')
   return (
