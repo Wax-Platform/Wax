@@ -29,7 +29,6 @@ export default (content = '<p>hello</p>') => {
     view: view => {
       return {
         update: editorView => {
-          console.log(content, 'Inside plugin ')
           const pluginState = getSyncContentPlugin.getState(editorView.state)
 
           if (pluginState.inserted) return
