@@ -7,7 +7,7 @@ const Template = require('../../models/template/template.model')
 const { writeFile, readFile } = require('../../utilities/filesystem')
 const { fixFontFaceUrls } = require('./converters')
 
-const uploadsDir = get(config, ['uploads'], 'tmp')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 
 module.exports = async (templateId, fontAbsoluteUrl = '/fonts') => {
   try {

@@ -7,7 +7,7 @@ const { NotFoundError } = require('objection')
 const express = require('express')
 const path = require('node:path')
 
-const uploadsDir = get(config, ['uploads'], 'tmp')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 const { readFile } = require('../../utilities/filesystem')
 const { xsweetImagesHandler } = require('../../utilities/image')
 

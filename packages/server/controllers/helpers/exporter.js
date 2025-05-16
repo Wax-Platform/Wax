@@ -32,7 +32,7 @@ const Template = require('../../models/template/template.model')
 
 const prepareBook = require('./prepareBook')
 
-const uploadsDir = get(config, ['uploads'], 'tmp')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 
 const {
   epubcheckerHandler,

@@ -6,7 +6,7 @@ const crypto = require('crypto')
 const get = require('lodash/get')
 const FormData = require('form-data')
 
-const uploadsDir = get(config, ['uploads'], 'tmp')
+const uploadsDir = get(config, ['uploads'], 'uploads')
 
 const ServiceCallbackToken = require('../models/serviceCallbackToken/serviceCallbackToken.model')
 

@@ -8,7 +8,7 @@ const map = require('lodash/map')
 const find = require('lodash/find')
 const forEach = require('lodash/forEach')
 
-const uploadsPath = 'tmp'
+const uploadsPath = 'uploads'
 
 const { Template, File, ExportProfile } = require('../models').models
 
