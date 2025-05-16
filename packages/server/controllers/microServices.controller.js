@@ -270,18 +270,25 @@ const xsweetHandler = async (bookComponentId, filePath) => {
 
 const pagedPreviewerLink = async (dirPath, previewerOptions = undefined) => {
   try {
+
+    console.log(`path ${path.join(`${process.cwd()}`, uploadsDir, 'temp', 'previewer', dirPath)}`)
+
     const zipPath = await zipper(
       path.join(`${process.cwd()}`, uploadsDir, 'temp', 'previewer', dirPath),
     )
 
+
+    console.log('111111111111111111111111111')
     const form = new FormData()
 
     if (previewerOptions) {
       form.append('options', JSON.stringify(previewerOptions))
     }
 
+    console.log('2222222222222222222222222')
     form.append('zip', fs.createReadStream(`${zipPath}`))
 
+    console.log('33333333333333333333333333')
     return new Promise((resolve, reject) => {
       callMicroservice(PAGEDJS, {
         method: 'post',
@@ -292,7 +299,9 @@ const pagedPreviewerLink = async (dirPath, previewerOptions = undefined) => {
         data: form,
       })
         .then(async ({ data }) => {
+          console.log('4444444444444444')
           await fs.remove(zipPath)
+          console.log('555555555555555555555555')
           return resolve(data)
         })
         .catch(async err => {
@@ -321,6 +330,7 @@ const pagedPreviewerLink = async (dirPath, previewerOptions = undefined) => {
         })
     })
   } catch (e) {
+    console.log('6666666666666666666666')
     logger.error(e.message)
     throw new Error(e.message)
   }
