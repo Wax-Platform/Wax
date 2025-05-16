@@ -168,6 +168,8 @@ const ExporterService = async (
         assetsTimestamp,
       )
 
+      console.log(pagedJStempFolderAssetsPathForPreviewer, 11111111111111)
+
       const zippedTempFolderFilePath = path.join(
         `${process.cwd()}`,
         uploadsDir,
@@ -228,6 +230,12 @@ const ExporterService = async (
         template,
         pagedJStempFolderAssetsPathForPreviewer,
       )
+
+      if (!(await fs.pathExists(pagedJStempFolderAssetsPathForPreviewer))) {
+        console.log('PagedJS folder does not exist')
+      } else {
+        console.log('PagedJS folder exists')
+      }
 
       return {
         path: `${assetsTimestamp}/template/${templateId}`,
