@@ -268,10 +268,27 @@ const xsweetHandler = async (bookComponentId, filePath) => {
   }
 }
 
+
+async function checkPathStatus(p) {
+  try {
+    await fs.access(p); // Checks if accessible (by default: fs.constants.F_OK)
+    console.log("Path exists and is accessible.");
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      console.log("Path does NOT exist.");
+    } else if (err.code === 'EACCES') {
+      console.log("Path exists but is NOT accessible (permissions issue).");
+    } else {
+      console.log("Other error:", err);
+    }
+  }
+}
+
 const pagedPreviewerLink = async (dirPath, previewerOptions = undefined) => {
   try {
 
-    console.log(`path ${path.join(`${process.cwd()}`, uploadsDir, 'temp', 'previewer', dirPath)}`)
+    await checkPathStatus(path.join(`${process.cwd()}`, uploadsDir, 'temp', 'previewer', dirPath));
+    // console.log(`path ${path.join(`${process.cwd()}`, uploadsDir, 'temp', 'previewer', dirPath)}`)
 
     const zipPath = await zipper(
       path.join(`${process.cwd()}`, uploadsDir, 'temp', 'previewer', dirPath),
