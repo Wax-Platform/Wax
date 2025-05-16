@@ -74,6 +74,7 @@ export default (ydoc, { debounceMs = 1000 } = {}) => {
 
   return new Plugin({
     view(view) {
+      let hasInserted = false
       // Initial content push
       debouncedUpdate(view)
 
@@ -84,9 +85,11 @@ export default (ydoc, { debounceMs = 1000 } = {}) => {
 
       return {
         update(v) {
+          if (hasInserted) return
           if (!prevDoc || !v.state.doc.eq(prevDoc)) {
             prevDoc = v.state.doc
             debouncedUpdate(v)
+            hasInserted = true
           }
         },
         destroy() {
