@@ -87,7 +87,6 @@ const Preview = props => {
 
   const { spread, zoom, ...exportOptions } = options
 
-  console.log(loadingPreview, previewLink , 'preview')
   return (
     <Page>
       <Wrapper $showSettings={showSettings}>
