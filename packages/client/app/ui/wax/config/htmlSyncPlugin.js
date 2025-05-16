@@ -53,13 +53,14 @@ import { debounce } from 'lodash'
  * @param {number} options.debounceMs - Debounce time in ms (default: 1000ms)
  * @returns {Plugin}
  */
-export default (ydoc, { debounceMs = 1000 } = {}) => {
+export default (ydoc, provider, { debounceMs = 1000 } = {}) => {
   const htmlText = ydoc.getText('html')
   let prevDoc = null
 
    const isLeader = () => {
-    const clientIDs = Array.from(ydoc.store.clients.keys());
-    return ydoc.clientID === Math.min(...clientIDs);
+    const awareness = provider.awareness
+    const states = Array.from(awareness.getStates().keys());
+    return Math.min(...states) === awareness.clientID;
   };
 
   const updateHTML = view => {

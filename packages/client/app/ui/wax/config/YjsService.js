@@ -49,7 +49,7 @@ class YjsService extends Service {
 
     this.app.PmPlugins.add(
       'htmlSyncPlugin',
-      htmlSyncPlugin(ydoc, { debounceMs: 1000 }),
+      htmlSyncPlugin(ydoc, provider, { debounceMs: 1000 }),
     )
 
     this.app.PmPlugins.add('ySyncPlugin', ySyncPlugin(yXmlFragment))
