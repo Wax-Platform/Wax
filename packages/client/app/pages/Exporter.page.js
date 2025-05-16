@@ -698,6 +698,8 @@ const PreviewerPage = ({ bookId }) => {
       if (ydoc) {
         const content = ydoc.getText('html').toString()
 
+        console.log(content)
+        
         await updateContent({
           variables: {
             input: {
