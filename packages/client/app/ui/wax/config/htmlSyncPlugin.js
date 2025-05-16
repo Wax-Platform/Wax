@@ -57,6 +57,11 @@ export default (ydoc, { debounceMs = 1000 } = {}) => {
   const htmlText = ydoc.getText('html')
   let prevDoc = null
 
+   const isLeader = () => {
+    const clientIDs = Array.from(ydoc.store.clients.keys());
+    return ydoc.clientID === Math.min(...clientIDs);
+  };
+
   const updateHTML = view => {
     const serializer = DOMSerializer.fromSchema(view.state.schema)
     const fragment = serializer.serializeFragment(view.state.doc.content)
@@ -64,17 +69,18 @@ export default (ydoc, { debounceMs = 1000 } = {}) => {
     container.appendChild(fragment)
     const html = container.innerHTML
 
-    htmlText.doc?.transact(() => {
-      htmlText.delete(0, htmlText.length)
-      htmlText.insert(0, html)
-    })
+    if (isLeader()) {
+      htmlText.doc?.transact(() => {
+        htmlText.delete(0, htmlText.length)
+        htmlText.insert(0, html)
+      })
+    }
   }
 
   const debouncedUpdate = debounce(updateHTML, debounceMs)
 
   return new Plugin({
     view(view) {
-      let hasInserted = false
       // Initial content push
       debouncedUpdate(view)
 
@@ -85,11 +91,9 @@ export default (ydoc, { debounceMs = 1000 } = {}) => {
 
       return {
         update(v) {
-          if (hasInserted) return
           if (!prevDoc || !v.state.doc.eq(prevDoc)) {
             prevDoc = v.state.doc
             debouncedUpdate(v)
-            hasInserted = true
           }
         },
         destroy() {
