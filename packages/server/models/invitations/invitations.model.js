@@ -1,6 +1,7 @@
 /*
   Invitations: User invites
 */
+const { bookComponent } = require('..')
 const Base = require('../ketidaBase')
 
 const { id, stringNotEmpty, email } = require('../helpers').schema
@@ -22,7 +23,7 @@ class Invitations extends Base {
         email,
         status: stringNotEmpty,
         teamId: id,
-        bookId: id,
+        bookComponentId: id,
       },
     }
   }

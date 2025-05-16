@@ -7,7 +7,9 @@ const {
 
 const { bookComponentInvite } = require('./helpers/emailTemplates')
 
-const { Invitations, BookComponent } = require('../models').models
+const { BookComponent } = require('../models').models
+
+const Invitations = require('../models/invitations/invitations.model')
 
 const sendInvitations = async (invitationData, userId, options = {}) => {
   try {
