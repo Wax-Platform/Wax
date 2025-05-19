@@ -149,10 +149,12 @@ const replaceImgSrc = async (doc, objectId) => {
         const { fileId } =node.getAttribute('extraData')
         if (fileId) {
           const file = files.find(f => f.id === fileId)
-          const { key } =  file.storedObjects.find(obj => obj.type === 'original')
+          if (file) {
+            const { key } =  file.storedObjects.find(obj => obj.type === 'original')
 
-          const newSrc = await fileStorage.getURL(key)
-          node.setAttribute('src', newSrc)
+            const newSrc = await fileStorage.getURL(key)
+            node.setAttribute('src', newSrc)
+          }
         }
 
       }
