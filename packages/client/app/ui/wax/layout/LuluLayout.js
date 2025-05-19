@@ -294,10 +294,11 @@ const CommentsContainer = styled.div`
 `
 
 const NotesAreaContainer = styled.div`
-  background: #fff;
+  background: #e8e8e8;
   display: flex;
   flex-direction: row;
   height: 100%;
+  justify-content: center;
   overflow-y: scroll;
   position: absolute;
   width: 100%;
@@ -305,6 +306,15 @@ const NotesAreaContainer = styled.div`
   .ProseMirror {
     display: inline;
   }
+`
+
+const NotesInnerContainer = styled.div`
+  background: white;
+  display: flex;
+  height: 100%;
+  left: -10px;
+  position: relative;
+  width: 796px;
 `
 
 const NotesContainer = styled.div`
@@ -315,9 +325,8 @@ const NotesContainer = styled.div`
   margin: auto;
   max-width: 816px;
   padding-bottom: ${grid(4)};
-  padding-left: ${grid(10)};
   padding-top: 10px;
-  width: 100%;
+  width: 93%;
 `
 
 const CommentsContainerNotes = styled.div`
@@ -810,12 +819,14 @@ const LuluLayout = ({ customProps, ...rest }) => {
                 </WaxSurfaceScroll>
                 {hasNotes && (
                   <NotesAreaContainer>
-                    <NotesContainer id="notes-container">
-                      <NotesArea view={main} />
-                    </NotesContainer>
-                    <CommentsContainerNotes>
-                      <RightArea area="notes" />
-                    </CommentsContainerNotes>
+                    <NotesInnerContainer>
+                      <NotesContainer id="notes-container">
+                        <NotesArea view={main} />
+                      </NotesContainer>
+                      <CommentsContainerNotes>
+                        <RightArea area="notes" />
+                      </CommentsContainerNotes>
+                    </NotesInnerContainer>
                   </NotesAreaContainer>
                 )}
               </PanelGroup>
