@@ -843,8 +843,8 @@ const ProducerPage = ({ bookId }) => {
     const mutationVariables = {
       variables: {
         files: [file],
-        entityId: bookId,
-        entityType: 'book',
+        entityId: selectedChapterId,
+        entityType: 'bookComponent',
       },
     }
 

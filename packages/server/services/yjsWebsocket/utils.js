@@ -1,4 +1,5 @@
 // const pick = require('lodash/pick')
+const { fileStorage } = require('@coko/server')
 const syncProtocol = require('y-protocols/dist/sync.cjs')
 const awarenessProtocol = require('y-protocols/dist/awareness.cjs')
 const encoding = require('lib0/encoding')
@@ -11,6 +12,8 @@ const { db } = require('@coko/server')
 const WSSharedDoc = require('./wsSharedDoc')
 // const { CollaborativeDoc, Form } = require('../../models')
 const BookComponentTranslation = require('../../models/bookComponentTranslation/bookComponentTranslation.model')
+
+const Files = require('../../models/file/file.model')
 
 let persistence = null
 
@@ -133,6 +136,40 @@ const messageListener = (conn, doc, message) => {
   }
 }
 
+const replaceImgSrc = async (doc, objectId) => {
+
+  const files = await Files.query().where({ objectId })
+  const xmlFragment1 = doc.getXmlFragment('prosemirror')
+
+// Recursive function to walk the Y.XmlElement tree
+  const updateImageSrcs = async (node) => {
+    if (node instanceof Y.XmlElement) {
+    
+      if (node.nodeName === 'image') {
+        const { fileId } =node.getAttribute('extraData')
+        if (fileId) {
+          const file = files.find(f => f.id === fileId)
+          const { key } =  file.storedObjects.find(obj => obj.type === 'original')
+
+          const newSrc = await fileStorage.getURL(key)
+          node.setAttribute('src', newSrc)
+        }
+
+      }
+
+    // Recurse into children
+      for (const child of node.toArray()) {
+        await updateImageSrcs(child)
+      }
+    }
+  }
+
+  // Start traversal from the root fragment
+  for (const node of xmlFragment1.toArray()) {
+    await updateImageSrcs(node)
+  }
+}
+
 persistence = {
   bindState: async (id, doc) => {
     const collaborativeForm = await BookComponentTranslation.query().findOne({
@@ -143,8 +180,12 @@ persistence = {
       const { yState } = collaborativeForm
 
       if (yState) {
-        const uint8Array = Uint8Array.from(Buffer.from(yState, 'base64'))
-        Y.applyUpdate(doc, uint8Array)
+        doc.transact(async () => {
+          const uint8Array = Uint8Array.from(Buffer.from(yState, 'base64'))
+          Y.applyUpdate(doc, uint8Array)
+          // const fragment = doc.getXmlFragment('prosemirror');
+          await replaceImgSrc(doc, id)
+        });
       }
     }
   },
@@ -153,8 +194,6 @@ persistence = {
     const state = Y.encodeStateAsUpdate(ydoc)
 
     const timestamp = db.fn.now()
-
-    // try {
     const content = ydoc.getText('html').toString()
 
     const base64State = Buffer.from(state).toString('base64')
@@ -166,10 +205,6 @@ persistence = {
         content,
       })
       .findOne({ bookComponentId: objectId })
-    // } catch (e) {
-    // console.log(`Patch Query`)
-    // console.log(e)
-    // }
   },
 }
 
