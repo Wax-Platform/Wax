@@ -52,7 +52,7 @@ const bookComponentInvite = context => {
     const link = `${clientUrl}/document/${bookComponentId}`
 
     const content = `
-        <p>${sharerName} (${sharerEmail}) has invited you to ${status} the following chapter: <a href="${link}">${
+        <p>${sharerName} (${sharerEmail}) has invited you to ${status} the following document: <a href="${link}">${
       bookComponentTitle || 'Untitled'
     }</a>.</p>
         <p></p>
@@ -66,7 +66,7 @@ const bookComponentInvite = context => {
     const text = `
       Document shared with you: ${
         bookComponentTitle || 'Untitled'
-      }!\nCopy and paste the following link into your browser to view the chapter.\n\n${link}`
+      }!\nCopy and paste the following link into your browser to view the document.\n\n${link}`
 
     const data = {
       content,

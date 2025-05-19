@@ -60,7 +60,7 @@ export const defaultProfile = {
   label: 'New export',
   value: 'new-export',
   format: 'pdf',
-  size: '5.5x8.5',
+  size: '8.3x11.7',
   content: ['includeTitlePage'],
   template: null,
   isbn: null,
