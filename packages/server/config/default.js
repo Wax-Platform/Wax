@@ -81,7 +81,7 @@ module.exports = {
   devServerIgnore: ['./templates/*', './uploads/*'],
   staticFolders: [
     {
-      folderPath: './uploads',
+      folderPath: '../uploads',
       mountPoint: '/', // where it becomes available
     },
   ],
