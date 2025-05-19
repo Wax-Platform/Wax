@@ -166,13 +166,17 @@ const pdfHandler = async (zipPath, outputPath, PDFFilename) => {
       })
         .then(async res => {
           await fs.ensureDir(outputPath)
+
+          const output = await fileStorage.upload(res.data, PDFFilename)
+        
           await writeLocallyFromReadStream(
             outputPath,
             PDFFilename,
             res.data,
             'binary',
           )
-          return resolve(`${outputPath}/${PDFFilename}`)
+
+          return resolve(fileStorage.getURL(output[0].key))
         })
         .catch(async err => {
           const { response } = err

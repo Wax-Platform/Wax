@@ -200,7 +200,7 @@ const ExporterService = async (
           zippedTempFolderFilePath,
         )
 
-        await pdfHandler(
+        const url = await pdfHandler(
           `${zippedTempFolderFilePath}/${zippedAssetsFilename}`,
           PDFtempFolderFilePath,
           PDFFilename,
@@ -220,7 +220,7 @@ const ExporterService = async (
         // pagedjs-cli
         return {
           localPath,
-          path: getURL(localPath),
+          path: url,
           validationResult: undefined,
         }
       }
@@ -230,12 +230,6 @@ const ExporterService = async (
         template,
         pagedJStempFolderAssetsPathForPreviewer,
       )
-
-      if (!(await fs.pathExists(pagedJStempFolderAssetsPathForPreviewer))) {
-        console.log('PagedJS folder does not exist')
-      } else {
-        console.log('PagedJS folder exists')
-      }
 
       return {
         path: `${assetsTimestamp}/template/${templateId}`,

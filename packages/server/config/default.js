@@ -79,12 +79,6 @@ module.exports = {
   teams: flavorTeams,
   tempDirectoryCleanUp: true,
   devServerIgnore: ['./templates/*', './uploads/*'],
-  staticFolders: [
-    {
-      folderPath: '../uploads',
-      mountPoint: '/', // where it becomes available
-    },
-  ],
   onStartup: [
     {
       label: 'Seed Admin',
