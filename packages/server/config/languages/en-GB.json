@@ -343,18 +343,18 @@
             "type": "label",
             "value": "Selection",
             "book": {
-              "value": "chapter"
+              "value": "document"
             }
           }
         },
         "bookPreview": {
           "heading": {
             "type": "heading",
-            "value": "Chapter preview"
+            "value": "Document preview"
           },
           "select": {
             "type": "select(label)",
-            "value": "Chapter preview"
+            "value": "Document preview"
           }
         },
         "livePreview": {
@@ -659,7 +659,7 @@
             },
             "editingConflict": {
               "type": "warning",
-              "value": "You can't delete a chapter that is currently being edited by another collaborator."
+              "value": "You can't delete a ducument that is currently being edited by another collaborator."
             },
             "generalPermission": {
               "type": "error",

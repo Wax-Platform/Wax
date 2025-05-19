@@ -21,12 +21,12 @@ const bookInvite = context => {
       `
 
     const text = `
-      Chapter shared with you: ${bookTitle}!\nCopy and paste the following link into your browser to view the chapter.\n\n${link}`
+      Document shared with you: ${bookTitle}!\nCopy and paste the following link into your browser to view the chapter.\n\n${link}`
 
     const data = {
       content,
       text,
-      subject: `Chapter shared with you: ${bookTitle}`,
+      subject: `Document shared with you: ${bookTitle}`,
       to: email,
     }
 
@@ -64,14 +64,14 @@ const bookComponentInvite = context => {
       `
 
     const text = `
-      Chapter shared with you: ${
+      Document shared with you: ${
         bookComponentTitle || 'Untitled'
       }!\nCopy and paste the following link into your browser to view the chapter.\n\n${link}`
 
     const data = {
       content,
       text,
-      subject: `Chapter shared with you: ${bookComponentTitle || 'Untitled'}`,
+      subject: `Document shared with you: ${bookComponentTitle || 'Untitled'}`,
       to: email,
     }
 
@@ -100,7 +100,7 @@ const mentionNotification = context => {
     const content = `
       <p>${mentioner} mentioned you in a comment in "${chapterTitle}"</p>
       <p>"${commentText}"</p>
-      <p><a href="${link}">Visit the book ${bookTitle}</a> to reply or read more.</p>
+      <p><a href="${link}">Visit the document ${bookTitle}</a> to reply or read more.</p>
       <p>
         If you cannot click the link above, paste the following into your browser to continue:
         <br/>
@@ -109,7 +109,7 @@ const mentionNotification = context => {
     `
 
     const text = `
-      Someone mentioned you in a comment in the chapter ${bookTitle}!\nCopy and paste the following link into your browser to view the book.\n\n${link}`
+      Someone mentioned you in a comment in the document ${bookTitle}!\nCopy and paste the following link into your browser to view the book.\n\n${link}`
 
     const data = {
       content,
