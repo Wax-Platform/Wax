@@ -229,9 +229,9 @@ const ProducerPage = ({ bookId }) => {
           setCurrentBookComponentContent('')
         }
 
-            if (wsProvider) {
-              wsProvider?.disconnect()
-            }
+            // if (wsProvider) {
+            //   wsProvider?.disconnect()
+            // }
 
               setShowSpinner(true)
               setTimeout(() => {
