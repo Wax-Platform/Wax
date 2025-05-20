@@ -54,7 +54,7 @@ const SingleTools = [
   { label: 'Custom Tags Block', value: 'CustomTagBlock', checked: false },
   { label: 'Custom Tags Inline', value: 'CustomTagInline', checked: false },
   { label: 'Notes', value: 'Notes', checked: false },
-  { label: 'Question Types', value: 'QuestionsDropDown', checked: false },
+  // { label: 'Question Types', value: 'QuestionsDropDown', checked: false },
 ]
 
 const ConfigurableEditorSettings = ({ savedWaxConfig, saveWaxConfig }) => {

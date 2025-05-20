@@ -265,11 +265,9 @@ const WaxSurfaceScroll = styled.div`
 
 const CommentsContainer = styled.div`
   display: flex;
-  flex: 1 0 calc(205px + 1em);
   flex-direction: column;
   height: 100%;
   position: relative;
-  width: calc(205px + 1em);
 
   @media (max-width: 1400px) {
     position: absolute;
