@@ -410,7 +410,9 @@ const EditorContainer = styled.div`
     width: calc(100% - 20px);
 
     footnote {
-      border: 1px solid black;
+      border: 2px solid black;
+      height: 21px;
+      width: 21px;
     }
 
     @media (min-width: 600px) {
