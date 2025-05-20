@@ -697,8 +697,6 @@ const PreviewerPage = ({ bookId }) => {
     if ((target === 'pagedjs' || target === 'web') && !previewIsLoading) {
       if (ydoc) {
         const content = ydoc.getText('html').toString()
-
-        console.log(content)
         
         await updateContent({
           variables: {
