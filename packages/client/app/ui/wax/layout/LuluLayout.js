@@ -409,6 +409,10 @@ const EditorContainer = styled.div`
       calc(50px + var(--padding-inline));
     width: calc(100% - 20px);
 
+    footnote {
+      border: 1px solid black;
+    }
+
     @media (min-width: 600px) {
       padding: ${grid(20)} var(--padding-inline);
     }

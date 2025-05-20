@@ -1,48 +1,6 @@
-// import { Plugin } from 'prosemirror-state';
-// import { DOMSerializer } from 'prosemirror-model';
-// import { debounce } from 'lodash';
-
-// export default ({ ydoc, yXmlFragment, fieldName = 'html', debounceMs = 1000 }) => {
-//   const htmlText = ydoc.getText(fieldName);
-//   let prevHTML = null;
-
-//   const updateHTML = debounce((view) => {
-//     const serializer = DOMSerializer.fromSchema(view.state.schema);
-//     const fragment = serializer.serializeFragment(view.state.doc.content);
-//     const div = document.createElement('div');
-//     div.appendChild(fragment);
-//     const html = div.innerHTML;
-
-//     if (html !== prevHTML) {
-//       prevHTML = html;
-//       htmlText.doc?.transact(() => {
-//         htmlText.delete(0, htmlText.length);
-//         htmlText.insert(0, html);
-//       });
-//     }
-//   }, debounceMs);
-
-//   return new Plugin({
-//     view(view) {
-//       const observeHandler = () => updateHTML(view);
-
-//       yXmlFragment.observeDeep(observeHandler); // ensures sync even in solo editing
-//       updateHTML(view); // Initial
-
-//       return {
-//         update(view) {
-//           updateHTML(view); // optional, but nice to keep for cursor or undo detection
-//         },
-//         destroy() {
-//           yXmlFragment.unobserveDeep(observeHandler);
-//         }
-//       };
-//     }
-//   });
-// }
 import { Plugin } from 'prosemirror-state'
 import { DOMSerializer } from 'prosemirror-model'
-import { debounce } from 'lodash'
+import { debounce, each } from 'lodash'
 
 /**
  * Creates a plugin that serializes the ProseMirror state to HTML
@@ -63,7 +21,41 @@ export default (ydoc, provider, { debounceMs = 1000 } = {}) => {
     return Math.min(...states) === awareness.clientID;
   };
 
+  const alterNotesSchema = schema => {
+  const notes = [];
+  each(schema.nodes, node => {
+    if (node.groups.includes('notes')) notes.push(node);
+  });
+  if (notes.length > 0) {
+    notes.forEach(note => {
+      schema.nodes[note.name].spec.toDOM = node => {
+        if (node) return [note.name, node.attrs, 0];
+        return true;
+      };
+    });
+  }
+};
+
+const revertNotesSchema = schema => {
+  const notes = [];
+  each(schema.nodes, node => {
+    if (node.groups.includes('notes')) notes.push(node);
+  });
+  if (notes.length > 0) {
+    notes.forEach(note => {
+      schema.nodes[note.name].spec.toDOM = node => {
+        if (node) return [note.name, node.attrs];
+        return true;
+      };
+    });
+  }
+};
+
+
+
+
   const updateHTML = view => {
+    alterNotesSchema(view.state.schema)
     const serializer = DOMSerializer.fromSchema(view.state.schema)
     const fragment = serializer.serializeFragment(view.state.doc.content)
     const container = document.createElement('div')
@@ -76,6 +68,7 @@ export default (ydoc, provider, { debounceMs = 1000 } = {}) => {
         htmlText.insert(0, html)
       })
     }
+    revertNotesSchema(view.state.schema)
   }
 
   const debouncedUpdate = debounce(updateHTML, debounceMs)

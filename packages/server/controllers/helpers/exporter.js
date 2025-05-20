@@ -168,8 +168,6 @@ const ExporterService = async (
         assetsTimestamp,
       )
 
-      console.log(pagedJStempFolderAssetsPathForPreviewer, 11111111111111)
-
       const zippedTempFolderFilePath = path.join(
         `${process.cwd()}`,
         uploadsDir,
