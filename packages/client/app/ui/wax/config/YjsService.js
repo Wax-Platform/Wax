@@ -54,14 +54,14 @@ class YjsService extends Service {
 
     this.app.PmPlugins.add('ySyncPlugin', ySyncPlugin(yXmlFragment))
 
-    if (cursorBuilder) {
-      this.app.PmPlugins.add(
-        'yCursorPlugin',
-        yCursorPlugin(provider.awareness, { cursorBuilder }),
-      )
-    } else {
-      // this.app.PmPlugins.add('yCursorPlugin', yCursorPlugin(provider.awareness))
-    }
+    // if (cursorBuilder) {
+    //   this.app.PmPlugins.add(
+    //     'yCursorPlugin',
+    //     yCursorPlugin(provider.awareness, { cursorBuilder }),
+    //   )
+    // } else {
+    //   // this.app.PmPlugins.add('yCursorPlugin', yCursorPlugin(provider.awareness))
+    // }
 
     this.app.PmPlugins.add('yUndoPlugin', yUndoPlugin())
   }
