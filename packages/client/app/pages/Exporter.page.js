@@ -30,7 +30,6 @@ import {
   RENAME_EXPORT_PROFILE,
   UPLOAD_TO_LULU,
   UPDATE_EXPORT_PROFILE_OPTIONS,
-  UPDATE_BOOK_COMPONENT_CONTENT,
   PUBLISH_ONLINE,
   UNPUBLISH_ONLINE,
   GET_BOOK_WEB_PUBLISH_INFO,
@@ -128,11 +127,13 @@ const PreviewerPage = ({ bookId }) => {
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [activeTabKey, setActiveTabKey] = useState('new')
 
-  const { ydoc } = useContext(YjsContext)
-
-  const [updateContent] = useMutation(UPDATE_BOOK_COMPONENT_CONTENT)
+  const { wsProvider } = useContext(YjsContext)
 
   React.useEffect(() => {
+    if (wsProvider) {
+      wsProvider?.disconnect()
+    }
+    
     if (!localStorage.getItem('zoomPercentage')) {
       localStorage.setItem('zoomPercentage', chooseZoom(window.innerWidth))
     }
@@ -695,24 +696,13 @@ const PreviewerPage = ({ bookId }) => {
     }
 
     if ((target === 'pagedjs' || target === 'web') && !previewIsLoading) {
-      if (ydoc) {
-        const content = ydoc.getText('html').toString()
-        
-        await updateContent({
-          variables: {
-            input: {
-              id: bookComponentId,
-              content,
-            },
-          },
-        })
-      }
 
       createPreview({
         variables: {
           input: previewData,
         },
       })
+
     } else {
       setCreatingPreview(false)
     }
@@ -805,12 +795,12 @@ const PreviewerPage = ({ bookId }) => {
     p => p.area === 'exportsConfig',
   ).config
 
-  const luluIdentity = currentUser?.identities?.find(
-    id => id.provider === 'lulu',
-  )
+  // const luluIdentity = currentUser?.identities?.find(
+  //   id => id.provider === 'lulu',
+  // )
 
-  const isUserConnectedToLulu =
-    luluIdentity && luluIdentity.hasValidRefreshToken
+  // const isUserConnectedToLulu =
+  //   luluIdentity && luluIdentity.hasValidRefreshToken
 
   const storedZoom = localStorage.getItem('zoomPercentage')
   const initialZoom = storedZoom ? parseFloat(storedZoom) : 1
@@ -971,7 +961,7 @@ const PreviewerPage = ({ bookId }) => {
     <Preview
       activeTabKey={activeTabKey}
       canModify={userIsOwner || canEdit}
-      canUploadToProvider={luluConfig && !luluConfig?.disabled && userIsOwner}
+      // canUploadToProvider={luluConfig && !luluConfig?.disabled && userIsOwner}
       connectToLulu={handleConnectToLulu}
       createProfile={handleCreateProfile}
       currentOptions={currentOptions}
@@ -981,7 +971,7 @@ const PreviewerPage = ({ bookId }) => {
       exportsConfig={exportsConfig}
       hasCover={!!hasCover}
       isbns={isbns}
-      isUserConnectedToLulu={isUserConnectedToLulu}
+      // isUserConnectedToLulu={isUserConnectedToLulu}
       loadingExport={false}
       loadingPreview={creatingPreview}
       luluConfig={luluConfig}

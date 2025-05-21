@@ -197,7 +197,7 @@ const ExportOptionsSection = props => {
         {newProfile ? (
           <ExportOption inline label={t('format.select')}>
             <Select
-              bordered={false}
+              // bordered={false}
               data-test="preview-format-menu"
               disabled={previewLoading}
               onChange={handleFormatChange}
@@ -245,7 +245,7 @@ const ExportOptionsSection = props => {
         {isPdf && (
           <ExportOption inline label={t('pdfSize.select')}>
             <Select
-              bordered={false}
+              // bordered={false}
               onChange={handleSizeChange}
               options={exportSizeOptions}
               value={selectedSize}
@@ -257,7 +257,7 @@ const ExportOptionsSection = props => {
           <ExportOption inline label={t('isbn.select')}>
             <Select
               allowClear
-              bordered={false}
+              // bordered={false}
               onChange={handleIsbnChange}
               options={isbnOptions}
               placeholder={t('isbn.select.placeholder')}
@@ -271,7 +271,7 @@ const ExportOptionsSection = props => {
           <FrontmatterOption inline label={t('frontMatter.select')}>
             <MultiSelect
               allowClear
-              bordered={false}
+              // bordered={false}
               data-test="preview-content"
               mode="multiple"
               onChange={handleContentChange}

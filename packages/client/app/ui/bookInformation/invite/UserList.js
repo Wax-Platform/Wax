@@ -95,7 +95,7 @@ const UserListItem = ({
           <OwnerLabel>{t('options.owner')}</OwnerLabel>
         ) : (
           <StyledSelect
-            bordered={false}
+            // bordered={false}
             defaultValue={status}
             disabled={!canChangeAccess}
             onChange={value => {

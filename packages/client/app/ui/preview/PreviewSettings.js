@@ -344,8 +344,8 @@ PreviewSettings.propTypes = {
   download: PropTypes.func.isRequired,
   isCollapsed: PropTypes.bool.isRequired,
   canModify: PropTypes.bool.isRequired,
-  canUploadToProvider: PropTypes.bool.isRequired,
-  isUserConnectedToLulu: PropTypes.bool.isRequired,
+  // canUploadToProvider: PropTypes.bool.isRequired,
+  // isUserConnectedToLulu: PropTypes.bool.isRequired,
   loadingPreview: PropTypes.bool.isRequired,
   luluConfig: PropTypes.shape(),
   onClickCollapse: PropTypes.func.isRequired,
@@ -376,7 +376,7 @@ PreviewSettings.propTypes = {
       imageUrl: PropTypes.string,
       name: PropTypes.string.isRequired,
     }),
-  ).isRequired,
+  ),
   isbns: PropTypes.arrayOf(
     PropTypes.shape({
       isbn: PropTypes.string.isRequired,
@@ -397,6 +397,7 @@ PreviewSettings.defaultProps = {
   publishing: false,
   onUnpublish: null,
   webPublishInfo: null,
+  isUserConnectedToLulu: false,
 }
 
 export default PreviewSettings

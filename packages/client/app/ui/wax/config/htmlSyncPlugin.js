@@ -1,4 +1,4 @@
-import { Plugin } from 'prosemirror-state'
+import { Plugin, PluginKey } from 'prosemirror-state'
 import { DOMSerializer } from 'prosemirror-model'
 import { debounce, each } from 'lodash'
 
@@ -61,6 +61,8 @@ const revertNotesSchema = schema => {
     const container = document.createElement('div')
     container.appendChild(fragment)
     const html = container.innerHTML
+    revertNotesSchema(view.state.schema)
+    
 
     if (isLeader()) {
       htmlText.doc?.transact(() => {
@@ -68,30 +70,20 @@ const revertNotesSchema = schema => {
         htmlText.insert(0, html)
       })
     }
-    revertNotesSchema(view.state.schema)
   }
 
-  const debouncedUpdate = debounce(updateHTML, debounceMs)
+  // const debouncedUpdate = debounce(updateHTML, debounceMs)
 
   return new Plugin({
-    view(view) {
-      // Initial content push
-      debouncedUpdate(view)
-
-      window.addEventListener('beforeunload', () => {
-        // Force sync before unload
-        updateHTML(view)
-      })
-
+    key: new PluginKey('yjs-html-sync'),
+    view() {
       return {
         update(v) {
           if (!prevDoc || !v.state.doc.eq(prevDoc)) {
             prevDoc = v.state.doc
-            debouncedUpdate(v)
+            updateHTML(v)
+            // debouncedUpdate(v)
           }
-        },
-        destroy() {
-          updateHTML(view)
         },
       }
     },

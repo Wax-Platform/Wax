@@ -69,7 +69,7 @@ const LanguageSwitcher = props => {
         }`}
       />
       <StyledSelect
-        bordered={false}
+        // bordered={false}
         defaultValue={languages[0].code}
         onChange={selectLanguage}
         options={languages.map(l => ({

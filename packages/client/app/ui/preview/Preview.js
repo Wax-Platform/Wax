@@ -50,8 +50,8 @@ const Preview = props => {
     defaultProfile,
     download,
     canModify,
-    canUploadToProvider,
-    isUserConnectedToLulu,
+    // canUploadToProvider,
+    // isUserConnectedToLulu,
     loadingExport,
     loadingPreview,
     luluConfig,
@@ -108,7 +108,7 @@ const Preview = props => {
         <PreviewSettings
           activeTabKey={activeTabKey}
           canModify={canModify}
-          canUploadToProvider={canUploadToProvider}
+          // canUploadToProvider={canUploadToProvider}
           createProfile={createProfile}
           currentOptions={exportOptions}
           defaultProfile={defaultProfile}
@@ -118,7 +118,7 @@ const Preview = props => {
           hasCover={hasCover}
           isbns={isbns}
           isCollapsed={!showSettings}
-          isUserConnectedToLulu={isUserConnectedToLulu}
+          // isUserConnectedToLulu={isUserConnectedToLulu}
           loadingPreview={loadingPreview}
           luluConfig={luluConfig}
           newOptions={newProfileOptions}
@@ -197,8 +197,8 @@ Preview.propTypes = {
   deleteProfile: PropTypes.func.isRequired,
   download: PropTypes.func.isRequired,
   canModify: PropTypes.bool.isRequired,
-  canUploadToProvider: PropTypes.bool.isRequired,
-  isUserConnectedToLulu: PropTypes.bool.isRequired,
+  // canUploadToProvider: PropTypes.bool.isRequired,
+  // isUserConnectedToLulu: PropTypes.bool.isRequired,
   loadingExport: PropTypes.bool.isRequired,
   loadingPreview: PropTypes.bool.isRequired,
   luluConfig: PropTypes.shape(),

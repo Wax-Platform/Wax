@@ -11,7 +11,7 @@ import YjsContext from '../ui/provider-yjs/YjsProvider'
 export default () => {
   const { bookComponentId } = useParams()
   const { setPassedContent } = useContext(CssAssistantContext)
-  const { ydoc } = useContext(YjsContext)
+  const { wsProvider } = useContext(YjsContext)
   let content = ''
   const [bookTitle, setBookTitle] = useState('')
 
@@ -21,15 +21,13 @@ export default () => {
   })
 
   useEffect(()=> {
+    if (wsProvider) {
+      wsProvider?.disconnect()
+    }
     setPassedContent('')
     getDivision({ variables: { id: bookComponentId } })
       .then(({ data: chapter }) => {
-        if (ydoc) {
-          content = ydoc.getText('html').toString() 
-        } else {
-          content = chapter.getBookComponent.content
-        }
-
+        content = chapter.getBookComponent.content
         setBookTitle(chapter.getBookComponent.title)
 
         setPassedContent(

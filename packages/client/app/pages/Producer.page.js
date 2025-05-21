@@ -110,7 +110,7 @@ const constructMetadataValues = (title, podMetadata, cover) => {
 const ProducerPage = ({ bookId }) => {
   // const { bookComponentId } = useParams()
   // #region INITIALIZATION SECTION START
-  const { createYjsProvider, wsProvider, ydoc } = useContext(YjsContext)
+  const { createYjsProvider, wsProvider } = useContext(YjsContext)
   const history = useHistory()
   const { bookComponentId } = useParams()
   const { currentUser } = useCurrentUser()
@@ -229,25 +229,24 @@ const ProducerPage = ({ bookId }) => {
           setCurrentBookComponentContent('')
         }
 
-            // if (wsProvider) {
-            //   wsProvider?.disconnect()
-            // }
+        if (wsProvider) {
+          wsProvider?.disconnect()
+        }
+            
+        setShowSpinner(true)
+        setTimeout(() => {
+          createYjsProvider({
+            currentUser,
+            identifier: selectedChapterId,
+            object: {
+              bookComponentId: selectedChapterId,
+            },
+          })
+        }, 500)
 
-              setShowSpinner(true)
-              setTimeout(() => {
-                createYjsProvider({
-                  currentUser,
-                  identifier: selectedChapterId,
-                  object: {
-                    bookComponentId: selectedChapterId,
-                  },
-                })
-              }, 500)
-
-              setTimeout(() => {
-                setShowSpinner(false)
-              }, 1200)
-
+        setTimeout(() => {
+          setShowSpinner(false)
+        }, 1200)
 
         getComments({
           variables: {
@@ -327,8 +326,6 @@ const ProducerPage = ({ bookId }) => {
 
       window.history.replaceState('', document.title, window.location.pathname)
     }
-
-    return () => wsProvider?.disconnect()
   }, [])
 
   useEffect(() => {
@@ -384,7 +381,6 @@ const ProducerPage = ({ bookId }) => {
     // } else {
     //   localStorage.setItem(`${bookId}-selected-chapter`, selectedChapterId)
     // }
-
     setSavedComments(null)
   }, [selectedChapterId])
 
@@ -588,52 +584,6 @@ const ProducerPage = ({ bookId }) => {
     updatePODMetadata({ variables: { bookId, metadata: rest } })
   }, 1000)
 
-  // const showOfflineModal = () => {
-  //   const warningModal = Modal.error()
-  //   return warningModal.update({
-  //     title: 'Server is unreachable',
-  //     content: (
-  //       <Paragraph>
-  //         {`Unfortunately, we couldn't re-establish communication with our server! Currently we don't
-  //         support offline mode. Please return to this page when your network
-  //         issue is resolved.`}
-  //       </Paragraph>
-  //     ),
-  //     maskClosable: false,
-  //     onOk() {
-  //       history.push('/dashboard')
-  //       warningModal.destroy()
-  //     },
-  //     okButtonProps: { style: { backgroundColor: 'black' } },
-  //     width: 570,
-  //     bodyStyle: {
-  //       marginRight: 38,
-  //       textAlign: 'justify',
-  //     },
-  //   })
-  // }
-
-  // const communicationDownModal = () => {
-  //   const warningModal = Modal.warn()
-  //   warningModal.update({
-  //     title: 'Something went wrong!',
-  //     content: (
-  //       <Paragraph>
-  //         Please wait while we are trying resolve the issue. Make sure your
-  //         internet connection is working.
-  //       </Paragraph>
-  //     ),
-  //     maskClosable: false,
-  //     footer: null,
-  //     width: 570,
-  //     bodyStyle: {
-  //       marginRight: 38,
-  //       textAlign: 'justify',
-  //     },
-  //   })
-  //   return warningModal
-  // }
-
   const showUploadingModal = () => {
     const warningModal = Modal.warn()
     return warningModal.update({
@@ -707,19 +657,6 @@ const ProducerPage = ({ bookId }) => {
     })
   }
 
-  // const onBookComponentLock = () => {
-  //   if (selectedChapterId && canModify) {
-  //     const userAgent = window.navigator.userAgent || null
-  //     lockBookComponent({
-  //       variables: {
-  //         id: selectedChapterId,
-  //         tabId,
-  //         userAgent,
-  //       },
-  //     })
-  //   }
-  // }
-
   const queryAI = async (input, { askKb }) => {
     const settings = await getBookSettings()
     const [userInput, highlightedText] = input.text
@@ -772,11 +709,6 @@ const ProducerPage = ({ bookId }) => {
       reject()
     })
   }
-
-  // const heartbeatInterval = find(
-  //   applicationParametersData?.getApplicationParameters,
-  //   { area: 'heartbeatInterval' },
-  // )
 
   const onChapterClick = chapterId => {
     const found = find(bookQueryData?.getBook?.divisions[1].bookComponents, {
@@ -1094,8 +1026,6 @@ const ProducerPage = ({ bookId }) => {
       title={bookQueryData?.getBook.title}
       user={currentUser}
       viewMetadata={viewMetadata}
-      wsProvider={wsProvider}
-      ydoc={ydoc}
     />
   )
 }

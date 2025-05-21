@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types, react/jsx-no-constructed-context-values */
-import React, { useEffect, useState, useMemo, useRef } from 'react'
+import React, { useEffect, useState, useMemo, useRef, useContext } from 'react'
 import { Wax } from 'wax-prosemirror-core'
 import { isEqual } from 'lodash'
 import styled from 'styled-components'
+
+import YjsContext from '../provider-yjs/YjsProvider'
 
 import { LuluLayout } from './layout'
 import configWithAi from './config/configWithAI'
@@ -57,8 +59,6 @@ const EditorWrapper = ({
   setViewMetadata,
   settings,
   getBookSettings,
-  wsProvider,
-  ydoc,
   deleteResource,
   renameResource,
   addResource,
@@ -69,6 +69,7 @@ const EditorWrapper = ({
   setUploading,
   showSpinner,
 }) => {
+  const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
 
   const [position, setPosition] = useState(0)
