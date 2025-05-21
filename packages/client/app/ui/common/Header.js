@@ -1,7 +1,7 @@
 /* stylelint-disable declaration-no-important */
 /* stylelint-disable string-quotes */
 /* stylelint-disable value-list-comma-newline-after */
-import React from 'react'
+import React, { useContext } from 'react'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
@@ -11,6 +11,7 @@ import Popup from '@coko/client/dist/ui/common/Popup'
 import { useTranslation } from 'react-i18next'
 import Button from './Button'
 import { LanguageSwitcher } from '../languageSwitcher'
+import YjsContext from '../provider-yjs/YjsProvider'
 
 // #region styles
 const StyledHeader = styled.header`
@@ -134,6 +135,10 @@ const PopupContentWrapper = styled.div`
     }
   }
 `
+
+const UlUsers = styled.ul`
+  list-style: none;
+`
 // #endregion styles
 
 const getInitials = fullname => {
@@ -143,6 +148,26 @@ const getInitials = fullname => {
   }`
 }
 
+const OtherUsers = ({ currentUser }) => {
+  const { sharedUsers } = useContext(YjsContext)
+
+  return (
+    <UlUsers>
+      {sharedUsers
+        .filter(([id, { user }]) => user.id !== currentUser.id)
+        .map(([id, { user }]) => (
+          <li key={user.id}>
+            <StyledAvatar data-test="avatar-initials">
+                  {getInitials(user.displayName)}
+                </StyledAvatar>
+            {/* <ColoredCircle color={user.color} size="35px" />{' '}
+              <span>{user.displayName}</span>{' '} */}
+          </li>
+        ))}
+    </UlUsers>
+  )
+}
+
 const Header = props => {
   const {
     homeURL,
@@ -150,7 +175,6 @@ const Header = props => {
     brandLogoURL,
     canAccessAdminPage,
     onLogout,
-    userDisplayName,
     showDashboard,
     dashboardURL,
     showBackToBook,
@@ -159,6 +183,7 @@ const Header = props => {
     dropdownItems,
     languages,
     bookTitle,
+    currentUser,
     ...rest
   } = props
 
@@ -168,6 +193,8 @@ const Header = props => {
   const { t } = useTranslation(null, {
     keyPrefix: 'pages.common.header.menu.options',
   })
+
+  const userDisplayName=currentUser ? currentUser.displayName : ''
 
   const navItemsLeft = []
 
@@ -204,6 +231,7 @@ const Header = props => {
       <Navigation role="navigation">
         {navItemsLeft.map(el => el)}
         <BookTitle data-pad-left={showBackToBook}>{bookTitle}</BookTitle>
+        <OtherUsers currentUser={currentUser} />
         {userDisplayName ? (
           <StyledPopup
             alignment="end"
@@ -266,7 +294,7 @@ Header.propTypes = {
   brandLogoURL: PropTypes.string,
   canAccessAdminPage: PropTypes.bool,
   homeURL: PropTypes.string.isRequired,
-  userDisplayName: PropTypes.string.isRequired,
+  userDisplayName: PropTypes.string,
   onLogout: PropTypes.func.isRequired,
   showBackToBook: PropTypes.bool.isRequired,
   showDashboard: PropTypes.bool,

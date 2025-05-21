@@ -140,32 +140,9 @@ const establishYjsConnection = async (injectedWS, request) => {
   return { doc, pingInterval }
 }
 
-const heartbeat = ws => (ws.isAlive = true)
-
-const initializeHeartbeat = async WSServer => {
-  try {
-    return setInterval(async () => {
-      WSServer.clients.forEach(ws => {
-        if (ws.isAlive === false) {
-          logger.info(`########### BROKEN CONNECTION DETECTED ###########`)
-          logger.info(
-            `ws connection is broken for book component with id ${ws.bookComponentId} and userId ${ws.userId}`,
-          )
-          return ws.terminate()
-        }
-
-        ws.isAlive = false
-
-        return ws.ping()
-      })
-    }, config.wsHeartbeatInterval || 5000)
-  } catch (e) {
-    throw new Error(e)
-  }
-}
 
 const initializeYjs = (injectedWS, doc) => {
-  const pingTimeout = 30000
+  const pingTimeout = 3000
   let pingReceived = true
 
   const pingInterval = setInterval(() => {
@@ -187,7 +164,7 @@ const initializeYjs = (injectedWS, doc) => {
     }
   }, pingTimeout)
 
-  injectedWS.on('ping', () => {
+  injectedWS.on('pong', () => {
     pingReceived = true
   })
 
@@ -208,8 +185,6 @@ const initializeFailSafeUnlocking = async () => {
 module.exports = {
   establishConnection,
   establishYjsConnection,
-  heartbeat,
-  initializeHeartbeat,
   initializeFailSafeUnlocking,
   isAuthenticatedUser,
 }

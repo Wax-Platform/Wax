@@ -149,7 +149,7 @@ const SiteHeader = () => {
         isAdminPage ||
         isTemplatePage
       }
-      userDisplayName={currentUser ? currentUser.displayName : ''}
+      currentUser={currentUser}
     />
   )
 }
@@ -190,11 +190,12 @@ const routes = (
         <Wrapper>
           <Suspense fallback={<div>Loading...</div>}>
             <DocumentProvider>
+              <YjsProvider>
               <SiteHeader />
               <StyledPage fadeInPages>
                 <StyledMain id="main-content" tabIndex="-1">
                   <GlobalContextProvider>
-                    <YjsProvider>
+                    
                       <Switch>
                         <Redirect exact path="/" to="/create-document" />
 
@@ -327,10 +328,11 @@ const routes = (
                           </Authenticated>
                         </Route>
                       </Switch>
-                    </YjsProvider>
+                    
                   </GlobalContextProvider>
                 </StyledMain>
               </StyledPage>
+              </YjsProvider>
             </DocumentProvider>
           </Suspense>
         </Wrapper>

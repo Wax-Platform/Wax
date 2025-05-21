@@ -36,6 +36,7 @@ const arrayColor = [
 const YjsProvider = ({ children }) => {
   const [wsProvider, setWsProvider] = useState(null)
   const [ydoc, setYDoc] = useState(null)
+  const [sharedUsers, setSharedUsers] = useState([])
 
   const createYjsProvider = ({ currentUser, object, identifier }) => {
     if (!object) {
@@ -70,6 +71,11 @@ const YjsProvider = ({ children }) => {
       },
     )
 
+    provider.awareness.on('change', () => {
+      setSharedUsers([...provider.awareness.getStates()])
+    })
+
+
     const color = arrayColor[Math.floor(Math.random() * arrayColor.length)]
 
     if (currentUser) {
@@ -86,6 +92,7 @@ const YjsProvider = ({ children }) => {
   return (
     <Provider
       value={{
+        sharedUsers,
         wsProvider,
         ydoc,
         createYjsProvider,

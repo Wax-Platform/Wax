@@ -51,6 +51,8 @@ const Wrapper = styled.div`
 `
 
 const Main = styled.div`
+  justify-content: center;
+  align-items: center;
   display: flex;
   flex: 1 1 calc(100% - var(--top-menu-base));
   overflow: hidden;
@@ -292,7 +294,7 @@ const CommentsContainer = styled.div`
 `
 
 const NotesAreaContainer = styled.div`
-  background: #e8e8e8;
+  background: #ffffff;
   display: flex;
   flex-direction: row;
   height: 100%;
@@ -321,10 +323,10 @@ const NotesContainer = styled.div`
   flex-direction: column;
   height: 100%;
   margin: auto;
-  max-width: 816px;
+  max-width: 760px;
   padding-bottom: ${grid(4)};
   padding-top: 10px;
-  width: 93%;
+  width: 100%;
 `
 
 const CommentsContainerNotes = styled.div`
@@ -391,10 +393,9 @@ const EditorContainer = styled.div`
   justify-content: center;
   margin: 0 auto;
   position: relative;
-  width: 1016px;
+  width: 800px;
 
   > div:first-child {
-    max-width: 816px;
     width: 100%;
   }
 
@@ -408,9 +409,15 @@ const EditorContainer = styled.div`
     width: calc(100% - 20px);
 
     footnote {
+      position: relative;
+      top: 4px;
+      color: white;
+      background-color: black;
       border: 2px solid black;
-      height: 21px;
-      width: 21px;
+
+      &:after {
+        bottom: 5px;
+      }
     }
 
     @media (min-width: 600px) {
@@ -457,39 +464,16 @@ const EditorContainer = styled.div`
 `
 
 const LeftPanelWrapper = styled.div`
+  left: 0;
+  top: 0;
   background-color: #e8e8e8;
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
   padding-inline: ${grid(3)} ${grid(3)} ${grid(3)} 0;
   position: absolute;
   transition: flex-basis 0.4s, width 0.4s;
-  width: 360px;
   z-index: 1000; // hate it but it's the wax cursor's fault!
-
-  &:has([data-collapsed='true']) {
-    flex: 0 0 50px;
-    width: 50px;
-  }
-
-  @media (min-width: 600px) {
-    flex: 0 0 360px;
-    position: relative;
-    width: unset;
-  }
-
-  @media (min-width: 800px) {
-    &:has([data-collapsed]) {
-      flex: 0 0 34%;
-    }
-  }
-
-  @media (min-width: 1100px) {
-    &:has([data-collapsed]) {
-      flex: 0 0 420px;
-    }
-  }
 `
 
 const StyledSettingsForm = styled(SettingsForm)`
@@ -513,8 +497,8 @@ const RightArea = ComponentPlugin('rightArea')
 const CommentTrackToolBar = ComponentPlugin('commentTrackToolBar')
 const NotesArea = ComponentPlugin('notesArea')
 
-let surfaceHeight = (window.innerHeight / 5) * 3
-let notesHeight = (window.innerHeight / 5) * 2
+let surfaceHeight = (window.innerHeight / 5) * 4
+let notesHeight = (window.innerHeight / 5) * 1
 
 const onResizeEnd = arr => {
   surfaceHeight = arr[0].size
@@ -823,14 +807,14 @@ const LuluLayout = ({ customProps, ...rest }) => {
                 </WaxSurfaceScroll>
                 {hasNotes && (
                   <NotesAreaContainer>
-                    <NotesInnerContainer>
+                    {/* <NotesInnerContainer> */}
                       <NotesContainer id="notes-container">
                         <NotesArea view={main} />
                       </NotesContainer>
                       <CommentsContainerNotes>
                         <RightArea area="notes" />
                       </CommentsContainerNotes>
-                    </NotesInnerContainer>
+                    {/* </NotesInnerContainer> */}
                   </NotesAreaContainer>
                 )}
               </PanelGroup>

@@ -63,11 +63,12 @@ const ControlsWrappers = styled.div`
   flex-direction: column;
   height: 100%;
   padding: ${grid(2)};
-  width: 10%;
+
   z-index: 1;
 `
 
 const FilesWrapper = styled.div`
+  transform: ${({ expand }) => (expand ? 'translateX(0)' : 'translateX(-100%)')};
   animation: ${props =>
     props.expand ? 'slideRight 2s forwards' : 'slideLeft 1s forwards'};
   background: white;
@@ -77,7 +78,13 @@ const FilesWrapper = styled.div`
   overflow: auto;
   padding: 8px 8px 8px 0;
   visibility: ${props => (props.defaultState ? 'visible' : 'hidden')};
-  width: 90%;
+  width: 420px;
+  position: absolute;
+  top: 0px;
+  left: 25px;
+
+  border-right: 1px solid #e8e8e8;
+  box-shadow: 3px 0 3px #e8e8e8; /* optional tweak */
 
   .ant-tree {
     background: white;
@@ -189,7 +196,7 @@ const DocTreeManager = ({
 }) => {
   const { bookComponentId } = useParams()
   const { setTitle } = useContext(DocumentContext)
-  let isFileManagerOpen = true
+  let isFileManagerOpen = false
 
   // console.log({title})
 
