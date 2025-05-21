@@ -51,8 +51,6 @@ const Wrapper = styled.div`
 `
 
 const Main = styled.div`
-  justify-content: center;
-  align-items: center;
   display: flex;
   flex: 1 1 calc(100% - var(--top-menu-base));
   overflow: hidden;
@@ -224,6 +222,17 @@ const CollapseContainer = styled.div`
   position: absolute;
   z-index: 9;
 
+  &[data-collapsed='true'] {
+    align-items: start;
+    background-color: white;
+    height: unset;
+    inset: 0;
+
+    button {
+      transform: rotate(90deg);
+    }
+  }
+
   button {
     block-size: 34px;
     inline-size: 34px;
@@ -377,8 +386,6 @@ const TrackOptions = styled.div`
 `
 
 const EditorContainer = styled.div`
-  position: relative;
-  z-index: 1;
   display: flex;
   height: 100%;
   justify-content: center;
@@ -450,13 +457,6 @@ const EditorContainer = styled.div`
 `
 
 const LeftPanelWrapper = styled.div`
-
-  top: 0;
-  /* Move to the left of .right */
-  left: calc(50% - 150px); /* 50% of screen - half width of .right */
-  transform: translate(-100%, -50%); /* Push fully to the left and center vertically */
-  
-
   background-color: #e8e8e8;
   display: flex;
   flex-direction: column;
@@ -465,8 +465,31 @@ const LeftPanelWrapper = styled.div`
   padding-inline: ${grid(3)} ${grid(3)} ${grid(3)} 0;
   position: absolute;
   transition: flex-basis 0.4s, width 0.4s;
-  width: ${(props) => props.bookPanelCollapsed ? '0' : '520px'}
+  width: 360px;
   z-index: 1000; // hate it but it's the wax cursor's fault!
+
+  &:has([data-collapsed='true']) {
+    flex: 0 0 50px;
+    width: 50px;
+  }
+
+  @media (min-width: 600px) {
+    flex: 0 0 360px;
+    position: relative;
+    width: unset;
+  }
+
+  @media (min-width: 800px) {
+    &:has([data-collapsed]) {
+      flex: 0 0 34%;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    &:has([data-collapsed]) {
+      flex: 0 0 420px;
+    }
+  }
 `
 
 const StyledSettingsForm = styled(SettingsForm)`
@@ -724,8 +747,8 @@ const LuluLayout = ({ customProps, ...rest }) => {
           </TopMenu>
           <Main>
             {!options.fullScreen && (
-              <LeftPanelWrapper bookPanelCollapsed={bookPanelCollapsed}>
-                <CollapseContainer>
+              <LeftPanelWrapper>
+                <CollapseContainer data-collapsed={bookPanelCollapsed}>
                   <Button
                     aria-label="Collapse"
                     icon={<ToTopOutlined />}
