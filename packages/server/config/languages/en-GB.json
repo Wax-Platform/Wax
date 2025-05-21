@@ -2,6 +2,588 @@
   "_translationInfo": {
     "instructions": "Only translate text in 'value' fields. Do not modify any other fields."
   },
+  "Wax": {
+    "Base": {
+      "Undo": {
+        "type": "button",
+        "value": "Undo"
+      },
+      "Redo": {
+        "type": "button",
+        "value": "Redo"
+      },
+      "Save changes": {
+        "type": "button",
+        "value": "Save changes"
+      }
+    },
+    "Annotations": {
+      "Toggle code": {
+        "type": "button",
+        "value": "Toggle code"
+      },
+      "Toggle emphasis": {
+        "type": "button",
+        "value": "Toggle emphasis"
+      },
+      "Toggle Small Caps": {
+        "type": "button",
+        "value": "Toggle Small Caps"
+      },
+      "Toggle strikethrough": {
+        "type": "button",
+        "value": "Toggle strikethrough"
+      },
+      "Toggle strong": {
+        "type": "button",
+        "value": "Toggle strong"
+      },
+      "Toggle subscript": {
+        "type": "button",
+        "value": "Toggle subscript"
+      },
+      "Toggle superscript": {
+        "type": "button",
+        "value": "Toggle superscript"
+      },
+      "Toggle underline": {
+        "type": "button",
+        "value": "Toggle underline"
+      },
+      "Add or remove link": {
+        "type": "button",
+        "value": "Add or remove link"
+      },
+      "Wrap in bullet list": {
+        "type": "button",
+        "value": "Wrap in bullet list"
+      },
+      "Wrap in ordered list": {
+        "type": "button",
+        "value": "Wrap in ordered list"
+      },
+      "Join with above block": {
+        "type": "button",
+        "value": "Join with above block"
+      },
+      "Lift out of enclosing block": {
+        "type": "button",
+        "value": "Lift out of enclosing block"
+      },
+      "Insert Note": {
+        "type": "button",
+        "value": "Insert Note"
+      },
+      "Insert Code Block": {
+        "type": "button",
+        "value": "Insert Code Block"
+      }
+    },
+    "BlockLevel": {
+      "Block Level": {
+        "type": "heading",
+        "value": "Heading styles"
+      },
+      "Change to Author": {
+        "type": "button",
+        "value": "Switch to Author"
+      },
+      "Author": {
+        "type": "text",
+        "value": "Author"
+      },
+      "Change to Epigraph Poetry": {
+        "type": "button",
+        "value": "Switch to Epigraph Poetry"
+      },
+      "Epigraph Poetry": {
+        "type": "text",
+        "value": "Epigraph Poetry"
+      },
+      "Change to Epigraph Prose": {
+        "type": "button",
+        "value": "Switch to Epigraph Prose"
+      },
+      "Epigraph Prose": {
+        "type": "text",
+        "value": "Epigraph Prose"
+      },
+      "Change to Source Note": {
+        "type": "button",
+        "value": "Switch to Source Note"
+      },
+      "Source Note": {
+        "type": "text",
+        "value": "Source Note"
+      },
+      "Change to heading level 2": {
+        "type": "button",
+        "value": "Switch to heading level 2"
+      },
+      "Heading 2": {
+        "type": "text",
+        "value": "Heading 2"
+      },
+      "Change to heading level 3": {
+        "type": "button",
+        "value": "Switch to heading level 3"
+      },
+      "Heading 3": {
+        "type": "text",
+        "value": "Heading 3"
+      },
+      "Change to heading level 4": {
+        "type": "button",
+        "value": "Switch to heading level 4"
+      },
+      "Heading 4": {
+        "type": "text",
+        "value": "Heading 4"
+      },
+      "Change to heading level 5": {
+        "type": "button",
+        "value": "Switch to heading level 5"
+      },
+      "Heading 5": {
+        "type": "text",
+        "value": "Heading 5"
+      },
+      "Change to heading level 6": {
+        "type": "button",
+        "value": "Switch to heading level 6"
+      },
+      "Heading 6": {
+        "type": "text",
+        "value": "Heading 6"
+      },
+      "Change to Subtitle": {
+        "type": "button",
+        "value": "Switch to Subtitle"
+      },
+      "Subtitle": {
+        "type": "text",
+        "value": "Subtitle"
+      },
+      "Change to Title": {
+        "type": "button",
+        "value": "Switch to Title"
+      },
+      "Title (H1)": {
+        "type": "text",
+        "value": "Title"
+      },
+      "Change to Block Quote": {
+        "type": "button",
+        "value": "Switch to Block Quote"
+      },
+      "Block Quote": {
+        "type": "text",
+        "value": "Block Quote"
+      },
+      "Change to Extract Poetry": {
+        "type": "button",
+        "value": "Switch to Extract Poetry"
+      },
+      "Extract Poetry": {
+        "type": "text",
+        "value": "Extract Poetry"
+      },
+      "Change to Extract Prose": {
+        "type": "button",
+        "value": "Switch to Extract Prose"
+      },
+      "Extract Prose": {
+        "type": "text",
+        "value": "Extract Prose"
+      },
+      "Change to Paragraph Continued": {
+        "type": "button",
+        "value": "Switch to Paragraph Continued"
+      },
+      "Paragraph Continued": {
+        "type": "text",
+        "value": "Paragraph Continued"
+      },
+      "Change to Paragraph": {
+        "type": "button",
+        "value": "Switch to Paragraph"
+      },
+      "Paragraph": {
+        "type": "text",
+        "value": "Paragraph"
+      }
+    },
+    "TransformCase": {
+      "Transform": {
+        "type": "button",
+        "value": "Transform"
+      },
+      "Upper Case": {
+        "type": "button",
+        "value": "Upper Case"
+      },
+      "Lower Case": {
+        "type": "button",
+        "value": "Lower Case"
+      },
+      "Sentence Case": {
+        "type": "button",
+        "value": "Sentence Case"
+      }
+    },
+    "Images": {
+      "Upload Image": {
+        "type": "button",
+        "value": "Upload Image"
+      }
+    },
+    "SpecialCharacters": {
+      "Special Characters": {
+        "type": "heading",
+        "value": "Special Characters"
+      },
+      "Search": {
+        "type": "button",
+        "value": "Search"
+      }
+    },
+    "AI": {
+      "Placeholder": {
+        "type": "input",
+        "value": "How can I help you? Type your prompt here."
+      },
+      "Submit": {
+        "type": "button",
+        "value": "Submit"
+      },
+      "Replace selected text": {
+        "type": "button",
+        "value": "Replace selected text"
+      },
+      "Insert": {
+        "type": "button",
+        "value": "Insert"
+      },
+      "Try again": {
+        "type": "button",
+        "value": "Try again"
+      },
+      "Discard": {
+        "type": "button",
+        "value": "Discard"
+      }
+    },
+    "Tables": {
+      "Insert table": {
+        "type": "button",
+        "value": "Insert Table"
+      },
+      "Table Options": {
+        "type": "button",
+        "value": "Table Options"
+      },
+      "Delete table": {
+        "type": "button",
+        "value": "Delete table"
+      },
+      "Add Caption": {
+        "type": "button",
+        "value": "Add Caption"
+      },
+      "Delete Caption": {
+        "type": "button",
+        "value": "Delete Caption"
+      },
+      "Add column before": {
+        "type": "button",
+        "value": "Add column before"
+      },
+      "Add column after": {
+        "type": "button",
+        "value": "Add column after"
+      },
+      "Delete column": {
+        "type": "button",
+        "value": "Delete column"
+      },
+      "Insert row before": {
+        "type": "button",
+        "value": "Insert row before"
+      },
+      "Insert row after": {
+        "type": "button",
+        "value": "Insert row after"
+      },
+      "Delete row": {
+        "type": "button",
+        "value": "Delete row"
+      },
+      "Merge cells": {
+        "type": "button",
+        "value": "Merge cells"
+      },
+      "Split cell": {
+        "type": "button",
+        "value": "Split cell"
+      },
+      "Toggle header column": {
+        "type": "button",
+        "value": "Toggle header column"
+      },
+      "Toggle header row": {
+        "type": "button",
+        "value": "Toggle header row"
+      },
+      "Toggle header cells": {
+        "type": "button",
+        "value": "Toggle header cells"
+      }
+    },
+    "TrackChanges": {
+      "Editing": {
+        "type": "button",
+        "value": "Editing"
+      },
+      "Suggesting": {
+        "type": "button",
+        "value": "Suggesting"
+      },
+      "Show Changes": {
+        "type": "button",
+        "value": "Show Changes"
+      },
+      "Accept": {
+        "type": "button",
+        "value": "Accept"
+      },
+      "Reject": {
+        "type": "button",
+        "value": "Reject"
+      },
+      "Suggestions": {
+        "type": "text",
+        "value": "Suggestions"
+      },
+      "Show suggestions": {
+        "type": "button",
+        "value": "Show suggestions"
+      },
+      "Hide suggestions": {
+        "type": "button",
+        "value": "Hide suggestions"
+      },
+      "Accept in selection": {
+        "type": "button",
+        "value": "Accept in selection"
+      },
+      "Reject in selection": {
+        "type": "button",
+        "value": "Reject in selection"
+      }
+    },
+    "FindAndReplace": {
+      "Find And Replace": {
+        "type": "heading",
+        "value": "Find And Replace"
+      },
+      "Find": {
+        "type": "button",
+        "value": "Find"
+      },
+      "Replace": {
+        "type": "button",
+        "value": "Replace"
+      },
+      "Replace with": {
+        "type": "button",
+        "value": "Replace with"
+      },
+      "All": {
+        "type": "button",
+        "value": "All"
+      },
+      "Something is this doc": {
+        "type": "text",
+        "value": "Something is this doc"
+      },
+      "Replace text": {
+        "type": "button",
+        "value": "Replace text"
+      },
+      "Case Sensitive": {
+        "type": "button",
+        "value": "Case Sensitive"
+      },
+      "of": {
+        "type": "text",
+        "value": "of"
+      },
+      "Match Case": {
+        "type": "button",
+        "value": "Match Case"
+      },
+      "Previous": {
+        "type": "button",
+        "value": "Previous"
+      },
+      "Next": {
+        "type": "button",
+        "value": "Next"
+      }
+    },
+    "ShortCuts": {
+      "short cuts": {
+        "type": "heading",
+        "value": "short cuts"
+      },
+      "Indent list item": {
+        "type": "button",
+        "value": "Indent list item"
+      },
+      "Lift list item": {
+        "type": "button",
+        "value": "Lift list item"
+      },
+      "Soft break": {
+        "type": "button",
+        "value": "Soft break"
+      },
+      "Exit code block": {
+        "type": "button",
+        "value": "Exit code block"
+      }
+    },
+    "Counters": {
+      "Word": {
+        "type": "text",
+        "value": "Word"
+      },
+      "Words": {
+        "type": "text",
+        "value": "Words"
+      },
+      "Characters": {
+        "type": "text",
+        "value": "Characters"
+      },
+      "Characters Without Space": {
+        "type": "text",
+        "value": "Characters Without Space"
+      },
+      "Paragraph": {
+        "type": "text",
+        "value": "Paragraph"
+      },
+      "Images": {
+        "type": "text",
+        "value": "Images"
+      },
+      "Tables": {
+        "type": "text",
+        "value": "Tables"
+      },
+      "Footnotes": {
+        "type": "text",
+        "value": "Footnotes"
+      },
+      "Block-Level Nodes": {
+        "type": "text",
+        "value": "Block-Level Nodes"
+      }
+    },
+    "Comments": {
+      "Resolve": {
+        "type": "button",
+        "value": "Resolve"
+      },
+      "Post": {
+        "type": "button",
+        "value": "Post"
+      },
+      "Cancel": {
+        "type": "button",
+        "value": "Cancel"
+      },
+      "Reply": {
+        "type": "button",
+        "value": "Reply"
+      },
+      "Write comment": {
+        "type": "button",
+        "value": "Write comment"
+      },
+      "Write title": {
+        "type": "button",
+        "value": "Write title"
+      }
+    },
+    "Various": {
+      "Add": {
+        "type": "button",
+        "value": "Add"
+      },
+      "Display": {
+        "type": "button",
+        "value": "Display"
+      },
+      "Long Boxes": {
+        "type": "text",
+        "value": "Long Boxes"
+      },
+      "Short Boxes": {
+        "type": "text",
+        "value": "Short Boxes"
+      },
+      "Text": {
+        "type": "text",
+        "value": "Text"
+      },
+      "Custom Block": {
+        "type": "text",
+        "value": "Custom Block"
+      },
+      "Expand": {
+        "type": "button",
+        "value": "Expand"
+      },
+      "Show more tools": {
+        "type": "button",
+        "value": "Show more tools"
+      },
+      "more": {
+        "type": "text",
+        "value": "more"
+      },
+      "Close": {
+        "type": "button",
+        "value": "Close"
+      },
+      "remove tag": {
+        "type": "button",
+        "value": "remove tag"
+      },
+      "Full screen": {
+        "type": "button",
+        "value": "Full screen"
+      },
+      "Exit full screen": {
+        "type": "button",
+        "value": "Exit full screen"
+      },
+      "Viewing": {
+        "type": "text",
+        "value": "Viewing"
+      },
+      "Chapters": {
+        "type": "text",
+        "value": "Chapters"
+      },
+      "Text Highlighter": {
+        "type": "text",
+        "value": "Text Highlighter"
+      }
+    }
+  },
   "pages": {
     "admin": {
       "title": {
