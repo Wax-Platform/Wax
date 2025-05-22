@@ -64,12 +64,13 @@ const revertNotesSchema = schema => {
     revertNotesSchema(view.state.schema)
     
 
-    if (isLeader()) {
+    // if (isLeader()) {
+    console.log('update')
       htmlText.doc?.transact(() => {
         htmlText.delete(0, htmlText.length)
         htmlText.insert(0, html)
       })
-    }
+    // }
   }
 
   // const debouncedUpdate = debounce(updateHTML, debounceMs)
