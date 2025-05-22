@@ -380,7 +380,10 @@ const DocTreeManager = ({
   }
 
   const deleteResourceFn = async variables => {
-    await deleteResource(variables)
+    const deletedResource = await deleteResource(variables)
+
+    if (deletedResource?.data.deleteResource === null) return
+
     const { data } = await getDocTreeData()
     const allData = JSON.parse(data.getDocTree)
     allData[0].disabled = true

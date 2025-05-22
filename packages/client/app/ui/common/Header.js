@@ -154,10 +154,10 @@ const OtherUsers = ({ currentUser }) => {
   return (
     <UlUsers>
       {sharedUsers
-        .filter(([id, { user }]) => user.id !== currentUser.id)
-        .map(([id, { user }]) => (
+        .filter(({ user }) => user.id !== currentUser.id)
+        .map(({ user }) => (
           <li key={user.id}>
-            <StyledAvatar data-test="avatar-initials">
+            <StyledAvatar style={{ backgroundColor: user.color, color: '#fff' }} data-test="avatar-initials">
                   {getInitials(user.displayName)}
                 </StyledAvatar>
             {/* <ColoredCircle color={user.color} size="35px" />{' '}
@@ -294,7 +294,6 @@ Header.propTypes = {
   brandLogoURL: PropTypes.string,
   canAccessAdminPage: PropTypes.bool,
   homeURL: PropTypes.string.isRequired,
-  userDisplayName: PropTypes.string,
   onLogout: PropTypes.func.isRequired,
   showBackToBook: PropTypes.bool.isRequired,
   showDashboard: PropTypes.bool,

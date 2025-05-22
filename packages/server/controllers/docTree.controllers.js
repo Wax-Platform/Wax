@@ -184,7 +184,11 @@ const addResource = async (_, { id, bookId, divisionId, isFolder }, ctx) => {
 }
 
 const deleteResource = async (_, { id }, ctx) => {
+  const { docs } = require('../services/yjsWebsocket/utils')
+
   const deleteResourceItem = await DocTreeManager.query().findOne({ id })
+
+  if (docs.has(deleteResourceItem.bookComponentId)) return null
 
   if (deleteResourceItem.isFolder) {
     deleteResourceRecursively(id, ctx)
@@ -212,19 +216,19 @@ const deleteResource = async (_, { id }, ctx) => {
           teams.map(team => team.id),
         )
     }
-  } else {
-    const team = await Team.query().findOne({
-      objectId: deleteResourceItem.bookComponentId,
-      objectType: 'bookComponent',
-      role: 'viewer',
-    })
+  }
 
-    if (team) {
-      await TeamMember.query().delete().where({
-        teamId: team.id,
-        userId: ctx.userId,
-      })
-    }
+  const team = await Team.query().findOne({
+    objectId: deleteResourceItem.bookComponentId,
+    objectType: 'bookComponent',
+    role: 'collaborator',
+  })
+
+  if (team) {
+    await TeamMember.query().delete().where({
+      teamId: team.id,
+      userId: ctx.userId,
+    })
   }
 
   return deleteResourceItem

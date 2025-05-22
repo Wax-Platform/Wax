@@ -98,8 +98,6 @@ const IconTitleContainer = styled.div`
   }
 `
 
-// const lock = false
-
 const RowRender = row => {
   const {
     id,
@@ -145,12 +143,6 @@ const RowRender = row => {
 
   /* eslint-disable-next-line consistent-return */
   const goToDocument = e => {
-    // if (!lock) {
-    //   lock = true
-    //   setTimeout(() => {
-    //     lock = false
-    //   }, 1500)
-
     if (e.target.type === 'text') {
       e.preventDefault()
       return false

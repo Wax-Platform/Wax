@@ -72,7 +72,15 @@ const YjsProvider = ({ children }) => {
     )
 
     provider.awareness.on('change', () => {
-      setSharedUsers([...provider.awareness.getStates()])
+      const states = Array.from(provider.awareness.getStates().values())
+
+      // Optional: deduplicate based on a user id or name
+      const uniqueUsers = Array.from(
+        new Map(states.map(user => [user?.id || user?.displayName, user])).values()
+      )
+      console.log(uniqueUsers, 'uniqueUsers')
+
+      setSharedUsers(uniqueUsers)
     })
 
 
