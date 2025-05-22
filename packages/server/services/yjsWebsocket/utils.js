@@ -79,13 +79,13 @@ const closeConn = (doc, conn) => {
       null,
     )
 
-    // if (doc.conns.size === 0 && persistence !== null) {
+    if (doc.conns.size === 0 && persistence !== null) {
       // if persisted, we store state and destroy ydocument
       persistence.writeState(doc).then(() => {
         doc.destroy()
       })
       docs.delete(doc.name)
-    // }
+    }
   }
 
   conn.close()
