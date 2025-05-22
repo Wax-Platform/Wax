@@ -89,7 +89,7 @@ const closeConn = (doc, conn) => {
 
     if (doc.conns.size === 0) {
       doc.destroy();
-      docs.delete(docName);
+      docs.delete(doc.name);
     }
   }
 
