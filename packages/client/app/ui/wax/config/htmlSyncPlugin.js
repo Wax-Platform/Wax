@@ -65,7 +65,6 @@ const revertNotesSchema = schema => {
     
 
     // if (isLeader()) {
-    console.log('update')
       htmlText.doc?.transact(() => {
         htmlText.delete(0, htmlText.length)
         htmlText.insert(0, html)

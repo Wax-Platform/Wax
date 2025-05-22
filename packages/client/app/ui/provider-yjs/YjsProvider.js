@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
+import { uniqBy } from 'lodash'
 
 import { uuid, webSocketServerUrl } from '@coko/client'
 
@@ -72,17 +73,9 @@ const YjsProvider = ({ children }) => {
     )
 
     provider.awareness.on('change', () => {
-      const states = Array.from(provider.awareness.getStates().values())
-
-      // Optional: deduplicate based on a user id or name
-      const uniqueUsers = Array.from(
-        new Map(states.map(user => [user?.id || user?.displayName, user])).values()
-      )
-      console.log(uniqueUsers, 'uniqueUsers')
-
+      const uniqueUsers = uniqBy(Array.from(provider.awareness.getStates().values()), 'user.id')
       setSharedUsers(uniqueUsers)
     })
-
 
     const color = arrayColor[Math.floor(Math.random() * arrayColor.length)]
 

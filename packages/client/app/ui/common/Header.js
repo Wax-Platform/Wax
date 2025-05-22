@@ -137,7 +137,13 @@ const PopupContentWrapper = styled.div`
 `
 
 const UlUsers = styled.ul`
+  display: flex;
   list-style: none;
+  margin-right: 50px;
+
+  li {
+    margin-left: 5px;
+  }
 `
 // #endregion styles
 
@@ -157,7 +163,7 @@ const OtherUsers = ({ currentUser }) => {
         .filter(({ user }) => user.id !== currentUser.id)
         .map(({ user }) => (
           <li key={user.id}>
-            <StyledAvatar style={{ backgroundColor: user.color, color: '#fff' }} data-test="avatar-initials">
+            <StyledAvatar style={{ backgroundColor: user.color, color: '#000' }} data-test="avatar-initials">
                   {getInitials(user.displayName)}
                 </StyledAvatar>
             {/* <ColoredCircle color={user.color} size="35px" />{' '}
