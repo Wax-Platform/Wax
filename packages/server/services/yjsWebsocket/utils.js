@@ -17,6 +17,8 @@ const Files = require('../../models/file/file.model')
 
 let persistence = null
 
+const LAST_WRITE = new Map();
+
 const messageSync = 0
 const messageAwareness = 1
 const wsReadyStateConnecting = 0
