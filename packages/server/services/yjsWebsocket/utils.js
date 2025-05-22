@@ -15,6 +15,8 @@ const BookComponentTranslation = require('../../models/bookComponentTranslation/
 
 const Files = require('../../models/file/file.model')
 
+const LAST_WRITE = new Map();
+
 let persistence = null
 
 const messageSync = 0
@@ -78,17 +80,31 @@ const closeConn = (doc, conn) => {
       Array.from(controlledIds),
       null,
     )
+    
+    if (shouldWrite(doc.name)) {
+      persistence.writeState(doc).catch((err) => {
+        console.error('Failed to write document state on user disconnect:', err);
+      });
+    }
 
-    if (doc.conns.size === 0 && persistence !== null) {
-      // if persisted, we store state and destroy ydocument
-      persistence.writeState(doc).then(() => {
-        doc.destroy()
-      })
-      docs.delete(doc.name)
+    if (doc.conns.size === 0) {
+      doc.destroy();
+      docs.delete(docName);
     }
   }
 
   conn.close()
+}
+
+function shouldWrite(docName) {
+  const now = Date.now();
+  const last = LAST_WRITE.get(docName) || 0;
+  const WRITE_INTERVAL = 10000; // 10 seconds
+  if (now - last > WRITE_INTERVAL) {
+    LAST_WRITE.set(docName, now);
+    return true;
+  }
+  return false;
 }
 
 const getYDoc = (docName, userId, extraData) =>
@@ -186,7 +202,7 @@ persistence = {
           const uint8Array = Uint8Array.from(Buffer.from(yState, 'base64'))
           Y.applyUpdate(doc, uint8Array)
           // const fragment = doc.getXmlFragment('prosemirror');
-          await replaceImgSrc(doc, id)
+          // await replaceImgSrc(doc, id)
         });
       }
     }

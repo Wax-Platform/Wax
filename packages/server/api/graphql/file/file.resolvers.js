@@ -93,7 +93,7 @@ const uploadFilesHandler = async (_, { files, entityId }, ctx) => {
         const { createReadStream, filename } = await file
         const fileStream = createReadStream()
 
-        return createFile(fileStream, filename, null, null, [], entityId)
+        return createFile(fileStream, filename, null, null, [], entityId, { public: true })
       }),
     )
 
@@ -156,7 +156,7 @@ module.exports = {
   },
   File: {
     async url(file, { size }, ctx) {
-      return fileStorage.getURL(file.getStoredObjectBasedOnType(size).key)
+      return fileStorage.getPublicURL(file.getStoredObjectBasedOnType(size).key)
     },
     // async mimetype(file, { target }, ctx) {
     //   if (target && target === 'editor') {
