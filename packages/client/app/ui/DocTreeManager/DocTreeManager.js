@@ -231,6 +231,12 @@ const DocTreeManager = ({
       allData[0].isRoot = true
       allData[0].title = 'My Folders and Files'
       setGData([...allData])
+
+      const sharedData = cloneDeep(data.getSharedDocTree)
+      sharedData[0].isRoot = true
+
+      setSharedDocTree([...sharedData])
+      
       setUploading(false)
     },
   })

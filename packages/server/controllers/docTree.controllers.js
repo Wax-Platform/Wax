@@ -1,4 +1,4 @@
-const { uuid: uuidv4, Team, TeamMember } = require('@coko/server')
+const { uuid: uuidv4, Team, TeamMember, subscriptionManager } = require('@coko/server')
 
 const DocTreeManager = require('../models/docTreeManager/docTreeManager.model')
 const BookComponent = require('../models/bookComponent/bookComponent.model')
@@ -9,6 +9,10 @@ const {
 } = require('./bookComponent.controller')
 
 const BookComponentTranslation = require('../models/bookComponentTranslation/bookComponentTranslation.model')
+
+const {
+  YJS_CONTENT_UPDATED,
+} = require('../api/graphql/bookComponent/constants')
 
 const deleteResourceRecursively = async (id, ctx) => {
   const deleteResource = await DocTreeManager.query()
@@ -230,6 +234,11 @@ const deleteResource = async (_, { id }, ctx) => {
       userId: ctx.userId,
     })
   }
+
+
+  subscriptionManager.publish(YJS_CONTENT_UPDATED, {
+        yjsContentUpdated: deleteResourceItem.bookComponentId,
+      })
 
   return deleteResourceItem
 }
