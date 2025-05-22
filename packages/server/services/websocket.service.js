@@ -141,14 +141,6 @@ const establishYjsConnection = async (injectedWS, request) => {
 }
 
 
-process.on('SIGINT', async () => {
-  console.log('Flushing all active docs...');
-  await Promise.all([...utils.docs.values()].map(doc => {
-    return utils.persistence.writeState(doc);
-  }));
-  process.exit(0);
-});
-
 const initializeYjs = (injectedWS, doc) => {
   const pingTimeout = 3000
   let pingReceived = true

@@ -79,6 +79,19 @@ module.exports = {
   teams: flavorTeams,
   tempDirectoryCleanUp: true,
   devServerIgnore: ['./templates/*', './uploads/*'],
+  onShutdown: [
+    {
+      label: 'save unsaved data',
+      execute: async () => {
+        const utils = require('../services/yjsWebsocket/utils')
+        console.log('Flushing all active docs...');
+        await Promise.all([...utils.docs.values()].map(
+          doc => utils.persistence.writeState(doc)
+        ));
+        console.log('All data flushed.');
+      },
+    },
+  ],
   onStartup: [
     {
       label: 'Seed Admin',
