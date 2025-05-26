@@ -199,20 +199,20 @@ const EditorWrapper = ({
         provider: () => wsProvider,
         ydoc: () => ydoc,
         yjsType: 'prosemirror',
-        cursorBuilder: u => {
-          if (u) {
-            const cursor = document.createElement('span')
-            cursor.classList.add('ProseMirror-yjs-cursor')
-            cursor.setAttribute('style', `border-color: ${u.color}`)
-            const userDiv = document.createElement('div')
-            userDiv.setAttribute('style', `background-color: ${u.color}`)
-            userDiv.insertBefore(document.createTextNode(u.displayName), null)
-            cursor.insertBefore(userDiv, null)
-            return cursor
-          }
+        // cursorBuilder: u => {
+        //   if (u) {
+        //     const cursor = document.createElement('span')
+        //     cursor.classList.add('ProseMirror-yjs-cursor')
+        //     cursor.setAttribute('style', `border-color: ${u.color}`)
+        //     const userDiv = document.createElement('div')
+        //     userDiv.setAttribute('style', `background-color: ${u.color}`)
+        //     userDiv.insertBefore(document.createTextNode(u.displayName), null)
+        //     cursor.insertBefore(userDiv, null)
+        //     return cursor
+        //   }
 
-          return ''
-        },
+        //   return ''
+        // },
       },
       TitleService: {
         updateTitle: t => {
