@@ -768,6 +768,7 @@ const ProducerPage = ({ bookId }) => {
   }
 
   const handleImageUpload = async file => {
+    console.log(file, 'file pressed')
     if (!canModify) {
       return showUnauthorizedActionModal(false)
     }
