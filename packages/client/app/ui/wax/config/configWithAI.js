@@ -21,7 +21,7 @@ import {
   CustomTagService,
   MathService,
   NoteService,
-  CommentsService,
+  // CommentsService,
   CodeBlockService,
 } from 'wax-prosemirror-services'
 
@@ -31,6 +31,7 @@ import { QuestionsService } from 'wax-questions-service'
 import { TablesService, columnResizing } from 'wax-table-service'
 
 import disallowPasteImagesPlugin from '../disallowPasteImagesPlugin'
+import CommentsService from './CommentsService/CommentsService'
 
 import charactersList from './charactersList'
 
