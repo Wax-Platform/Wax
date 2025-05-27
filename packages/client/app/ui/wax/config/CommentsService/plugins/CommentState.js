@@ -144,6 +144,10 @@ export default class CommentState {
 
   // Try multiple fallback strategies to recreate a decoration
   tryRecreateDecoration(annotation, mappedDecos, state) {
+    if (!this.options.map.has(annotation.id)) {
+      return null
+    }
+
     const strategies = [
       // Strategy 1: Try mappedDecos fallback
       () => {
