@@ -148,8 +148,7 @@ export default class CommentState {
       return null
     }
 
-    // Check if this comment already exists in Yjs state
-
+    // Check if this comment is managed by Yjs
     const ystate = ySyncPluginKey.getState(state)
 
     if (ystate?.binding) {
@@ -157,7 +156,7 @@ export default class CommentState {
 
       if (existingComment) {
         console.log(
-          `[CommentPlugin] Comment ${annotation.id} already exists in Yjs state, skipping recreation`,
+          `[CommentPlugin] Comment ${annotation.id} is managed by Yjs, skipping recreation`,
         )
         return null
       }
