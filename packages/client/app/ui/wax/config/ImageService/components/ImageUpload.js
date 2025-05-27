@@ -65,9 +65,10 @@ const ImageUpload = ({ item, fileUpload, view }) => {
 
     console.log(imageServiceConfig, imageServiceConfig.handleAssetManager)
     if (imageServiceConfig && imageServiceConfig.handleAssetManager) {
-      console.log('dfsfdsfsdfdsfsd')
       await insertThroughFileMAnager();
     } else {
+
+      console.log(inputRef.current, 'button clicked')
       inputRef.current.click();
     }
   };
@@ -126,7 +127,11 @@ const ImageUpload = ({ item, fileUpload, view }) => {
                 ? onChangeFileManager
                 : onChange
             }
-            ref={inputRef}
+            // ref={inputRef}
+            ref={(el) => {
+              inputRef.current = el;
+              console.log('Input mounted', el);
+            }}
             type="file"
           />
         </label>
