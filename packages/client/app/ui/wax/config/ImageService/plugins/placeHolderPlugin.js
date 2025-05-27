@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
 
@@ -5,39 +6,38 @@ export default key =>
   new Plugin({
     key: new PluginKey(key),
     state: {
-      init() {
+      init: function init() {
         return DecorationSet.empty;
       },
-      apply(tr, set) {
-        // Map existing decorations through the document changes
+      apply: function apply(tr, set, oldState, newState) {
+        // Adjust decoration positions to changes made by the transaction
         set = set.map(tr.mapping, tr.doc);
-
+        // See if the transaction adds or removes any placeholders
         const action = tr.getMeta(this);
-        if (action?.add) {
-          // Create a visible placeholder element
+        if (action && action.add) {
           const widget = document.createElement('placeholder');
-          // widget.className = 'placeholder';
-          // widget.textContent = 'Uploading...'; // Optional visible text
-
           const deco = Decoration.widget(action.add.pos, widget, {
             id: action.add.id,
           });
-
           set = set.add(tr.doc, [deco]);
-        }
-
-        if (action?.remove) {
-          const found = set.find(null, null, spec => spec.id === action.remove.id);
-          if (found.length) {
-            set = set.remove(found);
+        } else if (action && action.remove) {
+          set = set.remove(
+            set.find(null, null, spec => spec.id === action.remove.id),
+          );
+          // HACK to fix potential issues with Yjs and decoration removal
+          const currentDecorations = set.find();
+          const toRemove = currentDecorations.find(
+            deco => deco.spec.id === action.remove.id,
+          );
+          if (toRemove) {
+            set = set.remove([toRemove]);
           }
         }
-
         return set;
       },
     },
     props: {
-      decorations(state) {
+      decorations: function decorations(state) {
         return this.getState(state);
       },
     },
