@@ -2,7 +2,7 @@ import { DefaultSchema } from 'wax-prosemirror-core'
 
 import {
   InlineAnnotationsService,
-  ImageService,
+  // ImageService,
   LinkService,
   ListsService,
   BaseService,
@@ -32,6 +32,7 @@ import { TablesService, columnResizing } from 'wax-table-service'
 
 import disallowPasteImagesPlugin from '../disallowPasteImagesPlugin'
 import CommentsService from './CommentsService/CommentsService'
+import ImageService from './ImageService/ImageService'
 
 import charactersList from './charactersList'
 
