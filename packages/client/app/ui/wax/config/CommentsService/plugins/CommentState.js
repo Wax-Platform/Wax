@@ -269,6 +269,19 @@ export default class CommentState {
       const { doc, type, binding } = ystate
 
       this.allCommentsList().forEach(annotation => {
+        if (ystate?.binding) {
+          const existingComment = this.options.commentsDataMap.get(
+            annotation.id,
+          )
+
+          if (!existingComment) {
+            console.log(
+              `[CommentPlugin] Comment ${annotation.id} is managed by Yjs, skipping recreation`,
+            )
+            return
+          }
+        }
+
         let from = relativePositionToAbsolutePosition(
           doc,
           type,
