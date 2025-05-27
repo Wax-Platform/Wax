@@ -137,8 +137,7 @@ const ImageUpload = ({ item, fileUpload, view }) => {
         </label>
       </Wrapper>
     ),
-    [],
-    //[isDisabled, activeViewId, t(`Wax.Images.${title}`)],
+    [isDisabled, activeViewId, t(`Wax.Images.${title}`)],
   );
 
   return ImageUploadComponent;
