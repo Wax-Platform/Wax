@@ -148,6 +148,21 @@ export default class CommentState {
       return null
     }
 
+    // Check if this comment already exists in Yjs state
+
+    const ystate = ySyncPluginKey.getState(state)
+
+    if (ystate?.binding) {
+      const existingComment = this.options.commentsDataMap.get(annotation.id)
+
+      if (existingComment) {
+        console.log(
+          `[CommentPlugin] Comment ${annotation.id} already exists in Yjs state, skipping recreation`,
+        )
+        return null
+      }
+    }
+
     const strategies = [
       // Strategy 1: Try mappedDecos fallback
       () => {
