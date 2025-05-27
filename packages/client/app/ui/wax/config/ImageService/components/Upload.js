@@ -22,10 +22,12 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
     }
 
   const placeholderId = uuidv4();
+  const imageId = uuidv4(); // Unique ID for the image
   const initialPos = context.pmViews.main.state.tr.selection.from;
 
   let { tr } = context.pmViews.main.state;
   if (!tr.selection.empty) tr.deleteSelection();
+
   tr.setMeta(placeholderPlugin, {
     add: { id: placeholderId, pos: initialPos },
   });
@@ -40,57 +42,92 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
         extraData = fileData.extraData;
       }
 
+      // Get fresh state
       const { state, dispatch } = context.pmViews.main;
       const { schema } = state;
 
-      // Find the *current* position of the placeholder
-      const currentPlaceholderPos = findPlaceholder(
+      // Find placeholder position
+      let placeholderPos = findPlaceholder(
         state,
         placeholderId,
         placeholderPlugin,
       );
 
-      if (currentPlaceholderPos == null) {
-        return; // Placeholder was removed
+      // If placeholder not found, use current selection as fallback
+      if (placeholderPos === null) {
+        placeholderPos = state.selection.from;
+        console.warn('Placeholder not found, using selection position');
       }
 
-      const resolvedPlaceholder = state.doc.resolve(currentPlaceholderPos);
-      const { parent } = resolvedPlaceholder;
-      const isEmptyParagraph =
-        parent.type.name === 'paragraph' && parent.content.size === 0;
-
+      // Create the image node with the unique ID
       const imageNode = schema.nodes.image.create({
         src: url,
-        id: uuidv4(),
+        id: imageId,
         extraData,
         ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
       });
 
-      const newTr = state.tr; // Create a new transaction
+      // Create single transaction that does everything atomically
+      const tr = state.tr;
 
-      if (isEmptyParagraph) {
-        const from = resolvedPlaceholder.before();
-        const to = resolvedPlaceholder.after();
-        newTr.replaceWith(from, to, imageNode);
-      } else {
-        newTr.replaceWith(
-          currentPlaceholderPos,
-          currentPlaceholderPos,
-          imageNode,
-        );
+      try {
+        const resolved = state.doc.resolve(placeholderPos);
+        const { parent } = resolved;
+
+        // Handle different insertion scenarios
+        if (parent.type.name === 'paragraph' && parent.content.size === 0) {
+          // Replace empty paragraph with image
+          const from = resolved.before();
+          const to = resolved.after();
+          tr.replaceWith(from, to, imageNode);
+        } else if (parent.type.name === 'paragraph') {
+          // Insert image in paragraph
+          tr.insert(placeholderPos, imageNode);
+        } else {
+          // Wrap in paragraph if needed
+          const paragraphWithImage = schema.nodes.paragraph.create(
+            {},
+            imageNode,
+          );
+          tr.insert(placeholderPos, paragraphWithImage);
+        }
+
+        // Remove placeholder in the same transaction
+        tr.setMeta(placeholderPlugin, { remove: { id: placeholderId } });
+
+        // Add metadata to help track this operation
+        tr.setMeta('imageUpload', {
+          action: 'insert',
+          imageId: imageId,
+          placeholderId: placeholderId,
+        });
+
+        context.setOption({ uploading: false });
+        dispatch(tr);
+
+        // Debug: Log success
+        console.log('Image inserted successfully:', imageId);
+      } catch (error) {
+        console.error('Error during image insertion:', error);
+
+        // Fallback: just remove placeholder
+        const fallbackTr = state.tr
+          .setMeta(placeholderPlugin, { remove: { id: placeholderId } })
+          .setMeta('imageUpload', { action: 'failed', placeholderId });
+
+        context.setOption({ uploading: false });
+        dispatch(fallbackTr);
       }
-
-      newTr.setMeta(placeholderPlugin, { remove: { id: placeholderId } });
-      context.setOption({ uploading: false });
-      dispatch(newTr);
     },
-    () => {
-      const trFailure = context.pmViews.main.state.tr.setMeta(
-        placeholderPlugin,
-        {
-          remove: { id: placeholderId },
-        },
-      );
+    error => {
+      console.error('Upload failed:', error);
+
+      // Clean removal on upload failure
+      const currentState = context.pmViews.main.state;
+      const trFailure = currentState.tr
+        .setMeta(placeholderPlugin, { remove: { id: placeholderId } })
+        .setMeta('imageUpload', { action: 'uploadFailed', placeholderId });
+
       view.dispatch(trFailure);
       context.setOption({ uploading: false });
     },
