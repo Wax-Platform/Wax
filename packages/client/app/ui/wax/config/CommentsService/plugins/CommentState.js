@@ -154,7 +154,7 @@ export default class CommentState {
     if (ystate?.binding) {
       const existingComment = this.options.commentsDataMap.get(annotation.id)
 
-      if (existingComment) {
+      if (!existingComment) {
         console.log(
           `[CommentPlugin] Comment ${annotation.id} is managed by Yjs, skipping recreation`,
         )
