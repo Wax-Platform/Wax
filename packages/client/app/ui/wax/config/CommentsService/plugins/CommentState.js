@@ -156,14 +156,30 @@ export default class CommentState {
 
         if (from == null || to == null || from >= to) {
           console.warn(
-            `[CommentPlugin] Skipping decoration for id ${annotation.id}: invalid Yjs positions`,
-            {
-              from,
-              to,
-              annotation,
-            },
+            `[CommentPlugin] Invalid Yjs pos for ${annotation.id}, trying mappedDecos fallback`,
           )
-          return // Skip invalid range
+
+          // Try to recover using mappedDecos
+          const fallback = mappedDecos.find(
+            undefined,
+            undefined,
+            spec => spec.id === annotation.id,
+          )[0]
+          if (fallback) {
+            console.log('do we have fallback', fallback)
+            decorations.push(
+              Decoration.inline(
+                fallback.from,
+                fallback.to,
+                fallback.type.attrs,
+                fallback.spec,
+              ),
+            )
+          } else {
+            console.warn(`[CommentPlugin] Fallback failed for ${annotation.id}`)
+          }
+
+          return
         }
 
         const decoration = Decoration.inline(
