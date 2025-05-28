@@ -30,7 +30,8 @@ import { QuestionsService } from 'wax-questions-service'
 // import { TablesService, tableEditing, columnResizing } from 'wax-table-service'
 import { TablesService, columnResizing } from 'wax-table-service'
 
-import disallowPasteImagesPlugin from '../disallowPasteImagesPlugin'
+import disallowPasteImagesPlugin from './ImageService/plugins/disallowPasteImagesPlugin'
+
 import CommentsService from './CommentsService/CommentsService'
 import ImageService from './ImageService/ImageService'
 
