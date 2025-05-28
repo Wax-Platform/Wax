@@ -14,25 +14,32 @@ const YjsContext = React.createContext({
 const { Provider, Consumer } = YjsContext
 
 const arrayColor = [
-  '#4363d8',
-  '#ffe119',
-  '#800000',
-  '#dcbeff',
-  '#000075',
-  '#f58231',
-  '#469990',
-  '#f032e6',
-  '#9a6324',
-  '#42d4f4',
-  '#e6194b',
-  '#fabed4',
-  '#3cb44b',
-  '#911eb4',
-  '#bfef45',
-  '#808000',
-  '#ffd8b1',
-  '#aaffc3',
+  '#FFD700', // gold
+  '#FFB6C1', // light pink
+  '#90EE90', // light green
+  '#87CEFA', // light sky blue
+  '#FF7F50', // coral
+  '#FFFF66', // light yellow
+  '#FFA07A', // light salmon
+  '#40E0D0', // turquoise
+  '#E0FFFF', // light cyan
+  '#D8BFD8', // thistle
+  '#FF69B4', // hot pink
+  '#B0E0E6', // powder blue
+  '#98FB98', // pale green
+  '#E6E6FA', // lavender
+  '#F5DEB3', // wheat
+  '#FFE4B5', // moccasin
+  '#F0E68C', // khaki
+  '#FFDAB9', // peach puff
 ]
+
+// Επιλέγει διαθέσιμο και ευανάγνωστο χρώμαconst 
+const getAvailableColor = (usedColors) => {
+  const availableColors = arrayColor.filter(c => !usedColors.includes(c))
+  if (availableColors.length === 0) return '#cccccc' // fallback
+  return availableColors[Math.floor(Math.random() * availableColors.length)]
+}
 
 const YjsProvider = ({ children }) => {
   const [wsProvider, setWsProvider] = useState(null)
@@ -77,7 +84,10 @@ const YjsProvider = ({ children }) => {
       setSharedUsers(uniqueUsers)
     })
 
-    const color = arrayColor[Math.floor(Math.random() * arrayColor.length)]
+
+    const currentAwarenessStates = Array.from(provider.awareness.getStates().values())
+    const usedColors = currentAwarenessStates.map(state => state.user?.color).filter(Boolean)
+    const color = getAvailableColor(usedColors)
 
     if (currentUser) {
       provider.awareness.setLocalStateField('user', {
