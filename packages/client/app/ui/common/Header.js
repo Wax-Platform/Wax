@@ -160,7 +160,7 @@ const OtherUsers = ({ currentUser }) => {
   return (
     <UlUsers>
       {sharedUsers
-        .filter(({ user }) => user.id !== currentUser.id)
+        .filter(({ user }) => user.id !== currentUser?.id)
         .map(({ user }) => (
           <li key={user.id}>
             <StyledAvatar style={{ backgroundColor: user.color, color: '#000' }} data-test="avatar-initials">
