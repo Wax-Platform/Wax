@@ -232,7 +232,7 @@ const ProducerPage = ({ bookId }) => {
         if (wsProvider) {
           wsProvider?.disconnect()
         }
-            
+
         setShowSpinner(true)
         setTimeout(() => {
           createYjsProvider({
@@ -768,7 +768,6 @@ const ProducerPage = ({ bookId }) => {
   }
 
   const handleImageUpload = async file => {
-    console.log(file, 'file pressed')
     if (!canModify) {
       return showUnauthorizedActionModal(false)
     }
