@@ -23,7 +23,8 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
     }
 
   // A fresh object to act as the ID for this upload
-  const id = {}
+  // const id = {}
+  const id = uuidv4()
 
   // Replace the selection with a placeholder
   const { tr } = context.pmViews.main.state
