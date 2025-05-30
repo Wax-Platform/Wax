@@ -47,7 +47,11 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
         extraData = fileData.extraData
       }
 
-      let pos = findPlaceholder(context.pmViews.main.state, id, placeholderPlugin)
+      let pos = findPlaceholder(
+        context.pmViews.main.state,
+        id,
+        placeholderPlugin,
+      )
       // If the content around the placeholder has been deleted, drop
       // the image
 
@@ -73,7 +77,7 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
             context.pmViews.main.state.schema.nodes.image.create({
               src: url,
               id: uuidv4(),
-              filed: extraData.fileId,
+              fileid: extraData.fileId,
               extraData,
               ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
             }),
@@ -83,7 +87,9 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
     },
     () => {
       // On failure, just clean up the placeholder
-      context.pmViews.main.dispatch(tr.setMeta(placeholderPlugin, { remove: { id } }))
+      context.pmViews.main.dispatch(
+        tr.setMeta(placeholderPlugin, { remove: { id } }),
+      )
       context.setOption({ uploading: false })
     },
   )
