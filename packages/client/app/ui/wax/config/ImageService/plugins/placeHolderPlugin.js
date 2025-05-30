@@ -18,6 +18,7 @@ export default key =>
           const widget = document.createElement('placeholder')
           const deco = Decoration.widget(action.add.pos, widget, {
             id: action.add.id,
+            side: 1,
           })
 
           set = set.add(tr.doc, [deco])

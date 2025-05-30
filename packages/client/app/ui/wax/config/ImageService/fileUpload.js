@@ -35,7 +35,7 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
     add: { id, pos: tr.selection.from },
   })
 
-  view.dispatch(tr)
+  context.pmViews.main.dispatch(tr)
 
   fileUpload(file).then(
     fileData => {
@@ -47,12 +47,13 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
         extraData = fileData.extraData
       }
 
-      let pos = findPlaceholder(view.state, id, placeholderPlugin)
+      let pos = findPlaceholder(context.pmViews.main.state, id, placeholderPlugin)
       // If the content around the placeholder has been deleted, drop
       // the image
 
       if (pos == null) {
-        return
+        pos = context.pmViews.main.state.selection.from
+        // return
       }
 
       // if paragraph is empty don't break into new line
@@ -82,7 +83,7 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
     },
     () => {
       // On failure, just clean up the placeholder
-      view.dispatch(tr.setMeta(placeholderPlugin, { remove: { id } }))
+      context.pmViews.main.dispatch(tr.setMeta(placeholderPlugin, { remove: { id } }))
       context.setOption({ uploading: false })
     },
   )
