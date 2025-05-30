@@ -1,33 +1,40 @@
 import { v4 as uuidv4 } from 'uuid'
 import { Commands } from 'wax-prosemirror-core'
 
-const findPlaceholderDecoration = (state, id, placeholderPlugin) => {
+const findPlaceholder = (state, id, placeholderPlugin) => {
   const decos = placeholderPlugin.getState(state)
-  return decos.find(null, null, spec => spec.id === id)[0]
+  const found = decos.find(null, null, spec => spec.id === id)
+  return found.length ? found[0].from : null
 }
 
 export default (view, fileUpload, placeholderPlugin, context, app) => file => {
   console.log('file actual upload')
+  // const { state } = view;
   const trackChange = app.config.get('config.EnableTrackChangeService')
   const imageConfig = app.config.get('config.ImageService')
   const showLongDesc = imageConfig && imageConfig.showLongDesc
 
-  if (trackChange?.enabled) {
-    const selectionNodeSize = context.pmViews.main.state.doc.resolve(
-      context.pmViews.main.state.tr.selection.from,
-    ).parent.nodeSize
-    if (selectionNodeSize !== 2) {
+  if (trackChange?.enabled)
+    if (
+      context.pmViews.main.state.doc.resolve(
+        context.pmViews.main.state.tr.selection.from,
+      ).parent.nodeSize !== 2
+    ) {
       Commands.simulateKey(context.pmViews.main, 13, 'Enter')
     }
-  }
 
+  // A fresh object to act as the ID for this upload
   const id = {}
+
+  // Replace the selection with a placeholder
   let { tr } = context.pmViews.main.state
-  const uploadPos = tr.selection.from
+
+  if (!tr.selection.empty) tr.deleteSelection()
 
   tr.setMeta(placeholderPlugin, {
-    add: { id, pos: uploadPos },
+    add: { id, pos: tr.selection.from },
   })
+
   view.dispatch(tr)
 
   console.log(' before fileUpload exec')
@@ -41,18 +48,13 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
         extraData = fileData.extraData
       }
 
-      const placeholderDeco = findPlaceholderDecoration(
-        view.state,
-        id,
-        placeholderPlugin,
-      )
+      const pos = findPlaceholder(view.state, id, placeholderPlugin)
 
-      if (!placeholderDeco) {
-        console.log('placeholder decoration not found')
-        return // Placeholder was likely removed by user action or lost due to collaboration
+      if (pos == null) {
+        console.log('placeholder not found', pos)
+        return // Placeholder was removed (e.g., content deleted)
       }
 
-      const pos = placeholderDeco.from
       const { state, dispatch } = context.pmViews.main
       const { schema } = state
       const resolved = state.doc.resolve(pos)
@@ -64,23 +66,22 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
       const imageNode = schema.nodes.image.create({
         src: url,
         id: uuidv4(),
-        fileid: extraData.fileId,
         extraData,
         ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
       })
 
-      let imageTr = state.tr
       if (isEmptyParagraph) {
-        const from = resolved.before()
-        const to = resolved.after()
-        imageTr = imageTr.replaceWith(from, to, imageNode)
+        const from = resolved.before() // Start of paragraph
+        const to = resolved.after() // End of paragraph
+        tr = tr.replaceWith(from, to, imageNode)
       } else {
-        imageTr = imageTr.replaceWith(pos, pos, imageNode)
+        tr = tr.replaceWith(pos, pos, imageNode)
       }
 
-      imageTr.setMeta(placeholderPlugin, { remove: { id } })
+      tr.setMeta(placeholderPlugin, { remove: { id } })
+
       context.setOption({ uploading: false })
-      dispatch(imageTr)
+      dispatch(tr)
     },
     e => {
       console.log(e)
