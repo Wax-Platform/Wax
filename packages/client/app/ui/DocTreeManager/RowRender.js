@@ -20,11 +20,13 @@ import Button from '../common/Button'
 
 const RowContainer = styled.div`
   color: ${props => (props.isActive ? 'black' : 'inherit')};
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   font-weight: ${props => (props.isActive ? '600' : 'normal')};
   margin-bottom: 5px;
   margin-top: 10px;
+  padding: 5px;
 `
 
 const TitleToolsContainer = styled.div`

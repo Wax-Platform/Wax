@@ -68,7 +68,8 @@ const ControlsWrappers = styled.div`
 `
 
 const FilesWrapper = styled.div`
-  transform: ${({ expand }) => (expand ? 'translateX(0)' : 'translateX(-100%)')};
+  transform: ${({ expand }) =>
+    expand ? 'translateX(0)' : 'translateX(-100%)'};
   animation: ${props =>
     props.expand ? 'slideRight 2s forwards' : 'slideLeft 1s forwards'};
   background: white;
@@ -98,8 +99,20 @@ const FilesWrapper = styled.div`
     }
   }
 
-  ant-tree-title:hover {
+  .ant-tree .ant-tree-node-content-wrapper {
+    cursor: auto !important;
+
+    &:hover {
+      background: transparent !important;
+    }
+  }
+
+  .ant-tree-title:hover {
     background: #c8e4f0 !important;
+  }
+
+  .ant-tree-treenode:not(.ant-tree-node-selected) .rowContainer:hover {
+    background: #f4f2f2 !important;
   }
 
   span.ant-tree-node-selected {
@@ -141,7 +154,7 @@ const StyledMainButton = styled(Button)`
 
     &:active,
     &:focus,
-    &:hover {
+    &: padding: 10px; {
       fill: #000;
     }
   }
@@ -236,7 +249,7 @@ const DocTreeManager = ({
       sharedData[0].isRoot = true
 
       setSharedDocTree([...sharedData])
-      
+
       setUploading(false)
     },
   })
