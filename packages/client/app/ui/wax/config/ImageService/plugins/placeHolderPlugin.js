@@ -25,7 +25,6 @@ export default key =>
             side: 1,
             marks: [],
           })
-
           set = set.add(tr.doc, [deco])
         } else if (action && action.remove) {
           // More robust removal - find all decorations with the matching ID
@@ -34,24 +33,15 @@ export default key =>
             null,
             spec => spec.id === action.remove.id,
           )
-
           if (toRemove.length > 0) {
             set = set.remove(toRemove)
           }
 
-          // HACK to fix
-          if (set?.find().length >= 1) {
-            set = set.remove(set.find()[0])
-            set.children = []
-          }
-
           // Additional cleanup - sometimes decorations can persist
           const allDecorations = set.find()
-
           const persistentDecorations = allDecorations.filter(
             deco => deco.spec && deco.spec.id === action.remove.id,
           )
-
           if (persistentDecorations.length > 0) {
             set = set.remove(persistentDecorations)
           }
