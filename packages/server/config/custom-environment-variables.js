@@ -73,8 +73,8 @@ module.exports = {
     },
   },
   fileStorage: {
-    accessKeyId: 'S3_ACCESS_KEY_ID_USER',
-    secretAccessKey: 'S3_SECRET_ACCESS_KEY_USER',
+    accessKeyId: 'S3_ACCESS_KEY_ID',
+    secretAccessKey: 'S3_SECRET_ACCESS_KEY',
     s3ForcePathStyle: 'S3_FORCE_PATH_STYLE',
     bucket: 'S3_BUCKET',
     url: 'S3_URL',

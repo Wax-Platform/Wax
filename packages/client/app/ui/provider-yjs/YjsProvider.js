@@ -14,32 +14,54 @@ const YjsContext = React.createContext({
 const { Provider, Consumer } = YjsContext
 
 const arrayColor = [
-  '#FFD700', // gold
-  '#FFB6C1', // light pink
-  '#90EE90', // light green
-  '#87CEFA', // light sky blue
-  '#FF7F50', // coral
-  '#FFFF66', // light yellow
-  '#FFA07A', // light salmon
-  '#40E0D0', // turquoise
-  '#E0FFFF', // light cyan
-  '#D8BFD8', // thistle
-  '#FF69B4', // hot pink
-  '#B0E0E6', // powder blue
-  '#98FB98', // pale green
-  '#E6E6FA', // lavender
-  '#F5DEB3', // wheat
-  '#FFE4B5', // moccasin
-  '#F0E68C', // khaki
-  '#FFDAB9', // peach puff
+  '#FFCDD2', // light red
+  '#F8BBD0', // light pink
+  '#E1BEE7', // light purple
+  '#D1C4E9', // lavender
+  '#C5CAE9', // light indigo
+  '#BBDEFB', // light blue
+  '#B3E5FC', // light sky blue
+  '#B2EBF2', // light cyan
+  '#B2DFDB', // light teal
+  '#C8E6C9', // light green
+  '#DCEDC8', // light lime
+  '#F0F4C3', // light yellow
+  '#FFF9C4', // pale yellow
+  '#FFECB3', // light amber
+  '#FFE0B2', // light orange
+  '#FFCCBC', // light coral
+  '#D7CCC8', // warm gray
+  '#F5F5F5', // light gray
+  '#CFD8DC', // bluish gray
+  '#E6EE9C', // light lime yellow
+  '#FFAB91', // peach
+  '#CE93D8', // lilac
+  '#A5D6A7', // mint
+  '#81D4FA', // baby blue
+  '#80CBC4', // aqua green
+  '#FFCDD2', // pink red
+  '#E0F2F1', // mint gray
+  '#D1F2EB', // pastel teal
+  '#FFE082', // butter yellow
+  '#F8EFD4', // ivory
 ]
 
-// Επιλέγει διαθέσιμο και ευανάγνωστο χρώμαconst 
-const getAvailableColor = (usedColors) => {
-  const availableColors = arrayColor.filter(c => !usedColors.includes(c))
-  if (availableColors.length === 0) return '#cccccc' // fallback
-  return availableColors[Math.floor(Math.random() * availableColors.length)]
+// ✅ Hash function to map UUIDs to a color index consistently
+const getColorForUserId = (userId) => {
+  let hash = 0
+  for (let i = 0; i < userId.length; i++) {
+    hash = userId.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const index = Math.abs(hash) % arrayColor.length
+  return arrayColor[index]
 }
+
+// Επιλέγει διαθέσιμο και ευανάγνωστο χρώμαconst 
+// const getAvailableColor = (usedColors) => {
+//   const availableColors = arrayColor.filter(c => !usedColors.includes(c))
+//   if (availableColors.length === 0) return '#cccccc' // fallback
+//   return availableColors[Math.floor(Math.random() * availableColors.length)]
+// }
 
 const YjsProvider = ({ children }) => {
   const [wsProvider, setWsProvider] = useState(null)
@@ -85,13 +107,17 @@ const YjsProvider = ({ children }) => {
     })
 
 
-    const currentAwarenessStates = Array.from(provider.awareness.getStates().values())
-    const usedColors = currentAwarenessStates.map(state => state.user?.color).filter(Boolean)
-    const color = getAvailableColor(usedColors)
+
+    // const currentAwarenessStates = Array.from(provider.awareness.getStates().values())
+    // const usedColors = currentAwarenessStates.map(state => state.user?.color).filter(Boolean)
+    // const color = getAvailableColor(usedColors)
 
     if (currentUser) {
+      const userId = currentUser?.id || uuid()
+      const color = getColorForUserId(userId)
+
       provider.awareness.setLocalStateField('user', {
-        id: currentUser.id || uuid(),
+        id: userId,
         color,
         displayName: currentUser.displayName || 'Anonymous',
       })
