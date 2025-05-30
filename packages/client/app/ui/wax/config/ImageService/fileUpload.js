@@ -8,7 +8,6 @@ const findPlaceholder = (state, id, placeholderPlugin) => {
 }
 
 export default (view, fileUpload, placeholderPlugin, context, app) => file => {
-  console.log('file actual upload')
   // const { state } = view;
   const trackChange = app.config.get('config.EnableTrackChangeService')
   const imageConfig = app.config.get('config.ImageService')
@@ -27,7 +26,7 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
   const id = {}
 
   // Replace the selection with a placeholder
-  let { tr } = context.pmViews.main.state
+  const { tr } = context.pmViews.main.state
 
   if (!tr.selection.empty) tr.deleteSelection()
 
@@ -37,60 +36,52 @@ export default (view, fileUpload, placeholderPlugin, context, app) => file => {
 
   view.dispatch(tr)
 
-  console.log(' before fileUpload exec')
   fileUpload(file).then(
     fileData => {
-      console.log(fileData, 'fileData on fileUpload')
       let url = fileData
       let extraData = {}
+
       if (typeof fileData === 'object') {
         url = fileData.url
         extraData = fileData.extraData
       }
 
-      const pos = findPlaceholder(view.state, id, placeholderPlugin)
+      let pos = findPlaceholder(view.state, id, placeholderPlugin)
+      // If the content around the placeholder has been deleted, drop
+      // the image
 
       if (pos == null) {
-        console.log('placeholder not found', pos)
-        return // Placeholder was removed (e.g., content deleted)
+        return
       }
 
-      const { state, dispatch } = context.pmViews.main
-      const { schema } = state
-      const resolved = state.doc.resolve(pos)
-      const { parent } = resolved
-
-      const isEmptyParagraph =
-        parent.type.name === 'paragraph' && parent.content.size === 0
-
-      const imageNode = schema.nodes.image.create({
-        src: url,
-        id: uuidv4(),
-        extraData,
-        ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
-      })
-
-      if (isEmptyParagraph) {
-        const from = resolved.before() // Start of paragraph
-        const to = resolved.after() // End of paragraph
-        tr = tr.replaceWith(from, to, imageNode)
-      } else {
-        tr = tr.replaceWith(pos, pos, imageNode)
+      // if paragraph is empty don't break into new line
+      if (context.pmViews.main.state.doc.resolve(pos).parent.nodeSize === 2) {
+        pos -= 1
       }
 
-      tr.setMeta(placeholderPlugin, { remove: { id } })
+      // Otherwise, insert it at the placeholder's position, and remove
+      // the placeholder
 
       context.setOption({ uploading: false })
-      dispatch(tr)
-    },
-    e => {
-      console.log(e)
-      // On failure, just clean up the placeholder
-      view.dispatch(
-        context.pmViews.main.state.tr.setMeta(placeholderPlugin, {
-          remove: { id },
-        }),
+      context.pmViews.main.dispatch(
+        context.pmViews.main.state.tr
+          .replaceWith(
+            pos,
+            pos,
+            context.pmViews.main.state.schema.nodes.image.create({
+              src: url,
+              id: uuidv4(),
+              filed: extraData.fileId,
+              extraData,
+              ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
+            }),
+          )
+          .setMeta(placeholderPlugin, { remove: { id } }),
       )
+    },
+    () => {
+      // On failure, just clean up the placeholder
+      view.dispatch(tr.setMeta(placeholderPlugin, { remove: { id } }))
       context.setOption({ uploading: false })
     },
   )
