@@ -156,7 +156,7 @@ module.exports = {
   },
   File: {
     async url(file, { size }, ctx) {
-      return fileStorage.getURL(file.getStoredObjectBasedOnType(size).key)
+      return fileStorage.getURL(file.getStoredObjectBasedOnType(size).key, { expiresIn : 10 })
     },
     // async mimetype(file, { target }, ctx) {
     //   if (target && target === 'editor') {
