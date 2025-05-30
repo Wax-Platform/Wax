@@ -160,7 +160,7 @@ const replaceImgSrc = async (doc, objectId) => {
     if (node instanceof Y.XmlElement) {
     
       if (node.nodeName === 'image') {
-        const { fileId } =node.getAttribute('extraData')
+        const fileId =node.getAttribute('fileid')
         if (fileId) {
           const file = files.find(f => f.id === fileId)
           if (file) {

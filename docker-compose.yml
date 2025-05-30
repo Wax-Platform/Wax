@@ -66,8 +66,8 @@ services:
       - MAILER_SENDER=${MAILER_SENDER:-dev@example.com}
       - MAILER_HOSTNAME=${MAILER_HOSTNAME}
       - S3_URL=${S3_URL:-http://s3:9000}
-      - S3_ACCESS_KEY_ID_USER=${S3_ACCESS_KEY_ID_USER:-wax}
-      - S3_SECRET_ACCESS_KEY_USER=${S3_SECRET_ACCESS_KEY_USER:-superSecretUserPassword}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-wax}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-superSecretUserPassword}
       - S3_BUCKET=${S3_BUCKET:-uploads}
       # FOR THE CASE OF GCP
       # - S3_SEPARATE_DELETE_OPERATIONS=true
@@ -216,10 +216,10 @@ services:
     entrypoint: >
       /bin/sh -c "
         /usr/bin/mc config host add wax ${S3_URL:-http://s3:9000} ${S3_ACCESS_KEY_ID_ADMIN:-admin} ${S3_SECRET_ACCESS_KEY_ADMIN:-superSecretAdminPassword};
-        /usr/bin/mc admin user add wax/ ${S3_ACCESS_KEY_ID_USER:-wax} ${S3_SECRET_ACCESS_KEY_USER:-superSecretUserPassword};
-        /usr/bin/mc admin user enable wax/ ${S3_ACCESS_KEY_ID_USER:-wax};
+        /usr/bin/mc admin user add wax/ ${S3_ACCESS_KEY_ID:-wax} ${S3_SECRET_ACCESS_KEY:-superSecretUserPassword};
+        /usr/bin/mc admin user enable wax/ ${S3_ACCESS_KEY_ID:-wax};
         /usr/bin/mc mb wax/${S3_BUCKET:-uploads};
-        /usr/bin/mc admin policy attach wax readwrite --user ${S3_ACCESS_KEY_ID_USER:-wax};
+        /usr/bin/mc admin policy attach wax readwrite --user ${S3_ACCESS_KEY_ID:-wax};
         exit 0;
       "
 
