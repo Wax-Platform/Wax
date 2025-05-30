@@ -313,7 +313,7 @@ const EditorWrapper = ({
   return (
     <>
       <Wax
-        autoFocus
+        // autoFocus
         config={selectedWaxConfig}
         customProps={luluWax}
         documentTitle={documentTitle}
