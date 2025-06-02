@@ -1,4 +1,5 @@
-const { subscriptionManager, logger } = require('@coko/server')
+const { subscriptionManager, logger , fileStorage} = require('@coko/server')
+const axios = require('axios')
 const fs = require('fs-extra')
 const config = require('config')
 const mime = require('mime-types')
@@ -11,7 +12,7 @@ const uploadsDir = get(config, ['uploads'], 'uploads')
 const { readFile } = require('../../utilities/filesystem')
 const { xsweetImagesHandler } = require('../../utilities/image')
 
-const { BookComponent, ServiceCallbackToken, Book } =
+const { BookComponent, ServiceCallbackToken, Book, File } =
   require('../../models').models
 
 const {
@@ -31,6 +32,29 @@ const {
 } = require('../../controllers/bookComponent.controller')
 
 const RESTEndpoints = app => {
+  app.use('/file/:fileId', async (req, res) => {
+    const { fileId } = req.params;
+
+    try {
+      const file = await File.query().findById(fileId);
+      if (!file) return res.status(404).send('File not found');
+
+      const original = file.storedObjects.find(obj => obj.type === 'original');
+      if (!original) return res.status(400).send('Original file not found');
+
+      // Get a signed URL (temporary, secure)
+      const signedUrl = await fileStorage.getURL(original.key);
+
+      // Stream the file from the signed URL
+      const fileResponse = await axios.get(signedUrl, { responseType: 'stream' });
+
+      res.setHeader('Content-Type', original.mimeType || 'application/octet-stream');
+      fileResponse.data.pipe(res);
+    } catch (err) {
+      console.error('Error proxying file:', err);
+      res.status(500).send('Internal server error');
+    }
+  })
   app.use('/api/xsweet', async (req, res) => {
     try {
       const { body } = req

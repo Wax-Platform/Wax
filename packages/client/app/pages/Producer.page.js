@@ -10,7 +10,7 @@ import {
 } from '@apollo/client'
 import find from 'lodash/find'
 import debounce from 'lodash/debounce'
-import { uuid, useCurrentUser } from '@coko/client'
+import { uuid, useCurrentUser, serverUrl } from '@coko/client'
 
 import styled from 'styled-components'
 import {
@@ -792,10 +792,10 @@ const ProducerPage = ({ bookId }) => {
     // wax expects a promise here
     return new Promise((resolve, reject) => {
       if (uploadedFile) {
-        const { id: fileId, url } = uploadedFile
+        const { id: fileId } = uploadedFile
 
         resolve({
-          url,
+          url: `${serverUrl}/api/file/${fileId}`,
           extraData: {
             fileId,
           },

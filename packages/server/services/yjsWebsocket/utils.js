@@ -150,40 +150,40 @@ const messageListener = (conn, doc, message) => {
   }
 }
 
-const replaceImgSrc = async (doc, objectId) => {
+// const replaceImgSrc = async (doc, objectId) => {
 
-  const files = await Files.query().where({ objectId })
-  const xmlFragment1 = doc.getXmlFragment('prosemirror')
+//   const files = await Files.query().where({ objectId })
+//   const xmlFragment1 = doc.getXmlFragment('prosemirror')
 
-// Recursive function to walk the Y.XmlElement tree
-  const updateImageSrcs = async (node) => {
-    if (node instanceof Y.XmlElement) {
+// // Recursive function to walk the Y.XmlElement tree
+//   const updateImageSrcs = async (node) => {
+//     if (node instanceof Y.XmlElement) {
     
-      if (node.nodeName === 'image') {
-        const fileId =node.getAttribute('fileid')
-        if (fileId) {
-          const file = files.find(f => f.id === fileId)
-          if (file) {
-            const { key } =  file.storedObjects.find(obj => obj.type === 'original')
+//       if (node.nodeName === 'image') {
+//         const fileId = node.getAttribute('fileid')
+//         if (fileId) {
+//           const file = files.find(f => f.id === fileId)
+//           if (file) {
+//             const { key } =  file.storedObjects.find(obj => obj.type === 'original')
 
-            const newSrc = await fileStorage.getURL(key)
-            node.setAttribute('src', newSrc)
-          }
-        }
-      }
+//             const newSrc = await fileStorage.getURL(key, { expiresIn : 60 })
+//             node.setAttribute('src', newSrc)
+//           }
+//         }
+//       }
 
-    // Recurse into children
-      for (const child of node.toArray()) {
-        await updateImageSrcs(child)
-      }
-    }
-  }
+//     // Recurse into children
+//       for (const child of node.toArray()) {
+//         await updateImageSrcs(child)
+//       }
+//     }
+//   }
 
-  // Start traversal from the root fragment
-  for (const node of xmlFragment1.toArray()) {
-    await updateImageSrcs(node)
-  }
-}
+//   // Start traversal from the root fragment
+//   for (const node of xmlFragment1.toArray()) {
+//     await updateImageSrcs(node)
+//   }
+// }
 
 persistence = {
   bindState: async (id, doc) => {
@@ -199,7 +199,7 @@ persistence = {
           const uint8Array = Uint8Array.from(Buffer.from(yState, 'base64'))
           Y.applyUpdate(doc, uint8Array)
           // const fragment = doc.getXmlFragment('prosemirror');
-          await replaceImgSrc(doc, id)
+          // await replaceImgSrc(doc, id)
         });
       }
     }
