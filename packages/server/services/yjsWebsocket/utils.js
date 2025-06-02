@@ -197,7 +197,9 @@ persistence = {
       if (yState) {
         doc.transact(async () => {
           const uint8Array = Uint8Array.from(Buffer.from(yState, 'base64'))
-          Y.applyUpdate(doc, uint8Array)
+          setTimeout(() => {
+            Y.applyUpdate(doc, uint8Array)
+          },1000)
           // const fragment = doc.getXmlFragment('prosemirror');
           // await replaceImgSrc(doc, id)
         });
