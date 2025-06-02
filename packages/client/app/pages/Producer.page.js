@@ -795,7 +795,7 @@ const ProducerPage = ({ bookId }) => {
         const { id: fileId } = uploadedFile
 
         resolve({
-          url: `${serverUrl}/api/file/${fileId}`,
+          url: `${serverUrl}/file/${fileId}`,
           extraData: {
             fileId,
           },
