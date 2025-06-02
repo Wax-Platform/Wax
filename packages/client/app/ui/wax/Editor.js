@@ -242,7 +242,7 @@ const EditorWrapper = ({
 
       services: [new YjsService(), ...selectedWaxConfig.services],
     })
-  }, [memoizedProvider])
+  }, [wsProvider])
 
   useEffect(() => {
     setLuluWax({
