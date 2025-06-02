@@ -179,6 +179,7 @@ const EditorWrapper = ({
   }, [aiOn])
 
   useEffect(() => {
+    console.log('loading wax content', ydoc)
     setSelectedWaxConfig({
       ...selectedWaxConfig,
       MenuService: selectedWaxConfig.MenuService.map(service => {
