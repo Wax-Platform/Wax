@@ -107,7 +107,6 @@ const RowRender = row => {
     renameResource,
     addResource,
     isFolder,
-    identifier,
     confirmDelete,
     isActive,
     bookId,
@@ -128,20 +127,29 @@ const RowRender = row => {
   }, [providerTitle])
 
   const setActive = () => {
+    const parts = window.location.href.split('/')
+    const currentIdentifier = parts[parts.length - 1]
+
     Array.from(document.getElementsByClassName('rowContainer')).forEach(
       element => {
         const elementId = element.getAttribute('id')
 
-        if (elementId === identifier) {
+        if (elementId === currentIdentifier) {
           element.style.color = 'black'
           element.style.fontWeight = '600'
+          element.style.fontSize = '16px'
         } else {
           element.style.color = 'inherit'
           element.style.fontWeight = 'normal'
+          element.style.fontSize = '14px'
         }
       },
     )
   }
+
+  useEffect(() => {
+    setActive()
+  }, [])
 
   /* eslint-disable-next-line consistent-return */
   const goToDocument = e => {
@@ -163,7 +171,7 @@ const RowRender = row => {
   return (
     <RowContainer
       className="rowContainer"
-      id={identifier}
+      id={bookComponentId}
       isActive={isActive}
       onClick={e => goToDocument(e)}
     >

@@ -179,7 +179,6 @@ const EditorWrapper = ({
   }, [aiOn])
 
   useEffect(() => {
-    console.log('loading wax content', ydoc)
     setSelectedWaxConfig({
       ...selectedWaxConfig,
       MenuService: selectedWaxConfig.MenuService.map(service => {
@@ -243,7 +242,7 @@ const EditorWrapper = ({
 
       services: [new YjsService(), ...selectedWaxConfig.services],
     })
-  }, [wsProvider])
+  }, [memoizedProvider])
 
   useEffect(() => {
     setLuluWax({

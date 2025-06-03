@@ -116,7 +116,7 @@ const FilesWrapper = styled.div`
   }
 
   span.ant-tree-node-selected {
-    background: #f4f2f2 !important;
+    background: transparent !important;
   }
 
   .ant-tree-switcher {
@@ -210,8 +210,6 @@ const DocTreeManager = ({
   const { bookComponentId } = useParams()
   const { setTitle } = useContext(DocumentContext)
   let isFileManagerOpen = false
-
-  // console.log({title})
 
   const [expandedKeys, setExpandedKeys] = useState(() => {
     const saved = localStorage.getItem('docTreeExpandedKeys')
@@ -429,7 +427,7 @@ const DocTreeManager = ({
   )
 
   if (gData.length === 0) return null
-
+  console.log(gData)
   return (
     <DocTreeManagerWrapper>
       <ControlsWrappers>

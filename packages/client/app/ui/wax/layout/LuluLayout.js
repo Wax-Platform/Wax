@@ -51,10 +51,10 @@ const Wrapper = styled.div`
 `
 
 const Main = styled.div`
-  justify-content: center;
   align-items: center;
   display: flex;
   flex: 1 1 calc(100% - var(--top-menu-base));
+  justify-content: center;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -294,7 +294,7 @@ const CommentsContainer = styled.div`
 `
 
 const NotesAreaContainer = styled.div`
-  background: #ffffff;
+  background: #fff;
   display: flex;
   flex-direction: row;
   height: 100%;
@@ -808,12 +808,12 @@ const LuluLayout = ({ customProps, ...rest }) => {
                 {hasNotes && (
                   <NotesAreaContainer>
                     {/* <NotesInnerContainer> */}
-                      <NotesContainer id="notes-container">
-                        <NotesArea view={main} />
-                      </NotesContainer>
-                      <CommentsContainerNotes>
-                        <RightArea area="notes" />
-                      </CommentsContainerNotes>
+                    <NotesContainer id="notes-container">
+                      <NotesArea view={main} />
+                    </NotesContainer>
+                    <CommentsContainerNotes>
+                      <RightArea area="notes" />
+                    </CommentsContainerNotes>
                     {/* </NotesInnerContainer> */}
                   </NotesAreaContainer>
                 )}
