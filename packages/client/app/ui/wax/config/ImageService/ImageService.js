@@ -3,6 +3,7 @@ import { imageNode, figureCaptionNode, figureNode } from './schema'
 import PlaceHolderPlugin from './plugins/placeHolderPlugin'
 import captionPlugin from './plugins/captionPlugin'
 import selectFigureOnCutPlugin from './plugins/selectFigureOnCutPlugin'
+import removeFigureOnTyping from './plugins/removeFigureOnTyping'
 import Image from './Image'
 import AltComponent from './AltComponent'
 import LongDescComponent from './LongDescComponent'
@@ -16,6 +17,10 @@ class ImageService extends Service {
     this.app.PmPlugins.add(
       'selectFigureOnCutPlugin',
       selectFigureOnCutPlugin('selectFigureOnCutPlugin'),
+    )
+    this.app.PmPlugins.add(
+      'removeFigureOnTyping',
+      removeFigureOnTyping('removeFigureOnTyping'),
     )
     this.app.PmPlugins.add(
       'imagePlaceHolder',
