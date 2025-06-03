@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo, useRef, useContext } from 'react'
 import { Wax } from 'wax-prosemirror-core'
 import { isEqual } from 'lodash'
 import styled from 'styled-components'
+import * as Y from 'yjs'
 
 import YjsContext from '../provider-yjs/YjsProvider'
 
@@ -179,6 +180,7 @@ const EditorWrapper = ({
   }, [aiOn])
 
   useEffect(() => {
+    if (showSpinner) return
     setSelectedWaxConfig({
       ...selectedWaxConfig,
       MenuService: selectedWaxConfig.MenuService.map(service => {
@@ -242,7 +244,20 @@ const EditorWrapper = ({
 
       services: [new YjsService(), ...selectedWaxConfig.services],
     })
-  }, [memoizedProvider])
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      setSelectedWaxConfig({
+        ...selectedWaxConfig,
+        YjsService: {
+          content: bookComponentContent,
+          provider: () => wsProvider,
+          ydoc: () => new Y.Doc(),
+          yjsType: 'prosemirror',
+        },
+      })
+    }
+  }, [memoizedProvider, showSpinner])
 
   useEffect(() => {
     setLuluWax({
