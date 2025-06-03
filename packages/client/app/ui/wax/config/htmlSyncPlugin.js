@@ -81,7 +81,9 @@ const revertNotesSchema = schema => {
         update(v) {
           if (!prevDoc || !v.state.doc.eq(prevDoc)) {
             prevDoc = v.state.doc
-            updateHTML(v)
+            if (document.visibilityState === 'visible' && document.hasFocus()) {
+              updateHTML(v)
+            }
             // debouncedUpdate(v)
           }
         },
