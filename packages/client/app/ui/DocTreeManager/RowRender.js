@@ -3,7 +3,7 @@
 
 /* stylelint-disable no-descending-specificity, declaration-no-important */
 
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -121,10 +121,16 @@ const RowRender = row => {
   const history = useHistory()
   const [updatedName, setUpdateName] = useState(title)
   const [isRename, setRename] = useState(false)
+  const initialRenameTitle = useRef(providerTitle)
 
   useEffect(() => {
-    setUpdateName(providerTitle)
-  }, [providerTitle])
+    if (isRename) {
+      setUpdateName(initialRenameTitle.current)
+    } else {
+      setUpdateName(title)
+      initialRenameTitle.current = title
+    }
+  }, [title, isRename])
 
   const setActive = () => {
     const parts = window.location.href.split('/')
