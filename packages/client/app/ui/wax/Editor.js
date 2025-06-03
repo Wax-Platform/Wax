@@ -180,7 +180,6 @@ const EditorWrapper = ({
   }, [aiOn])
 
   useEffect(() => {
-    if (showSpinner) return
     setSelectedWaxConfig({
       ...selectedWaxConfig,
       MenuService: selectedWaxConfig.MenuService.map(service => {
@@ -199,7 +198,7 @@ const EditorWrapper = ({
       YjsService: {
         content: bookComponentContent,
         provider: () => wsProvider,
-        ydoc: () => ydoc,
+        ydoc: () => (showSpinner ? new Y.Doc() : ydoc),
         yjsType: 'prosemirror',
         cursorBuilder: u => {
           if (u) {
@@ -244,19 +243,6 @@ const EditorWrapper = ({
 
       services: [new YjsService(), ...selectedWaxConfig.services],
     })
-
-    // eslint-disable-next-line consistent-return
-    return () => {
-      setSelectedWaxConfig({
-        ...selectedWaxConfig,
-        YjsService: {
-          content: bookComponentContent,
-          provider: () => wsProvider,
-          ydoc: () => new Y.Doc(),
-          yjsType: 'prosemirror',
-        },
-      })
-    }
   }, [memoizedProvider, showSpinner])
 
   useEffect(() => {
