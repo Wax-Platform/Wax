@@ -30,7 +30,7 @@ const inlineAnno = [
   { label: 'Underline', value: 'Underline', checked: true },
   { label: 'Subscript', value: 'Subscript', checked: false },
   { label: 'Superscript', value: 'Superscript', checked: false },
-  { label: 'SmallCaps', value: 'SmallCaps', checked: false },
+  // { label: 'SmallCaps', value: 'SmallCaps', checked: false },
   { label: 'Strike Through', value: 'StrikeThrough', checked: false },
 ]
 

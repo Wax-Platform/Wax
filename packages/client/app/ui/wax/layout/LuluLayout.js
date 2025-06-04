@@ -431,6 +431,10 @@ const EditorContainer = styled.div`
       }
     }
 
+    .small-caps {
+      font-variant-caps: small-caps;
+    }
+
     @media (min-width: 600px) {
       padding: ${grid(20)} var(--padding-inline);
     }
