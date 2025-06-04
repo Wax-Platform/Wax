@@ -150,8 +150,6 @@ const ProducerPage = ({ bookId }) => {
   const [currentBookComponentContent, setCurrentBookComponentContent] =
     useState(null)
 
-  const [showSpinner, setShowSpinner] = useState(false)
-
   // const token = localStorage.getItem('token')
 
   useEffect(() => {
@@ -229,12 +227,6 @@ const ProducerPage = ({ bookId }) => {
           setCurrentBookComponentContent('')
         }
 
-        if (wsProvider) {
-          // wsProvider?.disconnect()
-        }
-
-        // setShowSpinner(true)
-        // setTimeout(() => {
         createYjsProvider({
           currentUser,
           identifier: selectedChapterId,
@@ -242,11 +234,6 @@ const ProducerPage = ({ bookId }) => {
             bookComponentId: selectedChapterId,
           },
         })
-        // }, 500)
-
-        setTimeout(() => {
-          // setShowSpinner(false)
-        }, 1200)
 
         getComments({
           variables: {
@@ -1022,7 +1009,6 @@ const ProducerPage = ({ bookId }) => {
       settings={bookQueryData?.getBook.bookSettings}
       setUploading={setUploading}
       setViewMetadata={setViewMetadata}
-      showSpinner={showSpinner}
       title={bookQueryData?.getBook.title}
       user={currentUser}
       viewMetadata={viewMetadata}

@@ -20,7 +20,7 @@ import {
 } from 'wax-prosemirror-core'
 import { useTranslation } from 'react-i18next'
 import { usePrevious } from '../../../utils'
-import { Button, Checkbox } from '../../common'
+import { Button, Checkbox, Result, Spin } from '../../common'
 // import BookPanel from '../../bookPanel/BookPanel'
 
 import { DocTreeManager } from '../../DocTreeManager'
@@ -36,6 +36,15 @@ import theme from '../../../theme'
 import 'wax-prosemirror-core/dist/index.css'
 import 'wax-prosemirror-services/dist/index.css'
 import 'wax-table-service/dist/index.css'
+
+const SpinnerWrapper = styled.div`
+  display: ${props => (props.showSpinner ? 'block' : 'none')};
+  left: 42%;
+  margin-top: -25px;
+  position: absolute;
+  top: 50%;
+  z-index: 999;
+`
 
 // #region styled
 const Wrapper = styled.div`
@@ -552,6 +561,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const [bookPanelCollapsed, setBookPanelCollapsed] = useState(true)
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true)
   const [showComments, setShowComments] = useState(true)
+  const [showSpinner, setShowSpinner] = useState(false)
   const previousComments = usePrevious(savedComments)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
 
@@ -599,6 +609,11 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const showNotes = () => {
     setHasNotes(areNotes)
   }
+
+  useEffect(() => {
+    setShowSpinner(true)
+    setTimeout(() => setShowSpinner(false), 1600)
+  }, [])
 
   useCallback(
     setTimeout(() => showNotes(), 100),
@@ -820,6 +835,16 @@ const LuluLayout = ({ customProps, ...rest }) => {
               </PanelGroup>
             </EditorArea>
           </Main>
+          <SpinnerWrapper
+            // showFilemanager={showFilemanager}
+            // position={position}
+            showSpinner={showSpinner}
+          >
+            <Result
+              icon={<Spin size={18} spinning />}
+              title="Loading your document"
+            />
+          </SpinnerWrapper>
         </Wrapper>
       )}
     </ThemeProvider>

@@ -10,16 +10,6 @@ import YjsContext from '../provider-yjs/YjsProvider'
 import { LuluLayout } from './layout'
 import configWithAi from './config/configWithAI'
 import YjsService from './config/YjsService'
-import { Result, Spin } from '../common'
-
-const SpinnerWrapper = styled.div`
-  display: ${props => (props.showSpinner ? 'block' : 'none')};
-  left: ${props => props.position}px;
-  margin-top: -25px;
-  position: absolute;
-  top: 50%;
-  z-index: 999;
-`
 
 const EditorWrapper = ({
   bookId,
@@ -68,7 +58,6 @@ const EditorWrapper = ({
   setSelectedChapterId,
   isUploading,
   setUploading,
-  showSpinner,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -180,8 +169,6 @@ const EditorWrapper = ({
   }, [aiOn])
 
   useEffect(() => {
-    // if (showSpinner) return
-
     setSelectedWaxConfig({
       ...selectedWaxConfig,
       MenuService: selectedWaxConfig.MenuService.map(service => {
@@ -258,7 +245,7 @@ const EditorWrapper = ({
     //     },
     //   })
     // }
-  }, [memoizedProvider, showSpinner])
+  }, [memoizedProvider])
 
   useEffect(() => {
     setLuluWax({
@@ -305,16 +292,6 @@ const EditorWrapper = ({
     aiEnabled,
   ])
 
-  useEffect(() => {
-    if (editorRef.current) {
-      const { right, left } = document
-        .getElementsByClassName('ProseMirror')[0]
-        .getBoundingClientRect()
-
-      setPosition(right - left)
-    }
-  }, [editorRef.current])
-
   const userObject = {
     userId: user.id,
     userColor: {
@@ -327,29 +304,17 @@ const EditorWrapper = ({
   if (!selectedWaxConfig || canInteractWithComments === null) return null
 
   return (
-    <>
-      <Wax
-        // autoFocus
-        config={selectedWaxConfig}
-        customProps={luluWax}
-        documentTitle={documentTitle}
-        fileUpload={onImageUpload}
-        layout={LuluLayout}
-        readonly={isReadOnly}
-        ref={editorRef}
-        user={userObject}
-      />
-      <SpinnerWrapper
-        // showFilemanager={showFilemanager}
-        position={position}
-        showSpinner={showSpinner}
-      >
-        <Result
-          icon={<Spin size={18} spinning />}
-          title="Loading your document"
-        />
-      </SpinnerWrapper>
-    </>
+    <Wax
+      // autoFocus
+      config={selectedWaxConfig}
+      customProps={luluWax}
+      documentTitle={documentTitle}
+      fileUpload={onImageUpload}
+      layout={LuluLayout}
+      readonly={isReadOnly}
+      ref={editorRef}
+      user={userObject}
+    />
   )
 }
 
