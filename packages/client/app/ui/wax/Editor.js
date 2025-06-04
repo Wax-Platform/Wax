@@ -58,8 +58,6 @@ const EditorWrapper = ({
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
 
-  const [position, setPosition] = useState(0)
-
   const [luluWax, setLuluWax] = useState({
     onChapterClick,
     selectedChapterId,
@@ -199,6 +197,10 @@ const EditorWrapper = ({
 
           return ''
         },
+      },
+      CustomTagService: {
+        tags,
+        updateTags: () => true,
       },
       TitleService: {
         updateTitle: t => {

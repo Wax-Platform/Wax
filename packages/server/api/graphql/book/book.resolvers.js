@@ -299,7 +299,6 @@ const exportBookHandler = async (_, { input }, ctx) => {
 
   const bookComponent = await BookComponent.findById(bookComponentId)
 
-
   logger.info('book resolver: executing exportBook use case')
 
   return previewer === 'web'
@@ -521,7 +520,6 @@ const updateBookSettingsHandler = async (_, { bookId, settings }, cx) => {
     logger.info('book resolver: executing updateBookSettings use case')
 
     const updatedBookSettings = await updateBookSettings(bookId, settings)
-
     subscriptionManager.publish(BOOK_SETTINGS_UPDATED, {
       bookSettingsUpdated: updatedBookSettings.bookId,
     })

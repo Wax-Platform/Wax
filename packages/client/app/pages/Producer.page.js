@@ -108,7 +108,6 @@ const constructMetadataValues = (title, podMetadata, cover) => {
 
 // eslint-disable-next-line react/prop-types
 const ProducerPage = ({ bookId }) => {
-  // const { bookComponentId } = useParams()
   // #region INITIALIZATION SECTION START
   const { createYjsProvider, wsProvider } = useContext(YjsContext)
   const history = useHistory()
@@ -406,6 +405,13 @@ const ProducerPage = ({ bookId }) => {
     variables: { id: bookId },
     fetchPolicy: 'network-only',
     onData: async () => {
+      const { data } = await refetchBook({ id: bookId })
+      setAiOn(data?.getBook?.bookSettings?.aiOn)
+      setCustomPrompts(data?.getBook?.bookSettings?.customPrompts)
+      setFreeTextPromptsOn(data?.getBook?.bookSettings?.freeTextPromptsOn)
+      setCustomPromptsOn(data?.getBook?.bookSettings?.customPromptsOn)
+      setCustomTags(data?.getBook?.bookSettings?.customTags)
+
       if (selectedChapterId) {
         await refetchBookComponent()
       }
