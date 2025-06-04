@@ -230,22 +230,22 @@ const ProducerPage = ({ bookId }) => {
         }
 
         if (wsProvider) {
-          wsProvider?.disconnect()
+          // wsProvider?.disconnect()
         }
 
-        setShowSpinner(true)
-        setTimeout(() => {
-          createYjsProvider({
-            currentUser,
-            identifier: selectedChapterId,
-            object: {
-              bookComponentId: selectedChapterId,
-            },
-          })
-        }, 500)
+        // setShowSpinner(true)
+        // setTimeout(() => {
+        createYjsProvider({
+          currentUser,
+          identifier: selectedChapterId,
+          object: {
+            bookComponentId: selectedChapterId,
+          },
+        })
+        // }, 500)
 
         setTimeout(() => {
-          setShowSpinner(false)
+          // setShowSpinner(false)
         }, 1200)
 
         getComments({

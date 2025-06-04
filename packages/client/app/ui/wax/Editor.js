@@ -180,7 +180,8 @@ const EditorWrapper = ({
   }, [aiOn])
 
   useEffect(() => {
-    if (showSpinner) return
+    // if (showSpinner) return
+
     setSelectedWaxConfig({
       ...selectedWaxConfig,
       MenuService: selectedWaxConfig.MenuService.map(service => {
@@ -246,17 +247,17 @@ const EditorWrapper = ({
     })
 
     // eslint-disable-next-line consistent-return
-    return () => {
-      setSelectedWaxConfig({
-        ...selectedWaxConfig,
-        YjsService: {
-          content: bookComponentContent,
-          provider: () => wsProvider,
-          ydoc: () => new Y.Doc(),
-          yjsType: 'prosemirror',
-        },
-      })
-    }
+    // return () => {
+    //   setSelectedWaxConfig({
+    //     ...selectedWaxConfig,
+    //     YjsService: {
+    //       content: bookComponentContent,
+    //       provider: () => wsProvider,
+    //       ydoc: () => new Y.Doc(),
+    //       yjsType: 'prosemirror',
+    //     },
+    //   })
+    // }
   }, [memoizedProvider, showSpinner])
 
   useEffect(() => {

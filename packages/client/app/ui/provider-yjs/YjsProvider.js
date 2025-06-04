@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
 import { uniqBy } from 'lodash'
@@ -47,7 +47,7 @@ const arrayColor = [
 ]
 
 // ✅ Hash function to map UUIDs to a color index consistently
-const getColorForUserId = (userId) => {
+const getColorForUserId = userId => {
   let hash = 0
   for (let i = 0; i < userId.length; i++) {
     hash = userId.charCodeAt(i) + ((hash << 5) - hash)
@@ -56,7 +56,7 @@ const getColorForUserId = (userId) => {
   return arrayColor[index]
 }
 
-// Επιλέγει διαθέσιμο και ευανάγνωστο χρώμαconst 
+// Επιλέγει διαθέσιμο και ευανάγνωστο χρώμαconst
 // const getAvailableColor = (usedColors) => {
 //   const availableColors = arrayColor.filter(c => !usedColors.includes(c))
 //   if (availableColors.length === 0) return '#cccccc' // fallback
@@ -102,11 +102,12 @@ const YjsProvider = ({ children }) => {
     )
 
     provider.awareness.on('change', () => {
-      const uniqueUsers = uniqBy(Array.from(provider.awareness.getStates().values()), 'user.id')
+      const uniqueUsers = uniqBy(
+        Array.from(provider.awareness.getStates().values()),
+        'user.id',
+      )
       setSharedUsers(uniqueUsers)
     })
-
-
 
     // const currentAwarenessStates = Array.from(provider.awareness.getStates().values())
     // const usedColors = currentAwarenessStates.map(state => state.user?.color).filter(Boolean)
@@ -125,6 +126,14 @@ const YjsProvider = ({ children }) => {
 
     setWsProvider(provider)
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line consistent-return
+    return () => {
+      console.log('dic')
+      wsProvider.disconnect()
+    }
+  }, [])
 
   return (
     <Provider
