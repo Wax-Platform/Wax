@@ -33,6 +33,8 @@ import {
 } from '../../bookInformation'
 import theme from '../../../theme'
 
+import YjsContext from '../../provider-yjs/YjsProvider'
+
 import 'wax-prosemirror-core/dist/index.css'
 import 'wax-prosemirror-services/dist/index.css'
 import 'wax-table-service/dist/index.css'
@@ -563,6 +565,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const [showComments, setShowComments] = useState(true)
   const [showSpinner, setShowSpinner] = useState(false)
   const previousComments = usePrevious(savedComments)
+  const { wsProvider } = useContext(YjsContext)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
 
   const {
@@ -612,8 +615,10 @@ const LuluLayout = ({ customProps, ...rest }) => {
 
   useEffect(() => {
     setShowSpinner(true)
-    setTimeout(() => setShowSpinner(false), 1600)
-  }, [])
+    wsProvider.once('synced', () => {
+      setShowSpinner(false)
+    })
+  }, [wsProvider])
 
   useCallback(
     setTimeout(() => showNotes(), 100),

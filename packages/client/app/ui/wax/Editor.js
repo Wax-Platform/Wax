@@ -2,11 +2,7 @@
 import React, { useEffect, useState, useMemo, useRef, useContext } from 'react'
 import { Wax } from 'wax-prosemirror-core'
 import { isEqual } from 'lodash'
-import styled from 'styled-components'
-import * as Y from 'yjs'
-
 import YjsContext from '../provider-yjs/YjsProvider'
-
 import { LuluLayout } from './layout'
 import configWithAi from './config/configWithAI'
 import YjsService from './config/YjsService'
@@ -232,19 +228,6 @@ const EditorWrapper = ({
 
       services: [new YjsService(), ...selectedWaxConfig.services],
     })
-
-    // eslint-disable-next-line consistent-return
-    // return () => {
-    //   setSelectedWaxConfig({
-    //     ...selectedWaxConfig,
-    //     YjsService: {
-    //       content: bookComponentContent,
-    //       provider: () => wsProvider,
-    //       ydoc: () => new Y.Doc(),
-    //       yjsType: 'prosemirror',
-    //     },
-    //   })
-    // }
   }, [memoizedProvider])
 
   useEffect(() => {

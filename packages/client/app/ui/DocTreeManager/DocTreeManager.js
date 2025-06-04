@@ -427,7 +427,7 @@ const DocTreeManager = ({
   )
 
   if (gData.length === 0) return null
-  console.log(gData)
+
   return (
     <DocTreeManagerWrapper>
       <ControlsWrappers>
