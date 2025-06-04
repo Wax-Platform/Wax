@@ -127,14 +127,6 @@ const YjsProvider = ({ children }) => {
     setWsProvider(provider)
   }
 
-  useEffect(() => {
-    // eslint-disable-next-line consistent-return
-    return () => {
-      console.log('dic')
-      wsProvider.disconnect()
-    }
-  }, [])
-
   return (
     <Provider
       value={{

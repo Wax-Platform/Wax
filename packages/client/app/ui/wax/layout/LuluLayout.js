@@ -616,7 +616,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
   useEffect(() => {
     setShowSpinner(true)
     wsProvider.once('synced', () => {
-      setShowSpinner(false)
+      setTimeout(() => {
+        setShowSpinner(false)
+      }, 500)
     })
   }, [wsProvider])
 

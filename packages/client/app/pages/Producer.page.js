@@ -218,6 +218,10 @@ const ProducerPage = ({ bookId }) => {
         }
       },
       onCompleted: data => {
+        if (wsProvider) {
+          wsProvider.disconnect()
+        }
+
         if (
           data.getBookComponent.content &&
           data.getBookComponent.yState === null
