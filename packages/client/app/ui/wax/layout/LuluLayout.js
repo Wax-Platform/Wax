@@ -563,9 +563,8 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const [bookPanelCollapsed, setBookPanelCollapsed] = useState(true)
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true)
   const [showComments, setShowComments] = useState(true)
-  const [showSpinner, setShowSpinner] = useState(false)
   const previousComments = usePrevious(savedComments)
-  const { wsProvider } = useContext(YjsContext)
+  const { showSpinner } = useContext(YjsContext)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
 
   const {
@@ -612,15 +611,6 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const showNotes = () => {
     setHasNotes(areNotes)
   }
-
-  useEffect(() => {
-    setShowSpinner(true)
-    wsProvider.once('synced', () => {
-      setTimeout(() => {
-        setShowSpinner(false)
-      }, 500)
-    })
-  }, [wsProvider])
 
   useCallback(
     setTimeout(() => showNotes(), 100),

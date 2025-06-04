@@ -67,6 +67,7 @@ const YjsProvider = ({ children }) => {
   const [wsProvider, setWsProvider] = useState(null)
   const [ydoc, setYDoc] = useState(null)
   const [sharedUsers, setSharedUsers] = useState([])
+  const [showSpinner, setShowSpinner] = useState(false)
 
   const createYjsProvider = ({ currentUser, object, identifier }) => {
     if (!object) {
@@ -127,12 +128,22 @@ const YjsProvider = ({ children }) => {
     setWsProvider(provider)
   }
 
+  useEffect(() => {
+    setShowSpinner(true)
+    wsProvider?.once('synced', () => {
+      setTimeout(() => {
+        setShowSpinner(false)
+      }, 500)
+    })
+  }, [wsProvider])
+
   return (
     <Provider
       value={{
         sharedUsers,
         wsProvider,
         ydoc,
+        showSpinner,
         createYjsProvider,
       }}
     >
