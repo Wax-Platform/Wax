@@ -6,6 +6,7 @@ import YjsContext from '../provider-yjs/YjsProvider'
 import { LuluLayout } from './layout'
 import configWithAi from './config/configWithAI'
 import YjsService from './config/YjsService'
+import FileUpload from '../fileUpload/FileUpload'
 
 const EditorWrapper = ({
   bookId,
@@ -289,17 +290,20 @@ const EditorWrapper = ({
   if (!selectedWaxConfig || canInteractWithComments === null) return null
 
   return (
-    <Wax
-      // autoFocus
-      config={selectedWaxConfig}
-      customProps={luluWax}
-      documentTitle={documentTitle}
-      fileUpload={onImageUpload}
-      layout={LuluLayout}
-      readonly={isReadOnly}
-      ref={editorRef}
-      user={userObject}
-    />
+    <>
+      <FileUpload />
+      <Wax
+        // autoFocus
+        config={selectedWaxConfig}
+        customProps={luluWax}
+        documentTitle={documentTitle}
+        fileUpload={onImageUpload}
+        layout={LuluLayout}
+        readonly={isReadOnly}
+        ref={editorRef}
+        user={userObject}
+      />
+    </>
   )
 }
 
