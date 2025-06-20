@@ -1,5 +1,23 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react'
+import { th } from '@coko/client'
+import Modal from '../common/Modal'
 import styled, { keyframes } from 'styled-components'
+
+const StyledModal = styled(Modal)`
+  font-family: ${th('fontBrand')};
+
+  p {
+    font-size: ${th('fontSizeBaseSmall')};
+  }
+
+  .ant-modal-content {
+    border-radius: 10px;
+  }
+
+  .ant-modal-header {
+    border-radius: 10px 10px 0 0;
+  }
+`
 
 const fadeIn = keyframes`
   from {
@@ -117,7 +135,7 @@ const DeleteButton = styled.button`
   }
 `
 
-const FileUpload = () => {
+const FileUpload = ({ open }) => {
   const [files, setFiles] = useState([])
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
@@ -206,42 +224,57 @@ const FileUpload = () => {
   }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop])
 
   return (
-    <FileUploadContainer>
-      <input
-        multiple
-        onChange={handleFileInputChange}
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        type="file"
-      />
+    <StyledModal
+      // bodyStyle={{ fontSize: th('fontSizeBaseSmall') }}
+      closable
+      // footer={null}
+      maskClosable
+      // onCancel={handleCancel}
+      // onOk={() => {
+      //   deleteResourceFn({ variables: { id: deleteResourceRow.id } })
+      //   setDeleteResourceRow(null)
+      // }}
+      open={open}
+      title="Delete Resource"
+      width="420px"
+    >
+      <FileUploadContainer>
+        <input
+          multiple
+          onChange={handleFileInputChange}
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          type="file"
+        />
 
-      <DropArea
-        $isDragging={isDragging}
-        onClick={openFileSelection}
-        ref={dropAreaRef}
-      >
-        <p>Drag and drop files here or click to select files</p>
-        {isDragging && <DropOverlay>Drop your files here</DropOverlay>}
-      </DropArea>
+        <DropArea
+          $isDragging={isDragging}
+          onClick={openFileSelection}
+          ref={dropAreaRef}
+        >
+          <p>Drag and drop files here or click to select files</p>
+          {isDragging && <DropOverlay>Drop your files here</DropOverlay>}
+        </DropArea>
 
-      <SelectButton onClick={openFileSelection}>Select Files</SelectButton>
+        <SelectButton onClick={openFileSelection}>Select Files</SelectButton>
 
-      {files.length > 0 && (
-        <UploadedFilesPreview>
-          <h3>Selected Files:</h3>
-          <ul>
-            {files.map((file, index) => (
-              <FileListItem key={index}>
-                {file.name} ({(file.size / 1024).toFixed(2)} KB)
-                <DeleteButton onClick={() => handleDeleteFile(file)}>
-                  X
-                </DeleteButton>
-              </FileListItem>
-            ))}
-          </ul>
-        </UploadedFilesPreview>
-      )}
-    </FileUploadContainer>
+        {files.length > 0 && (
+          <UploadedFilesPreview>
+            <h3>Selected Files:</h3>
+            <ul>
+              {files.map((file, index) => (
+                <FileListItem key={index}>
+                  {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                  <DeleteButton onClick={() => handleDeleteFile(file)}>
+                    X
+                  </DeleteButton>
+                </FileListItem>
+              ))}
+            </ul>
+          </UploadedFilesPreview>
+        )}
+      </FileUploadContainer>
+    </StyledModal>
   )
 }
 

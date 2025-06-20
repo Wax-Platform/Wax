@@ -22,6 +22,7 @@ const invitations = require('./invitations')
 const embeddings = require('./embeddings')
 const document = require('./document')
 const bookComments = require('./bookComments')
+const fileManager = require('./fileManager')
 // const docTreeManager = require('./docTreeManager')
 const loader = models.reduce((r, c) => Object.assign(r, c), {})
 
@@ -50,6 +51,7 @@ module.exports = {
   document,
   embeddings,
   bookComments,
+  fileManager,
   // docTreeManager,
   models: {
     ApplicationParameter: applicationParameter.model,
@@ -76,6 +78,7 @@ module.exports = {
     Document: document.model,
     Embedding: embeddings.model,
     Comments: bookComments.model,
+    FileManager: fileManager.model,
     // DocTreeManager: docTreeManager.model,
   },
 }

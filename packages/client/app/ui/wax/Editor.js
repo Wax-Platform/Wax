@@ -86,6 +86,7 @@ const EditorWrapper = ({
     setIsCurrentDocumentMine,
   })
 
+  const [loaded, setLoaded] = useState(false)
   const [selectedWaxConfig, setSelectedWaxConfig] = useState(configWithAi)
 
   const waxMenuConfig =
@@ -163,6 +164,25 @@ const EditorWrapper = ({
     })
   }, [aiOn])
 
+  const onAssetManager = () =>
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        setLoaded(true)
+        // Simulate success or failure
+        resolve('Success: dummy data received')
+        // reject('Something went wrong');
+      }, 1000)
+    })
+
+  // onAssetManager
+  //   .then(result => {
+  //     console.log(result)
+  //     setLoaded(true)
+  //   })
+  //   .catch(err => {
+  //     console.error(err)
+  //   })
+
   useEffect(() => {
     setSelectedWaxConfig({
       ...selectedWaxConfig,
@@ -220,6 +240,8 @@ const EditorWrapper = ({
         userList: bookMembers,
         getMentionedUsers: onMention,
       },
+      ImageService: { handleAssetManager: onAssetManager, showAlt: true },
+
       AskAiContentService: {
         AskAiContentTransformation: queryAI,
         FreeTextPromptsOn: freeTextPromptsOn,
@@ -291,7 +313,6 @@ const EditorWrapper = ({
 
   return (
     <>
-      <FileUpload />
       <Wax
         // autoFocus
         config={selectedWaxConfig}
@@ -303,6 +324,7 @@ const EditorWrapper = ({
         ref={editorRef}
         user={userObject}
       />
+      <FileUpload open={loaded} />
     </>
   )
 }

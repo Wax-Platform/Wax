@@ -1,0 +1,28 @@
+type FileManager {
+  id: ID!
+  name: String
+  parentId: ID
+  file: File
+  userId: ID!
+  created: Date
+  updated: Date
+  metaData: MetaData
+}
+
+type MetaData {
+  bookComponentId: [ID]
+}
+
+extend type Query {
+  getUserFileManager(parentId: ID): String
+}
+
+extend type Mutation {
+  uploadToFileManager(
+    files: [Upload]!
+    entityType: String
+    entityId: ID
+  ): [File]!
+  deleteFromFileManager(ids: [ID!]!): [ID]
+  updateFileInFileManager(fileIds: [ID]): [ID]
+}

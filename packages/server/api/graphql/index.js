@@ -16,6 +16,7 @@ const invitations = require('./invitations')
 const document = require('./document')
 const comments = require('./comments')
 const docTree = require('./docTree')
+const fileManager = require('./fileManager')
 
 module.exports = {
   typeDefs: [
@@ -36,6 +37,7 @@ module.exports = {
     document.typeDefs,
     comments.typeDefs,
     docTree.typeDefs,
+    fileManager.typeDefs,
   ].join(' '),
   resolvers: merge(
     {},
@@ -56,5 +58,6 @@ module.exports = {
     document.resolvers,
     comments.resolvers,
     docTree.resolvers,
+    fileManager.resolvers,
   ),
 }
