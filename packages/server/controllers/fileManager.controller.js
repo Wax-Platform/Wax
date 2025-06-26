@@ -1,10 +1,14 @@
-const { createFile } = require('@coko/server')
-const { File, FileManager } = require('../models').models
+const { createFile, deleteFiles } = require('@coko/server')
+
+const { FileManager } = require('../models').models
 
 const getUserFileManagerHandler = async (_, {}, ctx) => {
   const fileManager = await FileManager.query()
-    .$relatedQuery('file')
-    .where({ userId: ctx.userId, parentId: null })
+    .where({
+      userId: ctx.userId,
+      parentId: null,
+    })
+    .withGraphFetched('file')
 
   return JSON.stringify(fileManager)
 }
@@ -13,7 +17,7 @@ const uploadToFileManagerHandler = async (_, { files }, ctx) => {
   const uploadedFiles = []
   await Promise.all(
     files.map(async file => {
-      const { createReadStream, filename } = file
+      const { createReadStream, filename } = await file
       const fileStream = createReadStream()
 
       uploadedFiles.push(
@@ -25,21 +29,35 @@ const uploadToFileManagerHandler = async (_, { files }, ctx) => {
   await Promise.all(
     uploadedFiles.map(async file => {
       await FileManager.insert({
-        name: file.filename,
+        name: file.name,
         fileId: file.id,
-        userId: ctx.user.id,
+        userId: ctx.userId,
         metadata: { bookComponentId: [] },
       })
     }),
   )
+
+  return uploadedFiles
 }
 
-const deleteFromFileManagerHandler = async (_, { ids }, ctx) => {}
-const updateFileInFileManagerHandler = async (_, { ids }, ctx) => {}
+const deleteFromFileManagerHandler = async (_, { ids }, ctx) => {
+  await FileManager.query().delete().whereIn('fileId', ids)
+  await deleteFiles(ids)
+}
+
+const updateMetadataFileManagerHandler = async (_, { fileId, input }, ctx) => {
+  await FileManager.query()
+    .patch({
+      metadata: input,
+    })
+    .where({ fileId })
+
+  return fileId
+}
 
 module.exports = {
   getUserFileManagerHandler,
   uploadToFileManagerHandler,
   deleteFromFileManagerHandler,
-  updateFileInFileManagerHandler,
+  updateMetadataFileManagerHandler,
 }

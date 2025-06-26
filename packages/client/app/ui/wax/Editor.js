@@ -55,6 +55,10 @@ const EditorWrapper = ({
   setSelectedChapterId,
   isUploading,
   setUploading,
+  getUserFileManager,
+  uploadToFileManager,
+  deleteFromFileManager,
+  updateFileInManager,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -86,6 +90,7 @@ const EditorWrapper = ({
     setIsCurrentDocumentMine,
   })
 
+  const [userFileManagerFiles, setUserFileManagerFiles] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [selectedWaxConfig, setSelectedWaxConfig] = useState(configWithAi)
 
@@ -164,15 +169,12 @@ const EditorWrapper = ({
     })
   }, [aiOn])
 
-  const onAssetManager = () =>
-    new Promise((resolve, reject) => {
-      setTimeout(() => {
-        setLoaded(true)
-        // Simulate success or failure
-        resolve('Success: dummy data received')
-        // reject('Something went wrong');
-      }, 1000)
-    })
+  const onAssetManager = async () => {
+    setLoaded(true)
+    const userFiles = await getUserFileManager()
+    setUserFileManagerFiles(JSON.parse(userFiles.data.getUserFileManager))
+    return userFiles
+  }
 
   // onAssetManager
   //   .then(result => {
@@ -324,7 +326,15 @@ const EditorWrapper = ({
         ref={editorRef}
         user={userObject}
       />
-      <FileUpload open={loaded} />
+      <FileUpload
+        open={loaded}
+        uploadToFileManager={uploadToFileManager}
+        deleteFromFileManager={deleteFromFileManager}
+        getUserFileManager={getUserFileManager}
+        updateFileInManager={updateFileInManager}
+        userFileManagerFiles={userFileManagerFiles}
+        setUserFileManagerFiles={setUserFileManagerFiles}
+      />
     </>
   )
 }

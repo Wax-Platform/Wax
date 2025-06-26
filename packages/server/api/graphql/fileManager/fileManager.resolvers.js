@@ -2,8 +2,8 @@ const {
   getUserFileManagerHandler,
   uploadToFileManagerHandler,
   deleteFromFileManagerHandler,
-  updateFileInFileManagerHandler,
-} = require('../../../controllers/file.controller')
+  updateMetadataFileManagerHandler,
+} = require('../../../controllers/fileManager.controller')
 
 module.exports = {
   Query: {
@@ -12,6 +12,6 @@ module.exports = {
   Mutation: {
     uploadToFileManager: uploadToFileManagerHandler,
     deleteFromFileManager: deleteFromFileManagerHandler,
-    updateFileInFileManager: updateFileInFileManagerHandler,
+    updateMetadataFileManager: updateMetadataFileManagerHandler,
   },
 }

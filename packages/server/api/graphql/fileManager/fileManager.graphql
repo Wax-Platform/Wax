@@ -6,10 +6,14 @@ type FileManager {
   userId: ID!
   created: Date
   updated: Date
-  metaData: MetaData
+  metadata: FileManagerMetaData
 }
 
-type MetaData {
+type FileManagerMetaData {
+  bookComponentId: [ID]
+}
+
+input FileManagerMetaDataInput {
   bookComponentId: [ID]
 }
 
@@ -24,5 +28,5 @@ extend type Mutation {
     entityId: ID
   ): [File]!
   deleteFromFileManager(ids: [ID!]!): [ID]
-  updateFileInFileManager(fileIds: [ID]): [ID]
+  updateMetadataFileManager(fileId: ID, input: FileManagerMetaDataInput): ID
 }

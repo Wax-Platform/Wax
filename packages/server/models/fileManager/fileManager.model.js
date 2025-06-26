@@ -1,10 +1,19 @@
 const { BaseModel } = require('@coko/server')
 
 class FileManager extends BaseModel {
+  constructor(properties) {
+    super(properties)
+    this.type = 'fileManager'
+  }
+
+  static get tableName() {
+    return 'file_manager'
+  }
+
   static get schema() {
     return {
       type: 'object',
-      required: ['name', 'extension'],
+      required: ['name'],
       properties: {
         id: { type: 'string', format: 'uuid' },
         fileId: { type: 'string', format: 'uuid' },
@@ -36,15 +45,15 @@ class FileManager extends BaseModel {
         relation: BaseModel.BelongsToOneRelation,
         modelClass: File,
         join: {
-          from: 'file_manager.file_id',
-          to: 'file_manager.id',
+          from: 'file_manager.fileId',
+          to: 'files.id',
         },
       },
       user: {
         relation: BaseModel.BelongsToOneRelation,
         modelClass: User,
         join: {
-          from: 'file_manager.user_id',
+          from: 'file_manager.userId',
           to: 'users.id',
         },
       },

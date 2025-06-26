@@ -48,6 +48,10 @@ import {
   RENAME_RESOURCE,
   DELETE_RESOURCE,
   REORDER_RESOURCE,
+  GET_USER_FILEMANAGER,
+  UPLOAD_TO_FILEMANAGER,
+  DELETE_FROM_FILEMANAGER,
+  UPDATE_FILE_IN_FILEMANAGER,
 } from '../graphql'
 
 import {
@@ -246,6 +250,14 @@ const ProducerPage = ({ bookId }) => {
         })
       },
     })
+
+  const { refetch: getUserFileManager } = useQuery(GET_USER_FILEMANAGER, {
+    skip: true,
+  })
+
+  const [uploadToFileManager] = useMutation(UPLOAD_TO_FILEMANAGER)
+  const [deleteFromFileManager] = useMutation(DELETE_FROM_FILEMANAGER)
+  const [updateFileInManager] = useMutation(UPDATE_FILE_IN_FILEMANAGER)
 
   const [getComments] = useLazyQuery(GET_COMMENTS, {
     skip: !bookId || !selectedChapterId,
@@ -1022,6 +1034,10 @@ const ProducerPage = ({ bookId }) => {
       title={bookQueryData?.getBook.title}
       user={currentUser}
       viewMetadata={viewMetadata}
+      getUserFileManager={getUserFileManager}
+      uploadToFileManager={uploadToFileManager}
+      deleteFromFileManager={deleteFromFileManager}
+      updateFileInManager={updateFileInManager}
     />
   )
 }

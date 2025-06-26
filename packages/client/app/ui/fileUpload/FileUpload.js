@@ -1,7 +1,11 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { th } from '@coko/client'
-import Modal from '../common/Modal'
+import { th, serverUrl } from '@coko/client'
+
 import styled, { keyframes } from 'styled-components'
+import { useParams } from 'react-router-dom'
+
+import { DeleteOutlined } from '@ant-design/icons' // Font Awesome icon
+import Modal from '../common/Modal'
 
 const StyledModal = styled(Modal)`
   font-family: ${th('fontBrand')};
@@ -115,6 +119,60 @@ const FileListItem = styled.li`
   font-size: 0.95em;
   color: #555;
 `
+const Files = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+`
+
+const Tile = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px;
+`
+
+const FileWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100px;
+
+  &:hover .icon-wrapper {
+    opacity: 1;
+  }
+`
+
+const StyledImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+`
+
+const IconWrapper = styled.div`
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+`
+
+const DeleteOutlinedStyled = styled(DeleteOutlined)`
+  font-size: 16px;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px;
+  border-radius: 50%;
+  cursor: pointer;
+`
+
+const TileName = styled.div`
+  margin-top: 8px;
+  font-size: 14px;
+  text-align: center;
+  word-break: break-word;
+`
 
 const DeleteButton = styled.button`
   background-color: #dc3545;
@@ -135,7 +193,16 @@ const DeleteButton = styled.button`
   }
 `
 
-const FileUpload = ({ open }) => {
+const FileUpload = ({
+  open,
+  userFileManagerFiles,
+  uploadToFileManager,
+  deleteFromFileManager,
+  updateFileInManager,
+  setUserFileManagerFiles,
+  getUserFileManager,
+}) => {
+  const { bookComponentId } = useParams()
   const [files, setFiles] = useState([])
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
@@ -171,6 +238,18 @@ const FileUpload = ({ open }) => {
     [files],
   )
 
+  const onDeleteFile = useCallback(
+    async item => {
+      await deleteFromFileManager({ variables: { ids: [item.file.id] } })
+      const userFiles = await getUserFileManager({ variables: {} })
+
+      setUserFileManagerFiles([
+        ...JSON.parse(userFiles.data.getUserFileManager),
+      ])
+    },
+    [files],
+  )
+
   const handleFileInputChange = useCallback(
     e => {
       const selectedFiles = Array.from(e.target.files)
@@ -187,6 +266,7 @@ const FileUpload = ({ open }) => {
           existingFile =>
             existingFile.name === file.name && existingFile.size === file.size,
         )
+
         return !isAlreadyAdded
       })
 
@@ -201,6 +281,34 @@ const FileUpload = ({ open }) => {
 
   const openFileSelection = () => {
     fileInputRef.current.click()
+  }
+
+  const uploadFiles = async () => {
+    const filesInserted = await uploadToFileManager({
+      variables: {
+        files,
+        fileType: 'fileManagerImage',
+        entityId: bookComponentId,
+      },
+    })
+
+    await Promise.all(
+      filesInserted.data.uploadToFileManager.map(file =>
+        updateFileInManager({
+          variables: {
+            fileId: file.id,
+            input: {
+              bookComponentId: [bookComponentId],
+            },
+          },
+        }),
+      ),
+    )
+
+    const userFiles = await getUserFileManager({ variables: {} })
+
+    setUserFileManagerFiles([...JSON.parse(userFiles.data.getUserFileManager)])
+    setFiles([])
   }
 
   useEffect(() => {
@@ -273,6 +381,27 @@ const FileUpload = ({ open }) => {
             </ul>
           </UploadedFilesPreview>
         )}
+        {files.length > 0 && <button onClick={uploadFiles}>Upload</button>}
+
+        <Files>
+          {userFileManagerFiles.map((item, index) => (
+            <Tile key={index}>
+              <FileWrapper>
+                <StyledImage
+                  src={`${serverUrl}/file/${item.file.id}`}
+                  alt={item.file.name}
+                />
+                <IconWrapper className="icon-wrapper">
+                  <DeleteOutlinedStyled
+                    className="delete-icon"
+                    onClick={() => onDeleteFile(item)}
+                  />
+                </IconWrapper>
+              </FileWrapper>
+              <TileName>{item.file.name}</TileName>
+            </Tile>
+          ))}
+        </Files>
       </FileUploadContainer>
     </StyledModal>
   )

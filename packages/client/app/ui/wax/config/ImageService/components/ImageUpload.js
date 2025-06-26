@@ -73,7 +73,6 @@ const ImageUpload = ({ item, fileUpload, view }) => {
 
   async function insertThroughFileMAnager() {
     const handler = imageServiceConfig.handleAssetManager
-    console.log(imageServiceConfig.handleAssetManager, imageServiceConfig)
     const urls = await handler()
     // insertImage(urls, view, placeholderPlugin)
   }
