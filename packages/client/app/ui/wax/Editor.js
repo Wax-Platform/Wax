@@ -327,13 +327,13 @@ const EditorWrapper = ({
         user={userObject}
       />
       <FileUpload
-        open={loaded}
-        uploadToFileManager={uploadToFileManager}
         deleteFromFileManager={deleteFromFileManager}
         getUserFileManager={getUserFileManager}
-        updateFileInManager={updateFileInManager}
-        userFileManagerFiles={userFileManagerFiles}
+        open={loaded}
         setUserFileManagerFiles={setUserFileManagerFiles}
+        updateFileInManager={updateFileInManager}
+        uploadToFileManager={uploadToFileManager}
+        userFileManagerFiles={userFileManagerFiles}
       />
     </>
   )

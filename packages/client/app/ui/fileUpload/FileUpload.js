@@ -1,3 +1,8 @@
+/* eslint-disable react/no-array-index-key */
+/* stylelint-disable indentation */
+/* stylelint-disable alpha-value-notation */
+/* stylelint-disable color-function-notation */
+/* eslint-disable react/prop-types */
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { th, serverUrl } from '@coko/client'
 
@@ -24,68 +29,70 @@ const StyledModal = styled(Modal)`
 `
 
 const fadeIn = keyframes`
-  from {
+
+from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 `
 
 const FileUploadContainer = styled.div`
-  font-family: sans-serif;
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-family: sans-serif;
+  margin: 50px auto;
+  max-width: 1000px;
+  padding: 20px;
   text-align: center;
 `
 
 const DropArea = styled.div`
+  background-color: ${props => (props.$isDragging ? '#e6f7ff' : '#f9f9f9')};
   border: 2px dashed ${props => (props.$isDragging ? '#0056b3' : '#007bff')};
   border-radius: 8px;
-  padding: 40px 20px;
-  text-align: center;
   cursor: pointer;
-  position: relative;
-  background-color: ${props => (props.$isDragging ? '#e6f7ff' : '#f9f9f9')};
-  transition: background-color 0.3s ease, border-color 0.3s ease;
   margin-bottom: 20px;
+  padding: 40px 20px;
+  position: relative;
+  text-align: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 
   p {
-    margin: 0;
     color: #555;
+    margin: 0;
   }
 `
 
 const DropOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 123, 255, 0.1);
-  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.2em;
-  color: #007bff;
-  border-radius: 8px;
   animation: ${fadeIn} 0.2s ease-out; /* Apply animation */
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 8px;
+  bottom: 0;
+  color: #007bff;
+  display: flex;
+  font-size: 1.2em;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
 `
 
-const SelectButton = styled.button`
+const UploadButton = styled.button`
   background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
   border: none;
   border-radius: 5px;
+  color: white;
   cursor: pointer;
   font-size: 1em;
-  transition: background-color 0.3s ease;
   margin-top: 10px;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
 
   &:hover {
     background-color: #0056b3;
@@ -93,8 +100,8 @@ const SelectButton = styled.button`
 `
 
 const UploadedFilesPreview = styled.div`
-  margin-top: 30px;
   border-top: 1px solid #eee;
+  margin-top: 30px;
   padding-top: 20px;
 
   h3 {
@@ -109,33 +116,37 @@ const UploadedFilesPreview = styled.div`
 `
 
 const FileListItem = styled.li`
-  background-color: #e9e9e9;
-  padding: 10px 15px;
-  margin-bottom: 8px;
-  border-radius: 4px;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.95em;
+  background-color: #e9e9e9;
+  border-radius: 4px;
   color: #555;
+  display: flex;
+  font-size: 0.95em;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 10px 15px;
 `
+
 const Files = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-top: 20px;
 `
 
 const Tile = styled.div`
+  align-items: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
   width: 120px;
 `
 
 const FileWrapper = styled.div`
+  height: 100px;
   position: relative;
   width: 100%;
-  height: 100px;
 
   &:hover .icon-wrapper {
     opacity: 1;
@@ -143,50 +154,50 @@ const FileWrapper = styled.div`
 `
 
 const StyledImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 `
 
 const IconWrapper = styled.div`
-  position: absolute;
-  top: 6px;
-  right: 6px;
   opacity: 0;
+  position: absolute;
+  right: 6px;
+  top: 6px;
   transition: opacity 0.2s ease-in-out;
 `
 
 const DeleteOutlinedStyled = styled(DeleteOutlined)`
-  font-size: 16px;
-  color: white;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 4px;
+  background: #000;
   border-radius: 50%;
+  color: white;
   cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
 `
 
 const TileName = styled.div`
-  margin-top: 8px;
   font-size: 14px;
+  margin-top: 8px;
   text-align: center;
   word-break: break-word;
 `
 
 const DeleteButton = styled.button`
+  align-items: center;
   background-color: #dc3545;
-  color: white;
   border: none;
   border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8em;
+  color: white;
   cursor: pointer;
+  display: flex;
+  font-size: 0.8em;
+  height: 25px;
+  justify-content: center;
   transition: background-color 0.3s ease;
+  width: 25px;
 
   &:hover {
     background-color: #c82333;
@@ -343,8 +354,8 @@ const FileUpload = ({
       //   setDeleteResourceRow(null)
       // }}
       open={open}
-      title="Delete Resource"
-      width="420px"
+      title="Image Manager"
+      width="1020px"
     >
       <FileUploadContainer>
         <input
@@ -360,15 +371,13 @@ const FileUpload = ({
           onClick={openFileSelection}
           ref={dropAreaRef}
         >
-          <p>Drag and drop files here or click to select files</p>
-          {isDragging && <DropOverlay>Drop your files here</DropOverlay>}
+          <p>Drag and drop images here or click to select images</p>
+          {isDragging && <DropOverlay>Drop your images here</DropOverlay>}
         </DropArea>
-
-        <SelectButton onClick={openFileSelection}>Select Files</SelectButton>
 
         {files.length > 0 && (
           <UploadedFilesPreview>
-            <h3>Selected Files:</h3>
+            <h3>Selected Images:</h3>
             <ul>
               {files.map((file, index) => (
                 <FileListItem key={index}>
@@ -381,15 +390,17 @@ const FileUpload = ({
             </ul>
           </UploadedFilesPreview>
         )}
-        {files.length > 0 && <button onClick={uploadFiles}>Upload</button>}
+        {files.length > 0 && (
+          <UploadButton onClick={uploadFiles}>Upload</UploadButton>
+        )}
 
         <Files>
           {userFileManagerFiles.map((item, index) => (
             <Tile key={index}>
               <FileWrapper>
                 <StyledImage
-                  src={`${serverUrl}/file/${item.file.id}`}
                   alt={item.file.name}
+                  src={`${serverUrl}/file/${item.file.id}`}
                 />
                 <IconWrapper className="icon-wrapper">
                   <DeleteOutlinedStyled
