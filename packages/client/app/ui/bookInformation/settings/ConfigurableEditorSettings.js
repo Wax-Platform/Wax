@@ -50,7 +50,7 @@ const SingleTools = [
   { label: 'Code Block', value: 'CodeBlock', checked: false },
   { label: 'Text Highlighter', value: 'HighlightToolGroup', checked: false },
   { label: 'Transform Case', value: 'TransformToolGroup', checked: false },
-  // { label: 'Track Changes', value: 'TrackingAndEditing', checked: false },
+  { label: 'Track Changes', value: 'TrackingAndEditing', checked: false },
   { label: 'Custom Tags Block', value: 'CustomTagBlock', checked: false },
   { label: 'Custom Tags Inline', value: 'CustomTagInline', checked: false },
   { label: 'Notes', value: 'Notes', checked: false },
