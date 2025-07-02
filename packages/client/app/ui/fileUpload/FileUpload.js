@@ -183,6 +183,51 @@ const DeleteOutlinedStyled = styled(DeleteOutlined)`
   padding: 4px;
 `
 
+const DeleteConfirmationOverlay = styled.div`
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  bottom: 0;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  justify-content: center;
+  left: 0;
+  padding: 8px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 10;
+`
+
+const ConfirmationText = styled.div`
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-align: center;
+`
+
+const ConfirmationButtons = styled.div`
+  display: flex;
+  gap: 8px;
+`
+
+const ConfirmationButton = styled.button`
+  background-color: ${props => (props.$isConfirm ? '#dc3545' : '#6c757d')};
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${props => (props.$isConfirm ? '#c82333' : '#5a6268')};
+  }
+`
+
 const TileName = styled.div`
   font-size: 14px;
   margin-top: 8px;
@@ -301,6 +346,7 @@ const FileUpload = ({
   const [isDragging, setIsDragging] = useState(false)
   const [altText, setAltText] = useState('')
   const [caption, setCaption] = useState('')
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null)
   const fileInputRef = useRef(null)
   const dropAreaRef = useRef(null)
 
@@ -464,9 +510,22 @@ const FileUpload = ({
 
   const InsertIntoSelection = () => {}
 
+  const handleDeleteClick = (e, item) => {
+    e.stopPropagation()
+    setDeleteConfirmId(item.file.id)
+  }
+
+  const handleConfirmDelete = async item => {
+    await onDeleteFile(item)
+    setDeleteConfirmId(null)
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmId(null)
+  }
+
   return (
     <StyledModal
-      // bodyStyle={{ fontSize: th('fontSizeBaseSmall') }}
       closable
       footer={(_, { CancelBtn }) => (
         <>
@@ -480,11 +539,6 @@ const FileUpload = ({
       )}
       maskClosable
       onCancel={onClose}
-      // onCancel={handleCancel}
-      // onOk={() => {
-      //   deleteResourceFn({ variables: { id: deleteResourceRow.id } })
-      //   setDeleteResourceRow(null)
-      // }}
       open={open}
       title="Image Manager"
       width="1020px"
@@ -526,6 +580,7 @@ const FileUpload = ({
                       selectedImage.file.storedObjects.find(
                         obj => obj.type === 'original',
                       )
+
                     if (!originalObject) return null
 
                     const formatFileSize = bytes => {
@@ -533,11 +588,9 @@ const FileUpload = ({
                       const k = 1024
                       const sizes = ['Bytes', 'KB', 'MB', 'GB']
                       const i = Math.floor(Math.log(bytes) / Math.log(k))
-                      return (
-                        parseFloat((bytes / Math.pow(k, i)).toFixed(2)) +
-                        ' ' +
+                      return `${parseFloat((bytes / k ** i).toFixed(2))} ${
                         sizes[i]
-                      )
+                      }`
                     }
 
                     const formatDate = dateString => {
@@ -626,11 +679,29 @@ const FileUpload = ({
                   src={`${serverUrl}/file/${item.file.id}`}
                 />
                 <IconWrapper className="icon-wrapper">
-                  <DeleteOutlinedStyled
-                    className="delete-icon"
-                    onClick={() => onDeleteFile(item)}
-                  />
+                  {deleteConfirmId !== item.file.id && (
+                    <DeleteOutlinedStyled
+                      className="delete-icon"
+                      onClick={e => handleDeleteClick(e, item)}
+                    />
+                  )}
                 </IconWrapper>
+                {deleteConfirmId === item.file.id && (
+                  <DeleteConfirmationOverlay>
+                    <ConfirmationText>Are you sure?</ConfirmationText>
+                    <ConfirmationButtons>
+                      <ConfirmationButton
+                        onClick={() => handleConfirmDelete(item)}
+                        $isConfirm
+                      >
+                        OK
+                      </ConfirmationButton>
+                      <ConfirmationButton onClick={handleCancelDelete}>
+                        Cancel
+                      </ConfirmationButton>
+                    </ConfirmationButtons>
+                  </DeleteConfirmationOverlay>
+                )}
               </FileWrapper>
               <TileName>{item.file.name}</TileName>
             </Tile>
