@@ -11,6 +11,7 @@ import styled, { keyframes } from 'styled-components'
 import { useParams } from 'react-router-dom'
 
 import { DeleteOutlined, SearchOutlined } from '@ant-design/icons'
+import { Spin } from 'antd'
 import Modal from '../common/Modal'
 import Button from '../common/Button'
 import Input from '../common/Input'
@@ -310,6 +311,28 @@ const CloseLargeImage = styled.button`
   }
 `
 
+const UploadLoaderOverlay = styled.div`
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 10;
+`
+
+const LoaderText = styled.div`
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 12px;
+`
+
 const FileUpload = ({
   open,
   userFileManagerFiles,
@@ -328,6 +351,7 @@ const FileUpload = ({
   const [caption, setCaption] = useState('')
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
   const [largeImageId, setLargeImageId] = useState(null)
+  const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef(null)
   const dropAreaRef = useRef(null)
 
@@ -410,31 +434,38 @@ const FileUpload = ({
   }
 
   const uploadFiles = async () => {
-    const filesInserted = await uploadToFileManager({
-      variables: {
-        files,
-        fileType: 'fileManagerImage',
-        entityId: bookComponentId,
-      },
-    })
+    try {
+      setIsUploading(true)
+      const filesInserted = await uploadToFileManager({
+        variables: {
+          files,
+          fileType: 'fileManagerImage',
+          entityId: bookComponentId,
+        },
+      })
 
-    await Promise.all(
-      filesInserted.data.uploadToFileManager.map(file =>
-        updateFileInManager({
-          variables: {
-            fileId: file.id,
-            input: {
-              bookComponentId: [bookComponentId],
+      await Promise.all(
+        filesInserted.data.uploadToFileManager.map(file =>
+          updateFileInManager({
+            variables: {
+              fileId: file.id,
+              input: {
+                bookComponentId: [bookComponentId],
+              },
             },
-          },
-        }),
-      ),
-    )
+          }),
+        ),
+      )
 
-    const userFiles = await getUserFileManager({ variables: {} })
+      const userFiles = await getUserFileManager({ variables: {} })
 
-    setUserFileManagerFiles([...JSON.parse(userFiles.data.getUserFileManager)])
-    setFiles([])
+      setUserFileManagerFiles([...JSON.parse(userFiles.data.getUserFileManager)])
+      setFiles([])
+    } catch (error) {
+      console.error('Upload failed:', error)
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   useEffect(() => {
@@ -503,6 +534,7 @@ const FileUpload = ({
 
   const handleCancelDelete = () => {
     setDeleteConfirmId(null)
+
     if (selectedImage) {
       setSelectedImage(selectedImage)
     }
@@ -639,6 +671,13 @@ const FileUpload = ({
             </Tile>
           ))}
         </Files>
+
+        {isUploading && (
+          <UploadLoaderOverlay>
+            <Spin size="large" />
+            <LoaderText>Uploading images...</LoaderText>
+          </UploadLoaderOverlay>
+        )}
       </FileUploadContainer>
 
       {largeImageId && (
