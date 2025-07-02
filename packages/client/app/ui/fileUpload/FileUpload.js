@@ -10,7 +10,7 @@ import { th, serverUrl } from '@coko/client'
 import styled, { keyframes } from 'styled-components'
 import { useParams } from 'react-router-dom'
 
-import { DeleteOutlined } from '@ant-design/icons' // Font Awesome icon
+import { DeleteOutlined, SearchOutlined } from '@ant-design/icons'
 import Modal from '../common/Modal'
 import Button from '../common/Button'
 import Input from '../common/Input'
@@ -183,6 +183,16 @@ const DeleteOutlinedStyled = styled(DeleteOutlined)`
   padding: 4px;
 `
 
+const SearchOutlinedStyled = styled(SearchOutlined)`
+  background: #000;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 8px;
+  padding: 4px;
+`
+
 const DeleteConfirmationOverlay = styled.div`
   align-items: center;
   background-color: rgba(0, 0, 0, 0.8);
@@ -213,7 +223,7 @@ const ConfirmationButtons = styled.div`
 `
 
 const ConfirmationButton = styled.button`
-  background-color: ${props => (props.$isConfirm ? '#dc3545' : '#6c757d')};
+  background-color: ${props => (props.isConfirm ? '#dc3545' : '#6c757d')};
   border: none;
   border-radius: 4px;
   color: white;
@@ -224,7 +234,7 @@ const ConfirmationButton = styled.button`
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: ${props => (props.$isConfirm ? '#c82333' : '#5a6268')};
+    background-color: ${props => (props.isConfirm ? '#c82333' : '#5a6268')};
   }
 `
 
@@ -330,6 +340,51 @@ const MetadataItem = styled.div`
   }
 `
 
+const LargeImageModal = styled.div`
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.9);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 1000;
+`
+
+const LargeImageContainer = styled.div`
+  max-height: 90vh;
+  max-width: 90vw;
+  position: relative;
+`
+
+const LargeImage = styled.img`
+  border-radius: 8px;
+  height: auto;
+  max-height: 90vh;
+  max-width: 90vw;
+  object-fit: contain;
+`
+
+const CloseLargeImage = styled.button`
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  font-size: 24px;
+  height: 40px;
+  position: absolute;
+  right: -50px;
+  top: 0;
+  width: 40px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+`
+
 const FileUpload = ({
   open,
   userFileManagerFiles,
@@ -347,6 +402,7 @@ const FileUpload = ({
   const [altText, setAltText] = useState('')
   const [caption, setCaption] = useState('')
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
+  const [largeImageId, setLargeImageId] = useState(null)
   const fileInputRef = useRef(null)
   const dropAreaRef = useRef(null)
 
@@ -524,6 +580,15 @@ const FileUpload = ({
     setDeleteConfirmId(null)
   }
 
+  const handleShowLargeImage = (e, item) => {
+    e.stopPropagation()
+    setLargeImageId(item.file.id)
+  }
+
+  const handleCloseLargeImage = () => {
+    setLargeImageId(null)
+  }
+
   return (
     <StyledModal
       closable
@@ -680,10 +745,16 @@ const FileUpload = ({
                 />
                 <IconWrapper className="icon-wrapper">
                   {deleteConfirmId !== item.file.id && (
-                    <DeleteOutlinedStyled
-                      className="delete-icon"
-                      onClick={e => handleDeleteClick(e, item)}
-                    />
+                    <>
+                      <SearchOutlinedStyled
+                        className="search-icon"
+                        onClick={e => handleShowLargeImage(e, item)}
+                      />
+                      <DeleteOutlinedStyled
+                        className="delete-icon"
+                        onClick={e => handleDeleteClick(e, item)}
+                      />
+                    </>
                   )}
                 </IconWrapper>
                 {deleteConfirmId === item.file.id && (
@@ -691,8 +762,8 @@ const FileUpload = ({
                     <ConfirmationText>Are you sure?</ConfirmationText>
                     <ConfirmationButtons>
                       <ConfirmationButton
+                        isConfirm
                         onClick={() => handleConfirmDelete(item)}
-                        $isConfirm
                       >
                         OK
                       </ConfirmationButton>
@@ -708,6 +779,18 @@ const FileUpload = ({
           ))}
         </Files>
       </FileUploadContainer>
+
+      {largeImageId && (
+        <LargeImageModal onClick={handleCloseLargeImage}>
+          <LargeImageContainer onClick={e => e.stopPropagation()}>
+            <LargeImage
+              alt="Large preview"
+              src={`${serverUrl}/file/${largeImageId}`}
+            />
+            <CloseLargeImage onClick={handleCloseLargeImage}>×</CloseLargeImage>
+          </LargeImageContainer>
+        </LargeImageModal>
+      )}
     </StyledModal>
   )
 }
