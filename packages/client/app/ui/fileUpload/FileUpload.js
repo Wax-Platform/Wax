@@ -333,6 +333,39 @@ const LoaderText = styled.div`
   margin-top: 12px;
 `
 
+const SearchContainer = styled.div`
+  margin-bottom: 20px;
+  position: relative;
+  width: 100%;
+`
+
+const SearchInput = styled(Input)`
+  padding-left: 40px;
+  width: 100%;
+
+  input {
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    outline: none;
+
+    &:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+      outline: none;
+    }
+  }
+`
+
+const SearchIcon = styled(SearchOutlined)`
+  color: #999;
+  font-size: 16px;
+  left: 12px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+`
+
 const FileUpload = ({
   open,
   userFileManagerFiles,
@@ -352,6 +385,7 @@ const FileUpload = ({
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
   const [largeImageId, setLargeImageId] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [searchFilter, setSearchFilter] = useState('')
   const fileInputRef = useRef(null)
   const dropAreaRef = useRef(null)
 
@@ -436,6 +470,7 @@ const FileUpload = ({
   const uploadFiles = async () => {
     try {
       setIsUploading(true)
+
       const filesInserted = await uploadToFileManager({
         variables: {
           files,
@@ -459,7 +494,9 @@ const FileUpload = ({
 
       const userFiles = await getUserFileManager({ variables: {} })
 
-      setUserFileManagerFiles([...JSON.parse(userFiles.data.getUserFileManager)])
+      setUserFileManagerFiles([
+        ...JSON.parse(userFiles.data.getUserFileManager),
+      ])
       setFiles([])
     } catch (error) {
       console.error('Upload failed:', error)
@@ -627,49 +664,64 @@ const FileUpload = ({
           </>
         )}
 
+        <SearchContainer>
+          <SearchIcon />
+          <SearchInput
+            onChange={setSearchFilter}
+            placeholder="Search images by name..."
+            value={searchFilter}
+          />
+        </SearchContainer>
+
         <Files onClick={handleContainerClick}>
-          {userFileManagerFiles.map((item, index) => (
-            <Tile key={index}>
-              <FileWrapper onClick={e => SelectImage(e, item)}>
-                <StyledImage
-                  alt={item.file.name}
-                  isSelected={selectedImage?.file?.id === item.file.id}
-                  src={`${serverUrl}/file/${item.file.id}`}
-                />
-                <IconWrapper className="icon-wrapper">
-                  {deleteConfirmId !== item.file.id && (
-                    <>
-                      <SearchOutlinedStyled
-                        className="search-icon"
-                        onClick={e => handleShowLargeImage(e, item)}
-                      />
-                      <DeleteOutlinedStyled
-                        className="delete-icon"
-                        onClick={e => handleDeleteClick(e, item)}
-                      />
-                    </>
+          {userFileManagerFiles
+            .filter(item =>
+              item.file.name.toLowerCase().includes(searchFilter.toLowerCase()),
+            )
+            .map((item, index) => (
+              <Tile key={index}>
+                <FileWrapper onClick={e => SelectImage(e, item)}>
+                  <StyledImage
+                    alt={item.file.name}
+                    isSelected={selectedImage?.file?.id === item.file.id}
+                    src={`${serverUrl}/file/${item.file.id}`}
+                  />
+                  <IconWrapper className="icon-wrapper">
+                    {deleteConfirmId !== item.file.id && (
+                      <>
+                        <SearchOutlinedStyled
+                          className="search-icon"
+                          onClick={e => handleShowLargeImage(e, item)}
+                        />
+                        <DeleteOutlinedStyled
+                          className="delete-icon"
+                          onClick={e => handleDeleteClick(e, item)}
+                        />
+                      </>
+                    )}
+                  </IconWrapper>
+                  {deleteConfirmId === item.file.id && (
+                    <DeleteConfirmationOverlay
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <ConfirmationText>Are you sure?</ConfirmationText>
+                      <ConfirmationButtons>
+                        <ConfirmationButton
+                          isConfirm
+                          onClick={() => handleConfirmDelete(item)}
+                        >
+                          OK
+                        </ConfirmationButton>
+                        <ConfirmationButton onClick={handleCancelDelete}>
+                          Cancel
+                        </ConfirmationButton>
+                      </ConfirmationButtons>
+                    </DeleteConfirmationOverlay>
                   )}
-                </IconWrapper>
-                {deleteConfirmId === item.file.id && (
-                  <DeleteConfirmationOverlay onClick={e => e.stopPropagation()}>
-                    <ConfirmationText>Are you sure?</ConfirmationText>
-                    <ConfirmationButtons>
-                      <ConfirmationButton
-                        isConfirm
-                        onClick={() => handleConfirmDelete(item)}
-                      >
-                        OK
-                      </ConfirmationButton>
-                      <ConfirmationButton onClick={handleCancelDelete}>
-                        Cancel
-                      </ConfirmationButton>
-                    </ConfirmationButtons>
-                  </DeleteConfirmationOverlay>
-                )}
-              </FileWrapper>
-              <TileName>{item.file.name}</TileName>
-            </Tile>
-          ))}
+                </FileWrapper>
+                <TileName>{item.file.name}</TileName>
+              </Tile>
+            ))}
         </Files>
 
         {isUploading && (

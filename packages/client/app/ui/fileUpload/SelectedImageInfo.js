@@ -134,6 +134,10 @@ const SelectedImageInfo = ({
               return (
                 <>
                   <MetadataItem>
+                    <span className="label">Name:</span>
+                    <span className="value">{selectedImage.file.name}</span>
+                  </MetadataItem>
+                  <MetadataItem>
                     <span className="label">Extension:</span>
                     <span className="value">
                       {originalObject.extension?.toUpperCase()}
