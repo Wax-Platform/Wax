@@ -595,16 +595,7 @@ const FileUpload = ({
   return (
     <StyledModal
       closable
-      footer={(_, { CancelBtn }) => (
-        <>
-          <CancelBtn />
-          {selectedImage && (
-            <Button onClick={InsertIntoSelection} type="primary">
-              Insert Into Selection
-            </Button>
-          )}
-        </>
-      )}
+      footer={null}
       maskClosable
       onCancel={handleModalClose}
       open={open}
@@ -624,6 +615,7 @@ const FileUpload = ({
           <SelectedImageInfo
             altText={altText}
             caption={caption}
+            onInsert={InsertIntoSelection}
             selectedImage={selectedImage}
             serverUrl={serverUrl}
             setAltText={setAltText}

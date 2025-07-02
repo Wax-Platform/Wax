@@ -64,7 +64,7 @@ const MetadataTitle = styled.h4`
 const MetadataGrid = styled.div`
   display: grid;
   gap: 8px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
 `
 
 const MetadataItem = styled.div`
@@ -81,6 +81,23 @@ const MetadataItem = styled.div`
   }
 `
 
+const InsertButton = styled.button`
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  transition: background-color 0.2s ease;
+  width: 100%;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`
+
 const SelectedImageInfo = ({
   selectedImage,
   altText,
@@ -88,6 +105,7 @@ const SelectedImageInfo = ({
   caption,
   setCaption,
   serverUrl,
+  onInsert,
 }) => {
   const formatFileSize = bytes => {
     if (bytes === 0) return '0 Bytes'
@@ -167,6 +185,16 @@ const SelectedImageInfo = ({
                     <span className="value">
                       {formatDate(selectedImage.file.updated)}
                     </span>
+                  </MetadataItem>
+                  <MetadataItem
+                    style={{
+                      gridColumn: '3',
+                      justifySelf: 'end',
+                    }}
+                  >
+                    <InsertButton onClick={onInsert}>
+                      Insert Into Text
+                    </InsertButton>
                   </MetadataItem>
                 </>
               )
