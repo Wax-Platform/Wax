@@ -578,6 +578,9 @@ const FileUpload = ({
 
   const handleCancelDelete = () => {
     setDeleteConfirmId(null)
+    if (selectedImage) {
+      setSelectedImage(selectedImage)
+    }
   }
 
   const handleShowLargeImage = (e, item) => {
@@ -758,7 +761,7 @@ const FileUpload = ({
                   )}
                 </IconWrapper>
                 {deleteConfirmId === item.file.id && (
-                  <DeleteConfirmationOverlay>
+                  <DeleteConfirmationOverlay onClick={e => e.stopPropagation()}>
                     <ConfirmationText>Are you sure?</ConfirmationText>
                     <ConfirmationButtons>
                       <ConfirmationButton
