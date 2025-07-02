@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/no-array-index-key */
 /* stylelint-disable indentation */
 /* stylelint-disable alpha-value-notation */
@@ -11,6 +12,8 @@ import { useParams } from 'react-router-dom'
 
 import { DeleteOutlined } from '@ant-design/icons' // Font Awesome icon
 import Modal from '../common/Modal'
+import Button from '../common/Button'
+import Input from '../common/Input'
 
 const StyledModal = styled(Modal)`
   font-family: ${th('fontBrand')};
@@ -140,11 +143,11 @@ const Tile = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
-  width: 120px;
+  width: 160px;
 `
 
 const FileWrapper = styled.div`
-  height: 100px;
+  height: 140px;
   position: relative;
   width: 100%;
 
@@ -159,6 +162,8 @@ const StyledImage = styled.img`
   height: 100%;
   object-fit: cover;
   width: 100%;
+  border: ${props => (props.isSelected ? '3px solid #007bff' : 'none')};
+  transition: border 0.2s ease-in-out;
 `
 
 const IconWrapper = styled.div`
@@ -204,6 +209,82 @@ const DeleteButton = styled.button`
   }
 `
 
+const SelectedImageContainer = styled.div`
+  background-color: #f5f5f5;
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding: 0 20px;
+  position: relative;
+  text-align: center;
+  width: 100%;
+`
+
+const InputContainer = styled.div`
+  margin-top: 20px;
+  text-align: left;
+`
+
+const InputLabel = styled.label`
+  color: #333;
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+`
+
+const StyledInput = styled(Input)`
+  margin-bottom: 16px;
+  width: 100%;
+
+  input {
+    outline: none;
+    border: 1px solid #d9d9d9;
+    
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    }
+  }
+`
+
+const MetadataContainer = styled.div`
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-top: 16px;
+  padding: 16px;
+  text-align: left;
+`
+
+const MetadataTitle = styled.h4`
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+`
+
+const MetadataGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+`
+
+const MetadataItem = styled.div`
+  font-size: 12px;
+  
+  .label {
+    color: #666;
+    font-weight: 500;
+  }
+  
+  .value {
+    color: #333;
+    margin-left: 4px;
+  }
+`
+
 const FileUpload = ({
   open,
   userFileManagerFiles,
@@ -217,6 +298,8 @@ const FileUpload = ({
   const [files, setFiles] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [altText, setAltText] = useState('')
+  const [caption, setCaption] = useState('')
   const fileInputRef = useRef(null)
   const dropAreaRef = useRef(null) // Ref for the drop area element
 
@@ -327,7 +410,6 @@ const FileUpload = ({
     const dropArea = dropAreaRef.current
 
     if (dropArea) {
-      console.log('Attaching event listeners to dropArea:', dropArea)
       dropArea.addEventListener('dragenter', handleDragEnter)
       dropArea.addEventListener('dragleave', handleDragLeave)
       dropArea.addEventListener('dragover', handleDragOver)
@@ -344,16 +426,43 @@ const FileUpload = ({
     }
   }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop, open])
 
-  const SelectImage = (e, fileId) => {
+  const SelectImage = (e, image) => {
     e.preventDefault()
-    console.log('fileId', fileId)
+    e.stopPropagation()
+
+    if (selectedImage?.file?.id === image.file.id) {
+      setSelectedImage(null)
+      setAltText('')
+      setCaption('')
+    } else {
+      setSelectedImage(image)
+      setAltText(image.file.alt || '')
+      setCaption(image.file.caption || '')
+    }
   }
+
+  const handleContainerClick = e => {
+    if (e.target === e.currentTarget) {
+      setSelectedImage(null)
+    }
+  }
+
+  const InsertIntoSelection = () => {}
 
   return (
     <StyledModal
       // bodyStyle={{ fontSize: th('fontSizeBaseSmall') }}
       closable
-      // footer={null}
+      footer={(_, { CancelBtn }) => (
+        <>
+          <CancelBtn />
+          {selectedImage && (
+            <Button onClick={InsertIntoSelection} type="primary">
+              Insert Into Selection
+            </Button>
+          )}
+        </>
+      )}
       maskClosable
       // onCancel={handleCancel}
       // onOk={() => {
@@ -373,40 +482,113 @@ const FileUpload = ({
           type="file"
         />
 
-        <DropArea
-          $isDragging={isDragging}
-          onClick={openFileSelection}
-          ref={dropAreaRef}
-        >
-          <p>Drag and drop images here or click to select images</p>
-          {isDragging && <DropOverlay>Drop your images here</DropOverlay>}
-        </DropArea>
+        {selectedImage ? (
+          <SelectedImageContainer>
+            <InputContainer>
+              <InputLabel htmlFor="alt-text">Alt Text</InputLabel>
+              <StyledInput
+                id="alt-text"
+                onChange={setAltText}
+                placeholder="Enter alt text"
+                value={altText}
+              />
+              <InputLabel htmlFor="caption">Caption</InputLabel>
+              <StyledInput
+                id="caption"
+                onChange={setCaption}
+                placeholder="Enter image caption"
+                value={caption}
+              />
+            </InputContainer>
+            
+            {selectedImage.file.storedObjects && (
+              <MetadataContainer>
+                <MetadataTitle>Image Information</MetadataTitle>
+                <MetadataGrid>
+                  {(() => {
+                    const originalObject = selectedImage.file.storedObjects.find(obj => obj.type === 'original')
+                    if (!originalObject) return null
+                    
+                    const formatFileSize = (bytes) => {
+                      if (bytes === 0) return '0 Bytes'
+                      const k = 1024
+                      const sizes = ['Bytes', 'KB', 'MB', 'GB']
+                      const i = Math.floor(Math.log(bytes) / Math.log(k))
+                      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+                    }
+                    
+                    const formatDate = (dateString) => {
+                      return new Date(dateString).toLocaleDateString()
+                    }
+                    
+                    return (
+                      <>
+                        <MetadataItem>
+                          <span className="label">Extension:</span>
+                          <span className="value">{originalObject.extension?.toUpperCase()}</span>
+                        </MetadataItem>
+                        <MetadataItem>
+                          <span className="label">Size:</span>
+                          <span className="value">{formatFileSize(originalObject.size)}</span>
+                        </MetadataItem>
+                        <MetadataItem>
+                          <span className="label">Dimensions:</span>
+                          <span className="value">{originalObject.imageMetadata?.width} × {originalObject.imageMetadata?.height}</span>
+                        </MetadataItem>
+                        <MetadataItem>
+                          <span className="label">Density:</span>
+                          <span className="value">{originalObject.imageMetadata?.density} DPI</span>
+                        </MetadataItem>
+                        <MetadataItem>
+                          <span className="label">Updated:</span>
+                          <span className="value">{formatDate(selectedImage.file.updated)}</span>
+                        </MetadataItem>
+                      </>
+                    )
+                  })()}
+                </MetadataGrid>
+              </MetadataContainer>
+            )}
+          </SelectedImageContainer>
+        ) : (
+          <>
+            <DropArea
+              $isDragging={isDragging}
+              onClick={openFileSelection}
+              ref={dropAreaRef}
+            >
+              <p>Drag and drop images here or click to select images</p>
+              {isDragging && <DropOverlay>Drop your images here</DropOverlay>}
+            </DropArea>
 
-        {files.length > 0 && (
-          <UploadedFilesPreview>
-            <h3>Selected Images:</h3>
-            <ul>
-              {files.map((file, index) => (
-                <FileListItem key={index}>
-                  {file.name} ({(file.size / 1024).toFixed(2)} KB)
-                  <DeleteButton onClick={() => handleDeleteFile(file)}>
-                    X
-                  </DeleteButton>
-                </FileListItem>
-              ))}
-            </ul>
-          </UploadedFilesPreview>
-        )}
-        {files.length > 0 && (
-          <UploadButton onClick={uploadFiles}>Upload</UploadButton>
+            {files.length > 0 && (
+              <UploadedFilesPreview>
+                <h3>Selected Images:</h3>
+                <ul>
+                  {files.map((file, index) => (
+                    <FileListItem key={index}>
+                      {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                      <DeleteButton onClick={() => handleDeleteFile(file)}>
+                        X
+                      </DeleteButton>
+                    </FileListItem>
+                  ))}
+                </ul>
+              </UploadedFilesPreview>
+            )}
+            {files.length > 0 && (
+              <UploadButton onClick={uploadFiles}>Upload</UploadButton>
+            )}
+          </>
         )}
 
-        <Files>
+        <Files onClick={handleContainerClick}>
           {userFileManagerFiles.map((item, index) => (
             <Tile key={index}>
-              <FileWrapper onClick={e => SelectImage(e, item.file.id)}>
+              <FileWrapper onClick={e => SelectImage(e, item)}>
                 <StyledImage
                   alt={item.file.name}
+                  isSelected={selectedImage?.file?.id === item.file.id}
                   src={`${serverUrl}/file/${item.file.id}`}
                 />
                 <IconWrapper className="icon-wrapper">
