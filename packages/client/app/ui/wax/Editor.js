@@ -176,14 +176,9 @@ const EditorWrapper = ({
     return userFiles
   }
 
-  // onAssetManager
-  //   .then(result => {
-  //     console.log(result)
-  //     setLoaded(true)
-  //   })
-  //   .catch(err => {
-  //     console.error(err)
-  //   })
+  const handleCloseFileUpload = () => {
+    setLoaded(false)
+  }
 
   useEffect(() => {
     setSelectedWaxConfig({
@@ -329,6 +324,7 @@ const EditorWrapper = ({
       <FileUpload
         deleteFromFileManager={deleteFromFileManager}
         getUserFileManager={getUserFileManager}
+        onClose={handleCloseFileUpload}
         open={loaded}
         setUserFileManagerFiles={setUserFileManagerFiles}
         updateFileInManager={updateFileInManager}

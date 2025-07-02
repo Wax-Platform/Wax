@@ -157,13 +157,13 @@ const FileWrapper = styled.div`
 `
 
 const StyledImage = styled.img`
+  border: ${props => (props.isSelected ? '3px solid #007bff' : 'none')};
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   height: 100%;
   object-fit: cover;
-  width: 100%;
-  border: ${props => (props.isSelected ? '3px solid #007bff' : 'none')};
   transition: border 0.2s ease-in-out;
+  width: 100%;
 `
 
 const IconWrapper = styled.div`
@@ -239,13 +239,13 @@ const StyledInput = styled(Input)`
   width: 100%;
 
   input {
-    outline: none;
     border: 1px solid #d9d9d9;
-    
+    outline: none;
+
     &:focus {
-      outline: none;
       border-color: #007bff;
       box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+      outline: none;
     }
   }
 `
@@ -262,23 +262,23 @@ const MetadataTitle = styled.h4`
   color: #333;
   font-size: 14px;
   font-weight: 600;
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
 `
 
 const MetadataGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 8px;
+  grid-template-columns: 1fr 1fr;
 `
 
 const MetadataItem = styled.div`
   font-size: 12px;
-  
+
   .label {
     color: #666;
     font-weight: 500;
   }
-  
+
   .value {
     color: #333;
     margin-left: 4px;
@@ -293,6 +293,7 @@ const FileUpload = ({
   updateFileInManager,
   setUserFileManagerFiles,
   getUserFileManager,
+  onClose,
 }) => {
   const { bookComponentId } = useParams()
   const [files, setFiles] = useState([])
@@ -301,7 +302,7 @@ const FileUpload = ({
   const [altText, setAltText] = useState('')
   const [caption, setCaption] = useState('')
   const fileInputRef = useRef(null)
-  const dropAreaRef = useRef(null) // Ref for the drop area element
+  const dropAreaRef = useRef(null)
 
   const handleDragEnter = useCallback(e => {
     e.preventDefault()
@@ -312,6 +313,7 @@ const FileUpload = ({
   const handleDragLeave = useCallback(e => {
     e.preventDefault()
     e.stopPropagation()
+
     if (!e.currentTarget.contains(e.relatedTarget)) {
       setIsDragging(false)
     }
@@ -359,7 +361,6 @@ const FileUpload = ({
   const handleNewFiles = useCallback(
     newFiles => {
       const validFiles = newFiles.filter(file => {
-        //  add validation logic here (e.g., file type, size)
         const isAlreadyAdded = files.some(
           existingFile =>
             existingFile.name === file.name && existingFile.size === file.size,
@@ -434,6 +435,7 @@ const FileUpload = ({
         dropArea.removeEventListener('dragover', handleDragOver)
         dropArea.removeEventListener('drop', handleDrop)
       }
+
       document.removeEventListener('dragover', preventDefaultDrag)
       document.removeEventListener('drop', preventDefaultDrag)
     }
@@ -477,6 +479,7 @@ const FileUpload = ({
         </>
       )}
       maskClosable
+      onCancel={onClose}
       // onCancel={handleCancel}
       // onOk={() => {
       //   deleteResourceFn({ variables: { id: deleteResourceRow.id } })
@@ -513,48 +516,66 @@ const FileUpload = ({
                 value={caption}
               />
             </InputContainer>
-            
+
             {selectedImage.file.storedObjects && (
               <MetadataContainer>
                 <MetadataTitle>Image Information</MetadataTitle>
                 <MetadataGrid>
                   {(() => {
-                    const originalObject = selectedImage.file.storedObjects.find(obj => obj.type === 'original')
+                    const originalObject =
+                      selectedImage.file.storedObjects.find(
+                        obj => obj.type === 'original',
+                      )
                     if (!originalObject) return null
-                    
-                    const formatFileSize = (bytes) => {
+
+                    const formatFileSize = bytes => {
                       if (bytes === 0) return '0 Bytes'
                       const k = 1024
                       const sizes = ['Bytes', 'KB', 'MB', 'GB']
                       const i = Math.floor(Math.log(bytes) / Math.log(k))
-                      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+                      return (
+                        parseFloat((bytes / Math.pow(k, i)).toFixed(2)) +
+                        ' ' +
+                        sizes[i]
+                      )
                     }
-                    
-                    const formatDate = (dateString) => {
+
+                    const formatDate = dateString => {
                       return new Date(dateString).toLocaleDateString()
                     }
-                    
+
                     return (
                       <>
                         <MetadataItem>
                           <span className="label">Extension:</span>
-                          <span className="value">{originalObject.extension?.toUpperCase()}</span>
+                          <span className="value">
+                            {originalObject.extension?.toUpperCase()}
+                          </span>
                         </MetadataItem>
                         <MetadataItem>
                           <span className="label">Size:</span>
-                          <span className="value">{formatFileSize(originalObject.size)}</span>
+                          <span className="value">
+                            {formatFileSize(originalObject.size)}
+                          </span>
                         </MetadataItem>
                         <MetadataItem>
                           <span className="label">Dimensions:</span>
-                          <span className="value">{originalObject.imageMetadata?.width} × {originalObject.imageMetadata?.height}</span>
+                          <span className="value">
+                            {originalObject.imageMetadata?.width} ×{' '}
+                            {originalObject.imageMetadata?.height}
+                          </span>
                         </MetadataItem>
                         <MetadataItem>
                           <span className="label">Density:</span>
-                          <span className="value">{originalObject.imageMetadata?.density} DPI</span>
+                          <span className="value">
+                            {originalObject.imageMetadata?.density} DPI
+                          </span>
                         </MetadataItem>
                         <MetadataItem>
                           <span className="label">Updated:</span>
-                          <span className="value">{formatDate(selectedImage.file.updated)}</span>
+                          <span className="value">
+                            {formatDate(selectedImage.file.updated)}
+                          </span>
                         </MetadataItem>
                       </>
                     )
