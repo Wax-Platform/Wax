@@ -215,6 +215,7 @@ const FileUpload = ({
 }) => {
   const { bookComponentId } = useParams()
   const [files, setFiles] = useState([])
+  const [selectedImage, setSelectedImage] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
   const dropAreaRef = useRef(null) // Ref for the drop area element
@@ -326,6 +327,7 @@ const FileUpload = ({
     const dropArea = dropAreaRef.current
 
     if (dropArea) {
+      console.log('Attaching event listeners to dropArea:', dropArea)
       dropArea.addEventListener('dragenter', handleDragEnter)
       dropArea.addEventListener('dragleave', handleDragLeave)
       dropArea.addEventListener('dragover', handleDragOver)
@@ -340,7 +342,12 @@ const FileUpload = ({
         dropArea.removeEventListener('drop', handleDrop)
       }
     }
-  }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop])
+  }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop, open])
+
+  const SelectImage = (e, fileId) => {
+    e.preventDefault()
+    console.log('fileId', fileId)
+  }
 
   return (
     <StyledModal
@@ -397,7 +404,7 @@ const FileUpload = ({
         <Files>
           {userFileManagerFiles.map((item, index) => (
             <Tile key={index}>
-              <FileWrapper>
+              <FileWrapper onClick={e => SelectImage(e, item.file.id)}>
                 <StyledImage
                   alt={item.file.name}
                   src={`${serverUrl}/file/${item.file.id}`}

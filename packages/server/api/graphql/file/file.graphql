@@ -38,6 +38,7 @@ extend type Mutation {
   updateFile(input: UpdateFileInput!): File!
   deleteFiles(ids: [ID!]!, remoteToo: Boolean): Int
 }
+
 extend type Subscription {
   filesUploaded: Boolean
   fileUpdated: ID!
