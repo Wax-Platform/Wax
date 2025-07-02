@@ -312,12 +312,15 @@ const FileUpload = ({
   const handleDragLeave = useCallback(e => {
     e.preventDefault()
     e.stopPropagation()
-    setIsDragging(false)
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragging(false)
+    }
   }, [])
 
   const handleDragOver = useCallback(e => {
     e.preventDefault()
     e.stopPropagation()
+    e.dataTransfer.dropEffect = 'copy'
     setIsDragging(true)
   }, [])
 
@@ -416,6 +419,14 @@ const FileUpload = ({
       dropArea.addEventListener('drop', handleDrop)
     }
 
+    // Prevent default drag behavior globally
+    const preventDefaultDrag = e => {
+      e.preventDefault()
+    }
+
+    document.addEventListener('dragover', preventDefaultDrag)
+    document.addEventListener('drop', preventDefaultDrag)
+
     return () => {
       if (dropArea) {
         dropArea.removeEventListener('dragenter', handleDragEnter)
@@ -423,6 +434,8 @@ const FileUpload = ({
         dropArea.removeEventListener('dragover', handleDragOver)
         dropArea.removeEventListener('drop', handleDrop)
       }
+      document.removeEventListener('dragover', preventDefaultDrag)
+      document.removeEventListener('drop', preventDefaultDrag)
     }
   }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop, open])
 
