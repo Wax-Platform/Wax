@@ -18,20 +18,20 @@ const SelectedImageContainer = styled.div`
 `
 
 const InputContainer = styled.div`
-  margin-top: 20px;
+  margin-top: 12px;
   text-align: left;
 `
 
 const InputLabel = styled.label`
   color: #333;
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 `
 
 const StyledInput = styled(Input)`
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   width: 100%;
 
   input {
@@ -49,26 +49,26 @@ const StyledInput = styled(Input)`
 const MetadataContainer = styled.div`
   background-color: #f8f9fa;
   border-radius: 6px;
-  margin-top: 16px;
-  padding: 16px;
+  margin-top: 10px;
+  padding: 10px;
   text-align: left;
 `
 
 const MetadataTitle = styled.h4`
   color: #333;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
 `
 
 const MetadataGrid = styled.div`
   display: grid;
-  gap: 8px;
+  gap: 6px;
   grid-template-columns: 1fr 1fr 1fr;
 `
 
 const MetadataItem = styled.div`
-  font-size: 12px;
+  font-size: 11px;
 
   .label {
     color: #666;
