@@ -26,10 +26,7 @@ const StyledModal = styled(Modal)`
 
   .ant-modal-content {
     border-radius: 10px;
-  }
-
-  .ant-modal-header {
-    border-radius: 10px 10px 0 0;
+    padding: 12px 20px;
   }
 `
 
@@ -49,7 +46,7 @@ const FileUploadContainer = styled.div`
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   font-family: sans-serif;
-  margin: 50px auto;
+  margin: 20px auto;
   max-width: 1000px;
   padding: 20px;
   text-align: center;
@@ -136,7 +133,7 @@ const Files = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  max-height: 500px;
+  max-height: 400px;
   overflow-y: auto;
   padding-top: 20px;
 `
