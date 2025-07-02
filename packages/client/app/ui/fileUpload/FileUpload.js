@@ -592,6 +592,15 @@ const FileUpload = ({
     setLargeImageId(null)
   }
 
+  const handleModalClose = () => {
+    setSelectedImage(null)
+    setAltText('')
+    setCaption('')
+    setDeleteConfirmId(null)
+    setLargeImageId(null)
+    onClose()
+  }
+
   return (
     <StyledModal
       closable
@@ -606,7 +615,7 @@ const FileUpload = ({
         </>
       )}
       maskClosable
-      onCancel={onClose}
+      onCancel={handleModalClose}
       open={open}
       title="Image Manager"
       width="1020px"
