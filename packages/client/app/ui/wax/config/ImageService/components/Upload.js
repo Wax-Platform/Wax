@@ -15,8 +15,6 @@ const insertImage = (
   app,
   serverUrl,
 ) => {
-  console.log(fileData, view, placeholderPlugin)
-
   const trackChange = app.config.get('config.EnableTrackChangeService')
   const imageConfig = app.config.get('config.ImageService')
   const showLongDesc = imageConfig && imageConfig.showLongDesc

@@ -43,8 +43,6 @@ const imageNode = {
       attrs['data-id'] = hook.node.attrs.id
     }
 
-    console.log(hook.node.attrs)
-
     const { src, alt, title, id, fileid } = hook.node.attrs
     const longDescId = hook.node.attrs['aria-describedby']
     const longDesc = hook.node.attrs['aria-description']
