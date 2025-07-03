@@ -183,7 +183,7 @@ const EditorWrapper = ({
 
   const handleImageSelected = imageData => {
     console.log('imageData', imageData)
-    setSelectedImageData(imageData)
+    // setSelectedImageData(imageData)
   }
 
   useEffect(() => {
@@ -243,7 +243,10 @@ const EditorWrapper = ({
         userList: bookMembers,
         getMentionedUsers: onMention,
       },
-      ImageService: { handleAssetManager: onAssetManager, showAlt: true },
+      ImageService: {
+        handleAssetManager: onAssetManager,
+        showAlt: true,
+      },
 
       AskAiContentService: {
         AskAiContentTransformation: queryAI,
@@ -288,6 +291,16 @@ const EditorWrapper = ({
       setIsCurrentDocumentMine,
       isUploading,
       setUploading,
+      deleteFromFileManager,
+      getUserFileManager,
+      handleCloseFileUpload,
+      // onImageSelected={handleImageSelected}
+      loaded,
+      setSelectedImageData,
+      setUserFileManagerFiles,
+      updateFileInManager,
+      uploadToFileManager,
+      userFileManagerFiles,
     })
   }, [
     title,
@@ -301,6 +314,8 @@ const EditorWrapper = ({
     settings,
     bookId,
     aiEnabled,
+    loaded,
+    userFileManagerFiles,
   ])
 
   const userObject = {
@@ -315,30 +330,17 @@ const EditorWrapper = ({
   if (!selectedWaxConfig || canInteractWithComments === null) return null
 
   return (
-    <>
-      <Wax
-        // autoFocus
-        config={selectedWaxConfig}
-        customProps={luluWax}
-        documentTitle={documentTitle}
-        fileUpload={onImageUpload}
-        layout={LuluLayout}
-        readonly={isReadOnly}
-        ref={editorRef}
-        user={userObject}
-      />
-      <FileUpload
-        deleteFromFileManager={deleteFromFileManager}
-        getUserFileManager={getUserFileManager}
-        onClose={handleCloseFileUpload}
-        open={loaded}
-        setUserFileManagerFiles={setUserFileManagerFiles}
-        updateFileInManager={updateFileInManager}
-        uploadToFileManager={uploadToFileManager}
-        userFileManagerFiles={userFileManagerFiles}
-        onImageSelected={handleImageSelected}
-      />
-    </>
+    <Wax
+      // autoFocus
+      config={selectedWaxConfig}
+      customProps={luluWax}
+      documentTitle={documentTitle}
+      fileUpload={onImageUpload}
+      layout={LuluLayout}
+      readonly={isReadOnly}
+      ref={editorRef}
+      user={userObject}
+    />
   )
 }
 

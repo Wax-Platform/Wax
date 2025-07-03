@@ -10,7 +10,6 @@ import {
   MenuButton,
 } from 'wax-prosemirror-core'
 import styled from 'styled-components'
-import insertImage from './Upload'
 
 const Wrapper = styled.div`
   input {
@@ -35,7 +34,6 @@ const ImageUpload = ({ item, fileUpload, view }) => {
   })
 
   const inputRef = useRef(null)
-  const placeholderPlugin = app.PmPlugins.get('imagePlaceHolder')
   const imageServiceConfig = app.config.get('config.ImageService')
 
   const handleMouseDown = async e => {
@@ -73,8 +71,7 @@ const ImageUpload = ({ item, fileUpload, view }) => {
 
   async function insertThroughFileMAnager() {
     const handler = imageServiceConfig.handleAssetManager
-    const urls = await handler()
-    // insertImage(urls, view, placeholderPlugin)
+    await handler()
   }
 
   const isDisabled =

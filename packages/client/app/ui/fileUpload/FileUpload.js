@@ -13,9 +13,9 @@ import { useParams } from 'react-router-dom'
 import { DeleteOutlined, SearchOutlined } from '@ant-design/icons'
 import { Spin } from 'antd'
 import Modal from '../common/Modal'
-import Button from '../common/Button'
 import Input from '../common/Input'
 import SelectedImageInfo from './SelectedImageInfo'
+import insertImage from '../wax/config/ImageService/components/Upload'
 
 const StyledModal = styled(Modal)`
   font-family: ${th('fontBrand')};
@@ -372,7 +372,8 @@ const FileUpload = ({
   setUserFileManagerFiles,
   getUserFileManager,
   onClose,
-  onImageSelected,
+  waxApplication,
+  waxContext,
 }) => {
   const { bookComponentId } = useParams()
   const [files, setFiles] = useState([])
@@ -557,12 +558,15 @@ const FileUpload = ({
 
   const InsertIntoSelection = () => {
     if (selectedImage) {
-      const imageData = {
-        url: `${serverUrl}/file/${selectedImage.file.id}`,
-        alt: altText,
-        caption: caption,
-      }
-      if (onImageSelected) onImageSelected(imageData)
+      const placeholderPlugin = waxApplication.PmPlugins.get('imagePlaceHolder')
+      insertImage(
+        selectedImage,
+        waxContext.activeView,
+        placeholderPlugin,
+        waxContext,
+        waxApplication,
+        serverUrl,
+      )
       handleModalClose()
     }
   }

@@ -34,6 +34,7 @@ import {
 import theme from '../../../theme'
 
 import YjsContext from '../../provider-yjs/YjsProvider'
+import FileUpload from '../../fileUpload/FileUpload'
 
 import 'wax-prosemirror-core/dist/index.css'
 import 'wax-prosemirror-services/dist/index.css'
@@ -558,6 +559,17 @@ const LuluLayout = ({ customProps, ...rest }) => {
     setIsCurrentDocumentMine,
     setUploading,
     isUploading,
+    deleteFromFileManager,
+    getUserFileManager,
+    // onClose={handleCloseFileUpload}
+    // onImageSelected={handleImageSelected}
+    loaded,
+    setSelectedImageData,
+    setUserFileManagerFiles,
+    handleCloseFileUpload,
+    updateFileInManager,
+    uploadToFileManager,
+    userFileManagerFiles,
   } = customProps
 
   const params = useParams()
@@ -571,10 +583,12 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const { showSpinner } = useContext(YjsContext)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
 
+  const context = useContext(WaxContext)
+
   const {
     options,
     pmViews: { main },
-  } = useContext(WaxContext)
+  } = context
 
   const { app } = useContext(ApplicationContext)
   const waxMenuConfig = app.config.get('config.MenuService')
@@ -846,6 +860,19 @@ const LuluLayout = ({ customProps, ...rest }) => {
               title="Loading your document"
             />
           </SpinnerWrapper>
+          <FileUpload
+            deleteFromFileManager={deleteFromFileManager}
+            getUserFileManager={getUserFileManager}
+            onClose={handleCloseFileUpload}
+            open={loaded}
+            setSelectedImageData={setSelectedImageData}
+            setUserFileManagerFiles={setUserFileManagerFiles}
+            updateFileInManager={updateFileInManager}
+            uploadToFileManager={uploadToFileManager}
+            userFileManagerFiles={userFileManagerFiles}
+            waxApplication={app}
+            waxContext={context}
+          />
         </Wrapper>
       )}
     </ThemeProvider>

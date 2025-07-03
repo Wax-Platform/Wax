@@ -8,7 +8,6 @@ const findPlaceholder = (state, id, placeholderPlugin) => {
 }
 
 export default (view, fileUpload, placeholderPlugin, context, app) => file => {
-  // const { state } = view;
   const trackChange = app.config.get('config.EnableTrackChangeService')
   const imageConfig = app.config.get('config.ImageService')
   const showLongDesc = imageConfig && imageConfig.showLongDesc
