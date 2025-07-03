@@ -372,6 +372,7 @@ const FileUpload = ({
   setUserFileManagerFiles,
   getUserFileManager,
   onClose,
+  onImageSelected,
 }) => {
   const { bookComponentId } = useParams()
   const [files, setFiles] = useState([])
@@ -554,7 +555,17 @@ const FileUpload = ({
     }
   }
 
-  const InsertIntoSelection = () => {}
+  const InsertIntoSelection = () => {
+    if (selectedImage) {
+      const imageData = {
+        url: `${serverUrl}/file/${selectedImage.file.id}`,
+        alt: altText,
+        caption: caption,
+      }
+      if (onImageSelected) onImageSelected(imageData)
+      handleModalClose()
+    }
+  }
 
   const handleDeleteClick = (e, item) => {
     e.stopPropagation()

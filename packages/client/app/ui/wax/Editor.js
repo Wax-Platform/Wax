@@ -62,6 +62,7 @@ const EditorWrapper = ({
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
+  const [selectedImageData, setSelectedImageData] = useState(null)
 
   const [luluWax, setLuluWax] = useState({
     onChapterClick,
@@ -178,6 +179,11 @@ const EditorWrapper = ({
 
   const handleCloseFileUpload = () => {
     setLoaded(false)
+  }
+
+  const handleImageSelected = imageData => {
+    console.log('imageData', imageData)
+    setSelectedImageData(imageData)
   }
 
   useEffect(() => {
@@ -330,6 +336,7 @@ const EditorWrapper = ({
         updateFileInManager={updateFileInManager}
         uploadToFileManager={uploadToFileManager}
         userFileManagerFiles={userFileManagerFiles}
+        onImageSelected={handleImageSelected}
       />
     </>
   )
