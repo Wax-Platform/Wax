@@ -45,7 +45,7 @@ const insertImage = (
 
   context.pmViews.main.dispatch(tr)
 
-  const { extraData } = fileData
+  const extraData = { fileId: fileData.fileId }
 
   let pos = findPlaceholder(context.pmViews.main.state, id, placeholderPlugin)
   // If the content around the placeholder has been deleted, drop
@@ -66,23 +66,20 @@ const insertImage = (
       .replaceWith(
         pos,
         pos,
-        context.pmViews.main.state.schema.nodes.figure.create(
-          {},
-          [
-            context.pmViews.main.state.schema.nodes.image.create({
-              src: `${serverUrl}/file/${fileData.file.id}`,
-              id: uuidv4(),
-              alt: 'test',
-              fileid: fileData.fileId,
-              extraData,
-              ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
-            }),
-            context.pmViews.main.state.schema.nodes.figcaption.create(
-              {},
-              context.pmViews.main.state.schema.text('test1')
-            ),
-          ]
-        ),
+        context.pmViews.main.state.schema.nodes.figure.create({}, [
+          context.pmViews.main.state.schema.nodes.image.create({
+            src: `${serverUrl}/file/${fileData.file.id}`,
+            id: uuidv4(),
+            alt: 'test',
+            fileid: fileData.fileId,
+            extraData,
+            ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
+          }),
+          context.pmViews.main.state.schema.nodes.figcaption.create(
+            {},
+            context.pmViews.main.state.schema.text('test1'),
+          ),
+        ]),
       )
       .setMeta(placeholderPlugin, { remove: { id } }),
   )
