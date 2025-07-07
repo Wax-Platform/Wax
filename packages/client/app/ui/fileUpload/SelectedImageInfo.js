@@ -9,12 +9,35 @@ const SelectedImageContainer = styled.div`
   background-color: #f5f5f5;
   border: 2px dashed #007bff;
   border-radius: 8px;
-  cursor: pointer;
+  display: flex;
+  gap: 20px;
   margin-bottom: 20px;
-  padding: 0 20px;
+  min-height: 300px;
+  padding: 10px;
   position: relative;
-  text-align: center;
   width: 100%;
+`
+
+const ImagePreviewSection = styled.div`
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+`
+
+const ImagePreview = styled.img`
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 280px;
+  max-width: 100%;
+  object-fit: contain;
+`
+
+const FormSection = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 `
 
 const InputContainer = styled.div`
@@ -64,7 +87,7 @@ const MetadataTitle = styled.h4`
 const MetadataGrid = styled.div`
   display: grid;
   gap: 6px;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 `
 
 const MetadataItem = styled.div`
@@ -72,7 +95,7 @@ const MetadataItem = styled.div`
 
   .label {
     color: #666;
-    font-weight: 500;
+    font-weight: 700;
   }
 
   .value {
@@ -121,87 +144,103 @@ const SelectedImageInfo = ({
 
   return (
     <SelectedImageContainer>
-      <InputContainer>
-        <InputLabel htmlFor="alt-text">Alt Text</InputLabel>
-        <StyledInput
-          id="alt-text"
-          onChange={setAltText}
-          placeholder="Enter alt text"
-          value={altText}
+      <ImagePreviewSection>
+        <ImagePreview
+          src={`${serverUrl}/file/${selectedImage.file.id}`}
+          alt={selectedImage.file.name}
         />
-        <InputLabel htmlFor="caption">Caption</InputLabel>
-        <StyledInput
-          id="caption"
-          onChange={setCaption}
-          placeholder="Enter image caption"
-          value={caption}
-        />
-      </InputContainer>
+      </ImagePreviewSection>
 
-      {selectedImage.file.storedObjects && (
-        <MetadataContainer>
-          <MetadataTitle>Image Information</MetadataTitle>
-          <MetadataGrid>
-            {(() => {
-              const originalObject = selectedImage.file.storedObjects.find(
-                obj => obj.type === 'original',
-              )
+      <FormSection>
+        <InputContainer>
+          <InputLabel htmlFor="alt-text">Alt Text</InputLabel>
+          <StyledInput
+            id="alt-text"
+            onChange={setAltText}
+            placeholder="Enter alt text"
+            value={altText}
+          />
+          <InputLabel htmlFor="caption">Caption</InputLabel>
+          <StyledInput
+            id="caption"
+            onChange={setCaption}
+            placeholder="Enter image caption"
+            value={caption}
+          />
+        </InputContainer>
 
-              if (!originalObject) return null
+        {selectedImage.file.storedObjects && (
+          <MetadataContainer>
+            <MetadataTitle>Image Information</MetadataTitle>
+            <MetadataGrid>
+              {(() => {
+                const originalObject = selectedImage.file.storedObjects.find(
+                  obj => obj.type === 'original',
+                )
 
-              return (
-                <>
-                  <MetadataItem>
-                    <span className="label">Name:</span>
-                    <span className="value">{selectedImage.file.name}</span>
-                  </MetadataItem>
-                  <MetadataItem>
-                    <span className="label">Extension:</span>
-                    <span className="value">
-                      {originalObject.extension?.toUpperCase()}
-                    </span>
-                  </MetadataItem>
-                  <MetadataItem>
-                    <span className="label">Size:</span>
-                    <span className="value">
-                      {formatFileSize(originalObject.size)}
-                    </span>
-                  </MetadataItem>
-                  <MetadataItem>
-                    <span className="label">Dimensions:</span>
-                    <span className="value">
-                      {originalObject.imageMetadata?.width} ×{' '}
-                      {originalObject.imageMetadata?.height}
-                    </span>
-                  </MetadataItem>
-                  <MetadataItem>
-                    <span className="label">Density:</span>
-                    <span className="value">
-                      {originalObject.imageMetadata?.density} DPI
-                    </span>
-                  </MetadataItem>
-                  <MetadataItem>
-                    <span className="label">Uploaded:</span>
-                    <span className="value">
-                      {formatDate(selectedImage.file.updated)}
-                    </span>
-                  </MetadataItem>
-                  <MetadataItem
-                    style={{
-                      gridColumn: '3',
-                      justifySelf: 'end',
-                    }}
-                  >
-                    <InsertButton onClick={onInsert}>
-                      Insert Into Text
-                    </InsertButton>
-                  </MetadataItem>
-                </>
-              )
-            })()}
-          </MetadataGrid>
-        </MetadataContainer>
-      )}
+                if (!originalObject) return null
+
+                return (
+                  <>
+                    <MetadataItem>
+                      <span className="label">Name:</span>
+                      <span className="value">{selectedImage.file.name}</span>
+                    </MetadataItem>
+                    <MetadataItem>
+                      <span className="label">Extension:</span>
+                      <span className="value">
+                        {originalObject.extension?.toUpperCase()}
+                      </span>
+                    </MetadataItem>
+                    <MetadataItem>
+                      <span className="label">Size:</span>
+                      <span className="value">
+                        {formatFileSize(originalObject.size)}
+                      </span>
+                    </MetadataItem>
+                    <MetadataItem>
+                      <span className="label">Dimensions:</span>
+                      <span className="value">
+                        {originalObject.imageMetadata?.width} ×{' '}
+                        {originalObject.imageMetadata?.height}
+                      </span>
+                    </MetadataItem>
+                    <MetadataItem>
+                      <span className="label">Density:</span>
+                      <span className="value">
+                        {originalObject.imageMetadata?.density} DPI
+                      </span>
+                    </MetadataItem>
+                    <MetadataItem>
+                      <span className="label">Color space:</span>
+                      <span className="value">
+                        {originalObject.imageMetadata?.space}
+                      </span>
+                    </MetadataItem>
+                    <MetadataItem>
+                      <span className="label">Uploaded:</span>
+                      <span className="value">
+                        {formatDate(selectedImage.file.updated)}
+                      </span>
+                    </MetadataItem>
+                    <MetadataItem
+                      style={{
+                        gridColumn: '1 / -1',
+                        justifySelf: 'center',
+                        marginTop: '10px',
+                      }}
+                    >
+                      <InsertButton onClick={onInsert}>
+                        Insert Into Text
+                      </InsertButton>
+                    </MetadataItem>
+                  </>
+                )
+              })()}
+            </MetadataGrid>
+          </MetadataContainer>
+        )}
+      </FormSection>
     </SelectedImageContainer>
   )
 }

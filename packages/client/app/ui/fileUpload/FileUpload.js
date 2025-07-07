@@ -559,6 +559,7 @@ const FileUpload = ({
   const InsertIntoSelection = () => {
     if (selectedImage) {
       const placeholderPlugin = waxApplication.PmPlugins.get('imagePlaceHolder')
+
       insertImage(
         selectedImage,
         waxContext.activeView,
