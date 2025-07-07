@@ -59,6 +59,8 @@ const insertImage = (
     pos -= 1
   }
 
+  const imageId = uuidv4()
+
   context.pmViews.main.dispatch(
     context.pmViews.main.state.tr
       .replaceWith(
@@ -67,14 +69,14 @@ const insertImage = (
         context.pmViews.main.state.schema.nodes.figure.create({}, [
           context.pmViews.main.state.schema.nodes.image.create({
             src: `${serverUrl}/file/${fileData.file.id}`,
-            id: uuidv4(),
+            id: imageId,
             alt: 'test',
             fileid: fileData.fileId,
             extraData,
             ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
           }),
           context.pmViews.main.state.schema.nodes.figcaption.create(
-            {},
+            {id: imageId},
             context.pmViews.main.state.schema.text('test1'),
           ),
         ]),

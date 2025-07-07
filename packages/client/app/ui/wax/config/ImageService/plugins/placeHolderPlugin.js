@@ -14,8 +14,10 @@ export default key =>
         set = set.map(tr.mapping, tr.doc)
         // See if the transaction adds or removes any placeholders
         const action = tr.getMeta(this)
+
         if (action && action.add) {
           const widget = document.createElement('placeholder')
+
           const deco = Decoration.widget(action.add.pos, widget, {
             id: action.add.id,
             side: 1,
@@ -33,6 +35,7 @@ export default key =>
           //   set.children = []
           // }
         }
+
         return set
       },
     },
