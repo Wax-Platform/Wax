@@ -536,12 +536,6 @@ const LuluLayout = ({ customProps, ...rest }) => {
     onChapterClick,
     onUploadChapter, // WE KEEP FOR DOC UPLOAD
     selectedChapterId,
-    // title,
-    // onSubmitBookMetadata,
-    // bookMetadataValues,
-    // chaptersActionInProgress,
-    // canEdit,
-    // onUploadBookCover,
     viewMetadata,
     setViewMetadata,
     settings,
@@ -561,10 +555,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
     isUploading,
     deleteFromFileManager,
     getUserFileManager,
-    // onClose={handleCloseFileUpload}
-    // onImageSelected={handleImageSelected}
     loaded,
-    setSelectedImageData,
     setUserFileManagerFiles,
     handleCloseFileUpload,
     updateFileInManager,
@@ -865,7 +856,6 @@ const LuluLayout = ({ customProps, ...rest }) => {
             getUserFileManager={getUserFileManager}
             onClose={handleCloseFileUpload}
             open={loaded}
-            setSelectedImageData={setSelectedImageData}
             setUserFileManagerFiles={setUserFileManagerFiles}
             updateFileInManager={updateFileInManager}
             uploadToFileManager={uploadToFileManager}
