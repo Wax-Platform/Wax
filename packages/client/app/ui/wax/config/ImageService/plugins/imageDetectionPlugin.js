@@ -1,8 +1,18 @@
 import { Plugin } from 'prosemirror-state'
 
-function imageDetectionPlugin() {
+const imageDetectionPlugin = props => {
   return new Plugin({
     appendTransaction(transactions, oldState, newState) {
+      if (
+        transactions.length === 1 &&
+        transactions[0].meta &&
+        (transactions[0].meta.addToHistory === false ||
+          transactions[0].meta['y-sync$'])
+      ) {
+        return null
+      }
+
+      const { handleAddedRemovedImages } = props
       const addedImages = []
       const removedImages = []
 
@@ -39,11 +49,11 @@ function imageDetectionPlugin() {
       })
 
       if (addedImages.length > 0) {
-        console.log('Images added:', addedImages)
+        handleAddedRemovedImages({ added: addedImages })
       }
 
       if (removedImages.length > 0) {
-        console.log('Images removed:', removedImages)
+        handleAddedRemovedImages({ removed: removedImages })
       }
 
       return null

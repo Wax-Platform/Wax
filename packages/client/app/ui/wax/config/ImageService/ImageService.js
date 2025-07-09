@@ -17,7 +17,7 @@ class ImageService extends Service {
   boot() {
     this.app.PmPlugins.add(
       'imageDetectionPlugin',
-      imageDetectionPlugin('imageDetectionPlugin'),
+      imageDetectionPlugin(this.config),
     )
 
     this.app.PmPlugins.add(

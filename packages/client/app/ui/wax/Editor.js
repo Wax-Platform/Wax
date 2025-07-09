@@ -239,6 +239,9 @@ const EditorWrapper = ({
       },
       ImageService: {
         handleAssetManager: onAssetManager,
+        handleAddedRemovedImages: images => {
+          console.log('config imnages', images)
+        },
         showAlt: true,
       },
 
