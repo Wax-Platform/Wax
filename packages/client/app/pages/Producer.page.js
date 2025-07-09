@@ -51,7 +51,7 @@ import {
   GET_USER_FILEMANAGER,
   UPLOAD_TO_FILEMANAGER,
   DELETE_FROM_FILEMANAGER,
-  UPDATE_FILE_IN_FILEMANAGER,
+  UPDATE_COMPONENT_ID_IN_FILEMANAGER,
 } from '../graphql'
 
 import {
@@ -257,7 +257,9 @@ const ProducerPage = ({ bookId }) => {
 
   const [uploadToFileManager] = useMutation(UPLOAD_TO_FILEMANAGER)
   const [deleteFromFileManager] = useMutation(DELETE_FROM_FILEMANAGER)
-  const [updateFileInManager] = useMutation(UPDATE_FILE_IN_FILEMANAGER)
+  const [updateComponentIdInManager] = useMutation(
+    UPDATE_COMPONENT_ID_IN_FILEMANAGER,
+  )
 
   const [getComments] = useLazyQuery(GET_COMMENTS, {
     skip: !bookId || !selectedChapterId,
@@ -1035,9 +1037,9 @@ const ProducerPage = ({ bookId }) => {
       user={currentUser}
       viewMetadata={viewMetadata}
       getUserFileManager={getUserFileManager}
+      updateComponentIdInManager={updateComponentIdInManager}
       uploadToFileManager={uploadToFileManager}
       deleteFromFileManager={deleteFromFileManager}
-      updateFileInManager={updateFileInManager}
     />
   )
 }

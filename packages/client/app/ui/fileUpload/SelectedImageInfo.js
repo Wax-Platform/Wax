@@ -104,6 +104,30 @@ const MetadataItem = styled.div`
   }
 `
 
+const UsedInDocumentsContainer = styled.div`
+  background-color: #e3f2fd;
+  border-radius: 6px;
+  margin-top: 10px;
+  padding: 10px;
+  text-align: left;
+`
+
+const DocumentList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+`
+
+const DocumentItem = styled.div`
+  background-color: #fff;
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 4px 8px;
+  color: #333;
+  font-weight: 500;
+`
+
 const InsertButton = styled.button`
   background-color: #007bff;
   border: none;
@@ -240,6 +264,22 @@ const SelectedImageInfo = ({
             </MetadataGrid>
           </MetadataContainer>
         )}
+
+        {selectedImage.metadata?.bookComponentId &&
+          selectedImage.metadata.bookComponentId.length > 0 && (
+            <UsedInDocumentsContainer>
+              <MetadataTitle>Used in Documents</MetadataTitle>
+              <DocumentList>
+                {selectedImage.metadata.bookComponentId.map(
+                  (component, index) => (
+                    <DocumentItem key={index}>
+                      {component?.title || `Document ${index + 1}`}
+                    </DocumentItem>
+                  ),
+                )}
+              </DocumentList>
+            </UsedInDocumentsContainer>
+          )}
       </FormSection>
     </SelectedImageContainer>
   )

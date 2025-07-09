@@ -10,11 +10,16 @@ type FileManager {
 }
 
 type FileManagerMetaData {
-  bookComponentId: [ID]
+  bookComponentId: [BookComponent]
 }
 
 input FileManagerMetaDataInput {
   bookComponentId: [ID]
+}
+
+input UpdateBookComponentIdInput {
+  added: [ID]
+  removed: [ID]
 }
 
 extend type Query {
@@ -29,4 +34,8 @@ extend type Mutation {
   ): [File]!
   deleteFromFileManager(ids: [ID!]!): [ID]
   updateMetadataFileManager(fileId: ID, input: FileManagerMetaDataInput): ID
+  updateComponentIdInFileManager(
+    bookComponentId: ID
+    input: UpdateBookComponentIdInput
+  ): [ID]
 }

@@ -6,7 +6,6 @@ import YjsContext from '../provider-yjs/YjsProvider'
 import { LuluLayout } from './layout'
 import configWithAi from './config/configWithAI'
 import YjsService from './config/YjsService'
-import FileUpload from '../fileUpload/FileUpload'
 
 const EditorWrapper = ({
   bookId,
@@ -58,7 +57,7 @@ const EditorWrapper = ({
   getUserFileManager,
   uploadToFileManager,
   deleteFromFileManager,
-  updateFileInManager,
+  updateComponentIdInManager,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -239,9 +238,7 @@ const EditorWrapper = ({
       },
       ImageService: {
         handleAssetManager: onAssetManager,
-        handleAddedRemovedImages: images => {
-          console.log('config imnages', images)
-        },
+        handleAddedRemovedImages,
         showAlt: true,
       },
 
@@ -257,6 +254,21 @@ const EditorWrapper = ({
       services: [new YjsService(), ...selectedWaxConfig.services],
     })
   }, [memoizedProvider])
+
+  const handleAddedRemovedImages = async images => {
+    const addedImages = (images?.added || []).map(node => node.attrs.fileid)
+    const removedImages = (images?.removed || []).map(node => node.attrs.fileid)
+
+    await updateComponentIdInManager({
+      variables: {
+        bookComponentId: selectedChapterId,
+        input: {
+          added: addedImages,
+          removed: removedImages,
+        },
+      },
+    })
+  }
 
   useEffect(() => {
     setLuluWax({
@@ -293,7 +305,6 @@ const EditorWrapper = ({
       handleCloseFileUpload,
       loaded,
       setUserFileManagerFiles,
-      updateFileInManager,
       uploadToFileManager,
       userFileManagerFiles,
     })

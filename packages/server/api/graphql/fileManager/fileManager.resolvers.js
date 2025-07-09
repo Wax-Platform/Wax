@@ -3,6 +3,7 @@ const {
   uploadToFileManagerHandler,
   deleteFromFileManagerHandler,
   updateMetadataFileManagerHandler,
+  updateComponentIdInFileManagerHandler,
 } = require('../../../controllers/fileManager.controller')
 
 module.exports = {
@@ -13,5 +14,6 @@ module.exports = {
     uploadToFileManager: uploadToFileManagerHandler,
     deleteFromFileManager: deleteFromFileManagerHandler,
     updateMetadataFileManager: updateMetadataFileManagerHandler,
+    updateComponentIdInFileManager: updateComponentIdInFileManagerHandler,
   },
 }

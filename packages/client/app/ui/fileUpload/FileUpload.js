@@ -368,14 +368,12 @@ const FileUpload = ({
   userFileManagerFiles,
   uploadToFileManager,
   deleteFromFileManager,
-  updateFileInManager,
   setUserFileManagerFiles,
   getUserFileManager,
   onClose,
   waxApplication,
   waxContext,
 }) => {
-  const { bookComponentId } = useParams()
   const [files, setFiles] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -470,26 +468,12 @@ const FileUpload = ({
     try {
       setIsUploading(true)
 
-      const filesInserted = await uploadToFileManager({
+      await uploadToFileManager({
         variables: {
           files,
           fileType: 'fileManagerImage',
-          entityId: bookComponentId,
         },
       })
-
-      await Promise.all(
-        filesInserted.data.uploadToFileManager.map(file =>
-          updateFileInManager({
-            variables: {
-              fileId: file.id,
-              input: {
-                bookComponentId: [bookComponentId],
-              },
-            },
-          }),
-        ),
-      )
 
       const userFiles = await getUserFileManager({ variables: {} })
 

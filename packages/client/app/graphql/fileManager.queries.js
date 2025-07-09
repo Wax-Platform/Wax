@@ -39,9 +39,22 @@ const UPDATE_FILE_IN_FILEMANAGER = gql`
   }
 `
 
+const UPDATE_COMPONENT_ID_IN_FILEMANAGER = gql`
+  mutation UpdateComponentIdInFileManager(
+    $bookComponentId: ID
+    $input: UpdateBookComponentIdInput
+  ) {
+    updateComponentIdInFileManager(
+      bookComponentId: $bookComponentId
+      input: $input
+    )
+  }
+`
+
 export {
   GET_USER_FILEMANAGER,
   UPLOAD_TO_FILEMANAGER,
   DELETE_FROM_FILEMANAGER,
   UPDATE_FILE_IN_FILEMANAGER,
+  UPDATE_COMPONENT_ID_IN_FILEMANAGER,
 }
