@@ -308,6 +308,22 @@ const CloseLargeImage = styled.button`
   }
 `
 
+const UsedOverlay = styled.div`
+  align-items: center;
+  background-color: #dc3545;
+  border-radius: 4px;
+  bottom: 6px;
+  color: white;
+  display: flex;
+  font-size: 10px;
+  font-weight: 600;
+  justify-content: center;
+  left: 6px;
+  padding: 2px 6px;
+  position: absolute;
+  z-index: 5;
+`
+
 const UploadLoaderOverlay = styled.div`
   align-items: center;
   background-color: rgba(255, 255, 255, 0.9);
@@ -379,6 +395,7 @@ const FileUpload = ({
   const [isDragging, setIsDragging] = useState(false)
   const [altText, setAltText] = useState('')
   const [caption, setCaption] = useState('')
+  const [imageName, setImageName] = useState('')
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
   const [largeImageId, setLargeImageId] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -527,10 +544,12 @@ const FileUpload = ({
       setSelectedImage(null)
       setAltText('')
       setCaption('')
+      setImageName('')
     } else {
       setSelectedImage(image)
       setAltText(image.file.alt || '')
       setCaption(image.file.caption || '')
+      setImageName(image.file.name || '')
     }
   }
 
@@ -587,6 +606,7 @@ const FileUpload = ({
     setSelectedImage(null)
     setAltText('')
     setCaption('')
+    setImageName('')
     setDeleteConfirmId(null)
     setLargeImageId(null)
     onClose()
@@ -615,11 +635,13 @@ const FileUpload = ({
           <SelectedImageInfo
             altText={altText}
             caption={caption}
+            imageName={imageName}
             onInsert={InsertIntoSelection}
             selectedImage={selectedImage}
             serverUrl={serverUrl}
             setAltText={setAltText}
             setCaption={setCaption}
+            setImageName={setImageName}
           />
         ) : (
           <>
@@ -675,6 +697,10 @@ const FileUpload = ({
                     isSelected={selectedImage?.file?.id === item.file.id}
                     src={`${serverUrl}/file/${item.file.id}`}
                   />
+                  {item.metadata?.bookComponentId &&
+                    item.metadata.bookComponentId.length > 0 && (
+                      <UsedOverlay>USED</UsedOverlay>
+                    )}
                   <IconWrapper className="icon-wrapper">
                     {deleteConfirmId !== item.file.id && (
                       <>

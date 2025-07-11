@@ -151,6 +151,8 @@ const SelectedImageInfo = ({
   setAltText,
   caption,
   setCaption,
+  imageName,
+  setImageName,
   serverUrl,
   onInsert,
 }) => {
@@ -177,6 +179,13 @@ const SelectedImageInfo = ({
 
       <FormSection>
         <InputContainer>
+          <InputLabel htmlFor="image-name">Name</InputLabel>
+          <StyledInput
+            id="image-name"
+            onChange={setImageName}
+            placeholder="Enter image name"
+            value={imageName}
+          />
           <InputLabel htmlFor="alt-text">Alt Text</InputLabel>
           <StyledInput
             id="alt-text"
