@@ -107,18 +107,30 @@ const updateComponentIdInFileManagerHandler = async (
   if (input?.removed.length > 0) {
     const files = await FileManager.query().whereIn('fileId', input.removed)
     await Promise.all(
-      files.map(file =>
-        FileManager.query()
+      files.map(file => {
+        // Count how many times this bookComponentId appears in input.removed
+        const removeCount = input.removed.filter(fileId => fileId === file.fileId).length
+        
+        // Create a copy of the bookComponentId array
+        let updatedBookComponentId = [...file.metadata.bookComponentId]
+        
+        // Remove the bookComponentId as many times as it appears in input.removed
+        for (let i = 0; i < removeCount; i++) {
+          const index = updatedBookComponentId.indexOf(bookComponentId)
+          if (index !== -1) {
+            updatedBookComponentId.splice(index, 1)
+          }
+        }
+        
+        return FileManager.query()
           .patch({
             metadata: {
               ...file.metadata,
-              bookComponentId: file.metadata.bookComponentId.filter(
-                id => id !== bookComponentId,
-              ),
+              bookComponentId: updatedBookComponentId,
             },
           })
-          .findOne({ id: file.id }),
-      ),
+          .findOne({ id: file.id })
+      }),
     )
   }
 

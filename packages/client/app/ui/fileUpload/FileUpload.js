@@ -8,7 +8,6 @@ import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { th, serverUrl } from '@coko/client'
 
 import styled, { keyframes } from 'styled-components'
-import { useParams } from 'react-router-dom'
 
 import { DeleteOutlined, SearchOutlined } from '@ant-design/icons'
 import { Spin } from 'antd'
@@ -571,6 +570,8 @@ const FileUpload = ({
         waxContext,
         waxApplication,
         serverUrl,
+        altText,
+        caption,
       )
       handleModalClose()
     }

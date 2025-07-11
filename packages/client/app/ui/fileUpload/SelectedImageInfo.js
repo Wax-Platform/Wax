@@ -299,13 +299,47 @@ const SelectedImageInfo = ({
             <UsedInDocumentsContainer>
               <MetadataTitle>Used in Documents</MetadataTitle>
               <DocumentList>
-                {selectedImage.metadata.bookComponentId.map(
-                  (component, index) => (
-                    <DocumentItem key={index}>
-                      {component?.title || `Document ${index + 1}`}
-                    </DocumentItem>
-                  ),
-                )}
+                {(() => {
+                  const componentCounts = new Map()
+
+                  selectedImage.metadata.bookComponentId.forEach(component => {
+                    const componentId = component?.id
+
+                    if (componentId) {
+                      componentCounts.set(
+                        componentId,
+                        (componentCounts.get(componentId) || 0) + 1,
+                      )
+                    }
+                  })
+
+                  const uniqueComponents = new Map()
+
+                  selectedImage.metadata.bookComponentId.forEach(
+                    (component, index) => {
+                      const componentId = component?.id || `doc-${index}`
+
+                      if (!uniqueComponents.has(componentId)) {
+                        uniqueComponents.set(componentId, component)
+                      }
+                    },
+                  )
+
+                  return Array.from(uniqueComponents.values()).map(
+                    (component, index) => {
+                      const componentId = component?.id || `doc-${index}`
+                      const count = componentCounts.get(componentId) || 1
+                      const title = component?.title || `Document ${index + 1}`
+
+                      return (
+                        <DocumentItem key={componentId}>
+                          {title}
+                          {count > 1 && ` (${count} instances found)`}
+                        </DocumentItem>
+                      )
+                    },
+                  )
+                })()}
               </DocumentList>
             </UsedInDocumentsContainer>
           )}

@@ -14,6 +14,8 @@ const insertImage = (
   context,
   app,
   serverUrl,
+  altText,
+  caption,
 ) => {
   const trackChange = app.config.get('config.EnableTrackChangeService')
   const imageConfig = app.config.get('config.ImageService')
@@ -70,14 +72,14 @@ const insertImage = (
           context.pmViews.main.state.schema.nodes.image.create({
             src: `${serverUrl}/file/${fileData.file.id}`,
             id: imageId,
-            alt: 'test',
+            alt: altText,
             fileid: fileData.fileId,
             extraData,
             ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
           }),
           context.pmViews.main.state.schema.nodes.figcaption.create(
-            {id: imageId},
-            context.pmViews.main.state.schema.text('test1'),
+            { id: imageId },
+            context.pmViews.main.state.schema.text(caption),
           ),
         ]),
       )
