@@ -15,16 +15,12 @@ const { imageFinder } = require('../utilities/image')
 const updateFile = async (id, data, options = {}) => {
   try {
     const { trx } = options
-    const { name, alt } = data
+
     return useTransaction(
       async tr => {
         logger.info(`>>> updating file with id ${id}`)
 
-        if (alt) {
-          return File.patchAndFetchById(id, { alt }, { trx: tr })
-        }
-
-        return File.patchAndFetchById(id, { name }, { trx: tr })
+        return File.patchAndFetchById(id, data, { trx: tr })
       },
       { trx },
     )

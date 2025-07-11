@@ -1,32 +1,33 @@
-import { Service } from 'wax-prosemirror-core';
-import CommentBubbleComponent from './components/ui/comments/CommentBubbleComponent';
-import RightArea from './components/RightArea';
-import commentMark from './schema/commentMark';
-import CommentPlugin from './plugins/CommentPlugin';
-import CommentDecorationPlugin from './plugins/CommentDecorationPlugin';
-import './comments.css';
+import { Service } from 'wax-prosemirror-core'
+import CommentBubbleComponent from './components/ui/comments/CommentBubbleComponent'
+import RightArea from './components/RightArea'
+import commentMark from './schema/commentMark'
+import CommentPlugin from './plugins/CommentPlugin'
+import CommentDecorationPlugin from './plugins/CommentDecorationPlugin'
+import './comments.css'
 
 export default class CommentsService extends Service {
-  allCommentsFromStates = [];
+  allCommentsFromStates = []
   boot() {
-    const commentsConfig = this.app.config.get('config.CommentsService');
+    const commentsConfig = this.app.config.get('config.CommentsService')
+
     const YjsType = this.app.config.get('config.YjsService')
       ? this.app.config.get('config.YjsService').yjsType
-      : 'yjs';
+      : 'yjs'
 
     const options = {
       existingComments: () => {
         const map = this.app.config.get('config.YjsService')
           ? this.app.context.options.currentYdoc.getMap(`comments-${YjsType}`)
-          : new Map();
+          : new Map()
 
         if (commentsConfig?.setComments().length > 0) {
           commentsConfig.setComments().forEach(value => {
-            map.set(value.id, value);
-          });
+            map.set(value.id, value)
+          })
         }
 
-        return map;
+        return map
       },
       commentsDataMap: this.app.config.get('config.YjsService')
         ? this.app.context.options.currentYdoc.getMap(
@@ -38,40 +39,41 @@ export default class CommentsService extends Service {
         this.allCommentsFromStates = this.allCommentsFromStates.filter(
           comm =>
             (items.find(item => item.id === comm.id) || {}).id !== comm.id,
-        );
+        )
         this.allCommentsFromStates = this.allCommentsFromStates.concat([
           ...items,
-        ]);
+        ])
 
         if (this.app.context.options.resolvedComment) {
           this.allCommentsFromStates = this.allCommentsFromStates.filter(
             comm => {
-              return comm.id !== this.app.context.options.resolvedComment;
+              return comm.id !== this.app.context.options.resolvedComment
             },
-          );
+          )
         }
 
         if (commentsConfig?.getComments) {
-          commentsConfig.getComments(this.allCommentsFromStates);
+          commentsConfig.getComments(this.allCommentsFromStates)
         }
+
         this.app.context.setOption({
           comments: this.allCommentsFromStates,
-        });
+        })
       },
-    };
+    }
 
     this.app.PmPlugins.add(
       'CommentDecorationPlugin',
       CommentDecorationPlugin('commentDecorationPlugin', options),
-    );
+    )
 
     this.app.PmPlugins.add(
       'commentPlugin',
       CommentPlugin('commentPlugin', this.app),
-    );
+    )
 
-    const createOverlay = this.container.get('CreateOverlay');
-    const layout = this.container.get('Layout');
+    const createOverlay = this.container.get('CreateOverlay')
+    const layout = this.container.get('Layout')
     createOverlay(
       CommentBubbleComponent,
       {},
@@ -81,19 +83,19 @@ export default class CommentsService extends Service {
         followCursor: false,
         selection: true,
       },
-    );
-    layout.addComponent('rightArea', RightArea);
+    )
+    layout.addComponent('rightArea', RightArea)
   }
 
   register() {
-    const commentConfig = this.config.get('config.CommentsService');
-    const createMark = this.container.get('CreateMark');
+    const commentConfig = this.config.get('config.CommentsService')
+    const createMark = this.container.get('CreateMark')
 
     createMark(
       {
         comment: commentMark(commentConfig?.showTitle || false),
       },
       { toWaxSchema: true },
-    );
+    )
   }
 }

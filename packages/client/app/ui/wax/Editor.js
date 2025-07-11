@@ -54,6 +54,11 @@ const EditorWrapper = ({
   setSelectedChapterId,
   isUploading,
   setUploading,
+  getUserFileManager,
+  uploadToFileManager,
+  deleteFromFileManager,
+  updateComponentIdInManager,
+  updateFile,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -85,6 +90,8 @@ const EditorWrapper = ({
     setIsCurrentDocumentMine,
   })
 
+  const [userFileManagerFiles, setUserFileManagerFiles] = useState([])
+  const [loaded, setLoaded] = useState(false)
   const [selectedWaxConfig, setSelectedWaxConfig] = useState(configWithAi)
 
   const waxMenuConfig =
@@ -162,6 +169,17 @@ const EditorWrapper = ({
     })
   }, [aiOn])
 
+  const onAssetManager = async () => {
+    setLoaded(true)
+    const userFiles = await getUserFileManager()
+    setUserFileManagerFiles(JSON.parse(userFiles.data.getUserFileManager))
+    return userFiles
+  }
+
+  const handleCloseFileUpload = () => {
+    setLoaded(false)
+  }
+
   useEffect(() => {
     setSelectedWaxConfig({
       ...selectedWaxConfig,
@@ -219,6 +237,12 @@ const EditorWrapper = ({
         userList: bookMembers,
         getMentionedUsers: onMention,
       },
+      ImageService: {
+        handleAssetManager: onAssetManager,
+        handleAddedRemovedImages,
+        showAlt: true,
+      },
+
       AskAiContentService: {
         AskAiContentTransformation: queryAI,
         FreeTextPromptsOn: freeTextPromptsOn,
@@ -231,6 +255,21 @@ const EditorWrapper = ({
       services: [new YjsService(), ...selectedWaxConfig.services],
     })
   }, [memoizedProvider])
+
+  const handleAddedRemovedImages = async images => {
+    const addedImages = (images?.added || []).map(node => node.attrs.fileid)
+    const removedImages = (images?.removed || []).map(node => node.attrs.fileid)
+
+    await updateComponentIdInManager({
+      variables: {
+        bookComponentId: selectedChapterId,
+        input: {
+          added: addedImages,
+          removed: removedImages,
+        },
+      },
+    })
+  }
 
   useEffect(() => {
     setLuluWax({
@@ -262,6 +301,14 @@ const EditorWrapper = ({
       setIsCurrentDocumentMine,
       isUploading,
       setUploading,
+      deleteFromFileManager,
+      getUserFileManager,
+      handleCloseFileUpload,
+      loaded,
+      setUserFileManagerFiles,
+      uploadToFileManager,
+      userFileManagerFiles,
+      updateFile,
     })
   }, [
     title,
@@ -275,6 +322,8 @@ const EditorWrapper = ({
     settings,
     bookId,
     aiEnabled,
+    loaded,
+    userFileManagerFiles,
   ])
 
   const userObject = {

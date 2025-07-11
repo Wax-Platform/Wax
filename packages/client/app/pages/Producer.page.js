@@ -48,6 +48,11 @@ import {
   RENAME_RESOURCE,
   DELETE_RESOURCE,
   REORDER_RESOURCE,
+  GET_USER_FILEMANAGER,
+  UPLOAD_TO_FILEMANAGER,
+  DELETE_FROM_FILEMANAGER,
+  UPDATE_COMPONENT_ID_IN_FILEMANAGER,
+  UPDATE_FILE,
 } from '../graphql'
 
 import {
@@ -131,6 +136,7 @@ const ProducerPage = ({ bookId }) => {
   const [renameResource] = useMutation(RENAME_RESOURCE)
   const [deleteResource] = useMutation(DELETE_RESOURCE)
   const [reorderResource] = useMutation(REORDER_RESOURCE)
+  const [updateFile] = useMutation(UPDATE_FILE)
 
   // const [reconnecting, setReconnecting] = useState(false)
   const reconnecting = false
@@ -246,6 +252,17 @@ const ProducerPage = ({ bookId }) => {
         })
       },
     })
+
+  const { refetch: getUserFileManager } = useQuery(GET_USER_FILEMANAGER, {
+    skip: true,
+  })
+
+  const [uploadToFileManager] = useMutation(UPLOAD_TO_FILEMANAGER)
+  const [deleteFromFileManager] = useMutation(DELETE_FROM_FILEMANAGER)
+
+  const [updateComponentIdInManager] = useMutation(
+    UPDATE_COMPONENT_ID_IN_FILEMANAGER,
+  )
 
   const [getComments] = useLazyQuery(GET_COMMENTS, {
     skip: !bookId || !selectedChapterId,
@@ -1022,6 +1039,11 @@ const ProducerPage = ({ bookId }) => {
       title={bookQueryData?.getBook.title}
       user={currentUser}
       viewMetadata={viewMetadata}
+      getUserFileManager={getUserFileManager}
+      updateComponentIdInManager={updateComponentIdInManager}
+      uploadToFileManager={uploadToFileManager}
+      deleteFromFileManager={deleteFromFileManager}
+      updateFile={updateFile}
     />
   )
 }

@@ -32,6 +32,7 @@ module.exports = [
   './models/embeddings',
   './models/document',
   './models/docTreeManager',
+  './models/fileManager',
   './api/graphql',
   './api/rest',
 ]

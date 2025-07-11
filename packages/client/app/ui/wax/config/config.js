@@ -77,8 +77,6 @@ const config = {
     }),
   ],
 
-  ImageService: { showAlt: true },
-
   services: [
     new YjsService(),
     new CommentsService(),
