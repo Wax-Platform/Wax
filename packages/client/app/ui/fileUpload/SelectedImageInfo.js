@@ -155,6 +155,7 @@ const SelectedImageInfo = ({
   setImageName,
   serverUrl,
   onInsert,
+  updateFile,
 }) => {
   const formatFileSize = bytes => {
     if (bytes === 0) return '0 Bytes'
@@ -168,12 +169,25 @@ const SelectedImageInfo = ({
     return new Date(dateString).toLocaleDateString()
   }
 
+  const updateImageValues = async () => {
+    await updateFile({
+      variables: {
+        input: {
+          id: selectedImage.file.id,
+          name: imageName,
+          alt: altText,
+          caption,
+        },
+      },
+    })
+  }
+
   return (
     <SelectedImageContainer>
       <ImagePreviewSection>
         <ImagePreview
-          src={`${serverUrl}/file/${selectedImage.file.id}`}
           alt={selectedImage.file.name}
+          src={`${serverUrl}/file/${selectedImage.file.id}`}
         />
       </ImagePreviewSection>
 
@@ -200,6 +214,12 @@ const SelectedImageInfo = ({
             placeholder="Enter image caption"
             value={caption}
           />
+          <InsertButton
+            onClick={updateImageValues}
+            style={{ marginTop: '15px' }}
+          >
+            Update
+          </InsertButton>
         </InputContainer>
 
         {selectedImage.file.storedObjects && (

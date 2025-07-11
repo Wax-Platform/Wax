@@ -58,6 +58,7 @@ const EditorWrapper = ({
   uploadToFileManager,
   deleteFromFileManager,
   updateComponentIdInManager,
+  updateFile,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -307,6 +308,7 @@ const EditorWrapper = ({
       setUserFileManagerFiles,
       uploadToFileManager,
       userFileManagerFiles,
+      updateFile,
     })
   }, [
     title,

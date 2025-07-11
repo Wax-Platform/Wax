@@ -10,4 +10,12 @@ const UPLOAD_FILES = gql`
   }
 `
 
-export { UPLOAD_FILES }
+const UPDATE_FILE = gql`
+  mutation ($input: UpdateFileInput!) {
+    updateFile(input: $input) {
+      id
+    }
+  }
+`
+
+export { UPLOAD_FILES, UPDATE_FILE }

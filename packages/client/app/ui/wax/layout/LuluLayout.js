@@ -561,6 +561,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
     updateFileInManager,
     uploadToFileManager,
     userFileManagerFiles,
+    updateFile,
   } = customProps
 
   const params = useParams()
@@ -857,6 +858,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
             onClose={handleCloseFileUpload}
             open={loaded}
             setUserFileManagerFiles={setUserFileManagerFiles}
+            updateFile={updateFile}
             updateFileInManager={updateFileInManager}
             uploadToFileManager={uploadToFileManager}
             userFileManagerFiles={userFileManagerFiles}

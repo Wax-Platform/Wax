@@ -109,9 +109,9 @@ const uploadFilesHandler = async (_, { files, entityId }, ctx) => {
 
 const updateFileHandler = async (_, { input }, ctx) => {
   try {
-    const { id, name, alt } = input
+    const { id, name, alt, caption } = input
 
-    const updatedFile = await updateFile(id, { name, alt })
+    const updatedFile = await updateFile(id, { name, alt, caption })
     subscriptionManager.publish(FILE_UPDATED, {
       fileUpdated: updatedFile.id,
     })
@@ -156,7 +156,9 @@ module.exports = {
   },
   File: {
     async url(file, { size }, ctx) {
-      return fileStorage.getURL(file.getStoredObjectBasedOnType(size).key, { expiresIn : 10 })
+      return fileStorage.getURL(file.getStoredObjectBasedOnType(size).key, {
+        expiresIn: 10,
+      })
     },
     // async mimetype(file, { target }, ctx) {
     //   if (target && target === 'editor') {

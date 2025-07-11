@@ -389,6 +389,7 @@ const FileUpload = ({
   onClose,
   waxApplication,
   waxContext,
+  updateFile,
 }) => {
   const [files, setFiles] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
@@ -642,6 +643,7 @@ const FileUpload = ({
             setAltText={setAltText}
             setCaption={setCaption}
             setImageName={setImageName}
+            updateFile={updateFile}
           />
         ) : (
           <>
