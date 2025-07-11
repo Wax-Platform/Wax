@@ -63,12 +63,35 @@ const insertImage = (
 
   const imageId = uuidv4()
 
-  context.pmViews.main.dispatch(
-    context.pmViews.main.state.tr
-      .replaceWith(
-        pos,
-        pos,
-        context.pmViews.main.state.schema.nodes.figure.create({}, [
+  if (caption) {
+    context.pmViews.main.dispatch(
+      context.pmViews.main.state.tr
+        .replaceWith(
+          pos,
+          pos,
+          context.pmViews.main.state.schema.nodes.figure.create({}, [
+            context.pmViews.main.state.schema.nodes.image.create({
+              src: `${serverUrl}/file/${fileData.file.id}`,
+              id: imageId,
+              alt: altText,
+              fileid: fileData.fileId,
+              extraData,
+              ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
+            }),
+            context.pmViews.main.state.schema.nodes.figcaption.create(
+              { id: imageId },
+              context.pmViews.main.state.schema.text(caption),
+            ),
+          ]),
+        )
+        .setMeta(placeholderPlugin, { remove: { id } }),
+    )
+  } else {
+    context.pmViews.main.dispatch(
+      context.pmViews.main.state.tr
+        .replaceWith(
+          pos,
+          pos,
           context.pmViews.main.state.schema.nodes.image.create({
             src: `${serverUrl}/file/${fileData.file.id}`,
             id: imageId,
@@ -77,14 +100,10 @@ const insertImage = (
             extraData,
             ...(showLongDesc ? { 'aria-describedby': uuidv4() } : {}),
           }),
-          context.pmViews.main.state.schema.nodes.figcaption.create(
-            { id: imageId },
-            context.pmViews.main.state.schema.text(caption),
-          ),
-        ]),
-      )
-      .setMeta(placeholderPlugin, { remove: { id } }),
-  )
+        )
+        .setMeta(placeholderPlugin, { remove: { id } }),
+    )
+  }
 }
 
 export default insertImage

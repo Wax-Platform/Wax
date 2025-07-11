@@ -460,6 +460,16 @@ const FileUpload = ({
   const handleNewFiles = useCallback(
     newFiles => {
       const validFiles = newFiles.filter(file => {
+        // Check if file is an image
+        const isImage = file.type.startsWith('image/') || 
+          /\.(png|gif|jpg|jpeg)$/i.test(file.name)
+        
+        if (!isImage) {
+          console.warn(`Skipping non-image file: ${file.name}`)
+          return false
+        }
+
+        // Check if file is already added
         const isAlreadyAdded = files.some(
           existingFile =>
             existingFile.name === file.name && existingFile.size === file.size,
@@ -627,6 +637,7 @@ const FileUpload = ({
       <FileUploadContainer>
         <input
           multiple
+          accept=".png,.gif,.jpg,.jpeg,image/png,image/gif,image/jpeg"
           onChange={handleFileInputChange}
           ref={fileInputRef}
           style={{ display: 'none' }}
