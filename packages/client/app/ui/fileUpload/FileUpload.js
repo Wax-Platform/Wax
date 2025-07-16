@@ -656,6 +656,9 @@ const FileUpload = ({
             setCaption={setCaption}
             setImageName={setImageName}
             updateFile={updateFile}
+            onShowLargeImage={handleShowLargeImage}
+            largeImageId={largeImageId}
+            onCloseLargeImage={handleCloseLargeImage}
           />
         ) : (
           <>

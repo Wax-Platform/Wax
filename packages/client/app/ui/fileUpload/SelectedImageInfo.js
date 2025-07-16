@@ -4,16 +4,17 @@
 import React from 'react'
 import styled from 'styled-components'
 import Input from '../common/Input'
+import { SearchOutlined } from '@ant-design/icons'
 
 const SelectedImageContainer = styled.div`
   background-color: #f5f5f5;
   border: 2px dashed #007bff;
   border-radius: 8px;
   display: flex;
-  gap: 20px;
+  gap: 10px; /* Reduced from 20px */
   margin-bottom: 20px;
   min-height: 300px;
-  padding: 10px;
+  padding: 4px; /* Reduced from 10px */
   position: relative;
   width: 100%;
 `
@@ -29,7 +30,7 @@ const ImagePreviewSection = styled.div`
 const ImagePreview = styled.img`
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-height: 280px;
+  max-height: 400px; /* Increased from 280px */
   max-width: 100%;
   object-fit: contain;
 `
@@ -145,6 +146,70 @@ const InsertButton = styled.button`
   }
 `
 
+const IconWrapper = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  &:hover {
+    background: #222;
+  }
+`
+
+const LargeImageModal = styled.div`
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.9);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 1000;
+`
+
+const LargeImageContainer = styled.div`
+  max-height: 90vh;
+  max-width: 90vw;
+  position: relative;
+`
+
+const LargeImage = styled.img`
+  border-radius: 8px;
+  height: auto;
+  max-height: 90vh;
+  max-width: 90vw;
+  object-fit: contain;
+`
+
+const CloseLargeImage = styled.button`
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  font-size: 24px;
+  height: 40px;
+  position: absolute;
+  right: -50px;
+  top: 0;
+  width: 40px;
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+`
+
 const SelectedImageInfo = ({
   selectedImage,
   altText,
@@ -156,6 +221,9 @@ const SelectedImageInfo = ({
   serverUrl,
   onInsert,
   updateFile,
+  onShowLargeImage,
+  largeImageId,
+  onCloseLargeImage,
 }) => {
   const formatFileSize = bytes => {
     if (bytes === 0) return '0 Bytes'
@@ -184,11 +252,34 @@ const SelectedImageInfo = ({
 
   return (
     <SelectedImageContainer>
-      <ImagePreviewSection>
-        <ImagePreview
-          alt={selectedImage.file.name}
-          src={`${serverUrl}/file/${selectedImage.file.id}`}
-        />
+      <ImagePreviewSection style={{ position: 'relative', width: '100%' }}>
+        <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+          <ImagePreview
+            alt={selectedImage.file.name}
+            src={`${serverUrl}/file/${selectedImage.file.id}`}
+            style={{ display: 'block', width: '100%' }}
+          />
+          <IconWrapper
+            title="View larger image"
+            onClick={e => {
+              e.stopPropagation()
+              onShowLargeImage && onShowLargeImage(e, selectedImage)
+            }}
+          >
+            <SearchOutlined />
+          </IconWrapper>
+        </div>
+        {largeImageId === selectedImage.file.id && (
+          <LargeImageModal onClick={onCloseLargeImage}>
+            <LargeImageContainer onClick={e => e.stopPropagation()}>
+              <LargeImage
+                alt="Large preview"
+                src={`${serverUrl}/file/${selectedImage.file.id}`}
+              />
+              <CloseLargeImage onClick={onCloseLargeImage}>×</CloseLargeImage>
+            </LargeImageContainer>
+          </LargeImageModal>
+        )}
       </ImagePreviewSection>
 
       <FormSection>
