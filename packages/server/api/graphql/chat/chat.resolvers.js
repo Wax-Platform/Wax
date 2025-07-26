@@ -1,8 +1,8 @@
-const { pubsubManager } = require('@coko/server')
+const { subscriptionManager } = require('@coko/server')
 const { actions } = require('../../../controllers/constants')
 const CokoNotifier = require('../../../services/notify')
-
-const { getPubsub } = pubsubManager
+// const { pubsubManager } = require('@coko/server')
+// const { getPubsub } = pubsubManager
 
 const {
   createChatThread,
@@ -46,15 +46,18 @@ const sendMessageResolver = async (_, { input }, ctx) => {
       attachments,
     )
 
-    const pubsub = await getPubsub()
-    pubsub.publish(`${actions.MESSAGE_CREATED}.${chatThreadId}`, message.id)
+    // const pubsub = await getPubsub()
+    subscriptionManager.publish(
+      `${actions.MESSAGE_CREATED}.${chatThreadId}`,
+      message.id,
+    )
 
     // send notification to all mentioned users
     const notifier = new CokoNotifier()
 
     mentions.forEach(mention => {
       notifier.notify(
-        'hhmi.chatMention',
+        'waxPlatform.chatMention',
         {
           mention,
           message,
@@ -96,9 +99,9 @@ module.exports = {
         return null
       },
       subscribe: async (_payload, vars) => {
-        const pubsub = await getPubsub()
+        // const pubsub = await getPubsub()
 
-        return pubsub.asyncIterator(
+        return subscriptionManager.asyncIterator(
           `${actions.MESSAGE_CREATED}.${vars.chatThreadId}`,
         )
       },

@@ -1,9 +1,7 @@
 const { logger } = require('@coko/server')
-const { pubsubManager } = require('@coko/server')
+const { subscriptionManager } = require('@coko/server')
 
 const { Notification } = require('../../../models')
-
-const { getPubsub } = pubsubManager
 
 const chatMention = async data => {
   try {
@@ -25,8 +23,10 @@ const chatMention = async data => {
       content: notificationContent,
     })
 
-    const pubsub = await getPubsub()
-    pubsub.publish(`NEW_NOTIFICATION.${mention}`, newNotification.id)
+    subscriptionManager.publish(
+      `NEW_NOTIFICATION.${mention}`,
+      newNotification.id,
+    )
   } catch (e) {
     logger.error('Failed to send notification for chat mention')
     throw new Error(e)
