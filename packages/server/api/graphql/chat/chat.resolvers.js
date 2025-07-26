@@ -5,17 +5,17 @@ const CokoNotifier = require('../../../services/notify')
 // const { getPubsub } = pubsubManager
 
 const {
-  createChatThread,
+  createChatChannel,
   getMessages,
   getMessageAuthor,
   getAttachments,
-  sendMessage,
+  sendChatMessage,
   getMessage,
   cancelEmailNotification,
 } = require('../../../controllers/chat.controllers')
 
-const createChatThreadResolver = async (_, { input }) => {
-  return createChatThread(input)
+const createChatChannelResolver = async (_, { input }) => {
+  return createChatChannel(input)
 }
 
 const messagesResolver = async thread => {
@@ -34,12 +34,12 @@ const attachmentResolver = async message => {
   return getAttachments(message)
 }
 
-const sendMessageResolver = async (_, { input }, ctx) => {
+const sendChatMessageResolver = async (_, { input }, ctx) => {
   try {
-    const { chatThreadId, content, userId, mentions, attachments } = input
+    const { chatChannelId, content, userId, mentions, attachments } = input
 
-    const message = await sendMessage(
-      chatThreadId,
+    const message = await sendChatMessage(
+      chatChannelId,
       content,
       userId,
       mentions,
@@ -48,7 +48,7 @@ const sendMessageResolver = async (_, { input }, ctx) => {
 
     // const pubsub = await getPubsub()
     subscriptionManager.publish(
-      `${actions.MESSAGE_CREATED}.${chatThreadId}`,
+      `${actions.MESSAGE_CREATED}.${chatChannelId}`,
       message.id,
     )
 
@@ -72,12 +72,12 @@ const sendMessageResolver = async (_, { input }, ctx) => {
   }
 }
 
-const cancelEmailNotificationResolver = (_, { chatThreadId }, ctx) => {
-  return cancelEmailNotification(ctx.user, chatThreadId)
+const cancelEmailNotificationResolver = (_, { chatChannelId }, ctx) => {
+  return cancelEmailNotification(ctx.user, chatChannelId)
 }
 
 module.exports = {
-  ChatThread: {
+  ChatChannel: {
     messages: messagesResolver,
   },
   ChatMessage: {
@@ -85,8 +85,8 @@ module.exports = {
     attachments: attachmentResolver,
   },
   Mutation: {
-    sendMessage: sendMessageResolver,
-    createChatThread: createChatThreadResolver,
+    sendChatMessage: sendChatMessageResolver,
+    createChatChannel: createChatChannelResolver,
     cancelEmailNotification: cancelEmailNotificationResolver,
   },
   Subscription: {
@@ -102,7 +102,7 @@ module.exports = {
         // const pubsub = await getPubsub()
 
         return subscriptionManager.asyncIterator(
-          `${actions.MESSAGE_CREATED}.${vars.chatThreadId}`,
+          `${actions.MESSAGE_CREATED}.${vars.chatChannelId}`,
         )
       },
     },
