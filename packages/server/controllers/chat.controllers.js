@@ -1,0 +1,178 @@
+const { logger, useTransaction } = require('@coko/server')
+const { createFile } = require('@coko/server')
+const { ChatThread, ChatMessage, File } = require('@coko/server/src/models')
+const { User } = require('../models')
+const { getFileUrl } = require('./file.controller')
+const CokoNotifier = require('../services/notify')
+
+const BASE_MESSAGE = '[CHAT CONTROLLER]'
+
+const globalTimeouts = {}
+
+const createChatThread = async (input = {}, options = {}) => {
+  const { relatedObjectId, chatType } = input
+  const CONTROLLER_MESSAGE = `${BASE_MESSAGE} createChatThread:`
+  logger.info(
+    `${CONTROLLER_MESSAGE} Create chat thread for question ${relatedObjectId}`,
+  )
+
+  try {
+    return useTransaction(
+      async tr => {
+        return ChatThread.insert({ relatedObjectId, chatType }, { trx: tr })
+      },
+      { trx: options.trx, passedTrxOnly: true },
+    )
+  } catch (error) {
+    logger.error(`${CONTROLLER_MESSAGE} createChatThread: ${error.message}`)
+    throw new Error(error)
+  }
+}
+
+const sendMessage = async (
+  chatThreadId,
+  content,
+  userId,
+  mentions = [],
+  attachments = [],
+  options = {},
+) => {
+  const CONTROLLER_MESSAGE = `${BASE_MESSAGE} sendMessage:`
+
+  try {
+    const { trx, ...restOptions } = options
+    const attachmentData = await Promise.all(attachments)
+
+    const newMessage = await useTransaction(
+      async tr => {
+        logger.info(
+          `${CONTROLLER_MESSAGE} creating a new message for chat thread with id ${chatThreadId}`,
+        )
+
+        const chatMessage = await ChatMessage.insert(
+          { chatThreadId, userId, content, mentions },
+          { trx: tr, ...restOptions },
+        )
+
+        return chatMessage
+      },
+      { trx, passedTrxOnly: true },
+    )
+
+    const notifier = new CokoNotifier()
+
+    mentions.forEach(mention => {
+      // setup a timeout to send emails with delay (and possibility of being canceled)
+      globalTimeouts[`${mention}-${chatThreadId}`] = setTimeout(() => {
+        notifier.notify(
+          'waxPlatform.chatMention',
+          { mention, newMessage },
+          'email',
+        )
+      }, 10000)
+    })
+
+    const uploadedAttachments = await Promise.all(
+      attachmentData.map(async attachment => {
+        const stream = attachment.createReadStream()
+
+        const storedFile = await createFile(
+          stream,
+          attachment.filename,
+          null,
+          null,
+          [],
+          newMessage.id,
+        )
+
+        return storedFile
+      }),
+    )
+
+    const attachmentsWithUrl = await Promise.all(
+      uploadedAttachments.map(async file => {
+        const url = getFileUrl(file, 'medium')
+        return {
+          url,
+          name: file.name,
+        }
+      }),
+    )
+
+    return { ...newMessage, attachments: attachmentsWithUrl }
+  } catch (e) {
+    logger.error(`${CONTROLLER_MESSAGE} ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+const getMessage = async messageId => {
+  return ChatMessage.query().findById(messageId)
+}
+
+const getMessages = async (threadId, options = {}) => {
+  const CONTROLLER_MESSAGE = `${BASE_MESSAGE} getMessages:`
+  logger.info(`${CONTROLLER_MESSAGE} Getting messages for thread ${threadId}`)
+
+  try {
+    return (
+      await ChatMessage.query(options.trx).where('chatThreadId', threadId)
+    ).map(({ id, created, content, userId, mentions }) => ({
+      id,
+      content,
+      created,
+      userId,
+      mentions,
+    }))
+  } catch (error) {
+    logger.error(`${CONTROLLER_MESSAGE} getMessages: ${error.message}`)
+    throw new Error(error)
+  }
+}
+
+const getMessageAuthor = async ({ id, userId }, options = {}) => {
+  const CONTROLLER_MESSAGE = `${BASE_MESSAGE} getMessageAuthor:`
+  logger.info(`${CONTROLLER_MESSAGE} Getting author for message ${id}`)
+
+  try {
+    return User.findById(userId)
+  } catch (error) {
+    logger.error(`${CONTROLLER_MESSAGE} getMessageAuthor: ${error.message}`)
+    throw new Error(error)
+  }
+}
+
+const getAttachments = async ({ id }) => {
+  const files = await useTransaction(trx => {
+    return File.query(trx)
+      .select('files.name', 'files.storedObjects')
+      .where({ objectId: id })
+  })
+
+  const filesWithUrl = await Promise.all(
+    files.map(async file => {
+      const url = getFileUrl(file, 'medium')
+      return {
+        url,
+        name: file.name,
+      }
+    }),
+  )
+
+  return filesWithUrl
+}
+
+const cancelEmailNotification = (userId, chatThreadId) => {
+  clearTimeout(globalTimeouts[`${userId}-${chatThreadId}`])
+  return true
+}
+
+module.exports = {
+  createChatThread,
+  getAttachments,
+  getMessages,
+  getMessageAuthor,
+  sendMessage,
+  getMessage,
+  cancelEmailNotification,
+}
