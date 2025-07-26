@@ -5,6 +5,8 @@ module.exports = [
   '@coko/server/src/models/team',
   '@coko/server/src/models/teamMember',
   '@coko/server/src/models/file',
+  '@coko/server/src/models/chatMessage',
+  '@coko/server/src/models/chatChannel',
   '@coko/server/src/services/chatGPT',
   './models/applicationParameter',
   './models/book',
