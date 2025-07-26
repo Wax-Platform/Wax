@@ -1,5 +1,4 @@
 const { logger, clientUrl } = require('@coko/server')
-const moment = require('moment')
 
 const config = require('config')
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -7,7 +6,7 @@ const config = require('config')
 const { sendEmail } = require('@coko/server')
 
 const { ChatThread } = require('@coko/server/src/models')
-const { Question, Identity, User, QuestionVersion } = require('../../../models')
+const { Identity, User } = require('../../../models')
 
 const send = data => {
   const { attachments, content, subject, text, to } = data
