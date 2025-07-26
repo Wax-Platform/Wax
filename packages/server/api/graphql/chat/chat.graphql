@@ -1,0 +1,22 @@
+type Attachment {
+  name: String!
+  url: String!
+}
+
+extend type ChatMessage {
+  created: DateTime!
+  attachments: [Attachment!]
+}
+
+extend input SendChatMessageInput {
+  attachments: [Upload!]
+}
+
+extend type Mutation {
+  createChatThread(input: CreateChatThreadInput!): ChatThread!
+  cancelEmailNotification(chatThreadId: ID!): Boolean!
+}
+
+extend type Subscription {
+  messageCreated(chatThreadId: ID!): ChatMessage!
+}
