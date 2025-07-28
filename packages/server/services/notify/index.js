@@ -47,7 +47,7 @@ class CokoNotifier {
 
   // register known types of notifications with field notifyBy as array with notification types (email, in-app notification, etc)
   mapper = {
-    'hhmi.chatMention': {
+    'waxPlatform.chatMention': {
       notifyBy: ['email', 'notification'],
     },
     // ...

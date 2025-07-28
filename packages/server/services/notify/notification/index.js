@@ -35,6 +35,6 @@ const chatMention = async data => {
 
 module.exports = {
   handlers: {
-    'hhmi.chatMention': chatMention,
+    'waxPlatform.chatMention': chatMention,
   },
 }
