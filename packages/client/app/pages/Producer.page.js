@@ -295,6 +295,36 @@ const ProducerPage = ({ bookId }) => {
     },
   })
 
+  const { data: { chatChannel: authorChatThread } = {}, loading: chatLoading } =
+    useQuery(GET_CHAT_CHANNEL, {
+      variables: {
+        id: '',
+      },
+      fetchPolicy: 'network-only',
+    })
+
+  const { data: { chatThread: productionChatThread } = {} } = useQuery(
+    GET_CHAT_CHANNEL,
+    {
+      variables: {
+        id: '',
+      },
+      fetchPolicy: 'network-only',
+    },
+  )
+
+  useQuery(GET_CHAT_CHANNEL, {
+    variables: {
+      id: '',
+    },
+    fetchPolicy: 'network-only',
+    onCompleted: ({ chatChannel: reviewerChat }) => {
+      // setSelectedReviewerId(currentUser.id)
+      // setReviewerChatMessages(reviewerChat?.messages)
+      // setReviewerChatThread(reviewerChat)
+    },
+  })
+
   const [ragSearch] = useLazyQuery(RAG_SEARCH)
 
   const [getBookSettings] = useLazyQuery(GET_BOOK_SETTINGS, {
