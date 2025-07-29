@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 export const CREATE_CHAT_CHANNEL = gql`
-  mutation CreateChatChannel($input: CreateChatChannelInput!) {
+  mutation CreateChatChannel($input: ChatChannelFilter!) {
     createChatChannel(input: $input) {
       id
     }
@@ -35,7 +35,7 @@ export const GET_CHAT_CHANNEL = gql`
 `
 
 export const FILTER_CHAT_CHANNELS = gql`
-  query ChatChannels($where: CreateChatChannelInput) {
+  query ChatChannels($where: ChatChannelFilter) {
     chatChannels(where: $where) {
       result {
         id
