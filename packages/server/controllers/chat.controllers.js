@@ -1,6 +1,6 @@
 const { logger, useTransaction } = require('@coko/server')
 const { createFile } = require('@coko/server')
-const { ChatThread, ChatMessage, File } = require('@coko/server/src/models')
+const { ChatChannel, ChatMessage, File } = require('@coko/server/src/models')
 const { User } = require('../models')
 const { getFileUrl } = require('./file.controller')
 const CokoNotifier = require('../services/notify')
@@ -9,28 +9,28 @@ const BASE_MESSAGE = '[CHAT CONTROLLER]'
 
 const globalTimeouts = {}
 
-const createChatThread = async (input = {}, options = {}) => {
+const createChatChannel = async (input = {}, options = {}) => {
   const { relatedObjectId, chatType } = input
-  const CONTROLLER_MESSAGE = `${BASE_MESSAGE} createChatThread:`
+  const CONTROLLER_MESSAGE = `${BASE_MESSAGE} createChatChannel:`
   logger.info(
-    `${CONTROLLER_MESSAGE} Create chat thread for question ${relatedObjectId}`,
+    `${CONTROLLER_MESSAGE} Create chat channel for question ${relatedObjectId}`,
   )
 
   try {
     return useTransaction(
       async tr => {
-        return ChatThread.insert({ relatedObjectId, chatType }, { trx: tr })
+        return ChatChannel.insert({ relatedObjectId, chatType }, { trx: tr })
       },
       { trx: options.trx, passedTrxOnly: true },
     )
   } catch (error) {
-    logger.error(`${CONTROLLER_MESSAGE} createChatThread: ${error.message}`)
+    logger.error(`${CONTROLLER_MESSAGE} createChatChannel: ${error.message}`)
     throw new Error(error)
   }
 }
 
 const sendMessage = async (
-  chatThreadId,
+  chatChannelId,
   content,
   userId,
   mentions = [],
@@ -46,11 +46,11 @@ const sendMessage = async (
     const newMessage = await useTransaction(
       async tr => {
         logger.info(
-          `${CONTROLLER_MESSAGE} creating a new message for chat thread with id ${chatThreadId}`,
+          `${CONTROLLER_MESSAGE} creating a new message for chat channel with id ${chatChannelId}`,
         )
 
         const chatMessage = await ChatMessage.insert(
-          { chatThreadId, userId, content, mentions },
+          { chatChannelId, userId, content, mentions },
           { trx: tr, ...restOptions },
         )
 
@@ -63,7 +63,7 @@ const sendMessage = async (
 
     mentions.forEach(mention => {
       // setup a timeout to send emails with delay (and possibility of being canceled)
-      globalTimeouts[`${mention}-${chatThreadId}`] = setTimeout(() => {
+      globalTimeouts[`${mention}-${chatChannelId}`] = setTimeout(() => {
         notifier.notify(
           'waxPlatform.chatMention',
           { mention, newMessage },
@@ -110,13 +110,13 @@ const getMessage = async messageId => {
   return ChatMessage.query().findById(messageId)
 }
 
-const getMessages = async (threadId, options = {}) => {
+const getMessages = async (channelId, options = {}) => {
   const CONTROLLER_MESSAGE = `${BASE_MESSAGE} getMessages:`
-  logger.info(`${CONTROLLER_MESSAGE} Getting messages for thread ${threadId}`)
+  logger.info(`${CONTROLLER_MESSAGE} Getting messages for channel ${channelId}`)
 
   try {
     return (
-      await ChatMessage.query(options.trx).where('chatThreadId', threadId)
+      await ChatMessage.query(options.trx).where('chatChannelId', channelId)
     ).map(({ id, created, content, userId, mentions }) => ({
       id,
       content,
@@ -162,13 +162,13 @@ const getAttachments = async ({ id }) => {
   return filesWithUrl
 }
 
-const cancelEmailNotification = (userId, chatThreadId) => {
-  clearTimeout(globalTimeouts[`${userId}-${chatThreadId}`])
+const cancelEmailNotification = (userId, chatChannelId) => {
+  clearTimeout(globalTimeouts[`${userId}-${chatChannelId}`])
   return true
 }
 
 module.exports = {
-  createChatThread,
+  createChatChannel,
   getAttachments,
   getMessages,
   getMessageAuthor,

@@ -55,6 +55,7 @@ import {
   UPDATE_FILE,
   GET_CHAT_CHANNEL,
   CREATE_CHAT_CHANNEL,
+  FILTER_CHAT_CHANNELS,
 } from '../graphql'
 
 import {
@@ -295,35 +296,15 @@ const ProducerPage = ({ bookId }) => {
     },
   })
 
-  const { data: { chatChannel: authorChatThread } = {}, loading: chatLoading } =
-    useQuery(GET_CHAT_CHANNEL, {
-      variables: {
-        id: '',
-      },
-      fetchPolicy: 'network-only',
-    })
-
-  const { data: { chatThread: productionChatThread } = {} } = useQuery(
-    GET_CHAT_CHANNEL,
+  const { data: chatChannel, loading: chatLoading } = useQuery(
+    FILTER_CHAT_CHANNELS,
     {
       variables: {
-        id: '',
+        filter: { relatedObjectId: selectedChapterId },
       },
       fetchPolicy: 'network-only',
     },
   )
-
-  useQuery(GET_CHAT_CHANNEL, {
-    variables: {
-      id: '',
-    },
-    fetchPolicy: 'network-only',
-    onCompleted: ({ chatChannel: reviewerChat }) => {
-      // setSelectedReviewerId(currentUser.id)
-      // setReviewerChatMessages(reviewerChat?.messages)
-      // setReviewerChatThread(reviewerChat)
-    },
-  })
 
   const [ragSearch] = useLazyQuery(RAG_SEARCH)
 
@@ -1016,6 +997,9 @@ const ProducerPage = ({ bookId }) => {
     .filter(member => !!member)
 
   if (!wsProvider || currentBookComponentContent === null) return null
+  if (chatLoading) return null
+
+  console.log('chat loaded', chatChannel)
 
   return (
     <Editor
@@ -1032,6 +1016,7 @@ const ProducerPage = ({ bookId }) => {
       canInteractWithComments={canInteractWithComments}
       chapters={bookQueryData?.getBook?.divisions[1].bookComponents}
       chaptersActionInProgress={chaptersActionInProgress}
+      chatChannel={chatChannel?.chatChannels?.result[0]}
       comments={savedComments ? JSON.parse(savedComments) : []}
       configurableEditorConfig={
         bookQueryData?.getBook.bookSettings.configurableEditorConfig

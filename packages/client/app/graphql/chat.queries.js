@@ -35,8 +35,8 @@ export const GET_CHAT_CHANNEL = gql`
 `
 
 export const FILTER_CHAT_CHANNELS = gql`
-  query ChatChannels($where: ChatChannelFilter) {
-    chatChannels(where: $where) {
+  query ChatChannels($filter: ChatChannelFilter) {
+    chatChannels(filter: $filter) {
       result {
         id
         created
