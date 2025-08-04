@@ -20,7 +20,7 @@ import {
 } from 'wax-prosemirror-core'
 import { useTranslation } from 'react-i18next'
 import { usePrevious } from '../../../utils'
-import { ChatThread } from '../../chat'
+import ChatThreadComponent from '../../chat/ChatThread'
 import { Button, Checkbox, Result, Spin } from '../../common'
 // import BookPanel from '../../bookPanel/BookPanel'
 
@@ -70,7 +70,7 @@ const Main = styled.div`
   justify-content: center;
   overflow: hidden;
   position: relative;
-  width: 100%;
+  width: ${({ hasChat }) => hasChat ? 'calc(100% - 400px)' : '100%'};
 
   > :nth-child(2) {
     overflow: auto;
@@ -507,6 +507,20 @@ const NoSelectedChapterWrapper = styled.div`
   height: 80%;
   place-content: center;
 `
+
+const ChatThread = styled.div`
+  position: fixed;
+  top: var(--top-menu-base);
+  right: 0;
+  width: 400px;
+  max-width: 400px;
+  height: calc(100vh - var(--top-menu-base));
+  background: white;
+  border-left: 1px solid lightgrey;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+`
 // #endregion styled
 
 const MainMenuToolBar = ComponentPlugin('mainMenuToolBar')
@@ -752,7 +766,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               viewInformation={viewMetadata}
             />
           </TopMenu>
-          <Main>
+          <Main hasChat={true}>
             {!options.fullScreen && (
               <LeftPanelWrapper>
                 <CollapseContainer data-collapsed={bookPanelCollapsed}>
@@ -843,6 +857,17 @@ const LuluLayout = ({ customProps, ...rest }) => {
               </PanelGroup>
             </EditorArea>
           </Main>
+          <ChatThread>
+            <ChatThreadComponent
+              announcementText={'announcementText'}
+              hasMore={false}
+              isActive
+              messages={[]}
+              onFetchMore={() => {}}
+              onSendMessage={() => {}}
+              participants={[]}
+            />
+          </ChatThread>
           <SpinnerWrapper
             // showFilemanager={showFilemanager}
             // position={position}
@@ -853,15 +878,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               title="Loading your document"
             />
           </SpinnerWrapper>
-          <ChatThread
-            announcementText={'announcementText'}
-            hasMore={false}
-            isActive
-            messages={[]}
-            onFetchMore={() => {}}
-            onSendMessage={() => {}}
-            participants={[]}
-          />
+          
           <FileUpload
             deleteFromFileManager={deleteFromFileManager}
             getUserFileManager={getUserFileManager}

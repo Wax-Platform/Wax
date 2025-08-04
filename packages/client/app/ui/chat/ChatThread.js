@@ -12,6 +12,7 @@ const Wrapper = styled.div`
   height: 100%;
   overflow: hidden;
   padding: ${grid(2)};
+  background: white;
 `
 
 const StyledChatMessageList = styled(ChatMessageList)`
