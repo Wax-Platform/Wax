@@ -10,6 +10,7 @@ import {
   ToTopOutlined,
   CaretUpFilled,
   CaretDownFilled,
+  VerticalAlignBottomOutlined,
 } from '@ant-design/icons'
 import {
   ApplicationContext,
@@ -543,7 +544,13 @@ const ChatToggleButton = styled.button`
   transition: right 0.3s ease-in-out;
   width: 40px;
   z-index: 999;
-
+  
+  svg {
+    transform: ${({ isCollapsed }) =>
+      isCollapsed ? 'rotate(90deg)' : 'rotate(-90deg)'};
+    transition: transform 0.3s ease-in-out;
+  }
+  
   &:hover {
     background: #f5f5f5;
   }
@@ -889,9 +896,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
             aria-label={isChatCollapsed ? 'Open chat' : 'Close chat'}
             isCollapsed={isChatCollapsed}
             onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-          >
-            {isChatCollapsed ? '→' : '←'}
-          </ChatToggleButton>
+                      >
+              <VerticalAlignBottomOutlined />
+            </ChatToggleButton>
           <ChatThread isCollapsed={isChatCollapsed}>
             <ChatThreadComponent
               announcementText="announcementText"
