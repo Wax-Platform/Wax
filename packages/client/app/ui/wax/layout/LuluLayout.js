@@ -70,7 +70,8 @@ const Main = styled.div`
   justify-content: center;
   overflow: hidden;
   position: relative;
-  width: ${({ hasChat, isChatCollapsed }) => (hasChat && !isChatCollapsed) ? 'calc(100% - 400px)' : '100%'};
+  width: ${({ hasChat, isChatCollapsed }) =>
+    hasChat && !isChatCollapsed ? 'calc(100% - 400px)' : '100%'};
 
   > :nth-child(2) {
     overflow: auto;
@@ -481,14 +482,14 @@ const EditorContainer = styled.div`
 `
 
 const LeftPanelWrapper = styled.div`
-  left: 0;
-  top: 0;
   background-color: #e8e8e8;
   display: flex;
   flex-direction: column;
   height: 100%;
+  left: 0;
   padding-inline: ${grid(3)} ${grid(3)} ${grid(3)} 0;
   position: absolute;
+  top: 0;
   transition: flex-basis 0.4s, width 0.4s;
   z-index: 1000; // hate it but it's the wax cursor's fault!
 `
@@ -509,38 +510,40 @@ const NoSelectedChapterWrapper = styled.div`
 `
 
 const ChatThread = styled.div`
-  position: fixed;
-  top: 100px;
-  right: ${({ isCollapsed }) => (isCollapsed ? '-400px' : '0')};
-  width: 400px;
-  max-width: 400px;
-  height: calc(100vh - 100px);
   background: ${({ isCollapsed }) => (isCollapsed ? 'transparent' : 'white')};
-  border-left: ${({ isCollapsed }) => (isCollapsed ? 'none' : '1px solid lightgrey')};
-  z-index: 998;
+  border-left: ${({ isCollapsed }) =>
+    isCollapsed ? 'none' : '1px solid lightgrey'};
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
-  transition: right 0.3s ease-in-out, background 0.3s ease-in-out, border-left 0.3s ease-in-out;
+  height: calc(100vh - 100px);
+  max-width: 400px;
+  position: fixed;
+  right: ${({ isCollapsed }) => (isCollapsed ? '-400px' : '0')};
+  top: 100px;
+  transition: right 0.3s ease-in-out background 0.3s ease-in-out,
+    border-left 0.3s ease-in-out;
+  width: 400px;
+  z-index: 998;
 `
 
 const ChatToggleButton = styled.button`
-  position: fixed;
-  top: 100px;
-  right: ${({ isCollapsed }) => (isCollapsed ? '0' : '400px')};
-  width: 40px;
-  height: 40px;
+  align-items: center;
   background: white;
   border: 1px solid lightgrey;
-  border-right: none;
   border-radius: 4px 0 0 4px;
+  border-right: none;
   cursor: pointer;
-  z-index: 999;
   display: flex;
-  align-items: center;
+  height: 40px;
   justify-content: center;
+  position: fixed;
+  right: ${({ isCollapsed }) => (isCollapsed ? '0' : '400px')};
+  top: 100px;
   transition: right 0.3s ease-in-out;
-  
+  width: 40px;
+  z-index: 999;
+
   &:hover {
     background: #f5f5f5;
   }
@@ -791,7 +794,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               viewInformation={viewMetadata}
             />
           </TopMenu>
-          <Main hasChat={true} isChatCollapsed={isChatCollapsed}>
+          <Main hasChat isChatCollapsed={isChatCollapsed}>
             {!options.fullScreen && (
               <LeftPanelWrapper>
                 <CollapseContainer data-collapsed={bookPanelCollapsed}>
@@ -883,15 +886,15 @@ const LuluLayout = ({ customProps, ...rest }) => {
             </EditorArea>
           </Main>
           <ChatToggleButton
+            aria-label={isChatCollapsed ? 'Open chat' : 'Close chat'}
             isCollapsed={isChatCollapsed}
             onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-            aria-label={isChatCollapsed ? 'Open chat' : 'Close chat'}
           >
             {isChatCollapsed ? '→' : '←'}
           </ChatToggleButton>
           <ChatThread isCollapsed={isChatCollapsed}>
             <ChatThreadComponent
-              announcementText={'announcementText'}
+              announcementText="announcementText"
               hasMore={false}
               isActive
               messages={[]}
@@ -910,7 +913,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               title="Loading your document"
             />
           </SpinnerWrapper>
-          
+
           <FileUpload
             deleteFromFileManager={deleteFromFileManager}
             getUserFileManager={getUserFileManager}
