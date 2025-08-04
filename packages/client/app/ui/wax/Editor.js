@@ -4,7 +4,6 @@ import { Wax } from 'wax-prosemirror-core'
 import { isEqual } from 'lodash'
 import YjsContext from '../provider-yjs/YjsProvider'
 import { LuluLayout } from './layout'
-import { ChatThread } from '../chat'
 import configWithAi from './config/configWithAI'
 import YjsService from './config/YjsService'
 
@@ -60,6 +59,7 @@ const EditorWrapper = ({
   deleteFromFileManager,
   updateComponentIdInManager,
   updateFile,
+  chatChannel,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)

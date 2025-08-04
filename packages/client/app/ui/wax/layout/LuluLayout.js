@@ -20,6 +20,7 @@ import {
 } from 'wax-prosemirror-core'
 import { useTranslation } from 'react-i18next'
 import { usePrevious } from '../../../utils'
+import { ChatThread } from '../../chat'
 import { Button, Checkbox, Result, Spin } from '../../common'
 // import BookPanel from '../../bookPanel/BookPanel'
 
@@ -852,6 +853,15 @@ const LuluLayout = ({ customProps, ...rest }) => {
               title="Loading your document"
             />
           </SpinnerWrapper>
+          <ChatThread
+            announcementText={'announcementText'}
+            hasMore={false}
+            isActive
+            messages={[]}
+            onFetchMore={() => {}}
+            onSendMessage={() => {}}
+            participants={[]}
+          />
           <FileUpload
             deleteFromFileManager={deleteFromFileManager}
             getUserFileManager={getUserFileManager}
