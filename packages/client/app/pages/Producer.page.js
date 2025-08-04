@@ -998,7 +998,7 @@ const ProducerPage = ({ bookId }) => {
 
   if (!wsProvider || currentBookComponentContent === null) return null
 
-  console.log(chatChannel)
+  console.log(chatChannel, chatLoading)
 
   return (
     <Editor
@@ -1016,6 +1016,7 @@ const ProducerPage = ({ bookId }) => {
       chapters={bookQueryData?.getBook?.divisions[1].bookComponents}
       chaptersActionInProgress={chaptersActionInProgress}
       chatChannel={chatChannel?.chatChannels?.result[0]}
+      chatLoading={chatLoading}
       comments={savedComments ? JSON.parse(savedComments) : []}
       configurableEditorConfig={
         bookQueryData?.getBook.bookSettings.configurableEditorConfig

@@ -543,14 +543,14 @@ const ChatToggleButton = styled.button`
   top: 100px;
   transition: right 0.3s ease-in-out;
   width: 40px;
-  z-index: 999;
-  
+  z-index: 10;
+
   svg {
     transform: ${({ isCollapsed }) =>
       isCollapsed ? 'rotate(90deg)' : 'rotate(-90deg)'};
     transition: transform 0.3s ease-in-out;
   }
-  
+
   &:hover {
     background: #f5f5f5;
   }
@@ -611,6 +611,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
     uploadToFileManager,
     userFileManagerFiles,
     updateFile,
+    chatChannel,
   } = customProps
 
   const params = useParams()
@@ -896,9 +897,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
             aria-label={isChatCollapsed ? 'Open chat' : 'Close chat'}
             isCollapsed={isChatCollapsed}
             onClick={() => setIsChatCollapsed(!isChatCollapsed)}
-                      >
-              <VerticalAlignBottomOutlined />
-            </ChatToggleButton>
+          >
+            <VerticalAlignBottomOutlined />
+          </ChatToggleButton>
           <ChatThread isCollapsed={isChatCollapsed}>
             <ChatThreadComponent
               announcementText="announcementText"
@@ -910,11 +911,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               participants={[]}
             />
           </ChatThread>
-          <SpinnerWrapper
-            // showFilemanager={showFilemanager}
-            // position={position}
-            showSpinner={showSpinner}
-          >
+          <SpinnerWrapper showSpinner={showSpinner}>
             <Result
               icon={<Spin size={18} spinning />}
               title="Loading your document"

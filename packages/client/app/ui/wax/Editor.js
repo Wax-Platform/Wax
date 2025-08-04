@@ -60,6 +60,7 @@ const EditorWrapper = ({
   updateComponentIdInManager,
   updateFile,
   chatChannel,
+  chatLoading,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -310,6 +311,8 @@ const EditorWrapper = ({
       uploadToFileManager,
       userFileManagerFiles,
       updateFile,
+      chatChannel,
+      chatLoading,
     })
   }, [
     title,
@@ -325,6 +328,7 @@ const EditorWrapper = ({
     aiEnabled,
     loaded,
     userFileManagerFiles,
+    chatChannel,
   ])
 
   const userObject = {
