@@ -997,7 +997,6 @@ const ProducerPage = ({ bookId }) => {
     .filter(member => !!member)
 
   if (!wsProvider || currentBookComponentContent === null) return null
-  if (chatLoading) return null
 
   console.log(chatChannel)
 
@@ -1027,6 +1026,7 @@ const ProducerPage = ({ bookId }) => {
       customPrompts={customPrompts}
       customPromptsOn={customPromptsOn}
       customTags={customTags}
+      deleteFromFileManager={deleteFromFileManager}
       deleteResource={deleteResource}
       // editorKey={key}
       // editorLoading={editorLoading}
@@ -1034,6 +1034,7 @@ const ProducerPage = ({ bookId }) => {
       freeTextPromptsOn={freeTextPromptsOn}
       getBookSettings={getBookSettings}
       getDocTreeData={getDocTreeData}
+      getUserFileManager={getUserFileManager}
       isReadOnly={isReadOnly}
       isUploading={isUploading}
       kbOn={bookQueryData?.getBook.bookSettings.knowledgeBaseOn}
@@ -1054,13 +1055,11 @@ const ProducerPage = ({ bookId }) => {
       setUploading={setUploading}
       setViewMetadata={setViewMetadata}
       title={bookQueryData?.getBook.title}
+      updateComponentIdInManager={updateComponentIdInManager}
+      updateFile={updateFile}
+      uploadToFileManager={uploadToFileManager}
       user={currentUser}
       viewMetadata={viewMetadata}
-      getUserFileManager={getUserFileManager}
-      updateComponentIdInManager={updateComponentIdInManager}
-      uploadToFileManager={uploadToFileManager}
-      deleteFromFileManager={deleteFromFileManager}
-      updateFile={updateFile}
     />
   )
 }
