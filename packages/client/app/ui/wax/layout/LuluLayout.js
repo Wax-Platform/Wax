@@ -515,13 +515,13 @@ const ChatThread = styled.div`
   width: 400px;
   max-width: 400px;
   height: calc(100vh - 100px);
-  background: white;
-  border-left: 1px solid lightgrey;
+  background: ${({ isCollapsed }) => (isCollapsed ? 'transparent' : 'white')};
+  border-left: ${({ isCollapsed }) => (isCollapsed ? 'none' : '1px solid lightgrey')};
   z-index: 998;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  transition: right 0.3s ease-in-out, background 0.3s ease-in-out;
+  transition: right 0.3s ease-in-out, background 0.3s ease-in-out, border-left 0.3s ease-in-out;
 `
 
 const ChatToggleButton = styled.button`
