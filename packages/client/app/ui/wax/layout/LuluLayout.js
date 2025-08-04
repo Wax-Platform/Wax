@@ -70,7 +70,7 @@ const Main = styled.div`
   justify-content: center;
   overflow: hidden;
   position: relative;
-  width: ${({ hasChat }) => hasChat ? 'calc(100% - 400px)' : '100%'};
+  width: ${({ hasChat, isChatCollapsed }) => (hasChat && !isChatCollapsed) ? 'calc(100% - 400px)' : '100%'};
 
   > :nth-child(2) {
     overflow: auto;
@@ -511,7 +511,7 @@ const NoSelectedChapterWrapper = styled.div`
 const ChatThread = styled.div`
   position: fixed;
   top: 100px;
-  right: 0;
+  right: ${({ isCollapsed }) => (isCollapsed ? '-400px' : '0')};
   width: 400px;
   max-width: 400px;
   height: calc(100vh - 100px);
@@ -521,6 +521,29 @@ const ChatThread = styled.div`
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  transition: right 0.3s ease-in-out, background 0.3s ease-in-out;
+`
+
+const ChatToggleButton = styled.button`
+  position: fixed;
+  top: 100px;
+  right: ${({ isCollapsed }) => (isCollapsed ? '0' : '400px')};
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 1px solid lightgrey;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: right 0.3s ease-in-out;
+  
+  &:hover {
+    background: #f5f5f5;
+  }
 `
 // #endregion styled
 
@@ -633,6 +656,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const areNotes = notes && !!notes.length && notes.length > 0
 
   const [hasNotes, setHasNotes] = useState(areNotes)
+  const [isChatCollapsed, setIsChatCollapsed] = useState(false)
 
   const showNotes = () => {
     setHasNotes(areNotes)
@@ -767,7 +791,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               viewInformation={viewMetadata}
             />
           </TopMenu>
-          <Main hasChat={true}>
+          <Main hasChat={true} isChatCollapsed={isChatCollapsed}>
             {!options.fullScreen && (
               <LeftPanelWrapper>
                 <CollapseContainer data-collapsed={bookPanelCollapsed}>
@@ -858,7 +882,14 @@ const LuluLayout = ({ customProps, ...rest }) => {
               </PanelGroup>
             </EditorArea>
           </Main>
-          <ChatThread>
+          <ChatToggleButton
+            isCollapsed={isChatCollapsed}
+            onClick={() => setIsChatCollapsed(!isChatCollapsed)}
+            aria-label={isChatCollapsed ? 'Open chat' : 'Close chat'}
+          >
+            {isChatCollapsed ? '→' : '←'}
+          </ChatToggleButton>
+          <ChatThread isCollapsed={isChatCollapsed}>
             <ChatThreadComponent
               announcementText={'announcementText'}
               hasMore={false}
