@@ -510,16 +510,17 @@ const NoSelectedChapterWrapper = styled.div`
 
 const ChatThread = styled.div`
   position: fixed;
-  top: var(--top-menu-base);
+  top: 100px;
   right: 0;
   width: 400px;
   max-width: 400px;
-  height: calc(100vh - var(--top-menu-base));
+  height: calc(100vh - 100px);
   background: white;
   border-left: 1px solid lightgrey;
-  z-index: 1000;
+  z-index: 998;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 `
 // #endregion styled
 
