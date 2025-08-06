@@ -767,8 +767,6 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
-  console.log(chatChannel)
-
   return (
     <ThemeProvider theme={theme}>
       {viewMetadata !== '' ? (

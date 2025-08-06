@@ -298,7 +298,6 @@ const ProducerPage = ({ bookId }) => {
     },
   })
 
-
   const {
     data: chatChannel,
     loading: chatLoading,
@@ -311,41 +310,6 @@ const ProducerPage = ({ bookId }) => {
   })
 
   const [sendMessage] = useMutation(SEND_MESSAGE, {
-    update: (cache, { data }) => {
-      if (data?.sendChatMessage) {
-        // Update the chat channel cache to include the new message
-        const chatChannelId = data.sendChatMessage.chatChannelId
-        const existingData = cache.readQuery({
-          query: FILTER_CHAT_CHANNELS,
-          variables: {
-            filter: { relatedObjectId: selectedChapterId },
-          },
-        })
-
-        if (existingData?.chatChannels?.result?.[0]) {
-          const updatedChannel = {
-            ...existingData.chatChannels.result[0],
-            messages: [
-              ...(existingData.chatChannels.result[0].messages || []),
-              data.sendChatMessage,
-            ],
-          }
-
-          cache.writeQuery({
-            query: FILTER_CHAT_CHANNELS,
-            variables: {
-              filter: { relatedObjectId: selectedChapterId },
-            },
-            data: {
-              chatChannels: {
-                ...existingData.chatChannels,
-                result: [updatedChannel],
-              },
-            },
-          })
-        }
-      }
-    },
     refetchQueries: [
       {
         query: FILTER_CHAT_CHANNELS,
@@ -533,13 +497,14 @@ const ProducerPage = ({ bookId }) => {
   })
 
   // Subscribe to new chat messages
+
   useSubscription(MESSAGE_CREATED_SUBSCRIPTION, {
     variables: {
       chatChannelId: chatChannel?.chatChannels?.result?.[0]?.id,
     },
     skip: !chatChannel?.chatChannels?.result?.[0]?.id,
     onData: ({ data }) => {
-      if (data?.messageCreated) {
+      if (data?.data?.messageCreated) {
         // Refetch the chat channels to get the updated messages
         refetchChatChannels()
       }
@@ -1127,7 +1092,7 @@ const ProducerPage = ({ bookId }) => {
       chatChannel={chatChannel?.chatChannels?.result[0]}
       chatLoading={chatLoading}
       chatMessages={messagesApiToUi(
-        chatChannel?.chatChannels?.result[0].messages,
+        chatChannel?.chatChannels?.result[0]?.messages || [],
         currentUser?.id,
       )}
       comments={savedComments ? JSON.parse(savedComments) : []}

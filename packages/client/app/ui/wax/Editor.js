@@ -333,6 +333,7 @@ const EditorWrapper = ({
     loaded,
     userFileManagerFiles,
     chatChannel,
+    chatMessages,
   ])
 
   const userObject = {

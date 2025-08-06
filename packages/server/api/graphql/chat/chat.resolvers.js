@@ -48,6 +48,9 @@ const sendChatMessageResolver = async (_, { input }, ctx) => {
       attachments,
     )
 
+    console.log('Publishing message to subscription:', `${actions.MESSAGE_CREATED}.${chatChannelId}`)
+    console.log('Message ID:', message.id)
+    
     // const pubsub = await getPubsub()
     subscriptionManager.publish(
       `${actions.MESSAGE_CREATED}.${chatChannelId}`,
@@ -122,6 +125,9 @@ module.exports = {
         return null
       },
       subscribe: async (_payload, vars) => {
+        console.log('Setting up subscription for chatChannelId:', vars.chatChannelId)
+        console.log('Subscription topic:', `${actions.MESSAGE_CREATED}.${vars.chatChannelId}`)
+        
         // const pubsub = await getPubsub()
 
         return subscriptionManager.asyncIterator(
