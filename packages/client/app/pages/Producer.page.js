@@ -53,8 +53,9 @@ import {
   DELETE_FROM_FILEMANAGER,
   UPDATE_COMPONENT_ID_IN_FILEMANAGER,
   UPDATE_FILE,
-  GET_CHAT_CHANNEL,
-  CREATE_CHAT_CHANNEL,
+  // GET_CHAT_CHANNEL,
+  // CREATE_CHAT_CHANNEL,
+  SEND_MESSAGE,
   FILTER_CHAT_CHANNELS,
 } from '../graphql'
 
@@ -305,6 +306,40 @@ const ProducerPage = ({ bookId }) => {
       fetchPolicy: 'network-only',
     },
   )
+
+  const [sendMessage] = useMutation(SEND_MESSAGE)
+
+  const onSendChatMessage = async (content, mentions, attachments) => {
+    return handleSendChatMessage(
+      content,
+      mentions,
+      attachments,
+      chatChannel?.chatChannels?.result[0].id,
+    )
+  }
+
+  const handleSendChatMessage = async (
+    content,
+    mentions,
+    attachments,
+    chatThreadId,
+  ) => {
+    const fileObjects = attachments.map(attachment => attachment.originFileObj)
+
+    const mutationData = {
+      variables: {
+        input: {
+          content,
+          chatThreadId,
+          userId: currentUser.id,
+          mentions,
+          attachments: fileObjects,
+        },
+      },
+    }
+
+    return sendMessage(mutationData)
+  }
 
   const [ragSearch] = useLazyQuery(RAG_SEARCH)
 
@@ -1043,6 +1078,7 @@ const ProducerPage = ({ bookId }) => {
       onImageUpload={handleImageUpload}
       onMention={handleMentions}
       onPeriodicTitleChange={onPeriodicTitleChange} // WE KEEP
+      onSendChatMessage={onSendChatMessage}
       onSubmitBookMetadata={onSubmitBookMetadata}
       onUploadBookCover={handleUploadBookCover}
       onUploadChapter={onUploadChapter}

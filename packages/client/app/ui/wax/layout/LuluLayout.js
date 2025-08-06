@@ -1,3 +1,4 @@
+/* stylelint-disable selector-type-no-unknown */
 /* stylelint-disable no-descending-specificity, string-quotes */
 import React, { useContext, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
@@ -424,13 +425,13 @@ const EditorContainer = styled.div`
     width: calc(100% - 20px);
 
     footnote {
-      position: relative;
-      top: 4px;
-      color: white;
       background-color: black;
       border: 2px solid black;
+      color: white;
+      position: relative;
+      top: 4px;
 
-      &:after {
+      &::after {
         bottom: 5px;
       }
     }
@@ -612,6 +613,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
     userFileManagerFiles,
     updateFile,
     chatChannel,
+    onSendChatMessage,
   } = customProps
 
   const params = useParams()
@@ -907,7 +909,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               isActive
               messages={[]}
               onFetchMore={() => {}}
-              onSendMessage={() => {}}
+              onSendMessage={onSendChatMessage}
               participants={[]}
             />
           </ChatThread>
