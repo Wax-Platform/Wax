@@ -614,6 +614,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
     updateFile,
     chatChannel,
     onSendChatMessage,
+    chatMessages,
   } = customProps
 
   const params = useParams()
@@ -766,6 +767,8 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
+  console.log(chatChannel)
+
   return (
     <ThemeProvider theme={theme}>
       {viewMetadata !== '' ? (
@@ -907,7 +910,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               announcementText="announcementText"
               hasMore={false}
               isActive
-              messages={[]}
+              messages={chatMessages}
               onFetchMore={() => {}}
               onSendMessage={onSendChatMessage}
               participants={[]}

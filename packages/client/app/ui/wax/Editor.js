@@ -62,6 +62,7 @@ const EditorWrapper = ({
   updateFile,
   chatChannel,
   chatLoading,
+  chatMessages,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -314,6 +315,7 @@ const EditorWrapper = ({
       userFileManagerFiles,
       updateFile,
       chatChannel,
+      chatMessages,
       chatLoading,
     })
   }, [

@@ -587,6 +587,29 @@ const ProducerPage = ({ bookId }) => {
     })
   }
 
+  const messagesApiToUi = (messages, currentUserId = null) => {
+    return messages
+      ? messages.map(
+          ({
+            id,
+            created,
+            content,
+            user: { id: userId, displayName } = {},
+            attachments,
+          }) => {
+            return {
+              id,
+              content,
+              date: created,
+              own: userId === currentUserId,
+              user: displayName,
+              attachments,
+            }
+          },
+        )
+      : []
+  }
+
   const getBodyDivisionId = () => {
     if (bookQueryData) {
       const { getBook } = bookQueryData
@@ -1054,6 +1077,10 @@ const ProducerPage = ({ bookId }) => {
       chaptersActionInProgress={chaptersActionInProgress}
       chatChannel={chatChannel?.chatChannels?.result[0]}
       chatLoading={chatLoading}
+      chatMessages={messagesApiToUi(
+        chatChannel?.chatChannels?.result[0].messages,
+        currentUser?.id,
+      )}
       comments={savedComments ? JSON.parse(savedComments) : []}
       configurableEditorConfig={
         bookQueryData?.getBook.bookSettings.configurableEditorConfig
