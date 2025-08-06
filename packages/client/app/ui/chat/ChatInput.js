@@ -171,26 +171,6 @@ const ChatInput = props => {
           data={[...new Set(participants.filter(p => p.id !== currentUser.id))]}
           displayTransform={(_, display) => `@${display}`}
           renderSuggestion={entry => {
-            if (entry.role === 'author') {
-              return <span>{`${entry.display} (Author)`}</span>
-            }
-
-            if (entry.role === 'editor') {
-              return <span>{`${entry.display} (ME)`}</span>
-            }
-
-            if (entry.role === 'handlingEditor') {
-              return <span>{`${entry.display} (HE)`}</span>
-            }
-
-            if (entry.role === 'production') {
-              return <span>{`${entry.display} (Production)`}</span>
-            }
-
-            if (entry.role === 'reviewer') {
-              return <span>{`${entry.display} (Reviewer)`}</span>
-            }
-
             return <span>{entry.display}</span>
           }}
           trigger="@"

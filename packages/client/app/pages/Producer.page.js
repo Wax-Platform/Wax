@@ -321,7 +321,6 @@ const ProducerPage = ({ bookId }) => {
   })
 
   const onSendChatMessage = async (content, mentions, attachments) => {
-    console.log('attachments', attachments)
     return handleSendChatMessage(
       content,
       mentions,
@@ -1072,8 +1071,6 @@ const ProducerPage = ({ bookId }) => {
     .filter(member => !!member)
 
   if (!wsProvider || currentBookComponentContent === null) return null
-
-  console.log(chatChannel, chatLoading)
 
   return (
     <Editor
