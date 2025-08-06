@@ -625,7 +625,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true)
   const [showComments, setShowComments] = useState(true)
   const previousComments = usePrevious(savedComments)
-  const { showSpinner } = useContext(YjsContext)
+  const { showSpinner, sharedUsers } = useContext(YjsContext)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
 
   const context = useContext(WaxContext)

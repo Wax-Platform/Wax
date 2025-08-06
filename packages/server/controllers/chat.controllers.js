@@ -1,7 +1,14 @@
 const { logger, useTransaction } = require('@coko/server')
 const { createFile } = require('@coko/server')
-const { ChatChannel, ChatMessage, File, User } = require('@coko/server/src/models')
-const { getFileUrl } = require('./file.controller')
+
+const {
+  ChatChannel,
+  ChatMessage,
+  File,
+  User,
+} = require('@coko/server/src/models')
+
+const { getChatFileURL } = require('./file.controller')
 const CokoNotifier = require('../services/notify')
 
 const BASE_MESSAGE = '[CHAT CONTROLLER]'
@@ -90,7 +97,7 @@ const sendMessage = async (
 
     const attachmentsWithUrl = await Promise.all(
       uploadedAttachments.map(async file => {
-        const url = getFileUrl(file, 'medium')
+        const url = getChatFileURL(file, 'medium')
         return {
           url,
           name: file.name,
@@ -150,7 +157,7 @@ const getAttachments = async ({ id }) => {
 
   const filesWithUrl = await Promise.all(
     files.map(async file => {
-      const url = getFileUrl(file, 'medium')
+      const url = getChatFileURL(file, 'medium')
       return {
         url,
         name: file.name,

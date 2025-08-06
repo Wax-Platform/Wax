@@ -321,6 +321,7 @@ const ProducerPage = ({ bookId }) => {
   })
 
   const onSendChatMessage = async (content, mentions, attachments) => {
+    console.log('attachments', attachments)
     return handleSendChatMessage(
       content,
       mentions,
