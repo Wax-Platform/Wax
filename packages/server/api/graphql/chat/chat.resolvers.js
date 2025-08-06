@@ -9,7 +9,7 @@ const {
   getMessages,
   getMessageAuthor,
   getAttachments,
-  sendChatMessage,
+  sendMessage,
   getMessage,
   cancelEmailNotification,
 } = require('../../../controllers/chat.controllers')
@@ -38,7 +38,7 @@ const sendChatMessageResolver = async (_, { input }, ctx) => {
   try {
     const { chatChannelId, content, userId, mentions, attachments } = input
 
-    const message = await sendChatMessage(
+    const message = await sendMessage(
       chatChannelId,
       content,
       userId,

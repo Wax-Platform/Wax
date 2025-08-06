@@ -322,7 +322,7 @@ const ProducerPage = ({ bookId }) => {
     content,
     mentions,
     attachments,
-    chatThreadId,
+    chatChannelId,
   ) => {
     const fileObjects = attachments.map(attachment => attachment.originFileObj)
 
@@ -330,7 +330,7 @@ const ProducerPage = ({ bookId }) => {
       variables: {
         input: {
           content,
-          chatThreadId,
+          chatChannelId,
           userId: currentUser.id,
           mentions,
           attachments: fileObjects,
