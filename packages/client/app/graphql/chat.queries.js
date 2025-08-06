@@ -64,7 +64,7 @@ export const FILTER_CHAT_CHANNELS = gql`
 
 export const SEND_MESSAGE = gql`
   mutation SendMessage($input: SendChatMessageInput!) {
-    sendMessage(input: $input) {
+    sendChatMessage(input: $input) {
       id
       chatChannelId
       content
