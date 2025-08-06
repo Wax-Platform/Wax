@@ -14,4 +14,7 @@ module.exports = {
     USER_CONTROLLER: '[USER CONTROLLER] -',
     EXPORT_PROFILE_CONTROLLER: '[EXPORT PROFILE CONTROLLER] -',
   },
+  actions: {
+    MESSAGE_CREATED: 'MESSAGE_CREATED',
+  },
 }
