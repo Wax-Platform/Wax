@@ -1,7 +1,6 @@
 const { logger, useTransaction } = require('@coko/server')
 const { createFile } = require('@coko/server')
-const { ChatChannel, ChatMessage, File } = require('@coko/server/src/models')
-const { User } = require('../models')
+const { ChatChannel, ChatMessage, File, User } = require('@coko/server/src/models')
 const { getFileUrl } = require('./file.controller')
 const CokoNotifier = require('../services/notify')
 
@@ -162,6 +161,30 @@ const getAttachments = async ({ id }) => {
   return filesWithUrl
 }
 
+const getChatChannel = async (id, options = {}) => {
+  try {
+    const { trx, ...restOptions } = options
+    return useTransaction(
+      async tr => {
+        logger.info(
+          `${BASE_MESSAGE} getChatChannel: fetching chat Channel with id ${id}`,
+        )
+        return ChatChannel.query(tr).findById(id)
+      },
+      { trx, passedTrxOnly: true },
+    )
+  } catch (e) {
+    logger.error(`${BASE_MESSAGE} getChatChannel: ${e.message}`)
+    throw new Error(e)
+  }
+}
+
+const getChatChannels = async (where = {}, options = {}) => {
+  const { trx, ...rest } = options
+  const result = await ChatChannel.query(trx).where(where)
+  return result
+}
+
 const cancelEmailNotification = (userId, chatChannelId) => {
   clearTimeout(globalTimeouts[`${userId}-${chatChannelId}`])
   return true
@@ -175,4 +198,6 @@ module.exports = {
   sendMessage,
   getMessage,
   cancelEmailNotification,
+  getChatChannel,
+  getChatChannels,
 }

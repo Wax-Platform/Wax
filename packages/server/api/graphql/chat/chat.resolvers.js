@@ -12,6 +12,8 @@ const {
   sendMessage,
   getMessage,
   cancelEmailNotification,
+  getChatChannel,
+  getChatChannels,
 } = require('../../../controllers/chat.controllers')
 
 const createChatChannelResolver = async (_, { input }) => {
@@ -76,7 +78,28 @@ const cancelEmailNotificationResolver = (_, { chatChannelId }, ctx) => {
   return cancelEmailNotification(ctx.user, chatChannelId)
 }
 
+const chatChannelResolver = async (_, { id }, ctx) => {
+  try {
+    return getChatChannel(id)
+  } catch (e) {
+    throw new Error(e)
+  }
+}
+
+const chatChannelsResolver = async (_, { filter }, ctx) => {
+  try {
+    const channels = await getChatChannels(filter)
+    return { result: channels }
+  } catch (e) {
+    throw new Error(e)
+  }
+}
+
 module.exports = {
+  Query: {
+    chatChannel: chatChannelResolver,
+    chatChannels: chatChannelsResolver,
+  },
   ChatChannel: {
     messages: messagesResolver,
   },

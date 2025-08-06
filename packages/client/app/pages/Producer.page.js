@@ -297,6 +297,8 @@ const ProducerPage = ({ bookId }) => {
     },
   })
 
+  console.log(selectedChapterId, 'selected')
+
   const { data: chatChannel, loading: chatLoading } = useQuery(
     FILTER_CHAT_CHANNELS,
     {
