@@ -26,8 +26,9 @@ export const GET_CHAT_CHANNEL = gql`
         }
         mentions
         attachments {
+          id
           name
-          url
+          url(size: medium)
         }
       }
     }
@@ -53,8 +54,9 @@ export const FILTER_CHAT_CHANNELS = gql`
           }
           mentions
           attachments {
+            id
             name
-            url
+            url(size: medium)
           }
         }
       }
@@ -71,8 +73,9 @@ export const SEND_MESSAGE = gql`
       isDeleted
       mentions
       attachments {
+        id
         name
-        url
+        url(size: medium)
       }
     }
   }
@@ -91,8 +94,9 @@ export const MESSAGE_CREATED_SUBSCRIPTION = gql`
       }
       mentions
       attachments {
+        id
         name
-        url
+        url(size: medium)
       }
     }
   }

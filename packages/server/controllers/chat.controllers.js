@@ -95,17 +95,7 @@ const sendMessage = async (
       }),
     )
 
-    const attachmentsWithUrl = await Promise.all(
-      uploadedAttachments.map(async file => {
-        const url = getChatFileURL(file, 'medium')
-        return {
-          url,
-          name: file.name,
-        }
-      }),
-    )
-
-    return { ...newMessage, attachments: attachmentsWithUrl }
+    return { ...newMessage, attachments: uploadedAttachments }
   } catch (e) {
     logger.error(`${CONTROLLER_MESSAGE} ${e.message}`)
     throw new Error(e)
@@ -151,21 +141,11 @@ const getMessageAuthor = async ({ id, userId }, options = {}) => {
 const getAttachments = async ({ id }) => {
   const files = await useTransaction(trx => {
     return File.query(trx)
-      .select('files.name', 'files.storedObjects')
+      .select('files.id', 'files.name', 'files.storedObjects')
       .where({ objectId: id })
   })
 
-  const filesWithUrl = await Promise.all(
-    files.map(async file => {
-      const url = getChatFileURL(file, 'medium')
-      return {
-        url,
-        name: file.name,
-      }
-    }),
-  )
-
-  return filesWithUrl
+  return files
 }
 
 const getChatChannel = async (id, options = {}) => {

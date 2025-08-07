@@ -34,7 +34,7 @@ const GET_BOOK_COMPONENT = gql`
           id
           user {
             id
-            givenNames
+            displayName
           }
         }
       }

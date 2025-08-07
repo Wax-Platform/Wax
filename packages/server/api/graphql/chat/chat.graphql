@@ -1,11 +1,6 @@
-type Attachment {
-  name: String!
-  url: String!
-}
-
 extend type ChatMessage {
   created: DateTime!
-  attachments: [Attachment!]
+  attachments: [File!]
 }
 
 extend input SendChatMessageInput {
