@@ -27,6 +27,17 @@ const GET_BOOK_COMPONENT = gql`
       trackChangesEnabled
       uploading
       status
+      teams {
+        id
+        role
+        members {
+          id
+          user {
+            id
+            givenNames
+          }
+        }
+      }
       lock {
         userId
         created

@@ -1072,6 +1072,8 @@ const ProducerPage = ({ bookId }) => {
 
   if (!wsProvider || currentBookComponentContent === null) return null
 
+  console.log('chatChannel', chatChannel)
+
   return (
     <Editor
       addComments={handleAddingComments}

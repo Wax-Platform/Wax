@@ -103,7 +103,7 @@ const StyledPopup = styled(Popup)`
     right: 12px;
     top: -7px;
     width: 16px;
-    z-index: 1;
+    z-index: 9999;
   }
 
   &::before {
@@ -163,9 +163,12 @@ const OtherUsers = ({ currentUser }) => {
         .filter(({ user }) => user.id !== currentUser?.id)
         .map(({ user }) => (
           <li key={user.id}>
-            <StyledAvatar style={{ backgroundColor: user.color, color: '#000' }} data-test="avatar-initials">
-                  {getInitials(user.displayName)}
-                </StyledAvatar>
+            <StyledAvatar
+              style={{ backgroundColor: user.color, color: '#000' }}
+              data-test="avatar-initials"
+            >
+              {getInitials(user.displayName)}
+            </StyledAvatar>
             {/* <ColoredCircle color={user.color} size="35px" />{' '}
               <span>{user.displayName}</span>{' '} */}
           </li>
@@ -200,7 +203,7 @@ const Header = props => {
     keyPrefix: 'pages.common.header.menu.options',
   })
 
-  const userDisplayName=currentUser ? currentUser.displayName : ''
+  const userDisplayName = currentUser ? currentUser.displayName : ''
 
   const navItemsLeft = []
 
@@ -208,9 +211,8 @@ const Header = props => {
   const bookComponentId = match?.[1] || null
 
   const to = bookComponentId ? `/document/${bookComponentId}` : '/'
-  
-  if (showBackToBook) {
 
+  if (showBackToBook) {
     navItemsLeft.push(
       <UnstyledLink
         data-test="header-back-link"

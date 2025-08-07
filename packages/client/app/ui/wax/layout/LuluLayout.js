@@ -526,7 +526,7 @@ const ChatThread = styled.div`
   transition: right 0.3s ease-in-out background 0.3s ease-in-out,
     border-left 0.3s ease-in-out;
   width: 400px;
-  z-index: 998;
+  z-index: 1;
 `
 
 const ChatToggleButton = styled.button`
@@ -642,6 +642,8 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const menuContainsTrackTools = !!waxMenuConfig[0].toolGroups.find(
     menu => menu === 'TrackingAndEditing',
   )
+
+  console.log(sharedUsers)
 
   if (options.fullScreen) {
     fullScreenStyles = {
