@@ -63,6 +63,7 @@ const EditorWrapper = ({
   chatChannel,
   chatLoading,
   chatMessages,
+  currentBookComponentUsers,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -317,6 +318,7 @@ const EditorWrapper = ({
       chatChannel,
       chatMessages,
       chatLoading,
+      currentBookComponentUsers,
     })
   }, [
     title,
@@ -333,6 +335,7 @@ const EditorWrapper = ({
     loaded,
     userFileManagerFiles,
     chatChannel,
+    currentBookComponentUsers,
   ])
 
   const userObject = {

@@ -612,9 +612,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
     uploadToFileManager,
     userFileManagerFiles,
     updateFile,
-    chatChannel,
     onSendChatMessage,
     chatMessages,
+    currentBookComponentUsers,
   } = customProps
 
   const params = useParams()
@@ -625,7 +625,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true)
   const [showComments, setShowComments] = useState(true)
   const previousComments = usePrevious(savedComments)
-  const { showSpinner, sharedUsers } = useContext(YjsContext)
+  const { showSpinner } = useContext(YjsContext)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
 
   const context = useContext(WaxContext)
@@ -642,8 +642,6 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const menuContainsTrackTools = !!waxMenuConfig[0].toolGroups.find(
     menu => menu === 'TrackingAndEditing',
   )
-
-  console.log(sharedUsers)
 
   if (options.fullScreen) {
     fullScreenStyles = {
@@ -676,6 +674,25 @@ const LuluLayout = ({ customProps, ...rest }) => {
 
   const showNotes = () => {
     setHasNotes(areNotes)
+  }
+
+  const extractUsers = teams => {
+    const users = []
+
+    teams.forEach(team => {
+      if (Array.isArray(team.members)) {
+        team.members.forEach(member => {
+          if (member.user) {
+            users.push({
+              id: member.user.id,
+              display: member.user.displayName,
+            })
+          }
+        })
+      }
+    })
+
+    return users
   }
 
   useCallback(
@@ -913,7 +930,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               messages={chatMessages}
               onFetchMore={() => {}}
               onSendMessage={onSendChatMessage}
-              participants={[]}
+              participants={extractUsers(currentBookComponentUsers)}
             />
           </ChatThread>
           <SpinnerWrapper showSpinner={showSpinner}>

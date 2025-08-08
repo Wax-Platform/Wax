@@ -160,6 +160,8 @@ const ProducerPage = ({ bookId }) => {
   const [currentBookComponentContent, setCurrentBookComponentContent] =
     useState(null)
 
+  const [currentBookComponentUsers, setCurrentBookComponentUsers] = useState([])
+
   // const token = localStorage.getItem('token')
 
   useEffect(() => {
@@ -238,6 +240,7 @@ const ProducerPage = ({ bookId }) => {
         ) {
           setCurrentBookComponentContent(data.getBookComponent.content)
         } else {
+          setCurrentBookComponentUsers(data.getBookComponent.teams)
           setCurrentBookComponentContent('')
         }
 
@@ -1072,8 +1075,6 @@ const ProducerPage = ({ bookId }) => {
 
   if (!wsProvider || currentBookComponentContent === null) return null
 
-  console.log('chatChannel', chatChannel)
-
   return (
     <Editor
       addComments={handleAddingComments}
@@ -1102,6 +1103,7 @@ const ProducerPage = ({ bookId }) => {
       configurableEditorOn={
         bookQueryData?.getBook.bookSettings.configurableEditorOn
       }
+      currentBookComponentUsers={currentBookComponentUsers}
       customPrompts={customPrompts}
       customPromptsOn={customPromptsOn}
       customTags={customTags}
