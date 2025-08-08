@@ -75,7 +75,7 @@ module.exports = {
   useGraphQLServer: true,
   useFileStorage: true,
   tokenExpiresIn: '360 days',
-  pool: { min: 0, max: 100, idleTimeoutMillis: 1000 },
+  pool: { min: 0, max: 100, idleTimeoutMillis: 30000 },
   teams: flavorTeams,
   tempDirectoryCleanUp: true,
   devServerIgnore: ['./templates/*', './uploads/*'],

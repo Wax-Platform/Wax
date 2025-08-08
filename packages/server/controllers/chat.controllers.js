@@ -111,14 +111,43 @@ const getMessages = async (channelId, options = {}) => {
   logger.info(`${CONTROLLER_MESSAGE} Getting messages for channel ${channelId}`)
 
   try {
-    return (
-      await ChatMessage.query(options.trx).where('chatChannelId', channelId)
-    ).map(({ id, created, content, userId, mentions }) => ({
+    const messages = await ChatMessage.query(options.trx).where('chatChannelId', channelId)
+    logger.info(`${CONTROLLER_MESSAGE} Found ${messages.length} messages`)
+    
+    // Get all message IDs
+    const messageIds = messages.map(msg => msg.id)
+    
+    // Batch fetch all attachments for all messages
+    let allAttachments = []
+    if (messageIds.length > 0) {
+      try {
+        allAttachments = await File.query(options.trx)
+          .select('files.id', 'files.name', 'files.storedObjects', 'files.objectId')
+          .whereIn('objectId', messageIds)
+        logger.info(`${CONTROLLER_MESSAGE} Found ${allAttachments.length} attachments`)
+      } catch (attachmentError) {
+        logger.error(`${CONTROLLER_MESSAGE} Error fetching attachments: ${attachmentError.message}`)
+        allAttachments = []
+      }
+    }
+    
+    // Group attachments by message ID
+    const attachmentsByMessageId = {}
+    allAttachments.forEach(file => {
+      if (!attachmentsByMessageId[file.objectId]) {
+        attachmentsByMessageId[file.objectId] = []
+      }
+      attachmentsByMessageId[file.objectId].push(file)
+    })
+    
+    // Map messages with their attachments
+    return messages.map(({ id, created, content, userId, mentions }) => ({
       id,
       content,
       created,
       userId,
       mentions,
+      attachments: attachmentsByMessageId[id] || []
     }))
   } catch (error) {
     logger.error(`${CONTROLLER_MESSAGE} getMessages: ${error.message}`)
@@ -139,13 +168,33 @@ const getMessageAuthor = async ({ id, userId }, options = {}) => {
 }
 
 const getAttachments = async ({ id }) => {
-  const files = await useTransaction(trx => {
-    return File.query(trx)
+  try {
+    const files = await File.query()
       .select('files.id', 'files.name', 'files.storedObjects')
       .where({ objectId: id })
-  })
 
-  return files
+    return files || []
+  } catch (error) {
+    logger.error(`${BASE_MESSAGE} getAttachments: ${error.message}`)
+    
+    // If it's a connection pool error, wait a bit and retry once
+    if (error.message.includes('too many clients already')) {
+      logger.info(`${BASE_MESSAGE} getAttachments: Retrying after connection pool error`)
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      try {
+        const files = await File.query()
+          .select('files.id', 'files.name', 'files.storedObjects')
+          .where({ objectId: id })
+        return files || []
+      } catch (retryError) {
+        logger.error(`${BASE_MESSAGE} getAttachments retry failed: ${retryError.message}`)
+        return []
+      }
+    }
+    
+    return []
+  }
 }
 
 const getChatChannel = async (id, options = {}) => {

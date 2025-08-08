@@ -33,6 +33,10 @@ const userResolver = async message => {
 }
 
 const attachmentResolver = async message => {
+  if (message.attachments) {
+    return message.attachments
+  }
+  
   return getAttachments(message)
 }
 
