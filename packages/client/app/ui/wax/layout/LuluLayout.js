@@ -1,3 +1,4 @@
+/* stylelint-disable selector-type-no-unknown */
 /* stylelint-disable no-descending-specificity, string-quotes */
 import React, { useContext, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
@@ -10,6 +11,7 @@ import {
   ToTopOutlined,
   CaretUpFilled,
   CaretDownFilled,
+  VerticalAlignBottomOutlined,
 } from '@ant-design/icons'
 import {
   ApplicationContext,
@@ -20,6 +22,7 @@ import {
 } from 'wax-prosemirror-core'
 import { useTranslation } from 'react-i18next'
 import { usePrevious } from '../../../utils'
+import ChatThreadComponent from '../../chat/ChatThread'
 import { Button, Checkbox, Result, Spin } from '../../common'
 // import BookPanel from '../../bookPanel/BookPanel'
 
@@ -69,7 +72,8 @@ const Main = styled.div`
   justify-content: center;
   overflow: hidden;
   position: relative;
-  width: 100%;
+  width: ${({ hasChat, isChatCollapsed }) =>
+    hasChat && !isChatCollapsed ? 'calc(100% - 400px)' : '100%'};
 
   > :nth-child(2) {
     overflow: auto;
@@ -421,13 +425,13 @@ const EditorContainer = styled.div`
     width: calc(100% - 20px);
 
     footnote {
-      position: relative;
-      top: 4px;
-      color: white;
       background-color: black;
       border: 2px solid black;
+      color: white;
+      position: relative;
+      top: 4px;
 
-      &:after {
+      &::after {
         bottom: 5px;
       }
     }
@@ -480,14 +484,14 @@ const EditorContainer = styled.div`
 `
 
 const LeftPanelWrapper = styled.div`
-  left: 0;
-  top: 0;
   background-color: #e8e8e8;
   display: flex;
   flex-direction: column;
   height: 100%;
+  left: 0;
   padding-inline: ${grid(3)} ${grid(3)} ${grid(3)} 0;
   position: absolute;
+  top: 0;
   transition: flex-basis 0.4s, width 0.4s;
   z-index: 1000; // hate it but it's the wax cursor's fault!
 `
@@ -505,6 +509,52 @@ const NoSelectedChapterWrapper = styled.div`
   font-size: 16px;
   height: 80%;
   place-content: center;
+`
+
+const ChatThread = styled.div`
+  background: ${({ isCollapsed }) => (isCollapsed ? 'transparent' : 'white')};
+  border-left: ${({ isCollapsed }) =>
+    isCollapsed ? 'none' : '1px solid lightgrey'};
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  max-width: 400px;
+  position: fixed;
+  right: ${({ isCollapsed }) => (isCollapsed ? '-400px' : '0')};
+  top: 100px;
+  transition: right 0.3s ease-in-out background 0.3s ease-in-out,
+    border-left 0.3s ease-in-out;
+  width: 400px;
+  z-index: 1;
+`
+
+const ChatToggleButton = styled.button`
+  align-items: center;
+  background: white;
+  border: 1px solid lightgrey;
+  border-radius: 4px 0 0 4px;
+  border-right: none;
+  cursor: pointer;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  position: fixed;
+  right: ${({ isCollapsed }) => (isCollapsed ? '0' : '400px')};
+  top: 100px;
+  transition: right 0.3s ease-in-out;
+  width: 40px;
+  z-index: 10;
+
+  svg {
+    transform: ${({ isCollapsed }) =>
+      isCollapsed ? 'rotate(90deg)' : 'rotate(-90deg)'};
+    transition: transform 0.3s ease-in-out;
+  }
+
+  &:hover {
+    background: #f5f5f5;
+  }
 `
 // #endregion styled
 
@@ -562,6 +612,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
     uploadToFileManager,
     userFileManagerFiles,
     updateFile,
+    onSendChatMessage,
+    chatMessages,
+    currentBookComponentUsers,
   } = customProps
 
   const params = useParams()
@@ -617,9 +670,29 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const areNotes = notes && !!notes.length && notes.length > 0
 
   const [hasNotes, setHasNotes] = useState(areNotes)
+  const [isChatCollapsed, setIsChatCollapsed] = useState(false)
 
   const showNotes = () => {
     setHasNotes(areNotes)
+  }
+
+  const extractUsers = teams => {
+    const users = []
+
+    teams.forEach(team => {
+      if (Array.isArray(team.members)) {
+        team.members.forEach(member => {
+          if (member.user) {
+            users.push({
+              id: member.user.id,
+              display: member.user.displayName,
+            })
+          }
+        })
+      }
+    })
+
+    return users
   }
 
   useCallback(
@@ -751,7 +824,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               viewInformation={viewMetadata}
             />
           </TopMenu>
-          <Main>
+          <Main hasChat isChatCollapsed={isChatCollapsed}>
             {!options.fullScreen && (
               <LeftPanelWrapper>
                 <CollapseContainer data-collapsed={bookPanelCollapsed}>
@@ -842,16 +915,31 @@ const LuluLayout = ({ customProps, ...rest }) => {
               </PanelGroup>
             </EditorArea>
           </Main>
-          <SpinnerWrapper
-            // showFilemanager={showFilemanager}
-            // position={position}
-            showSpinner={showSpinner}
+          <ChatToggleButton
+            aria-label={isChatCollapsed ? 'Open chat' : 'Close chat'}
+            isCollapsed={isChatCollapsed}
+            onClick={() => setIsChatCollapsed(!isChatCollapsed)}
           >
+            <VerticalAlignBottomOutlined />
+          </ChatToggleButton>
+          <ChatThread isCollapsed={isChatCollapsed}>
+            <ChatThreadComponent
+              announcementText="announcementText"
+              hasMore={false}
+              isActive
+              messages={chatMessages}
+              onFetchMore={() => {}}
+              onSendMessage={onSendChatMessage}
+              participants={extractUsers(currentBookComponentUsers)}
+            />
+          </ChatThread>
+          <SpinnerWrapper showSpinner={showSpinner}>
             <Result
               icon={<Spin size={18} spinning />}
               title="Loading your document"
             />
           </SpinnerWrapper>
+
           <FileUpload
             deleteFromFileManager={deleteFromFileManager}
             getUserFileManager={getUserFileManager}

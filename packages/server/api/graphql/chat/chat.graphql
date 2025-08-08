@@ -1,0 +1,17 @@
+extend type ChatMessage {
+  created: DateTime!
+  attachments: [File!]
+}
+
+extend input SendChatMessageInput {
+  attachments: [Upload!]
+}
+
+extend type Mutation {
+  createChatChannel(input: ChatChannelFilter!): ChatChannel!
+  cancelEmailNotification(chatChannelId: ID!): Boolean!
+}
+
+extend type Subscription {
+  messageCreated(chatChannelId: ID!): ChatMessage!
+}

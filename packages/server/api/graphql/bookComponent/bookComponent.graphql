@@ -87,6 +87,7 @@ type BookComponent {
   runningHeadersLeft: String
   status: Int
   parentComponentId: ID
+  teams: [Team]
 }
 
 input BookComponentInput {

@@ -41,6 +41,7 @@ const EditorWrapper = ({
   user,
   bookMembers,
   onMention,
+  onSendChatMessage,
   onUploadBookCover,
   viewMetadata,
   setViewMetadata,
@@ -59,6 +60,10 @@ const EditorWrapper = ({
   deleteFromFileManager,
   updateComponentIdInManager,
   updateFile,
+  chatChannel,
+  chatLoading,
+  chatMessages,
+  currentBookComponentUsers,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -285,6 +290,7 @@ const EditorWrapper = ({
       editorLoading,
       savedComments,
       onUploadBookCover,
+      onSendChatMessage,
       viewMetadata,
       setViewMetadata,
       getBookSettings,
@@ -309,6 +315,10 @@ const EditorWrapper = ({
       uploadToFileManager,
       userFileManagerFiles,
       updateFile,
+      chatChannel,
+      chatMessages,
+      chatLoading,
+      currentBookComponentUsers,
     })
   }, [
     title,
@@ -324,6 +334,8 @@ const EditorWrapper = ({
     aiEnabled,
     loaded,
     userFileManagerFiles,
+    chatChannel,
+    currentBookComponentUsers,
   ])
 
   const userObject = {

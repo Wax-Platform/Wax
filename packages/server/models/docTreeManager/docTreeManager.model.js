@@ -11,6 +11,8 @@ const {
   addBookComponent,
 } = require('../../controllers/bookComponent.controller')
 
+const { createChatChannel } = require('../../controllers/chat.controllers')
+
 const { booleanDefaultFalse, idNullable, stringNullable, arrayOfIds } =
   modelJsonSchemaTypes
 
@@ -183,6 +185,11 @@ class DocTreeManager extends BaseModel {
       .patch({ bookComponentId: bookComponentInserted.id })
       .findOne({ id: insertedResource.id })
       .returning('*')
+
+    await createChatChannel({
+      relatedObjectId: bookComponentInserted.id,
+      chatType: 'waxPlatformChat',
+    })
 
     return docTree
   }

@@ -148,6 +148,19 @@ const getFileURL = async (id, type = 'original', options = {}) => {
   }
 }
 
+const getChatFileURL = async (file, size) => {
+  const target = file.storedObjects.find(o => {
+    if (!o.mimetype.startsWith('image')) {
+      return o.type === 'original'
+    }
+
+    return o.type === size
+  })
+
+  const { key } = target
+  return fileStorage.getURL(key)
+}
+
 const getObjectKey = async (id, type = 'original', options = {}) => {
   try {
     const { trx } = options
@@ -266,6 +279,7 @@ module.exports = {
   getSpecificFiles,
   getFile,
   getFileURL,
+  getChatFileURL,
   getObjectKey,
   getContentFiles,
   isFileInUse,

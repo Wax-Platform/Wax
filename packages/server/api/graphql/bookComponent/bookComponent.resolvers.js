@@ -9,6 +9,7 @@ const find = require('lodash/find')
 const groupBy = require('lodash/groupBy')
 const pullAll = require('lodash/pullAll')
 
+const { getObjectTeam } = require('../../../controllers/team.controller')
 const DocTreeManager = require('../../../models/docTreeManager/docTreeManager.model')
 const { models } = require('../../../models/dataloader')
 
@@ -762,6 +763,17 @@ module.exports = {
       })
 
       return bookComponentState.status
+    },
+    async teams(bookComponent, _, ctx) {
+      const collabTeam = await getObjectTeam(
+        'collaborator',
+        bookComponent.id,
+        false,
+      )
+
+      const ownerTeam = await getObjectTeam('owner', bookComponent.id, false)
+
+      return [collabTeam, ownerTeam]
     },
     async bookTitle(bookComponent, _, ctx) {
       const book = await getBook(bookComponent.bookId)

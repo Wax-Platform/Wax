@@ -53,6 +53,11 @@ import {
   DELETE_FROM_FILEMANAGER,
   UPDATE_COMPONENT_ID_IN_FILEMANAGER,
   UPDATE_FILE,
+  // GET_CHAT_CHANNEL,
+  // CREATE_CHAT_CHANNEL,
+  SEND_MESSAGE,
+  FILTER_CHAT_CHANNELS,
+  MESSAGE_CREATED_SUBSCRIPTION,
 } from '../graphql'
 
 import {
@@ -155,6 +160,8 @@ const ProducerPage = ({ bookId }) => {
   const [currentBookComponentContent, setCurrentBookComponentContent] =
     useState(null)
 
+  const [currentBookComponentUsers, setCurrentBookComponentUsers] = useState([])
+
   // const token = localStorage.getItem('token')
 
   useEffect(() => {
@@ -233,6 +240,7 @@ const ProducerPage = ({ bookId }) => {
         ) {
           setCurrentBookComponentContent(data.getBookComponent.content)
         } else {
+          setCurrentBookComponentUsers(data.getBookComponent.teams)
           setCurrentBookComponentContent('')
         }
 
@@ -292,6 +300,60 @@ const ProducerPage = ({ bookId }) => {
       }
     },
   })
+
+  const {
+    data: chatChannel,
+    loading: chatLoading,
+    refetch: refetchChatChannels,
+  } = useQuery(FILTER_CHAT_CHANNELS, {
+    variables: {
+      filter: { relatedObjectId: selectedChapterId },
+    },
+    fetchPolicy: 'network-only',
+  })
+
+  const [sendMessage] = useMutation(SEND_MESSAGE, {
+    refetchQueries: [
+      {
+        query: FILTER_CHAT_CHANNELS,
+        variables: {
+          filter: { relatedObjectId: selectedChapterId },
+        },
+      },
+    ],
+  })
+
+  const onSendChatMessage = async (content, mentions, attachments) => {
+    return handleSendChatMessage(
+      content,
+      mentions,
+      attachments,
+      chatChannel?.chatChannels?.result[0].id,
+    )
+  }
+
+  const handleSendChatMessage = async (
+    content,
+    mentions,
+    attachments,
+    chatChannelId,
+  ) => {
+    const fileObjects = attachments.map(attachment => attachment.originFileObj)
+
+    const mutationData = {
+      variables: {
+        input: {
+          content,
+          chatChannelId,
+          userId: currentUser.id,
+          mentions,
+          attachments: fileObjects,
+        },
+      },
+    }
+
+    return sendMessage(mutationData)
+  }
 
   const [ragSearch] = useLazyQuery(RAG_SEARCH)
 
@@ -436,6 +498,21 @@ const ProducerPage = ({ bookId }) => {
       // setKey(uuid())
     },
   })
+
+  // Subscribe to new chat messages
+
+  useSubscription(MESSAGE_CREATED_SUBSCRIPTION, {
+    variables: {
+      chatChannelId: chatChannel?.chatChannels?.result?.[0]?.id,
+    },
+    skip: !chatChannel?.chatChannels?.result?.[0]?.id,
+    onData: ({ data }) => {
+      if (data?.data?.messageCreated) {
+        // Refetch the chat channels to get the updated messages
+        refetchChatChannels()
+      }
+    },
+  })
   // SUBSCRIPTIONS SECTION END
 
   useEffect(() => {
@@ -535,6 +612,29 @@ const ProducerPage = ({ bookId }) => {
         file,
       },
     })
+  }
+
+  const messagesApiToUi = (messages, currentUserId = null) => {
+    return messages
+      ? messages.map(
+          ({
+            id,
+            created,
+            content,
+            user: { id: userId, displayName } = {},
+            attachments,
+          }) => {
+            return {
+              id,
+              content,
+              date: created,
+              own: userId === currentUserId,
+              user: displayName,
+              attachments,
+            }
+          },
+        )
+      : []
   }
 
   const getBodyDivisionId = () => {
@@ -947,16 +1047,6 @@ const ProducerPage = ({ bookId }) => {
     return <StyledSpin spinning />
   }
 
-  // useEffect(() => {
-  //   if (applicationParametersLoading || loading || bookComponentLoading) {
-  //     setEditorLoading(true)
-  //   } else if (!bookComponentLoading) {
-  //     setTimeout(() => {
-  //       setEditorLoading(false)
-  //     }, 500)
-  //   }
-  // }, [applicationParametersLoading, loading, bookComponentLoading])
-
   const chaptersActionInProgress =
     ingestWordFileInProgress || setBookComponentStatusInProgress
 
@@ -1000,6 +1090,12 @@ const ProducerPage = ({ bookId }) => {
       canInteractWithComments={canInteractWithComments}
       chapters={bookQueryData?.getBook?.divisions[1].bookComponents}
       chaptersActionInProgress={chaptersActionInProgress}
+      chatChannel={chatChannel?.chatChannels?.result[0]}
+      chatLoading={chatLoading}
+      chatMessages={messagesApiToUi(
+        chatChannel?.chatChannels?.result[0]?.messages || [],
+        currentUser?.id,
+      )}
       comments={savedComments ? JSON.parse(savedComments) : []}
       configurableEditorConfig={
         bookQueryData?.getBook.bookSettings.configurableEditorConfig
@@ -1007,9 +1103,11 @@ const ProducerPage = ({ bookId }) => {
       configurableEditorOn={
         bookQueryData?.getBook.bookSettings.configurableEditorOn
       }
+      currentBookComponentUsers={currentBookComponentUsers}
       customPrompts={customPrompts}
       customPromptsOn={customPromptsOn}
       customTags={customTags}
+      deleteFromFileManager={deleteFromFileManager}
       deleteResource={deleteResource}
       // editorKey={key}
       // editorLoading={editorLoading}
@@ -1017,6 +1115,7 @@ const ProducerPage = ({ bookId }) => {
       freeTextPromptsOn={freeTextPromptsOn}
       getBookSettings={getBookSettings}
       getDocTreeData={getDocTreeData}
+      getUserFileManager={getUserFileManager}
       isReadOnly={isReadOnly}
       isUploading={isUploading}
       kbOn={bookQueryData?.getBook.bookSettings.knowledgeBaseOn}
@@ -1024,6 +1123,7 @@ const ProducerPage = ({ bookId }) => {
       onImageUpload={handleImageUpload}
       onMention={handleMentions}
       onPeriodicTitleChange={onPeriodicTitleChange} // WE KEEP
+      onSendChatMessage={onSendChatMessage}
       onSubmitBookMetadata={onSubmitBookMetadata}
       onUploadBookCover={handleUploadBookCover}
       onUploadChapter={onUploadChapter}
@@ -1037,13 +1137,11 @@ const ProducerPage = ({ bookId }) => {
       setUploading={setUploading}
       setViewMetadata={setViewMetadata}
       title={bookQueryData?.getBook.title}
+      updateComponentIdInManager={updateComponentIdInManager}
+      updateFile={updateFile}
+      uploadToFileManager={uploadToFileManager}
       user={currentUser}
       viewMetadata={viewMetadata}
-      getUserFileManager={getUserFileManager}
-      updateComponentIdInManager={updateComponentIdInManager}
-      uploadToFileManager={uploadToFileManager}
-      deleteFromFileManager={deleteFromFileManager}
-      updateFile={updateFile}
     />
   )
 }
