@@ -18,6 +18,7 @@ const comments = require('./comments')
 const docTree = require('./docTree')
 const fileManager = require('./fileManager')
 const chat = require('./chat')
+const notification = require('./notification')
 
 module.exports = {
   typeDefs: [
@@ -40,6 +41,7 @@ module.exports = {
     docTree.typeDefs,
     fileManager.typeDefs,
     chat.typeDefs,
+    notification.typeDefs,
   ].join(' '),
   resolvers: merge(
     {},
@@ -62,5 +64,6 @@ module.exports = {
     docTree.resolvers,
     fileManager.resolvers,
     chat.resolvers,
+    notification.resolvers,
   ),
 }

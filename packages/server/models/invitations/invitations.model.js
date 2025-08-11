@@ -1,7 +1,7 @@
 /*
   Invitations: User invites
 */
-const { bookComponent } = require('..')
+
 const Base = require('../ketidaBase')
 
 const { id, stringNotEmpty, email } = require('../helpers').schema

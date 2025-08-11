@@ -19,6 +19,7 @@ module.exports = [
   './models/bookSettings',
   './models/bookComments',
   './models/invitations',
+  './models/notification',
   './models/bookTranslation',
   './models/customTag',
   './models/division',

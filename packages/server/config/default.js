@@ -117,16 +117,16 @@ module.exports = {
         await seedApplicationParameters()
       },
     },
-    // {
-    //   label: 'Seed Templates',
-    //   execute: async () => {
-    //     /* eslint-disable global-require */
-    //     const seedTemplates = require('../scripts/seeds/templates')
-    //     /* eslint-enable global-require */
+    {
+      label: 'Seed Templates',
+      execute: async () => {
+        /* eslint-disable global-require */
+        const seedTemplates = require('../scripts/seeds/templates')
+        /* eslint-enable global-require */
 
-    //     await seedTemplates()
-    //   },
-    // },
+        await seedTemplates()
+      },
+    },
     {
       label: 'Clean up Locks',
       execute: async () => {

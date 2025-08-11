@@ -1,0 +1,46 @@
+type Notification {
+  id: ID!
+  created: DateTime!
+  user_id: ID!
+  notification_type: String
+  object_id: ID
+  from: User
+  content: String
+  read: Boolean!
+}
+
+type NotificationResponse {
+  result: [Notification!]!
+  totalCount: Int
+  fullListOfIds: [ID!]
+}
+
+type UnreadNotificationsResponse {
+  notificationType: String!
+  count: Int!
+}
+
+input NotificationFilterOptions {
+  page: Int
+  pageSize: Int
+  read: Boolean
+  orderBy: String
+  ascending: Boolean
+  includeFullListOfIds: Boolean
+}
+
+extend type Query {
+  getUnreadNotificationsCount: [UnreadNotificationsResponse!]!
+  userNotifications(
+    type: String
+    options: NotificationFilterOptions
+  ): NotificationResponse!
+}
+
+extend type Mutation {
+  markAs(read: Boolean, notificationIds: [ID!]!): Boolean!
+}
+
+extend type Subscription {
+  newNotification: Notification
+}
