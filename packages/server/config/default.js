@@ -84,11 +84,13 @@ module.exports = {
       label: 'save unsaved data',
       execute: async () => {
         const utils = require('../services/yjsWebsocket/utils')
-        console.log('Flushing all active docs...');
-        await Promise.all([...utils.docs.values()].map(
-          doc => utils.persistence.writeState(doc)
-        ));
-        console.log('All data flushed.');
+        console.log('Flushing all active docs...')
+        await Promise.all(
+          [...utils.docs.values()].map(doc =>
+            utils.persistence.writeState(doc),
+          ),
+        )
+        console.log('All data flushed.')
       },
     },
   ],
@@ -115,16 +117,16 @@ module.exports = {
         await seedApplicationParameters()
       },
     },
-    {
-      label: 'Seed Templates',
-      execute: async () => {
-        /* eslint-disable global-require */
-        const seedTemplates = require('../scripts/seeds/templates')
-        /* eslint-enable global-require */
+    // {
+    //   label: 'Seed Templates',
+    //   execute: async () => {
+    //     /* eslint-disable global-require */
+    //     const seedTemplates = require('../scripts/seeds/templates')
+    //     /* eslint-enable global-require */
 
-        await seedTemplates()
-      },
-    },
+    //     await seedTemplates()
+    //   },
+    // },
     {
       label: 'Clean up Locks',
       execute: async () => {

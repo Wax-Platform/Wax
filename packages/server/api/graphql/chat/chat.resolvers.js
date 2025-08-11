@@ -1,8 +1,6 @@
 const { subscriptionManager } = require('@coko/server')
 const { actions } = require('../../../controllers/constants')
 const CokoNotifier = require('../../../services/notify')
-// const { pubsubManager } = require('@coko/server')
-// const { getPubsub } = pubsubManager
 
 const {
   createChatChannel,
@@ -36,7 +34,7 @@ const attachmentResolver = async message => {
   if (message.attachments) {
     return message.attachments
   }
-  
+
   return getAttachments(message)
 }
 
@@ -52,9 +50,6 @@ const sendChatMessageResolver = async (_, { input }, ctx) => {
       attachments,
     )
 
-    console.log('Publishing message to subscription:', `${actions.MESSAGE_CREATED}.${chatChannelId}`)
-    console.log('Message ID:', message.id)
-    
     // const pubsub = await getPubsub()
     subscriptionManager.publish(
       `${actions.MESSAGE_CREATED}.${chatChannelId}`,
@@ -74,7 +69,6 @@ const sendChatMessageResolver = async (_, { input }, ctx) => {
         'notification',
       )
     })
-
     return message
   } catch (e) {
     throw new Error(e)
@@ -129,11 +123,6 @@ module.exports = {
         return null
       },
       subscribe: async (_payload, vars) => {
-        console.log('Setting up subscription for chatChannelId:', vars.chatChannelId)
-        console.log('Subscription topic:', `${actions.MESSAGE_CREATED}.${vars.chatChannelId}`)
-        
-        // const pubsub = await getPubsub()
-
         return subscriptionManager.asyncIterator(
           `${actions.MESSAGE_CREATED}.${vars.chatChannelId}`,
         )

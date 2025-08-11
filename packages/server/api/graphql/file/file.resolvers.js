@@ -156,6 +156,7 @@ module.exports = {
   },
   File: {
     async url(file, { size }, ctx) {
+      console.log(file)
       return fileStorage.getURL(file.getStoredObjectBasedOnType(size).key, {
         expiresIn: 10,
       })
