@@ -117,6 +117,7 @@ const ChatInput = props => {
     setInputValue(newValue)
     const mentionIDs = mentioned.map(({ id }) => id)
     setMentions(mentionIDs)
+    console.log(mentionIDs, mentions)
   }
 
   const handleKeyDown = e => {
