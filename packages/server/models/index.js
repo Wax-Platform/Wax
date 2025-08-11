@@ -1,3 +1,4 @@
+const identity = require('@coko/server/src/models/identity')
 const applicationParameter = require('./applicationParameter')
 const book = require('./book')
 const bookCollection = require('./bookCollection')
@@ -55,6 +56,7 @@ module.exports = {
   bookComments,
   fileManager,
   notification,
+  identity,
   // docTreeManager,
   models: {
     ApplicationParameter: applicationParameter.model,
@@ -83,6 +85,7 @@ module.exports = {
     Comments: bookComments.model,
     FileManager: fileManager.model,
     Notification: notification.model,
+    Identity: identity.model,
     // DocTreeManager: docTreeManager.model,
   },
 }

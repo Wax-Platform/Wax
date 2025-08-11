@@ -1,9 +1,9 @@
+const { BaseModel } = require('@coko/server')
 const { id, boolean, object, string } = require('../helpers').schema
-const Base = require('../ketidaBase')
 
 const { applyListQueryOptions } = require('./helpers')
 
-class Notification extends Base {
+class Notification extends BaseModel {
   static get tableName() {
     return 'notifications'
   }

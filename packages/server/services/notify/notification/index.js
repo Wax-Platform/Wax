@@ -1,7 +1,7 @@
 const { logger } = require('@coko/server')
 const { subscriptionManager } = require('@coko/server')
 
-const { Notification } = require('../../../models')
+const { Notification } = require('../../../models').models
 
 const chatMention = async data => {
   try {
