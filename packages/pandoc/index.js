@@ -90,7 +90,6 @@ app.post('/convert', async (req, res) => {
     // Process the job and get the output file path
     const outputFilePath = await processJob(job)
 
-    console.log('Output file path:', outputFilePath)
     if (!outputFilePath || !fs.existsSync(outputFilePath)) {
       return res.status(500).json({
         error: 'Conversion failed',

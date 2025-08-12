@@ -563,6 +563,15 @@ const ToggleTypeWrapper = styled.div`
   display: flex !important;
   width: 150px;
 `
+
+const GenerationLoaderWrapper = styled.div`
+  display: ${props => (props.showLoader ? 'block' : 'none')};
+  left: 42%;
+  margin-top: -25px;
+  position: absolute;
+  top: 50%;
+  z-index: 999;
+`
 // #endregion styled
 
 const MainMenuToolBar = ComponentPlugin('mainMenuToolBar')
@@ -633,6 +642,8 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true)
   const [showComments, setShowComments] = useState(true)
   const [selectedFormat, setSelectedFormat] = useState(undefined)
+  const [selectedFormatLabel, setSelectedFormatLabel] = useState(undefined)
+  const [isGenerating, setIsGenerating] = useState(false)
   const previousComments = usePrevious(savedComments)
   const { showSpinner } = useContext(YjsContext)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
@@ -795,18 +806,55 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
-  const getFile = outputType => {
+  const convertImagesToBase64 = async htmlContent => {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(htmlContent, 'text/html')
+    const images = doc.querySelectorAll('img')
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const img of images) {
+      const src = img.getAttribute('src')
+
+      if (src && !src.startsWith('data:')) {
+        try {
+          const response = await fetch(src)
+          const blob = await response.blob()
+          const reader = new FileReader()
+
+          await new Promise((resolve, reject) => {
+            reader.onload = () => {
+              img.setAttribute('src', reader.result)
+              resolve()
+            }
+
+            reader.onerror = reject
+            reader.readAsDataURL(blob)
+          })
+        } catch (error) {
+          console.error('Error converting image to base64:', error)
+        }
+      }
+    }
+
+    return doc.documentElement.outerHTML
+  }
+
+  const getFile = async outputType => {
+    setIsGenerating(true)
     const editorContent = getEditorContent()
-    
+
+    // Convert images to base64
+    const contentWithBase64Images = await convertImagesToBase64(editorContent)
+
     fetch('http://localhost:4040/convert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        fileContent: editorContent,
+        fileContent: contentWithBase64Images,
         fileName: 'test-document',
-        outputType: outputType,
+        outputType,
       }),
     })
       .then(response => response.json())
@@ -836,12 +884,15 @@ const LuluLayout = ({ customProps, ...rest }) => {
           window.URL.revokeObjectURL(url)
           document.body.removeChild(a)
           setSelectedFormat(undefined)
+          setSelectedFormatLabel(undefined)
         } else {
           console.error('Conversion failed:', data.message)
         }
+        setIsGenerating(false)
       })
       .catch(error => {
         console.error('Error during conversion:', error)
+        setIsGenerating(false)
       })
   }
 
@@ -876,8 +927,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
             <MainMenuToolBar />
             <ToggleTypeWrapper>
               <Select
-                onChange={value => {
+                onChange={(value, option) => {
                   setSelectedFormat(value)
+                  setSelectedFormatLabel(option.label)
                   getFile(value)
                 }}
                 options={[
@@ -1017,6 +1069,13 @@ const LuluLayout = ({ customProps, ...rest }) => {
               title="Loading your document"
             />
           </SpinnerWrapper>
+
+          <GenerationLoaderWrapper showLoader={isGenerating}>
+            <Result
+              icon={<Spin size={18} spinning />}
+              title={`Generating your ${selectedFormatLabel} document`}
+            />
+          </GenerationLoaderWrapper>
 
           <FileUpload
             deleteFromFileManager={deleteFromFileManager}

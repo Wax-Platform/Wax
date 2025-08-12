@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 const { exec } = require('child_process')
 const fs = require('fs')
-const { v4: uuidv4 } = require('uuid')
 
 const execCommand = (command, jobId) => {
   return new Promise((resolve, reject) => {
