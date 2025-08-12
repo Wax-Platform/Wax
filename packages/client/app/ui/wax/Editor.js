@@ -319,6 +319,7 @@ const EditorWrapper = ({
       chatMessages,
       chatLoading,
       currentBookComponentUsers,
+      getEditorContent,
     })
   }, [
     title,
@@ -345,6 +346,14 @@ const EditorWrapper = ({
       deletion: 'indianred',
     },
     username: user.displayName,
+  }
+
+  const getEditorContent = () => {
+    if (editorRef && editorRef.current && editorRef.current.getContent) {
+      return editorRef.current.getContent()
+    }
+
+    return ''
   }
 
   if (!selectedWaxConfig || canInteractWithComments === null) return null

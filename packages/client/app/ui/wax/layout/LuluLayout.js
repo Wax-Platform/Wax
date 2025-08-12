@@ -1,4 +1,5 @@
 /* stylelint-disable selector-type-no-unknown */
+/* stylelint-disable declaration-no-important */
 /* stylelint-disable no-descending-specificity, string-quotes */
 import React, { useContext, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
@@ -24,6 +25,7 @@ import { useTranslation } from 'react-i18next'
 import { usePrevious } from '../../../utils'
 import ChatThreadComponent from '../../chat/ChatThread'
 import { Button, Checkbox, Result, Spin } from '../../common'
+import Select from '../../common/Select'
 // import BookPanel from '../../bookPanel/BookPanel'
 
 import { DocTreeManager } from '../../DocTreeManager'
@@ -556,6 +558,11 @@ const ChatToggleButton = styled.button`
     background: #f5f5f5;
   }
 `
+
+const ToggleTypeWrapper = styled.div`
+  display: flex !important;
+  width: 150px;
+`
 // #endregion styled
 
 const MainMenuToolBar = ComponentPlugin('mainMenuToolBar')
@@ -615,6 +622,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
     onSendChatMessage,
     chatMessages,
     currentBookComponentUsers,
+    getEditorContent,
   } = customProps
 
   const params = useParams()
@@ -624,6 +632,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const [bookPanelCollapsed, setBookPanelCollapsed] = useState(true)
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true)
   const [showComments, setShowComments] = useState(true)
+  const [selectedFormat, setSelectedFormat] = useState(undefined)
   const previousComments = usePrevious(savedComments)
   const { showSpinner } = useContext(YjsContext)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
@@ -786,16 +795,18 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
-  const getFile = () => {
+  const getFile = outputType => {
+    const editorContent = getEditorContent()
+    
     fetch('http://localhost:4040/convert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        fileContent: 'Hello, world!',
+        fileContent: editorContent,
         fileName: 'test-document',
-        outputType: 'html',
+        outputType: outputType,
       }),
     })
       .then(response => response.json())
@@ -824,6 +835,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
           a.click()
           window.URL.revokeObjectURL(url)
           document.body.removeChild(a)
+          setSelectedFormat(undefined)
         } else {
           console.error('Conversion failed:', data.message)
         }
@@ -862,7 +874,25 @@ const LuluLayout = ({ customProps, ...rest }) => {
               viewInformation={viewMetadata}
             />
             <MainMenuToolBar />
-            <Button onClick={() => getFile()}>Convert</Button>
+            <ToggleTypeWrapper>
+              <Select
+                onChange={value => {
+                  setSelectedFormat(value)
+                  getFile(value)
+                }}
+                options={[
+                  { value: 'odt', label: 'ODT' },
+                  { value: 'docx', label: 'Word' },
+                  { value: 'pdf', label: 'PDF' },
+                  { value: 'rtf', label: 'RTF' },
+                  { value: 'md', label: 'Markdown' },
+                  { value: 'tex', label: 'LaTeX' },
+                  { value: 'html', label: 'HTML' },
+                ]}
+                placeholder="Download to..."
+                value={selectedFormat}
+              />
+            </ToggleTypeWrapper>
             <BookInformation
               bookComponentId={bookComponentId}
               bookId={bookId}
