@@ -15,44 +15,43 @@ export default (ydoc, provider, { debounceMs = 1000 } = {}) => {
   const htmlText = ydoc.getText('html')
   let prevDoc = null
 
-   const isLeader = () => {
-    const awareness = provider.awareness
-    const states = Array.from(awareness.getStates().keys());
-    return Math.min(...states) === awareness.clientID;
-  };
+  // const isLeader = () => {
+  //   const { awareness } = provider
+  //   const states = Array.from(awareness.getStates().keys())
+  //   return Math.min(...states) === awareness.clientID
+  // }
 
   const alterNotesSchema = schema => {
-  const notes = [];
-  each(schema.nodes, node => {
-    if (node.groups.includes('notes')) notes.push(node);
-  });
-  if (notes.length > 0) {
-    notes.forEach(note => {
-      schema.nodes[note.name].spec.toDOM = node => {
-        if (node) return [note.name, node.attrs, 0];
-        return true;
-      };
-    });
+    const notes = []
+    each(schema.nodes, node => {
+      if (node.groups.includes('notes')) notes.push(node)
+    })
+
+    if (notes.length > 0) {
+      notes.forEach(note => {
+        schema.nodes[note.name].spec.toDOM = node => {
+          if (node) return [note.name, node.attrs, 0]
+          return true
+        }
+      })
+    }
   }
-};
 
-const revertNotesSchema = schema => {
-  const notes = [];
-  each(schema.nodes, node => {
-    if (node.groups.includes('notes')) notes.push(node);
-  });
-  if (notes.length > 0) {
-    notes.forEach(note => {
-      schema.nodes[note.name].spec.toDOM = node => {
-        if (node) return [note.name, node.attrs];
-        return true;
-      };
-    });
+  const revertNotesSchema = schema => {
+    const notes = []
+    each(schema.nodes, node => {
+      if (node.groups.includes('notes')) notes.push(node)
+    })
+
+    if (notes.length > 0) {
+      notes.forEach(note => {
+        schema.nodes[note.name].spec.toDOM = node => {
+          if (node) return [note.name, node.attrs]
+          return true
+        }
+      })
+    }
   }
-};
-
-
-
 
   const updateHTML = view => {
     alterNotesSchema(view.state.schema)
@@ -62,13 +61,13 @@ const revertNotesSchema = schema => {
     container.appendChild(fragment)
     const html = container.innerHTML
     revertNotesSchema(view.state.schema)
-    
 
     // if (isLeader()) {
-      htmlText.doc?.transact(() => {
-        htmlText.delete(0, htmlText.length)
-        htmlText.insert(0, html)
-      })
+    htmlText.doc?.transact(() => {
+      htmlText.delete(0, htmlText.length)
+
+      htmlText.insert(0, html)
+    })
     // }
   }
 
@@ -81,6 +80,7 @@ const revertNotesSchema = schema => {
         update(v) {
           if (!prevDoc || !v.state.doc.eq(prevDoc)) {
             prevDoc = v.state.doc
+
             if (document.visibilityState === 'visible' && document.hasFocus()) {
               updateHTML(v)
             }

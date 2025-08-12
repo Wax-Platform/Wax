@@ -86,6 +86,14 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-wax_dev_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-wax_dev_user_password}
 
+  pandoc-worker:
+    container_name: pandoc-worker
+    build:
+      context: ./packages/pandoc
+      dockerfile: ./Dockerfile
+    ports:
+      - 4040:4040
+
   filehosting:
     image: minio/minio
     ports:

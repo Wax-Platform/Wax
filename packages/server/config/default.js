@@ -75,7 +75,7 @@ module.exports = {
   useGraphQLServer: true,
   useFileStorage: true,
   tokenExpiresIn: '360 days',
-  pool: { min: 0, max: 100, idleTimeoutMillis: 30000 },
+  pool: { min: 0, max: 100, idleTimeoutMillis: 1000 },
   teams: flavorTeams,
   tempDirectoryCleanUp: true,
   devServerIgnore: ['./templates/*', './uploads/*'],
@@ -84,13 +84,11 @@ module.exports = {
       label: 'save unsaved data',
       execute: async () => {
         const utils = require('../services/yjsWebsocket/utils')
-        console.log('Flushing all active docs...')
-        await Promise.all(
-          [...utils.docs.values()].map(doc =>
-            utils.persistence.writeState(doc),
-          ),
-        )
-        console.log('All data flushed.')
+        console.log('Flushing all active docs...');
+        await Promise.all([...utils.docs.values()].map(
+          doc => utils.persistence.writeState(doc)
+        ));
+        console.log('All data flushed.');
       },
     },
   ],

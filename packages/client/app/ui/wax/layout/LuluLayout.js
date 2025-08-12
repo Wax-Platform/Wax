@@ -786,6 +786,53 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
+  const getFile = () => {
+    fetch('http://localhost:4040/convert', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fileContent: 'Hello, world!',
+        fileName: 'test-document',
+        outputType: 'html',
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Convert base64 to blob and download
+          const byteCharacters = atob(data.fileContent)
+          const byteNumbers = new Array(byteCharacters.length)
+
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i)
+          }
+
+          const byteArray = new Uint8Array(byteNumbers)
+
+          const blob = new Blob([byteArray], {
+            type: data.contentType,
+          })
+
+          // Create download link
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = data.fileName
+          document.body.appendChild(a)
+          a.click()
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+        } else {
+          console.error('Conversion failed:', data.message)
+        }
+      })
+      .catch(error => {
+        console.error('Error during conversion:', error)
+      })
+  }
+
   return (
     <ThemeProvider theme={theme}>
       {viewMetadata !== '' ? (
@@ -815,6 +862,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               viewInformation={viewMetadata}
             />
             <MainMenuToolBar />
+            <Button onClick={() => getFile()}>Convert</Button>
             <BookInformation
               bookComponentId={bookComponentId}
               bookId={bookId}
