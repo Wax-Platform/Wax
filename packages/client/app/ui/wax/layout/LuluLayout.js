@@ -808,45 +808,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
-  const convertImagesToBase64 = async htmlContent => {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(htmlContent, 'text/html')
-    const images = doc.querySelectorAll('img')
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const img of images) {
-      const src = img.getAttribute('src')
-
-      if (src && !src.startsWith('data:')) {
-        try {
-          const response = await fetch(src)
-          const blob = await response.blob()
-          const reader = new FileReader()
-
-          await new Promise((resolve, reject) => {
-            reader.onload = () => {
-              img.setAttribute('src', reader.result)
-              resolve()
-            }
-
-            reader.onerror = reject
-            reader.readAsDataURL(blob)
-          })
-        } catch (error) {
-          console.error('Error converting image to base64:', error)
-        }
-      }
-    }
-
-    return doc.documentElement.outerHTML
-  }
-
   const getFile = async outputType => {
     setIsGenerating(true)
     const editorContent = getEditorContent()
-
-    // Convert images to base64
-    const contentWithBase64Images = await convertImagesToBase64(editorContent)
 
     fetch(`https://wax-staging-pandoc.fly.dev/convert`, {
       method: 'POST',
@@ -854,9 +818,10 @@ const LuluLayout = ({ customProps, ...rest }) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        fileContent: contentWithBase64Images,
+        fileContent: editorContent,
         fileName: currentBookComponentTitle,
         outputType,
+        extension: 'html',
       }),
     })
       .then(response => response.json())

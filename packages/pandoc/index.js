@@ -1,10 +1,70 @@
 const express = require('express')
 const { v4: uuidv4 } = require('uuid')
 const fs = require('fs')
+const https = require('https')
+const http = require('http')
 const { processJob } = require('./worker')
 
 const app = express()
 const PORT = process.env.PORT || 4040
+
+// Function to fetch image and convert to base64
+const fetchImageAsBase64 = (url) => {
+  return new Promise((resolve, reject) => {
+    const protocol = url.startsWith('https:') ? https : http
+    
+    protocol.get(url, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to fetch image: ${response.statusCode}`))
+        return
+      }
+
+      const chunks = []
+      response.on('data', (chunk) => {
+        chunks.push(chunk)
+      })
+
+      response.on('end', () => {
+        const buffer = Buffer.concat(chunks)
+        const contentType = response.headers['content-type'] || 'image/png'
+        const base64 = buffer.toString('base64')
+        resolve(`data:${contentType};base64,${base64}`)
+      })
+    }).on('error', (error) => {
+      console.error(`Error fetching image from ${url}:`, error.message)
+      reject(error)
+    })
+  })
+}
+
+// Function to convert all image URLs in HTML to base64
+const convertImagesToBase64 = async (htmlContent) => {
+  const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi
+  const imgUrls = []
+  let match
+
+  // Extract all image URLs
+  while ((match = imgRegex.exec(htmlContent)) !== null) {
+    const imgUrl = match[1]
+    if (imgUrl && !imgUrl.startsWith('data:')) {
+      imgUrls.push(imgUrl)
+    }
+  }
+
+  // Fetch and convert each image
+  for (const imgUrl of imgUrls) {
+    try {
+      const base64Data = await fetchImageAsBase64(imgUrl)
+      htmlContent = htmlContent.replace(new RegExp(imgUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), base64Data)
+      console.log(`Successfully converted image: ${imgUrl}`)
+    } catch (error) {
+      console.error(`Failed to convert image ${imgUrl}:`, error.message)
+      // Keep the original URL if conversion fails
+    }
+  }
+
+  return htmlContent
+}
 
 // Helper function to get content type based on output format
 const getContentType = outputType => {
@@ -74,11 +134,24 @@ app.post('/convert', async (req, res) => {
     // Generate unique job ID
     const jobId = uuidv4()
 
+    // Convert images to base64 if the content is HTML
+    let processedContent = fileContent
+    if (extension === 'html' || extension === 'htm') {
+      try {
+        console.log('Converting images to base64...')
+        processedContent = await convertImagesToBase64(fileContent)
+        console.log('Image conversion completed')
+      } catch (error) {
+        console.error('Error converting images:', error)
+        // Continue with original content if image conversion fails
+      }
+    }
+
     // Create temporary input file path
     const tempInputPath = `/tmp/input-${jobId}.${extension}`
 
-    // Write file content to temporary file
-    fs.writeFileSync(tempInputPath, fileContent, 'utf8')
+    // Write processed file content to temporary file
+    fs.writeFileSync(tempInputPath, processedContent, 'utf8')
 
     const job = {
       jobId,
