@@ -16,8 +16,10 @@ COPY static static
 
 ARG server_url
 ARG websocket_server_url
+ARG pandoc_url
 ENV SERVER_URL=$server_url
 ENV WEBSOCKET_SERVER_URL=$websocket_server_url
+ENV PANDOC_URL=$pandoc_url
 
 ENV NODE_ENV='production'
 ENV CLIENT_PAGE_TITLE='Wax'

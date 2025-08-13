@@ -10,6 +10,7 @@ services:
     environment:
       - SERVER_URL=${SERVER_URL:-http://localhost:3000}
       - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL:-ws://localhost:3333}
+      - PANDOC_URL=${PANDOC_URL:-http://localhost:4040}
 
   server:
     restart: unless-stopped

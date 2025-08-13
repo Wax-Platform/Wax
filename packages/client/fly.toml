@@ -25,3 +25,4 @@ cpu = 1
 [env]
 SERVER_URL = 'https://wax-server.fly.dev'
 WEBSOCKET_SERVER_URL = 'wss://wax-server.fly.dev:3333'
+PANDOC_URL='https://wax-pandoc.fly.dev'
