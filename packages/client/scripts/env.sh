@@ -21,7 +21,7 @@ cat <<EOF > ./env.js
 window.env = {
     serverUrl: '${SERVER_URL}',
     websocketServerUrl: '${WEBSOCKET_SERVER_URL}',
-    pandocUrl: '${CLIENT_PANDOC_URL}',
+    clientPandocUrl: '${CLIENT_PANDOC_URL}',
 }
 EOF
 

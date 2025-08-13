@@ -10,7 +10,7 @@ services:
     environment:
       - SERVER_URL=${SERVER_URL:-http://localhost:3000}
       - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL:-ws://localhost:3333}
-      - PANDOC_URL=${PANDOC_URL:-http://localhost:4040}
+      - CLIENT_PANDOC_URL=${CLIENT_PANDOC_URL:-http://localhost:4040}
 
   server:
     restart: unless-stopped
@@ -27,7 +27,7 @@ services:
       - SECRET=${SECRET}
       - SERVER_URL=${SERVER_URL}
       - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL}
-      - PANDOC_URL=${PANDOC_URL}
+      - CLIENT_PANDOC_URL=${CLIENT_PANDOC_URL}
       - CLIENT_URL=${CLIENT_URL}
       - SERVER_SERVE_CLIENT=false
       - POSTGRES_HOST=${POSTGRES_HOST}

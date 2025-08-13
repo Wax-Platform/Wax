@@ -25,7 +25,7 @@ services:
       - CLIENT_FEATURE_BOOK_STRUCTURE=false
       - SERVER_URL=${SERVER_URL:-http://localhost:3000}
       - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL:-ws://localhost:3333}
-      - PANDOC_URL=${PANDOC_URL:-http://localhost:4040}
+      - CLIENT_PANDOC_URL=${CLIENT_PANDOC_URL:-http://localhost:4040}
       # - CLIENT_WS_MIN_TIMEOUT=3000
       # - CLIENT_WS_TIMEOUT=30000
       - CLIENT_FAVICON_PATH=${CLIENT_FAVICON_PATH:-../static/wax.ico}
