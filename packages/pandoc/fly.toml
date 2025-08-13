@@ -1,0 +1,39 @@
+# fly.toml app configuration file for wax-pandoc
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'wax-pandoc'
+primary_region = 'ord'
+
+[build]
+dockerfile = "Dockerfile"
+
+[http_service]
+internal_port = 4040
+force_https = true
+auto_stop_machines = 'stop'
+auto_start_machines = true
+min_machines_running = 1
+processes = ['app']
+
+[[services]]
+protocol = 'tcp'
+internal_port = 4040
+
+[[services.ports]]
+port = 80
+handlers = ['http']
+
+[[services.ports]]
+port = 443
+handlers = ['tls', 'http']
+
+[[vm]]
+memory = '512mb'
+cpu_kind = 'shared'
+cpus = 1
+
+[env]
+NODE_ENV = 'production'
+PORT = 4040

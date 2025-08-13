@@ -6,7 +6,7 @@ import React, { useContext, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import styled, { ThemeProvider, css } from 'styled-components'
-import { grid, th, serverUrl } from '@coko/client'
+import { grid, th, } from '@coko/client'
 import PanelGroup from 'react-panelgroup'
 
 import {
@@ -848,7 +848,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
     // Convert images to base64
     const contentWithBase64Images = await convertImagesToBase64(editorContent)
 
-    fetch(`${serverUrl.replace(/:\d+/, '')}:4040/convert`, {
+    fetch(`${window.env.serverPandocUrl}/convert`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
