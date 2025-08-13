@@ -6,7 +6,7 @@ import React, { useContext, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import styled, { ThemeProvider, css } from 'styled-components'
-import { grid, th, } from '@coko/client'
+import { grid, th } from '@coko/client'
 import PanelGroup from 'react-panelgroup'
 
 import {
