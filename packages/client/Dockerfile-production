@@ -16,7 +16,7 @@ COPY static static
 
 ARG server_url
 ARG websocket_server_url
-ARG pandoc_url
+ARG client_pandoc_url
 ENV SERVER_URL=$server_url
 ENV WEBSOCKET_SERVER_URL=$websocket_server_url
 
@@ -26,7 +26,7 @@ ENV CLIENT_FAVICON_PATH='../static/wax.ico'
 ENV CLIENT_LANGUAGE='en-US'
 ENV CLIENT_FEATURE_UPLOAD_DOCX_FILES='true'
 ENV CLIENT_FEATURE_BOOK_STRUCTURE='false'
-ENV CLIENT_PANDOC_URL=$pandoc_url
+ENV CLIENT_PANDOC_URL=$client_pandoc_url
 
 RUN yarn coko-client-build
 
