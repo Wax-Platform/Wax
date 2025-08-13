@@ -1,4 +1,6 @@
+/* eslint-disable no-await-in-loop */
 /* stylelint-disable selector-type-no-unknown */
+/* stylelint-disable declaration-no-important */
 /* stylelint-disable no-descending-specificity, string-quotes */
 import React, { useContext, useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
@@ -24,6 +26,7 @@ import { useTranslation } from 'react-i18next'
 import { usePrevious } from '../../../utils'
 import ChatThreadComponent from '../../chat/ChatThread'
 import { Button, Checkbox, Result, Spin } from '../../common'
+import Select from '../../common/Select'
 // import BookPanel from '../../bookPanel/BookPanel'
 
 import { DocTreeManager } from '../../DocTreeManager'
@@ -556,6 +559,20 @@ const ChatToggleButton = styled.button`
     background: #f5f5f5;
   }
 `
+
+const ToggleTypeWrapper = styled.div`
+  display: flex !important;
+  width: 150px;
+`
+
+const GenerationLoaderWrapper = styled.div`
+  display: ${props => (props.showLoader ? 'block' : 'none')};
+  left: 42%;
+  margin-top: -25px;
+  position: absolute;
+  top: 50%;
+  z-index: 999;
+`
 // #endregion styled
 
 const MainMenuToolBar = ComponentPlugin('mainMenuToolBar')
@@ -615,6 +632,8 @@ const LuluLayout = ({ customProps, ...rest }) => {
     onSendChatMessage,
     chatMessages,
     currentBookComponentUsers,
+    getEditorContent,
+    currentBookComponentTitle,
   } = customProps
 
   const params = useParams()
@@ -624,6 +643,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
   const [bookPanelCollapsed, setBookPanelCollapsed] = useState(true)
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true)
   const [showComments, setShowComments] = useState(true)
+  const [selectedFormat, setSelectedFormat] = useState(undefined)
+  const [selectedFormatLabel, setSelectedFormatLabel] = useState(undefined)
+  const [isGenerating, setIsGenerating] = useState(false)
   const previousComments = usePrevious(savedComments)
   const { showSpinner } = useContext(YjsContext)
   const { t } = useTranslation(null, { keyPrefix: 'pages.producer' })
@@ -786,6 +808,96 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
+  const convertImagesToBase64 = async htmlContent => {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(htmlContent, 'text/html')
+    const images = doc.querySelectorAll('img')
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const img of images) {
+      const src = img.getAttribute('src')
+
+      if (src && !src.startsWith('data:')) {
+        try {
+          const response = await fetch(src)
+          const blob = await response.blob()
+          const reader = new FileReader()
+
+          await new Promise((resolve, reject) => {
+            reader.onload = () => {
+              img.setAttribute('src', reader.result)
+              resolve()
+            }
+
+            reader.onerror = reject
+            reader.readAsDataURL(blob)
+          })
+        } catch (error) {
+          console.error('Error converting image to base64:', error)
+        }
+      }
+    }
+
+    return doc.documentElement.outerHTML
+  }
+
+  const getFile = async outputType => {
+    setIsGenerating(true)
+    const editorContent = getEditorContent()
+
+    // Convert images to base64
+    const contentWithBase64Images = await convertImagesToBase64(editorContent)
+
+    fetch('http://localhost:4040/convert', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fileContent: contentWithBase64Images,
+        fileName: currentBookComponentTitle,
+        outputType,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Convert base64 to blob and download
+          const byteCharacters = atob(data.fileContent)
+          const byteNumbers = new Array(byteCharacters.length)
+
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i)
+          }
+
+          const byteArray = new Uint8Array(byteNumbers)
+
+          const blob = new Blob([byteArray], {
+            type: data.contentType,
+          })
+
+          // Create download link
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = data.fileName
+          document.body.appendChild(a)
+          a.click()
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+          setSelectedFormat(undefined)
+          setSelectedFormatLabel(undefined)
+        } else {
+          console.error('Conversion failed:', data.message)
+        }
+        setIsGenerating(false)
+      })
+      .catch(error => {
+        console.error('Error during conversion:', error)
+        setIsGenerating(false)
+      })
+  }
+
   return (
     <ThemeProvider theme={theme}>
       {viewMetadata !== '' ? (
@@ -815,6 +927,26 @@ const LuluLayout = ({ customProps, ...rest }) => {
               viewInformation={viewMetadata}
             />
             <MainMenuToolBar />
+            <ToggleTypeWrapper>
+              <Select
+                onChange={(value, option) => {
+                  setSelectedFormat(value)
+                  setSelectedFormatLabel(option.label)
+                  getFile(value)
+                }}
+                options={[
+                  { value: 'odt', label: 'ODT' },
+                  { value: 'docx', label: 'Word' },
+                  { value: 'pdf', label: 'PDF' },
+                  { value: 'rtf', label: 'RTF' },
+                  { value: 'md', label: 'Markdown' },
+                  { value: 'tex', label: 'LaTeX' },
+                  { value: 'html', label: 'HTML' },
+                ]}
+                placeholder="Download to..."
+                value={selectedFormat}
+              />
+            </ToggleTypeWrapper>
             <BookInformation
               bookComponentId={bookComponentId}
               bookId={bookId}
@@ -939,6 +1071,13 @@ const LuluLayout = ({ customProps, ...rest }) => {
               title="Loading your document"
             />
           </SpinnerWrapper>
+
+          <GenerationLoaderWrapper showLoader={isGenerating}>
+            <Result
+              icon={<Spin size={18} spinning />}
+              title={`Generating your ${selectedFormatLabel} document`}
+            />
+          </GenerationLoaderWrapper>
 
           <FileUpload
             deleteFromFileManager={deleteFromFileManager}

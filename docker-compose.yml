@@ -1,4 +1,12 @@
 services:
+  pandoc-worker:
+    container_name: pandoc-worker
+    build:
+      context: ./packages/pandoc
+      dockerfile: ./Dockerfile
+    ports:
+      - 4040:4040
+
   client:
     restart: unless-stopped
     build:

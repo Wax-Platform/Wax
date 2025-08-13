@@ -64,6 +64,7 @@ const EditorWrapper = ({
   chatLoading,
   chatMessages,
   currentBookComponentUsers,
+  currentBookComponentTitle,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -93,6 +94,7 @@ const EditorWrapper = ({
     getDocTreeData,
     setSelectedChapterId,
     setIsCurrentDocumentMine,
+    currentBookComponentTitle,
   })
 
   const [userFileManagerFiles, setUserFileManagerFiles] = useState([])
@@ -319,6 +321,7 @@ const EditorWrapper = ({
       chatMessages,
       chatLoading,
       currentBookComponentUsers,
+      getEditorContent,
     })
   }, [
     title,
@@ -345,6 +348,14 @@ const EditorWrapper = ({
       deletion: 'indianred',
     },
     username: user.displayName,
+  }
+
+  const getEditorContent = () => {
+    if (editorRef && editorRef.current && editorRef.current.getContent) {
+      return editorRef.current.getContent()
+    }
+
+    return ''
   }
 
   if (!selectedWaxConfig || canInteractWithComments === null) return null

@@ -14,13 +14,22 @@ const pullRight = css`
 
 const Message = styled.div`
   align-self: baseline;
-  background: ${props =>
-    props.own ? th('colorBackgroundHue') : th('colorPrimary')};
+  background: ${props => {
+    if (props.own) {
+      return th('colorBackgroundHue')
+    }
+    return props.userColor || th('colorPrimary')
+  }};
   border-radius: ${props =>
     props.own ? '15px 0 15px 15px' : '0 15px 15px 15px'};
   box-shadow: rgb(50 50 93 / 25%) 0 2px 4px -2px,
     rgb(0 0 0 / 30%) 0 1px 2px -3px;
-  color: ${props => (props.own ? th('colorTextDark') : th('colorTextReverse'))};
+  color: ${props => {
+    if (props.own) {
+      return th('colorTextDark')
+    }
+    return props.userColor ? '#000000' : th('colorTextReverse')
+  }};
   display: inline-block;
   margin-block: 10px;
   max-inline-size: 50%;
@@ -104,6 +113,7 @@ const ChatMessage = forwardRef((props, ref) => {
     own,
     user,
     participants,
+    userColor,
     ...rest
   } = props
 
@@ -127,6 +137,7 @@ const ChatMessage = forwardRef((props, ref) => {
       own={own}
       ref={ref}
       tabIndex={0}
+      userColor={userColor}
       {...rest}
     >
       {!own && <Name>{user}</Name>}
@@ -171,6 +182,7 @@ ChatMessage.propTypes = {
   own: PropTypes.bool,
   user: PropTypes.string,
   participants: PropTypes.arrayOf(PropTypes.string),
+  userColor: PropTypes.string,
 }
 
 ChatMessage.defaultProps = {
@@ -178,6 +190,7 @@ ChatMessage.defaultProps = {
   own: false,
   user: null,
   participants: [],
+  userColor: null,
 }
 
 export default ChatMessage

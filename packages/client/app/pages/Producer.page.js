@@ -161,6 +161,7 @@ const ProducerPage = ({ bookId }) => {
     useState(null)
 
   const [currentBookComponentUsers, setCurrentBookComponentUsers] = useState([])
+  const [currentBookComponentTitle, setCurrentBookComponentTitle] = useState('')
 
   // const token = localStorage.getItem('token')
 
@@ -240,6 +241,7 @@ const ProducerPage = ({ bookId }) => {
         ) {
           setCurrentBookComponentContent(data.getBookComponent.content)
         } else {
+          setCurrentBookComponentTitle(data.getBookComponent.title)
           setCurrentBookComponentUsers(data.getBookComponent.teams)
           setCurrentBookComponentContent('')
         }
@@ -445,30 +447,8 @@ const ProducerPage = ({ bookId }) => {
   }, [hasMembership])
 
   useEffect(() => {
-    // if (!selectedChapterId) {
-    //   localStorage.removeItem(`${bookId}-selected-chapter`)
-    // } else {
-    //   localStorage.setItem(`${bookId}-selected-chapter`, selectedChapterId)
-    // }
     setSavedComments(null)
   }, [selectedChapterId])
-
-  // useEffect(() => {
-  //   if (!bookComponentLoading) {
-  //     setKey(uuid())
-  //   }
-  // }, [editorLoading, bookComponentLoading, isReadOnly])
-
-  // SUBSCRIPTIONS SECTION START
-
-  // useSubscription(YJS_CONTENT_UPDATED_SUBSCRIPTION, {
-  //   variables: { id: bookComponentId },
-  //   fetchPolicy: 'network-only',
-  //   onData: (id) => {
-  //     console.log(id)
-  //     console.log('updated content')
-  //   },
-  // })
 
   useSubscription(BOOK_UPDATED_SUBSCRIPTION, {
     variables: { id: bookId },
@@ -1103,6 +1083,7 @@ const ProducerPage = ({ bookId }) => {
       configurableEditorOn={
         bookQueryData?.getBook.bookSettings.configurableEditorOn
       }
+      currentBookComponentTitle={currentBookComponentTitle}
       currentBookComponentUsers={currentBookComponentUsers}
       customPrompts={customPrompts}
       customPromptsOn={customPromptsOn}
