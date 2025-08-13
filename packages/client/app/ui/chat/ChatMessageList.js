@@ -54,12 +54,20 @@ const ChatMessageList = props => {
     infiniteScroll,
     participants,
   } = props
+  
+  const { sharedUsers } = useContext(YjsContext)
 
   const participantUsernames = participants.map(
     participant => participant.display,
   )
 
-  const { sharedUsers } = useContext(YjsContext)
+  // Helper function to get user color from sharedUsers
+  const getUserColor = (username) => {
+    const sharedUser = sharedUsers.find(sharedUser => 
+      sharedUser.user?.displayName === username
+    )
+    return sharedUser?.user?.color || null
+  }
 
   console.log(sharedUsers)
 
@@ -87,6 +95,7 @@ const ChatMessageList = props => {
         scrollThreshold="50px"
       >
         {messages.map(({ content, date, own, user, attachments, id }) => {
+          const userColor = getUserColor(user)
           return (
             <ChatMessage
               attachments={attachments}
@@ -97,6 +106,7 @@ const ChatMessageList = props => {
               own={own}
               participants={participantUsernames}
               user={user}
+              userColor={userColor}
             />
           )
         })}
@@ -104,18 +114,22 @@ const ChatMessageList = props => {
     ) : (
       <>
         <MessagesWrapper>
-          {messages.map(({ content, date, own, user, id, attachments }) => (
-            <ChatMessage
-              attachments={attachments}
-              className="message"
-              content={content}
-              date={date}
-              key={id}
-              own={own}
-              participants={participantUsernames}
-              user={user}
-            />
-          ))}
+          {messages.map(({ content, date, own, user, id, attachments }) => {
+            const userColor = getUserColor(user)
+            return (
+              <ChatMessage
+                attachments={attachments}
+                className="message"
+                content={content}
+                date={date}
+                key={id}
+                own={own}
+                participants={participantUsernames}
+                user={user}
+                userColor={userColor}
+              />
+            )
+          })}
         </MessagesWrapper>
         <TopMessageWrapper>
           {hasMore ? (
