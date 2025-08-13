@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { grid } from '@coko/client'
-
+import YjsContext from '../provider-yjs/YjsProvider'
 import ChatMessage from './ChatMessage'
 import { Button, Empty, Spin, VisuallyHiddenElement } from '../common'
 
@@ -58,6 +58,10 @@ const ChatMessageList = props => {
   const participantUsernames = participants.map(
     participant => participant.display,
   )
+
+  const { sharedUsers } = useContext(YjsContext)
+
+  console.log(sharedUsers)
 
   const messageList = () =>
     infiniteScroll ? (

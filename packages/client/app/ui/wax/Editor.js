@@ -64,6 +64,7 @@ const EditorWrapper = ({
   chatLoading,
   chatMessages,
   currentBookComponentUsers,
+  currentBookComponentTitle,
 }) => {
   const { wsProvider, ydoc } = useContext(YjsContext)
   const [documentTitle, setTitle] = useState(null)
@@ -93,6 +94,7 @@ const EditorWrapper = ({
     getDocTreeData,
     setSelectedChapterId,
     setIsCurrentDocumentMine,
+    currentBookComponentTitle,
   })
 
   const [userFileManagerFiles, setUserFileManagerFiles] = useState([])

@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* stylelint-disable selector-type-no-unknown */
 /* stylelint-disable declaration-no-important */
 /* stylelint-disable no-descending-specificity, string-quotes */
@@ -632,6 +633,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
     chatMessages,
     currentBookComponentUsers,
     getEditorContent,
+    currentBookComponentTitle,
   } = customProps
 
   const params = useParams()
@@ -853,7 +855,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
       },
       body: JSON.stringify({
         fileContent: contentWithBase64Images,
-        fileName: 'test-document',
+        fileName: currentBookComponentTitle,
         outputType,
       }),
     })
