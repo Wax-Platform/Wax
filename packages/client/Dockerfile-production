@@ -19,7 +19,6 @@ ARG websocket_server_url
 ARG pandoc_url
 ENV SERVER_URL=$server_url
 ENV WEBSOCKET_SERVER_URL=$websocket_server_url
-ENV PANDOC_URL=$pandoc_url
 
 ENV NODE_ENV='production'
 ENV CLIENT_PAGE_TITLE='Wax'
@@ -27,6 +26,7 @@ ENV CLIENT_FAVICON_PATH='../static/wax.ico'
 ENV CLIENT_LANGUAGE='en-US'
 ENV CLIENT_FEATURE_UPLOAD_DOCX_FILES='true'
 ENV CLIENT_FEATURE_BOOK_STRUCTURE='false'
+ENV CLIENT_PANDOC_URL=$pandoc_url
 
 RUN yarn coko-client-build
 
