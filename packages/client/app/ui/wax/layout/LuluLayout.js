@@ -808,49 +808,9 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
-  // Function to clean HTML content by removing only broken images
-  const cleanHtmlContent = (htmlContent, outputType) => {
-    if (outputType === 'pdf') {
-      let cleanedContent = htmlContent
-
-      // Remove specific problematic patterns
-
-      // 1. Remove expired DigitalOcean Spaces URLs
-      cleanedContent = cleanedContent.replace(
-        /<img[^>]*src=["'][^"']*nyc3\.digitaloceanspaces\.com[^"']*["'][^>]*>/gi,
-        '<!-- Expired DigitalOcean image removed -->',
-      )
-
-      // 2. Remove any img tags with X-Amz-Expires (expired URLs)
-      cleanedContent = cleanedContent.replace(
-        /<img[^>]*src=["'][^"']*X-Amz-Expires[^"']*["'][^>]*>/gi,
-        '<!-- Expired URL image removed -->',
-      )
-
-      // 3. Remove corrupted base64 images (those that are too short or malformed)
-      cleanedContent = cleanedContent.replace(
-        /<img[^>]*src=["']data:image\/[^;]+;base64,[A-Za-z0-9+/]{0,50}[^"']*["'][^>]*>/gi,
-        '<!-- Corrupted base64 image removed -->',
-      )
-
-      // 4. Remove ProseMirror separator images
-      cleanedContent = cleanedContent.replace(
-        /<img[^>]*class="[^"]*ProseMirror-separator[^"]*"[^>]*>/gi,
-        '<!-- ProseMirror separator removed -->',
-      )
-
-      return cleanedContent
-    }
-
-    return htmlContent
-  }
-
   const getFile = async outputType => {
     setIsGenerating(true)
     const editorContent = getEditorContent()
-
-    // Clean the HTML content before sending
-    const cleanedContent = cleanHtmlContent(editorContent, outputType)
 
     fetch(`https://wax-staging-pandoc.fly.dev/convert`, {
       method: 'POST',
@@ -858,7 +818,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        fileContent: cleanedContent,
+        fileContent: editorContent,
         fileName: currentBookComponentTitle,
         outputType,
         extension: 'html',

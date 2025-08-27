@@ -35,7 +35,7 @@ const execCommand = (command, jobId) => {
 
     // Optionally, log stderr to the console as well
     process.stderr.on('data', data => {
-      console.error(`stderr: ${data}`)
+      // console.error(`stderr: ${data}`)
     })
   })
 }
