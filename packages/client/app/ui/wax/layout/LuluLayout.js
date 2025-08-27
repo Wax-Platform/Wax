@@ -808,17 +808,78 @@ const LuluLayout = ({ customProps, ...rest }) => {
     }
   }
 
+  // Function to clean HTML content by removing only broken images
+  const cleanHtmlContent = (htmlContent, outputType) => {
+    if (outputType === 'pdf') {
+      console.log('Cleaning HTML content for PDF conversion...')
+      
+      // Count images before removal
+      const imgCountBefore = (htmlContent.match(/<img[^>]*>/gi) || []).length
+      const base64CountBefore = (htmlContent.match(/data:image/gi) || []).length
+      const digitalOceanCountBefore = (htmlContent.match(/nyc3\.digitaloceanspaces\.com/gi) || []).length
+      
+      console.log(`Found ${imgCountBefore} images, ${base64CountBefore} base64 images, ${digitalOceanCountBefore} DigitalOcean URLs`)
+      
+      let cleanedContent = htmlContent
+      
+      // Remove specific problematic patterns
+      
+      // 1. Remove expired DigitalOcean Spaces URLs
+      cleanedContent = cleanedContent.replace(
+        /<img[^>]*src=["'][^"']*nyc3\.digitaloceanspaces\.com[^"']*["'][^>]*>/gi,
+        '<!-- Expired DigitalOcean image removed -->'
+      )
+      
+      // 2. Remove any img tags with X-Amz-Expires (expired URLs)
+      cleanedContent = cleanedContent.replace(
+        /<img[^>]*src=["'][^"']*X-Amz-Expires[^"']*["'][^>]*>/gi,
+        '<!-- Expired URL image removed -->'
+      )
+      
+      // 3. Remove corrupted base64 images (those that are too short or malformed)
+      cleanedContent = cleanedContent.replace(
+        /<img[^>]*src=["']data:image\/[^;]+;base64,[A-Za-z0-9+/]{0,50}[^"']*["'][^>]*>/gi,
+        '<!-- Corrupted base64 image removed -->'
+      )
+      
+      // 4. Remove ProseMirror separator images
+      cleanedContent = cleanedContent.replace(
+        /<img[^>]*class="[^"]*ProseMirror-separator[^"]*"[^>]*>/gi,
+        '<!-- ProseMirror separator removed -->'
+      )
+      
+      // Count images after removal
+      const imgCountAfter = (cleanedContent.match(/<img[^>]*>/gi) || []).length
+      const base64CountAfter = (cleanedContent.match(/data:image/gi) || []).length
+      const digitalOceanCountAfter = (cleanedContent.match(/nyc3\.digitaloceanspaces\.com/gi) || []).length
+      
+      console.log(`After cleaning: ${imgCountAfter} images, ${base64CountAfter} base64 images, ${digitalOceanCountAfter} DigitalOcean URLs`)
+      console.log('HTML content cleaned for PDF conversion')
+      
+      return cleanedContent
+    }
+    
+    return htmlContent
+  }
+
   const getFile = async outputType => {
     setIsGenerating(true)
     const editorContent = getEditorContent()
 
-    fetch(`https://wax-staging-pandoc.fly.dev/convert`, {
+    console.log('Original editor content length:', editorContent.length)
+    
+    // Clean the HTML content before sending
+    const cleanedContent = cleanHtmlContent(editorContent, outputType)
+    
+    console.log('Cleaned content length:', cleanedContent.length)
+
+     fetch(`https://wax-staging-pandoc.fly.dev/convert`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        fileContent: editorContent,
+        fileContent: cleanedContent,
         fileName: currentBookComponentTitle,
         outputType,
         extension: 'html',
@@ -855,6 +916,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
         } else {
           console.error('Conversion failed:', data.message)
         }
+
         setIsGenerating(false)
       })
       .catch(error => {
