@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid')
 const fs = require('fs')
 const https = require('https')
 const http = require('http')
+const sharp = require('sharp')
 const { processJob } = require('./worker')
 
 const app = express()
@@ -40,7 +41,7 @@ const fetchImageAsBase64 = url => {
 }
 
 // Function to convert all image URLs in HTML to base64
-const convertImagesToBase64 = async htmlContent => {
+const convertImagesToBase64 = async (htmlContent, outputType) => {
   const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi
   const imgUrls = []
   let match
@@ -56,7 +57,14 @@ const convertImagesToBase64 = async htmlContent => {
   // Fetch and convert each image
   for (const imgUrl of imgUrls) {
     try {
-      const base64Data = await fetchImageAsBase64(imgUrl)
+      let base64Data = await fetchImageAsBase64(imgUrl)
+      
+      // For PDF, check if image is large and compress if needed
+      if (outputType === 'pdf') {
+        console.log(`Processing image for PDF compression: ${imgUrl}`)
+        base64Data = await compressImageIfNeeded(base64Data)
+      }
+      
       htmlContent = htmlContent.replace(
         new RegExp(imgUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
         base64Data,
@@ -69,6 +77,105 @@ const convertImagesToBase64 = async htmlContent => {
   }
 
   return htmlContent
+}
+
+// Function to compress image if it's larger than 100KB
+const compressImageIfNeeded = async (base64Data) => {
+  try {
+    console.log('compressImageIfNeeded called with base64 data length:', base64Data.length)
+    
+    // Remove data URL prefix to get just the base64 data
+    const base64Match = base64Data.match(/^data:([^;]+);base64,(.+)$/)
+    if (!base64Match) {
+      console.log('No valid data URL pattern found, returning original')
+      return base64Data // Not a valid data URL, return as is
+    }
+    
+    const mimeType = base64Match[1]
+    const base64String = base64Match[2]
+    
+    // Check if it's an image we can compress
+    // For application/octet-stream, we'll try to detect the image type from the buffer
+    if (!mimeType.startsWith('image/') && mimeType !== 'application/octet-stream') {
+      console.log('Not an image MIME type:', mimeType)
+      return base64Data
+    }
+    
+    // Calculate size in bytes
+    const sizeInBytes = Math.ceil((base64String.length * 3) / 4)
+    const sizeInKB = sizeInBytes / 1024
+    
+    console.log(`Image size: ${sizeInKB.toFixed(2)} KB`)
+    
+    // If image is smaller than 50KB, return as is (lowered threshold)
+    if (sizeInKB <= 50) {
+      return base64Data
+    }
+    
+    console.log(`Large image detected (${sizeInKB.toFixed(2)} KB > 50 KB) - compressing...`)
+    
+    // Convert base64 to buffer
+    const imageBuffer = Buffer.from(base64String, 'base64')
+    
+    // Detect image type from buffer if MIME type is application/octet-stream
+    let detectedMimeType = mimeType
+    if (mimeType === 'application/octet-stream') {
+      try {
+        const metadata = await sharp(imageBuffer).metadata()
+        if (metadata.format === 'jpeg' || metadata.format === 'jpg') {
+          detectedMimeType = 'image/jpeg'
+        } else if (metadata.format === 'png') {
+          detectedMimeType = 'image/png'
+        } else if (metadata.format === 'webp') {
+          detectedMimeType = 'image/webp'
+        } else {
+          detectedMimeType = 'image/jpeg' // Default to JPEG for compression
+        }
+        console.log(`Detected image type: ${detectedMimeType} (original MIME: ${mimeType})`)
+      } catch (error) {
+        console.log('Could not detect image type, defaulting to JPEG compression')
+        detectedMimeType = 'image/jpeg'
+      }
+    }
+    
+    // Compress image using sharp with more aggressive settings
+    let compressedBuffer
+    if (detectedMimeType === 'image/jpeg' || detectedMimeType === 'image/jpg') {
+      compressedBuffer = await sharp(imageBuffer)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true }) // Resize if too large
+        .jpeg({ quality: 50, progressive: true }) // Reduce quality to 50%
+        .toBuffer()
+    } else if (detectedMimeType === 'image/png') {
+      compressedBuffer = await sharp(imageBuffer)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true }) // Resize if too large
+        .png({ quality: 50, compressionLevel: 9 }) // Reduce quality to 50% and max compression
+        .toBuffer()
+    } else if (detectedMimeType === 'image/webp') {
+      compressedBuffer = await sharp(imageBuffer)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true }) // Resize if too large
+        .webp({ quality: 50 }) // Reduce quality to 50%
+        .toBuffer()
+    } else {
+      // For other formats, try to convert to JPEG with compression
+      compressedBuffer = await sharp(imageBuffer)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true }) // Resize if too large
+        .jpeg({ quality: 50, progressive: true })
+        .toBuffer()
+    }
+    
+    // Convert back to base64
+    const compressedBase64 = compressedBuffer.toString('base64')
+    const compressedSizeInKB = (compressedBuffer.length / 1024).toFixed(2)
+    
+    console.log(`Compressed image from ${sizeInKB.toFixed(2)} KB to ${compressedSizeInKB} KB`)
+    
+    // Return compressed data URL
+    return `data:${mimeType};base64,${compressedBase64}`
+    
+  } catch (error) {
+    console.error('Error compressing image:', error)
+    return base64Data // Return original if compression fails
+  }
 }
 
 // Helper function to get content type based on output format
@@ -181,7 +288,7 @@ app.post('/convert', async (req, res) => {
     if (extension === 'html' || extension === 'htm') {
       try {
         console.log('Converting images to base64...')
-        processedContent = await convertImagesToBase64(fileContent)
+        processedContent = await convertImagesToBase64(fileContent, outputType)
         console.log('Image conversion completed')
       } catch (error) {
         console.error('Error converting images:', error)
