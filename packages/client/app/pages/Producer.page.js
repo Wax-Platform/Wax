@@ -235,13 +235,14 @@ const ProducerPage = ({ bookId }) => {
           wsProvider.disconnect()
         }
 
+        setCurrentBookComponentTitle(data.getBookComponent.title || 'Untitled')
+
         if (
           data.getBookComponent.content &&
           data.getBookComponent.yState === null
         ) {
           setCurrentBookComponentContent(data.getBookComponent.content)
         } else {
-          setCurrentBookComponentTitle(data.getBookComponent.title)
           setCurrentBookComponentUsers(data.getBookComponent.teams)
           setCurrentBookComponentContent('')
         }

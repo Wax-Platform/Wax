@@ -322,6 +322,7 @@ const EditorWrapper = ({
       chatLoading,
       currentBookComponentUsers,
       getEditorContent,
+      currentBookComponentTitle,
     })
   }, [
     title,
@@ -339,6 +340,7 @@ const EditorWrapper = ({
     userFileManagerFiles,
     chatChannel,
     currentBookComponentUsers,
+    currentBookComponentTitle,
   ])
 
   const userObject = {

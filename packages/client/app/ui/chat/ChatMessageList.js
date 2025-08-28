@@ -54,7 +54,7 @@ const ChatMessageList = props => {
     infiniteScroll,
     participants,
   } = props
-  
+
   const { sharedUsers } = useContext(YjsContext)
 
   const participantUsernames = participants.map(
@@ -62,14 +62,12 @@ const ChatMessageList = props => {
   )
 
   // Helper function to get user color from sharedUsers
-  const getUserColor = (username) => {
-    const sharedUser = sharedUsers.find(sharedUser => 
-      sharedUser.user?.displayName === username
+  const getUserColor = username => {
+    const sharedUser = sharedUsers.find(
+      sharedUser => sharedUser.user?.displayName === username,
     )
     return sharedUser?.user?.color || null
   }
-
-  console.log(sharedUsers)
 
   const messageList = () =>
     infiniteScroll ? (
