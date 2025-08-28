@@ -809,14 +809,13 @@ const LuluLayout = ({ customProps, ...rest }) => {
   }
 
 
-
   const getFile = async outputType => {
     setIsGenerating(true)
     const editorContent = getEditorContent()
 
 
-    // fetch(`https://wax-staging-pandoc.fly.dev/convert`, {
-    fetch(`http://localhost:4040/convert`, {
+    fetch(`https://wax-staging-pandoc.fly.dev/convert`, {
+    // fetch(`http://localhost:4040/convert`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
