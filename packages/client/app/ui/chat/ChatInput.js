@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { MentionsInput, Mention } from 'react-mentions'
 import { grid, th, useCurrentUser } from '@coko/client'
 
-import { SendOutlined } from '@ant-design/icons'
+import { SendOutlined, PaperClipOutlined } from '@ant-design/icons'
 
 import { Button, Upload } from '../common'
 import { inputShadow } from '../common/_reusableStyles'
@@ -16,18 +16,28 @@ const MainContainer = styled('div')`
   position: relative;
 `
 
+const InputContainer = styled('div')`
+  flex-grow: 1;
+  position: relative;
+  margin: ${grid(1)};
+  height: 34px; 
+`
+
 const StyledMentionsInput = styled(MentionsInput)`
   flex-grow: 1;
-  margin: ${grid(1)};
-  max-height: 70px;
+  height: 100%;
   position: relative;
 
   textarea {
     border: 1px solid ${th('colorBorder')};
+    height: 100%;
+    min-height: 32px;
     max-height: 70px;
     ${inputShadow};
     overflow: auto;
     padding: ${grid(1)} ${grid(10)} ${grid(1)} ${grid(2)};
+    padding-right: ${grid(8)}; /* Add space for the paperclip icon */
+    resize: none;
   }
 
   [role='listbox'] {
@@ -99,7 +109,22 @@ const SendButton = styled(Button)`
       color:rgba(63, 63, 63, 0.25)!important; 
       background: rgba(63, 63, 63, 0.04)!important;
      }
-    `}
+   `}
+`
+
+const PaperclipButton = styled(Button)`
+  border: none;
+  height: 32px;
+  position: absolute;
+  right: ${grid(1)};
+  top: 1px;
+  color: ${th('colorPrimary')};
+  z-index: 10;
+  
+  &:hover {
+    color: ${th('colorPrimary')};
+    background: rgba(113, 173, 169, 0.1);
+  }
 `
 
 // TODO -- this needs to be a wax editor with two plugins (mention & task)
@@ -112,6 +137,8 @@ const ChatInput = props => {
   const [attachments, setAttachments] = useState([])
 
   const inputRef = useRef(null)
+  const uploadRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   const handleTextChange = (_, newValue, __, mentioned) => {
     setInputValue(newValue)
@@ -140,6 +167,25 @@ const ChatInput = props => {
     )
   }
 
+  const handlePaperclipClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleFileInputChange = (event) => {
+    const files = Array.from(event.target.files)
+    const fileList = files.map((file, index) => ({
+      uid: `file-${Date.now()}-${index}`,
+      name: file.name,
+      status: 'done',
+      originFileObj: file,
+    }))
+    setAttachments(fileList)
+    // Reset the input so the same file can be selected again
+    event.target.value = ''
+  }
+
   const handleSend = async () => {
     if (inputValue.trim().length !== 0 || attachments.length > 0) {
       const content =
@@ -157,25 +203,42 @@ const ChatInput = props => {
 
   return (
     <MainContainer>
-      <StyledMentionsInput
-        className="mentions-input"
-        forceSuggestionsAboveCursor
-        inputRef={inputRef}
-        onChange={handleTextChange}
-        onKeyDown={handleKeyDown}
-        value={inputValue}
-        {...rest}
-      >
-        <Mention
-          appendSpaceOnAdd
-          data={[...new Set(participants.filter(p => p.id !== currentUser.id))]}
-          displayTransform={(_, display) => `@${display}`}
-          renderSuggestion={entry => {
-            return <span>{entry.display}</span>
-          }}
-          trigger="@"
-        />
-      </StyledMentionsInput>
+      <InputContainer>
+        <StyledMentionsInput
+          className="mentions-input"
+          forceSuggestionsAboveCursor
+          inputRef={inputRef}
+          onChange={handleTextChange}
+          onKeyDown={handleKeyDown}
+          value={inputValue}
+          {...rest}
+        >
+          <Mention
+            appendSpaceOnAdd
+            data={[...new Set(participants.filter(p => p.id !== currentUser.id))]}
+            displayTransform={(_, display) => `@${display}`}
+            renderSuggestion={entry => {
+              return <span>{entry.display}</span>
+            }}
+            trigger="@"
+          />
+        </StyledMentionsInput>
+        <PaperclipButton
+          onClick={handlePaperclipClick}
+          type="text"
+          aria-label="attach-files"
+        >
+          <PaperClipOutlined />
+        </PaperclipButton>
+      </InputContainer>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.pdf,.docx,.odt"
+        multiple
+        onChange={handleFileInputChange}
+        style={{ display: 'none' }}
+      />
       <StyledUpload
         accept="image/*,.pdf,.docx,.odt"
         aria-label="upload-attachments"
@@ -183,6 +246,8 @@ const ChatInput = props => {
         multiple
         onChange={handleAttachmentChange}
         onRemove={handleRemoveAttachment}
+        ref={uploadRef}
+        style={{ display: 'none' }}
       />
       <SendButton
         $inactive={inputValue.length === 0 && attachments.length === 0}
