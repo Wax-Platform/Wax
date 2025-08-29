@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* stylelint-disable string-quotes */
 import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
@@ -20,7 +21,7 @@ const InputContainer = styled('div')`
   flex-grow: 1;
   position: relative;
   margin: ${grid(1)};
-  height: 34px; 
+  height: 34px;
 `
 
 const StyledMentionsInput = styled(MentionsInput)`
@@ -114,16 +115,16 @@ const SendButton = styled(Button)`
 
 const PaperclipButton = styled(Button)`
   border: none;
+  color: ${th('colorPrimary')};
   height: 32px;
   position: absolute;
   right: ${grid(1)};
   top: 1px;
-  color: ${th('colorPrimary')};
   z-index: 10;
-  
+
   &:hover {
+    background: rgba(113 173 169 / 10%);
     color: ${th('colorPrimary')};
-    background: rgba(113, 173, 169, 0.1);
   }
 `
 
@@ -173,14 +174,16 @@ const ChatInput = props => {
     }
   }
 
-  const handleFileInputChange = (event) => {
+  const handleFileInputChange = event => {
     const files = Array.from(event.target.files)
+
     const fileList = files.map((file, index) => ({
       uid: `file-${Date.now()}-${index}`,
       name: file.name,
       status: 'done',
       originFileObj: file,
     }))
+
     setAttachments(fileList)
     // Reset the input so the same file can be selected again
     event.target.value = ''
@@ -215,7 +218,9 @@ const ChatInput = props => {
         >
           <Mention
             appendSpaceOnAdd
-            data={[...new Set(participants.filter(p => p.id !== currentUser.id))]}
+            data={[
+              ...new Set(participants.filter(p => p.id !== currentUser.id)),
+            ]}
             displayTransform={(_, display) => `@${display}`}
             renderSuggestion={entry => {
               return <span>{entry.display}</span>
@@ -224,20 +229,20 @@ const ChatInput = props => {
           />
         </StyledMentionsInput>
         <PaperclipButton
+          aria-label="attach-files"
           onClick={handlePaperclipClick}
           type="text"
-          aria-label="attach-files"
         >
           <PaperClipOutlined />
         </PaperclipButton>
       </InputContainer>
       <input
-        ref={fileInputRef}
-        type="file"
         accept="image/*,.pdf,.docx,.odt"
         multiple
         onChange={handleFileInputChange}
+        ref={fileInputRef}
         style={{ display: 'none' }}
+        type="file"
       />
       <StyledUpload
         accept="image/*,.pdf,.docx,.odt"

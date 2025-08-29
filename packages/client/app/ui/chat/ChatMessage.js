@@ -28,7 +28,7 @@ const Message = styled.div`
     if (props.own) {
       return th('colorTextDark')
     }
-    return props.userColor ? '#000000' : th('colorTextReverse')
+    return props.userColor ? '#E0E0E0' : th('colorTextReverse')
   }};
   display: inline-block;
   margin-block: 10px;
