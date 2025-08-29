@@ -18,7 +18,8 @@ const Message = styled.div`
     if (props.own) {
       return th('colorBackgroundHue')
     }
-    return props.userColor || th('colorPrimary')
+
+    return props.userColor || '#E0E0E0'
   }};
   border-radius: ${props =>
     props.own ? '15px 0 15px 15px' : '0 15px 15px 15px'};
