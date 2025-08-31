@@ -1,4 +1,4 @@
-const { subscriptionManager, logger , fileStorage} = require('@coko/server')
+const { subscriptionManager, logger, fileStorage } = require('@coko/server')
 const axios = require('axios')
 const fs = require('fs-extra')
 const config = require('config')
@@ -33,28 +33,98 @@ const {
 
 const RESTEndpoints = app => {
   app.use('/file/:fileId', async (req, res) => {
-    const { fileId } = req.params;
+    const { fileId } = req.params
 
     try {
-      const file = await File.query().findById(fileId);
-      if (!file) return res.status(404).send('File not found');
+      const file = await File.query().findById(fileId)
+      if (!file) return res.status(404).send('File not found')
 
-      const original = file.storedObjects.find(obj => obj.type === 'original');
-      if (!original) return res.status(400).send('Original file not found');
+      const original = file.storedObjects.find(obj => obj.type === 'original')
+      if (!original) return res.status(400).send('Original file not found')
 
       // Get a signed URL (temporary, secure)
-      const signedUrl = await fileStorage.getURL(original.key);
+      const signedUrl = await fileStorage.getURL(original.key)
 
       // Stream the file from the signed URL
-      const fileResponse = await axios.get(signedUrl, { responseType: 'stream' });
+      const fileResponse = await axios.get(signedUrl, {
+        responseType: 'stream',
+      })
 
-      res.setHeader('Content-Type', original.mimeType || 'application/octet-stream');
-      fileResponse.data.pipe(res);
+      res.setHeader(
+        'Content-Type',
+        original.mimeType || 'application/octet-stream',
+      )
+      fileResponse.data.pipe(res)
     } catch (err) {
-      console.error('Error proxying file:', err);
-      res.status(500).send('Internal server error');
+      console.error('Error proxying file:', err)
+      res.status(500).send('Internal server error')
     }
   })
+
+  app.use('/api/pandoc-callback', async (req, res) => {
+    try {
+      const { bookComponentId, convertedContent, status, error } = req.body
+
+      if (status === 'error') {
+        throw new Error(error)
+      }
+
+      console.log(
+        `Processing pandoc callback for book component: ${bookComponentId}`,
+      )
+
+      // Use existing xsweetImagesHandler to process images and upload to S3
+      const contentWithImagesHandled = await xsweetImagesHandler(
+        convertedContent,
+        bookComponentId,
+      )
+
+      const uploading = false
+      await updateContent(bookComponentId, contentWithImagesHandled, 'en')
+      await updateUploading(bookComponentId, uploading)
+
+      const updatedBookComponent = await BookComponent.findById(bookComponentId)
+      const belongingBook = await Book.findById(updatedBookComponent.bookId)
+
+      subscriptionManager.publish(BOOK_COMPONENT_UPLOADING_UPDATED, {
+        bookComponentUploadingUpdated: updatedBookComponent.id,
+      })
+
+      subscriptionManager.publish(BOOK_UPDATED, {
+        bookUpdated: belongingBook.id,
+      })
+
+      res.json({ status: 'ok' })
+    } catch (error) {
+      console.error('Error processing pandoc callback:', error)
+
+      // Try to update the book component status to error
+      try {
+        const { bookComponentId } = req.body
+
+        if (bookComponentId) {
+          const bookComp = await getBookComponent(bookComponentId)
+          await updateUploading(bookComponentId, false)
+          await setStatus(bookComponentId, STATUSES.CONVERSION_ERROR)
+
+          const belongingBook = await Book.findById(bookComp.bookId)
+
+          subscriptionManager.publish(BOOK_COMPONENT_UPDATED, {
+            bookComponentUpdated: bookComponentId,
+          })
+
+          subscriptionManager.publish(BOOK_UPDATED, {
+            bookUpdated: belongingBook.id,
+          })
+        }
+      } catch (updateError) {
+        console.error('Error updating book component status:', updateError)
+      }
+
+      res.status(500).json({ error: error.message })
+    }
+  })
+
   app.use('/api/xsweet', async (req, res) => {
     try {
       const { body } = req
@@ -84,6 +154,8 @@ const RESTEndpoints = app => {
       if (serviceCallbackToken.length !== 1) {
         throw new Error('unknown service token or conflict')
       }
+
+      console.log('convertedContent', convertedContent)
 
       const contentWithImagesHandled = await xsweetImagesHandler(
         convertedContent,

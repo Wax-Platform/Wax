@@ -7,6 +7,7 @@ const fs = require('fs')
 const https = require('https')
 const http = require('http')
 const sharp = require('sharp')
+const axios = require('axios')
 const { processJob } = require('./worker')
 
 const app = express()
@@ -278,6 +279,7 @@ app.post('/convert', async (req, res) => {
 
     // Convert images to base64 if the content is HTML (but not for RTF)
     let processedContent = fileContent
+
     if (extension === 'html' || extension === 'htm') {
       try {
         console.log('Converting images to base64...')
@@ -365,6 +367,96 @@ app.post('/convert', async (req, res) => {
     })
   } catch (error) {
     console.error('Error processing conversion request:', error)
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message,
+    })
+  }
+})
+
+// POST route to convert DOCX to HTML
+app.post('/convert-docx', async (req, res) => {
+  try {
+    const { docxFile, bookComponentId, callbackUrl } = req.body
+
+    if (!docxFile || !bookComponentId || !callbackUrl) {
+      return res.status(400).json({
+        error: 'Missing required fields: docxFile, bookComponentId, and callbackUrl are required',
+      })
+    }
+
+    console.log(`Converting DOCX to HTML for book component: ${bookComponentId}`)
+
+    // Create temporary input file path
+    const jobId = uuidv4()
+    const tempInputPath = `/tmp/input-${jobId}.docx`
+    const tempOutputPath = `/tmp/output-${jobId}.html`
+
+    // Write the base64 docx file to temporary file
+    const docxBuffer = Buffer.from(docxFile, 'base64')
+    fs.writeFileSync(tempInputPath, docxBuffer)
+
+    // Convert DOCX to HTML using pandoc
+    const job = {
+      jobId,
+      outputType: 'html',
+      timestamp: new Date().toISOString(),
+      tempInputPath,
+      tempOutputPath,
+    }
+
+    const outputFilePath = await processJob(job)
+
+    if (!outputFilePath || !fs.existsSync(outputFilePath)) {
+      throw new Error('Failed to generate HTML output file')
+    }
+
+    // Read the converted HTML content
+    const htmlContent = fs.readFileSync(outputFilePath, 'utf8')
+
+    // Clean up temporary files
+    try {
+      if (fs.existsSync(outputFilePath)) {
+        fs.unlinkSync(outputFilePath)
+      }
+      if (fs.existsSync(tempInputPath)) {
+        fs.unlinkSync(tempInputPath)
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up files:', cleanupError)
+    }
+
+    // Call the callback URL with the converted HTML
+    await axios.post(callbackUrl, {
+      bookComponentId,
+      convertedContent: htmlContent,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+    })
+
+    res.json({ 
+      status: 'success',
+      message: 'DOCX converted to HTML successfully',
+      bookComponentId 
+    })
+
+  } catch (error) {
+    console.error('Error converting DOCX to HTML:', error)
+    
+    // Call the callback URL with error information
+    if (req.body.callbackUrl) {
+      try {
+        await axios.post(req.body.callbackUrl, {
+          bookComponentId: req.body.bookComponentId,
+          error: error.message,
+          status: 'error',
+          timestamp: new Date().toISOString(),
+        })
+      } catch (callbackError) {
+        console.error('Error calling callback URL:', callbackError)
+      }
+    }
+
     res.status(500).json({
       error: 'Internal server error',
       message: error.message,

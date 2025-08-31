@@ -90,6 +90,9 @@ services:
       - SERVICE_XSWEET_CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
       - SERVICE_XSWEET_SECRET=asldkjLKJLaslkdf897kjhKUJH
       - SERVICE_XSWEET_URL=${SERVICE_XSWEET_URL:-http://xsweet:3004}
+      - SERVICE_PANDOC_CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
+      - SERVICE_PANDOC_SECRET=asldkjLKJLaslkdf897kjhKUJH
+      - SERVICE_PANDOC_URL=${SERVICE_PANDOC_URL:-http://pandoc-worker:4040}
       # - SERVICE_FLAX_CLIENT_ID=59a3392b-0c4f-4318-bbe2-f86eff6d3de4
       # - SERVICE_FLAX_SECRET=asldkjLKJLaslkdf897kjhKUJH
       # - SERVICE_FLAX_URL=${SERVICE_FLAX_URL:-http://flax:3005}
