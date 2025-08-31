@@ -63,7 +63,14 @@ const convertImagesToBase64 = async (htmlContent, outputType) => {
   // Fetch and convert each image
   for (const imgUrl of imgUrls) {
     try {
-      let base64Data = await fetchImageAsBase64(imgUrl)
+      // Fix localhost URLs to use Docker service names
+      let fixedUrl = imgUrl
+
+      if (imgUrl.includes('localhost:3000')) {
+        fixedUrl = imgUrl.replace('localhost:3000', 'server:3000')
+      }
+
+      let base64Data = await fetchImageAsBase64(fixedUrl)
 
       // For PDF, check if image is large and compress if needed
       if (outputType === 'pdf') {
@@ -75,6 +82,7 @@ const convertImagesToBase64 = async (htmlContent, outputType) => {
         base64Data,
       )
     } catch (error) {
+      console.error(`Failed to fetch image from ${imgUrl}:`, error.message)
       // Keep the original URL if conversion fails
     }
   }
@@ -352,7 +360,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  console.log('Health check request received')
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
@@ -381,9 +388,7 @@ app.post('/convert', async (req, res) => {
 
     if (extension === 'html' || extension === 'htm') {
       try {
-        console.log('Converting images to base64...')
         processedContent = await convertImagesToBase64(fileContent, outputType)
-        console.log('Image conversion completed')
       } catch (error) {
         console.error('Error converting images:', error)
         // Continue with original content if image conversion fails
