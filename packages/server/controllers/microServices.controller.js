@@ -170,7 +170,7 @@ const pdfHandler = async (zipPath, outputPath, PDFFilename) => {
           await fs.ensureDir(outputPath)
 
           const output = await fileStorage.upload(res.data, PDFFilename)
-        
+
           await writeLocallyFromReadStream(
             outputPath,
             PDFFilename,
@@ -459,29 +459,26 @@ const pandocDocxHandler = async (bookComponentId, filePath) => {
     // Read the file and convert to base64
     const fileBuffer = fs.readFileSync(filePath)
     const base64File = fileBuffer.toString('base64')
-    
+
     const serverUrl = config.get('serverUrl')
-    
+
     // Send as JSON instead of FormData
     const requestData = {
       docxFile: base64File,
-      bookComponentId: bookComponentId,
-      callbackUrl: `${serverUrl}/api/pandoc-callback`
-    }
-    
-    console.log('Sending request to pandoc:', {
       bookComponentId,
       callbackUrl: `${serverUrl}/api/pandoc-callback`,
-      fileSize: fileBuffer.length,
-      base64Length: base64File.length
-    })
-    
-    const response = await axios.post(`${getServiceURL(PANDOC)}/convert-docx`, requestData, {
-      headers: {
-        'Content-Type': 'application/json',
+    }
+
+    const response = await axios.post(
+      `${getServiceURL(PANDOC)}/convert-docx`,
+      requestData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    })
-    
+    )
+
     return response.data
   } catch (error) {
     logger.error(error)

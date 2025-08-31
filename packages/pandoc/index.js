@@ -4,6 +4,7 @@
 const express = require('express')
 const { v4: uuidv4 } = require('uuid')
 const fs = require('fs')
+const path = require('path')
 const https = require('https')
 const http = require('http')
 const sharp = require('sharp')
@@ -190,6 +191,104 @@ const getContentType = outputType => {
   return contentTypes[outputType] || 'application/octet-stream'
 }
 
+// Function to process images in HTML and convert them to base64
+const processImagesInHtml = async (htmlContent, tempInputPath) => {
+  try {
+    // First, use pandoc to extract media from the original DOCX
+    const jobId = path.basename(tempInputPath, '.docx').replace('input-', '')
+    const mediaDir = `/tmp/media-${jobId}`
+    const tempDocxPath = tempInputPath
+
+    // Check if the DOCX file exists
+    if (!fs.existsSync(tempDocxPath)) {
+      console.error(`DOCX file not found: ${tempDocxPath}`)
+      return htmlContent
+    }
+
+    // Create media directory if it doesn't exist
+    if (!fs.existsSync(mediaDir)) {
+      fs.mkdirSync(mediaDir, { recursive: true })
+    }
+
+    // Extract media using pandoc with better error handling
+    const { execSync } = require('child_process')
+
+    try {
+      execSync(`pandoc "${tempDocxPath}" --extract-media="${mediaDir}"`, {
+        stdio: 'pipe',
+        cwd: '/tmp',
+      })
+    } catch (extractError) {
+      console.error('Error extracting media with pandoc:', extractError.message)
+      // Continue without media extraction
+      return htmlContent
+    }
+
+    // Process the HTML to replace image paths with base64
+    const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi
+    let match
+    let processedContent = htmlContent
+
+    while ((match = imgRegex.exec(htmlContent)) !== null) {
+      const imgSrc = match[1]
+
+      // Skip if it's already a data URL or external URL
+      if (imgSrc.startsWith('data:') || imgSrc.startsWith('http')) {
+        continue
+      }
+
+      // Construct the full path to the extracted image
+      const imagePath = path.join(mediaDir, imgSrc)
+
+      if (fs.existsSync(imagePath)) {
+        try {
+          // Read the image file and convert to base64
+          const imageBuffer = fs.readFileSync(imagePath)
+          const mimeType = getMimeTypeFromPath(imgSrc)
+          const base64Data = imageBuffer.toString('base64')
+          const dataUrl = `data:${mimeType};base64,${base64Data}`
+
+          // Replace the image src in the HTML
+          processedContent = processedContent.replace(
+            new RegExp(imgSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+            dataUrl,
+          )
+        } catch (error) {
+          console.error(`Error processing image ${imgSrc}:`, error)
+        }
+      } else {
+        console.log(`Image file not found: ${imagePath}`)
+      }
+    }
+
+    // Clean up media directory
+    if (fs.existsSync(mediaDir)) {
+      fs.rmSync(mediaDir, { recursive: true, force: true })
+    }
+
+    return processedContent
+  } catch (error) {
+    console.error('Error processing images in HTML:', error)
+    return htmlContent
+  }
+}
+
+// Helper function to determine MIME type from file extension
+const getMimeTypeFromPath = filePath => {
+  const ext = path.extname(filePath).toLowerCase()
+
+  const mimeTypes = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.svg': 'image/svg+xml',
+  }
+
+  return mimeTypes[ext] || 'image/jpeg'
+}
+
 // Function to clean HTML content by removing only broken images
 const cleanHtmlContent = (htmlContent, outputType) => {
   if (outputType === 'pdf') {
@@ -322,14 +421,7 @@ app.post('/convert', async (req, res) => {
 
     // For RTF, ensure we have a complete RTF document
     if (outputType === 'rtf') {
-      console.log('=== PROCESSING RTF IN INDEX.JS ===')
       const rtfContent = convertedFileContent.toString('utf8')
-
-      console.log(
-        'Original RTF content starts with:',
-        rtfContent.trim().substring(0, 50),
-      )
-      console.log('Original RTF content length:', rtfContent.length)
 
       // Always add RTF header and footer to ensure complete RTF document
       const rtfHeader =
@@ -381,11 +473,10 @@ app.post('/convert-docx', async (req, res) => {
 
     if (!docxFile || !bookComponentId || !callbackUrl) {
       return res.status(400).json({
-        error: 'Missing required fields: docxFile, bookComponentId, and callbackUrl are required',
+        error:
+          'Missing required fields: docxFile, bookComponentId, and callbackUrl are required',
       })
     }
-
-    console.log(`Converting DOCX to HTML for book component: ${bookComponentId}`)
 
     // Create temporary input file path
     const jobId = uuidv4()
@@ -412,7 +503,10 @@ app.post('/convert-docx', async (req, res) => {
     }
 
     // Read the converted HTML content
-    const htmlContent = fs.readFileSync(outputFilePath, 'utf8')
+    let htmlContent = fs.readFileSync(outputFilePath, 'utf8')
+
+    // Extract media and convert images to base64
+    htmlContent = await processImagesInHtml(htmlContent, tempInputPath)
 
     // Clean up temporary files
     try {
@@ -434,15 +528,14 @@ app.post('/convert-docx', async (req, res) => {
       timestamp: new Date().toISOString(),
     })
 
-    res.json({ 
+    res.json({
       status: 'success',
       message: 'DOCX converted to HTML successfully',
-      bookComponentId 
+      bookComponentId,
     })
-
   } catch (error) {
     console.error('Error converting DOCX to HTML:', error)
-    
+
     // Call the callback URL with error information
     if (req.body.callbackUrl) {
       try {

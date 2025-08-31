@@ -69,10 +69,6 @@ const RESTEndpoints = app => {
         throw new Error(error)
       }
 
-      console.log(
-        `Processing pandoc callback for book component: ${bookComponentId}`,
-      )
-
       // Use existing xsweetImagesHandler to process images and upload to S3
       const contentWithImagesHandled = await xsweetImagesHandler(
         convertedContent,

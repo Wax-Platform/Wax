@@ -17,12 +17,12 @@ const processJob = async job => {
   } catch (error) {
     console.error('Error processing job:', error)
   } finally {
-    // Cleanup temp files
+    // Cleanup temp files (but keep the input file for image processing)
     if (fs.existsSync(`/tmp/output-${jobId}.log`))
       fs.unlinkSync(`/tmp/output-${jobId}.log`)
     if (fs.existsSync(`/tmp/error-${jobId}.log`))
       fs.unlinkSync(`/tmp/error-${jobId}.log`)
-    if (fs.existsSync(tempInputPath)) fs.unlinkSync(tempInputPath)
+    // Don't delete tempInputPath here - let the main function handle cleanup after image processing
   }
 }
 
