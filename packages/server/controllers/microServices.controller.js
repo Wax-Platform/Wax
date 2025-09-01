@@ -5,6 +5,7 @@ const path = require('path')
 const crypto = require('crypto')
 const get = require('lodash/get')
 const FormData = require('form-data')
+const axios = require('axios')
 
 const uploadsDir = get(config, ['uploads'], 'uploads')
 
@@ -21,6 +22,7 @@ const EPUBCHECKER = 'epubChecker'
 const ICML = 'icml'
 const PAGEDJS = 'pagedjs'
 const XSWEET = 'xsweet'
+const PANDOC = 'pandoc'
 const FLAX = 'flax'
 
 const services = config.get('services')
@@ -168,7 +170,7 @@ const pdfHandler = async (zipPath, outputPath, PDFFilename) => {
           await fs.ensureDir(outputPath)
 
           const output = await fileStorage.upload(res.data, PDFFilename)
-        
+
           await writeLocallyFromReadStream(
             outputPath,
             PDFFilename,
@@ -452,6 +454,38 @@ const flaxHandler = async (data, options) => {
   }
 }
 
+const pandocDocxHandler = async (bookComponentId, filePath) => {
+  try {
+    // Read the file and convert to base64
+    const fileBuffer = fs.readFileSync(filePath)
+    const base64File = fileBuffer.toString('base64')
+
+    const serverUrl = config.get('serverUrl')
+
+    // Send as JSON instead of FormData
+    const requestData = {
+      docxFile: base64File,
+      bookComponentId,
+      callbackUrl: `${serverUrl}/api/pandoc-callback`,
+    }
+
+    const response = await axios.post(
+      `${getServiceURL(PANDOC)}/convert-docx`,
+      requestData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+
+    return response.data
+  } catch (error) {
+    logger.error(error)
+    throw new Error(error.message)
+  }
+}
+
 module.exports = {
   epubcheckerHandler,
   icmlHandler,
@@ -459,4 +493,5 @@ module.exports = {
   pdfHandler,
   pagedPreviewerLink,
   flaxHandler,
+  pandocDocxHandler,
 }

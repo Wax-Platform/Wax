@@ -4,9 +4,11 @@
 const express = require('express')
 const { v4: uuidv4 } = require('uuid')
 const fs = require('fs')
+const path = require('path')
 const https = require('https')
 const http = require('http')
 const sharp = require('sharp')
+const axios = require('axios')
 const { processJob } = require('./worker')
 
 const app = express()
@@ -61,7 +63,14 @@ const convertImagesToBase64 = async (htmlContent, outputType) => {
   // Fetch and convert each image
   for (const imgUrl of imgUrls) {
     try {
-      let base64Data = await fetchImageAsBase64(imgUrl)
+      // Fix localhost URLs to use Docker service names
+      let fixedUrl = imgUrl
+
+      if (imgUrl.includes('localhost:3000')) {
+        fixedUrl = imgUrl.replace('localhost:3000', 'server:3000')
+      }
+
+      let base64Data = await fetchImageAsBase64(fixedUrl)
 
       // For PDF, check if image is large and compress if needed
       if (outputType === 'pdf') {
@@ -73,6 +82,7 @@ const convertImagesToBase64 = async (htmlContent, outputType) => {
         base64Data,
       )
     } catch (error) {
+      console.error(`Failed to fetch image from ${imgUrl}:`, error.message)
       // Keep the original URL if conversion fails
     }
   }
@@ -189,6 +199,104 @@ const getContentType = outputType => {
   return contentTypes[outputType] || 'application/octet-stream'
 }
 
+// Function to process images in HTML and convert them to base64
+const processImagesInHtml = async (htmlContent, tempInputPath) => {
+  try {
+    // First, use pandoc to extract media from the original DOCX
+    const jobId = path.basename(tempInputPath, '.docx').replace('input-', '')
+    const mediaDir = `/tmp/media-${jobId}`
+    const tempDocxPath = tempInputPath
+
+    // Check if the DOCX file exists
+    if (!fs.existsSync(tempDocxPath)) {
+      console.error(`DOCX file not found: ${tempDocxPath}`)
+      return htmlContent
+    }
+
+    // Create media directory if it doesn't exist
+    if (!fs.existsSync(mediaDir)) {
+      fs.mkdirSync(mediaDir, { recursive: true })
+    }
+
+    // Extract media using pandoc with better error handling
+    const { execSync } = require('child_process')
+
+    try {
+      execSync(`pandoc "${tempDocxPath}" --extract-media="${mediaDir}"`, {
+        stdio: 'pipe',
+        cwd: '/tmp',
+      })
+    } catch (extractError) {
+      console.error('Error extracting media with pandoc:', extractError.message)
+      // Continue without media extraction
+      return htmlContent
+    }
+
+    // Process the HTML to replace image paths with base64
+    const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi
+    let match
+    let processedContent = htmlContent
+
+    while ((match = imgRegex.exec(htmlContent)) !== null) {
+      const imgSrc = match[1]
+
+      // Skip if it's already a data URL or external URL
+      if (imgSrc.startsWith('data:') || imgSrc.startsWith('http')) {
+        continue
+      }
+
+      // Construct the full path to the extracted image
+      const imagePath = path.join(mediaDir, imgSrc)
+
+      if (fs.existsSync(imagePath)) {
+        try {
+          // Read the image file and convert to base64
+          const imageBuffer = fs.readFileSync(imagePath)
+          const mimeType = getMimeTypeFromPath(imgSrc)
+          const base64Data = imageBuffer.toString('base64')
+          const dataUrl = `data:${mimeType};base64,${base64Data}`
+
+          // Replace the image src in the HTML
+          processedContent = processedContent.replace(
+            new RegExp(imgSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+            dataUrl,
+          )
+        } catch (error) {
+          console.error(`Error processing image ${imgSrc}:`, error)
+        }
+      } else {
+        console.log(`Image file not found: ${imagePath}`)
+      }
+    }
+
+    // Clean up media directory
+    if (fs.existsSync(mediaDir)) {
+      fs.rmSync(mediaDir, { recursive: true, force: true })
+    }
+
+    return processedContent
+  } catch (error) {
+    console.error('Error processing images in HTML:', error)
+    return htmlContent
+  }
+}
+
+// Helper function to determine MIME type from file extension
+const getMimeTypeFromPath = filePath => {
+  const ext = path.extname(filePath).toLowerCase()
+
+  const mimeTypes = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.svg': 'image/svg+xml',
+  }
+
+  return mimeTypes[ext] || 'image/jpeg'
+}
+
 // Function to clean HTML content by removing only broken images
 const cleanHtmlContent = (htmlContent, outputType) => {
   if (outputType === 'pdf') {
@@ -252,7 +360,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  console.log('Health check request received')
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
@@ -278,11 +385,10 @@ app.post('/convert', async (req, res) => {
 
     // Convert images to base64 if the content is HTML (but not for RTF)
     let processedContent = fileContent
+
     if (extension === 'html' || extension === 'htm') {
       try {
-        console.log('Converting images to base64...')
         processedContent = await convertImagesToBase64(fileContent, outputType)
-        console.log('Image conversion completed')
       } catch (error) {
         console.error('Error converting images:', error)
         // Continue with original content if image conversion fails
@@ -320,14 +426,7 @@ app.post('/convert', async (req, res) => {
 
     // For RTF, ensure we have a complete RTF document
     if (outputType === 'rtf') {
-      console.log('=== PROCESSING RTF IN INDEX.JS ===')
       const rtfContent = convertedFileContent.toString('utf8')
-
-      console.log(
-        'Original RTF content starts with:',
-        rtfContent.trim().substring(0, 50),
-      )
-      console.log('Original RTF content length:', rtfContent.length)
 
       // Always add RTF header and footer to ensure complete RTF document
       const rtfHeader =
@@ -365,6 +464,97 @@ app.post('/convert', async (req, res) => {
     })
   } catch (error) {
     console.error('Error processing conversion request:', error)
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message,
+    })
+  }
+})
+
+// POST route to convert DOCX to HTML
+app.post('/convert-docx', async (req, res) => {
+  try {
+    const { docxFile, bookComponentId, callbackUrl } = req.body
+
+    if (!docxFile || !bookComponentId || !callbackUrl) {
+      return res.status(400).json({
+        error:
+          'Missing required fields: docxFile, bookComponentId, and callbackUrl are required',
+      })
+    }
+
+    // Create temporary input file path
+    const jobId = uuidv4()
+    const tempInputPath = `/tmp/input-${jobId}.docx`
+    const tempOutputPath = `/tmp/output-${jobId}.html`
+
+    // Write the base64 docx file to temporary file
+    const docxBuffer = Buffer.from(docxFile, 'base64')
+    fs.writeFileSync(tempInputPath, docxBuffer)
+
+    // Convert DOCX to HTML using pandoc
+    const job = {
+      jobId,
+      outputType: 'html',
+      timestamp: new Date().toISOString(),
+      tempInputPath,
+      tempOutputPath,
+    }
+
+    const outputFilePath = await processJob(job)
+
+    if (!outputFilePath || !fs.existsSync(outputFilePath)) {
+      throw new Error('Failed to generate HTML output file')
+    }
+
+    // Read the converted HTML content
+    let htmlContent = fs.readFileSync(outputFilePath, 'utf8')
+
+    // Extract media and convert images to base64
+    htmlContent = await processImagesInHtml(htmlContent, tempInputPath)
+
+    // Clean up temporary files
+    try {
+      if (fs.existsSync(outputFilePath)) {
+        fs.unlinkSync(outputFilePath)
+      }
+      if (fs.existsSync(tempInputPath)) {
+        fs.unlinkSync(tempInputPath)
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up files:', cleanupError)
+    }
+
+    // Call the callback URL with the converted HTML
+    await axios.post(callbackUrl, {
+      bookComponentId,
+      convertedContent: htmlContent,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+    })
+
+    res.json({
+      status: 'success',
+      message: 'DOCX converted to HTML successfully',
+      bookComponentId,
+    })
+  } catch (error) {
+    console.error('Error converting DOCX to HTML:', error)
+
+    // Call the callback URL with error information
+    if (req.body.callbackUrl) {
+      try {
+        await axios.post(req.body.callbackUrl, {
+          bookComponentId: req.body.bookComponentId,
+          error: error.message,
+          status: 'error',
+          timestamp: new Date().toISOString(),
+        })
+      } catch (callbackError) {
+        console.error('Error calling callback URL:', callbackError)
+      }
+    }
+
     res.status(500).json({
       error: 'Internal server error',
       message: error.message,

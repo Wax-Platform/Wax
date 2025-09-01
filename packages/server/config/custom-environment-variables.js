@@ -67,6 +67,11 @@ module.exports = {
       clientSecret: 'SERVICE_XSWEET_SECRET',
       url: 'SERVICE_XSWEET_URL',
     },
+    pandoc: {
+      clientId: 'SERVICE_PANDOC_CLIENT_ID',
+      clientSecret: 'SERVICE_PANDOC_SECRET',
+      url: 'SERVICE_PANDOC_URL',
+    },
     flax: {
       clientId: 'SERVICE_FLAX_CLIENT_ID',
       clientSecret: 'SERVICE_FLAX_SECRET',
