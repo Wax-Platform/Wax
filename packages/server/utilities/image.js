@@ -2,6 +2,7 @@ const cheerio = require('cheerio')
 const crypto = require('crypto')
 const find = require('lodash/find')
 const fs = require('fs-extra')
+const config = require('config')
 
 const { uuid } = require('@coko/server')
 
@@ -124,7 +125,11 @@ const replaceImageSource = async (content, filesFetcher) => {
       if (correspondingFile) {
         const { url, alt } = correspondingFile
 
-        $elem.attr('src', url)
+        const serverUrl = config.has('serverUrl')
+          ? config.get('serverUrl')
+          : undefined
+
+        $elem.attr('src', `${serverUrl}/file/${fileId}`)
 
         if (alt) {
           $elem.attr('alt', alt)
