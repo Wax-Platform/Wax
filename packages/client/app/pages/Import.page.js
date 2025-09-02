@@ -112,6 +112,7 @@ const ImportPage = () => {
       canImport={canImport}
       loading={deleteLoading || loading}
       onClickContinue={onClickContinue}
+      accept=".docx,.odt,.md"
     />
   )
 }

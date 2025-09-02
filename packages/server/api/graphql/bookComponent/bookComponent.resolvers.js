@@ -125,8 +125,8 @@ const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
 
       // Detect file extension and validate supported formats
       const fileExtension = filename.split('.').pop().toLowerCase()
-      if (!['docx', 'odt'].includes(fileExtension)) {
-        throw new Error(`Unsupported file format: ${fileExtension}. Only DOCX and ODT files are supported.`)
+      if (!['docx', 'odt', 'md'].includes(fileExtension)) {
+        throw new Error(`Unsupported file format: ${fileExtension}. Only DOCX, ODT, and MD files are supported.`)
       }
 
       const tempFilePath = path.join(`${process.cwd()}`, 'uploads', 'temp')

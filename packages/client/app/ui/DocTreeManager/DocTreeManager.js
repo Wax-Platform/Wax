@@ -457,7 +457,7 @@ const DocTreeManager = ({
         <StyledUploadMainButton
           animation={isUploading.toString()}
           onClick={onUploadChapter}
-          title="Upload a Document (DOCX, ODT)"
+          title="Upload a Document (DOCX, ODT, MD)"
         >
           <CloudUploadOutlined style={{ fontSize: '24px' }} />
         </StyledUploadMainButton>

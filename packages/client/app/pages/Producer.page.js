@@ -839,7 +839,7 @@ const ProducerPage = ({ bookId }) => {
 
     const input = document.createElement('input')
     input.type = 'file'
-    input.accept = '.docx,.odt'
+    input.accept = '.docx,.odt,.md'
 
     input.onchange = event => {
       const selectedFile = event.target.files[0]
