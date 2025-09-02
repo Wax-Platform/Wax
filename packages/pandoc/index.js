@@ -204,11 +204,16 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
   try {
     // Determine file type and extract media from the original document
     const fileExtension = path.extname(tempInputPath).toLowerCase()
+    const fileType = fileExtension.replace('.', '') // Remove the dot for comparison
     const jobId = path.basename(tempInputPath, fileExtension).replace('input-', '')
     const mediaDir = `/tmp/media-${jobId}`
     const tempDocPath = tempInputPath
 
-    console.log(`Processing images for ${fileExtension} file: ${tempDocPath}`)
+    console.log(`=== FUNCTION START ===`)
+    console.log(`Processing images for ${fileType} file: ${tempDocPath}`)
+    console.log(`File extension: "${fileExtension}"`)
+    console.log(`File type: "${fileType}"`)
+    console.log(`Is ODT: ${fileType === 'odt'}`)
 
     // Check if the document file exists
     if (!fs.existsSync(tempDocPath)) {
@@ -225,9 +230,18 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
     const { execSync } = require('child_process')
 
     // For ODT files, first check what's inside the file
-    if (fileExtension === 'odt') {
+    if (fileType === 'odt') {
       try {
         console.log('Checking ODT file contents...')
+        
+        // Check if unzip is available
+        try {
+          execSync('which unzip', { stdio: 'pipe' })
+          console.log('unzip command is available')
+        } catch (whichError) {
+          console.log('unzip command not available, trying alternative methods')
+        }
+        
         const listOutput = execSync(`unzip -l "${tempDocPath}"`, {
           stdio: 'pipe',
           cwd: '/tmp',
@@ -239,7 +253,7 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
     }
 
     try {
-      console.log(`Extracting media from ${fileExtension} file to ${mediaDir}`)
+      console.log(`Extracting media from ${fileType} file to ${mediaDir}`)
       execSync(`pandoc "${tempDocPath}" --extract-media="${mediaDir}"`, {
         stdio: 'pipe',
         cwd: '/tmp',
@@ -251,34 +265,122 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
         console.log(`Extracted media files:`, extractedFiles)
       }
     } catch (extractError) {
-      console.error(`Error extracting media with pandoc from ${fileExtension}:`, extractError.message)
+      console.error(`Error extracting media with pandoc from ${fileType}:`, extractError.message)
+    }
+    
+    console.log(`=== AFTER PANDOC EXTRACTION ===`)
+    console.log(`File extension: "${fileExtension}"`)
+    console.log(`File type: "${fileType}"`)
+    console.log(`Is ODT file: ${fileType === 'odt'}`)
+    
+    // For ODT files, always try alternative extraction methods since pandoc extraction is unreliable
+    console.log(`=== CHECKING IF ODT EXTRACTION SHOULD RUN ===`)
+    console.log(`File type === 'odt': ${fileType === 'odt'}`)
+    
+    if (fileType === 'odt') {
+      console.log('=== STARTING ODT EXTRACTION ===')
+      console.log('Pandoc extraction completed (may have extracted 0 files). Now trying direct ODT extraction...')
       
-      // For ODT files, try alternative extraction method
-      if (fileExtension === 'odt') {
+      // Extract all images from ODT file directly
+      console.log('Extracting images directly from ODT file...')
+      
+      // Try to extract all possible image locations
+      const extractPatterns = [
+        "Pictures/*",
+        "media/*", 
+        "*.jpg", "*.jpeg", "*.png", "*.gif", "*.webp",
+        "Thumbnails/*",
+        "Images/*"
+      ]
+      
+      for (const pattern of extractPatterns) {
         try {
-          console.log('Trying alternative ODT media extraction...')
-          // ODT files are essentially ZIP files, try to extract manually
-          execSync(`unzip -o "${tempDocPath}" "Pictures/*" -d "${mediaDir}"`, {
+          execSync(`unzip -o "${tempDocPath}" "${pattern}" -d "${mediaDir}"`, {
             stdio: 'pipe',
             cwd: '/tmp',
           })
-          console.log('Alternative ODT extraction completed')
-        } catch (zipError) {
-          console.error('Alternative ODT extraction failed:', zipError.message)
+          console.log(`Extracted pattern: ${pattern}`)
+        } catch (extractError) {
+          // Some patterns might not exist, that's okay
+          console.log(`Pattern ${pattern} not found or failed to extract`)
+        }
+      }
+      
+      console.log('Direct ODT extraction completed')
+      
+      // List what was extracted
+      if (fs.existsSync(mediaDir)) {
+        const extractedFiles = fs.readdirSync(mediaDir, { recursive: true })
+        console.log('Directly extracted files:', extractedFiles)
+      }
+      
+      // If still no files, try extracting everything to see the structure
+      if (!fs.existsSync(mediaDir) || fs.readdirSync(mediaDir).length === 0) {
+        console.log('No files extracted, trying to extract entire ODT structure...')
+        const fullExtractDir = `${mediaDir}_full`
+        fs.mkdirSync(fullExtractDir, { recursive: true })
+        
+        try {
+          execSync(`unzip -o "${tempDocPath}" -d "${fullExtractDir}"`, {
+            stdio: 'pipe',
+            cwd: '/tmp',
+          })
           
-          // Try with 7zip if available
+          const fullStructure = fs.readdirSync(fullExtractDir, { recursive: true })
+          console.log('Full ODT structure:', fullStructure)
+          
+          // Look for any image files in the full structure
+          const imageFiles = fullStructure.filter(file => 
+            /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
+          )
+          console.log('Image files found in full structure:', imageFiles)
+          
+          // Copy any found images to our media directory
+          if (imageFiles.length > 0) {
+            for (const imageFile of imageFiles) {
+              const sourcePath = path.join(fullExtractDir, imageFile)
+              const destPath = path.join(mediaDir, path.basename(imageFile))
+              fs.copyFileSync(sourcePath, destPath)
+              console.log(`Copied image: ${imageFile} -> ${path.basename(imageFile)}`)
+            }
+          }
+          
+          // Clean up full extract directory
+          fs.rmSync(fullExtractDir, { recursive: true, force: true })
+        } catch (fullExtractError) {
+          console.log('Full extraction failed:', fullExtractError.message)
+          
+          // Try Node.js built-in ZIP handling as last resort
           try {
-            console.log('Trying 7zip extraction...')
-            execSync(`7z x "${tempDocPath}" "Pictures/*" -o"${mediaDir}"`, {
-              stdio: 'pipe',
-              cwd: '/tmp',
-            })
-            console.log('7zip extraction completed')
-          } catch (sevenZipError) {
-            console.error('7zip extraction also failed:', sevenZipError.message)
+            console.log('Trying Node.js built-in ZIP handling...')
+            const AdmZip = require('adm-zip')
+            const zip = new AdmZip(tempDocPath)
+            const zipEntries = zip.getEntries()
+            
+            console.log('ZIP entries found:', zipEntries.map(entry => entry.entryName))
+            
+            // Look for image files
+            const imageEntries = zipEntries.filter(entry => 
+              /\.(jpg|jpeg|png|gif|webp)$/i.test(entry.entryName)
+            )
+            console.log('Image entries found:', imageEntries.map(entry => entry.entryName))
+            
+            // Extract image files
+            for (const imageEntry of imageEntries) {
+              const imageBuffer = imageEntry.getData()
+              const imagePath = path.join(mediaDir, path.basename(imageEntry.entryName))
+              fs.writeFileSync(imagePath, imageBuffer)
+              console.log(`Extracted image via Node.js: ${imageEntry.entryName} -> ${path.basename(imageEntry.entryName)}`)
+            }
+          } catch (nodeZipError) {
+            console.log('Node.js ZIP handling failed:', nodeZipError.message)
           }
         }
       }
+      
+      console.log('=== ODT EXTRACTION COMPLETED ===')
+    } else {
+      console.log('=== NOT AN ODT FILE, SKIPPING ODT EXTRACTION ===')
     }
 
     // Process the HTML to replace image paths with base64
@@ -287,6 +389,17 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
     let processedContent = htmlContent
     let imageCount = 0
     let processedImageCount = 0
+
+    // Debug: Show all image references found in HTML
+    const allImageRefs = []
+    let debugMatch
+    while ((debugMatch = imgRegex.exec(htmlContent)) !== null) {
+      allImageRefs.push(debugMatch[1])
+    }
+    console.log(`All image references found in HTML:`, allImageRefs)
+    
+    // Reset regex for actual processing
+    imgRegex.lastIndex = 0
 
     while ((match = imgRegex.exec(htmlContent)) !== null) {
       imageCount++
@@ -311,11 +424,20 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
         console.log(`Found image at: ${imagePath}`)
       } else {
         // For ODT files, try common image paths
-        if (fileExtension === 'odt') {
+        if (fileType === 'odt') {
           const possiblePaths = [
             path.join(mediaDir, 'Pictures', path.basename(imgSrc)),
             path.join(mediaDir, 'media', path.basename(imgSrc)),
             path.join(mediaDir, path.basename(imgSrc)),
+            // Handle the specific case where imgSrc is "media/image1.jpg"
+            path.join(mediaDir, imgSrc),
+            // Try without the media/ prefix
+            path.join(mediaDir, imgSrc.replace('media/', '')),
+            // Try with Pictures/ prefix
+            path.join(mediaDir, 'Pictures', imgSrc.replace('media/', '')),
+            // Try with different common prefixes
+            path.join(mediaDir, 'Images', path.basename(imgSrc)),
+            path.join(mediaDir, 'Thumbnails', path.basename(imgSrc)),
           ]
           
           for (const possiblePath of possiblePaths) {
@@ -324,6 +446,35 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
               foundImage = true
               console.log(`Found ODT image at: ${imagePath}`)
               break
+            }
+          }
+          
+          // If still not found, search recursively in the media directory
+          if (!foundImage) {
+            console.log(`Searching recursively for image: ${path.basename(imgSrc)}`)
+            const searchRecursively = (dir) => {
+              try {
+                const files = fs.readdirSync(dir, { withFileTypes: true })
+                for (const file of files) {
+                  const fullPath = path.join(dir, file.name)
+                  if (file.isDirectory()) {
+                    const result = searchRecursively(fullPath)
+                    if (result) return result
+                  } else if (file.name === path.basename(imgSrc)) {
+                    console.log(`Found image recursively at: ${fullPath}`)
+                    return fullPath
+                  }
+                }
+              } catch (error) {
+                console.log(`Error searching directory ${dir}:`, error.message)
+              }
+              return null
+            }
+            
+            const recursiveResult = searchRecursively(mediaDir)
+            if (recursiveResult) {
+              imagePath = recursiveResult
+              foundImage = true
             }
           }
         }
