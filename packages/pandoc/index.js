@@ -1,3 +1,6 @@
+/* eslint-disable no-lonely-if */
+/* eslint-disable no-console */
+/* eslint-disable padding-line-between-statements */
 /* eslint-disable no-cond-assign */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
@@ -205,19 +208,14 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
     // Determine file type and extract media from the original document
     const fileExtension = path.extname(tempInputPath).toLowerCase()
     const fileType = fileExtension.replace('.', '') // Remove the dot for comparison
-    const jobId = path.basename(tempInputPath, fileExtension).replace('input-', '')
+    const jobId = path
+      .basename(tempInputPath, fileExtension)
+      .replace('input-', '')
     const mediaDir = `/tmp/media-${jobId}`
     const tempDocPath = tempInputPath
 
-    console.log(`=== FUNCTION START ===`)
-    console.log(`Processing images for ${fileType} file: ${tempDocPath}`)
-    console.log(`File extension: "${fileExtension}"`)
-    console.log(`File type: "${fileType}"`)
-    console.log(`Is ODT: ${fileType === 'odt'}`)
-
     // Check if the document file exists
     if (!fs.existsSync(tempDocPath)) {
-      console.error(`Document file not found: ${tempDocPath}`)
       return htmlContent
     }
 
@@ -232,155 +230,115 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
     // For ODT files, first check what's inside the file
     if (fileType === 'odt') {
       try {
-        console.log('Checking ODT file contents...')
-        
         // Check if unzip is available
         try {
           execSync('which unzip', { stdio: 'pipe' })
-          console.log('unzip command is available')
-        } catch (whichError) {
-          console.log('unzip command not available, trying alternative methods')
-        }
-        
+        } catch (whichError) {}
+
         const listOutput = execSync(`unzip -l "${tempDocPath}"`, {
           stdio: 'pipe',
           cwd: '/tmp',
         }).toString()
-        console.log('ODT file contents:', listOutput)
-      } catch (listError) {
-        console.log('Could not list ODT contents:', listError.message)
-      }
+      } catch (listError) {}
     }
 
     try {
-      console.log(`Extracting media from ${fileType} file to ${mediaDir}`)
       execSync(`pandoc "${tempDocPath}" --extract-media="${mediaDir}"`, {
         stdio: 'pipe',
         cwd: '/tmp',
       })
-      
+
       // List extracted files for debugging
       if (fs.existsSync(mediaDir)) {
         const extractedFiles = fs.readdirSync(mediaDir, { recursive: true })
-        console.log(`Extracted media files:`, extractedFiles)
       }
-    } catch (extractError) {
-      console.error(`Error extracting media with pandoc from ${fileType}:`, extractError.message)
-    }
-    
-    console.log(`=== AFTER PANDOC EXTRACTION ===`)
-    console.log(`File extension: "${fileExtension}"`)
-    console.log(`File type: "${fileType}"`)
-    console.log(`Is ODT file: ${fileType === 'odt'}`)
-    
-    // For ODT files, always try alternative extraction methods since pandoc extraction is unreliable
-    console.log(`=== CHECKING IF ODT EXTRACTION SHOULD RUN ===`)
-    console.log(`File type === 'odt': ${fileType === 'odt'}`)
-    
+    } catch (extractError) {}
+
     if (fileType === 'odt') {
-      console.log('=== STARTING ODT EXTRACTION ===')
-      console.log('Pandoc extraction completed (may have extracted 0 files). Now trying direct ODT extraction...')
-      
-      // Extract all images from ODT file directly
-      console.log('Extracting images directly from ODT file...')
-      
       // Try to extract all possible image locations
       const extractPatterns = [
-        "Pictures/*",
-        "media/*", 
-        "*.jpg", "*.jpeg", "*.png", "*.gif", "*.webp",
-        "Thumbnails/*",
-        "Images/*"
+        'Pictures/*',
+        'media/*',
+        '*.jpg',
+        '*.jpeg',
+        '*.png',
+        '*.gif',
+        '*.webp',
+        'Thumbnails/*',
+        'Images/*',
       ]
-      
+
       for (const pattern of extractPatterns) {
         try {
           execSync(`unzip -o "${tempDocPath}" "${pattern}" -d "${mediaDir}"`, {
             stdio: 'pipe',
             cwd: '/tmp',
           })
-          console.log(`Extracted pattern: ${pattern}`)
         } catch (extractError) {
           // Some patterns might not exist, that's okay
-          console.log(`Pattern ${pattern} not found or failed to extract`)
         }
       }
-      
-      console.log('Direct ODT extraction completed')
-      
+
       // List what was extracted
       if (fs.existsSync(mediaDir)) {
         const extractedFiles = fs.readdirSync(mediaDir, { recursive: true })
-        console.log('Directly extracted files:', extractedFiles)
       }
-      
+
       // If still no files, try extracting everything to see the structure
       if (!fs.existsSync(mediaDir) || fs.readdirSync(mediaDir).length === 0) {
-        console.log('No files extracted, trying to extract entire ODT structure...')
         const fullExtractDir = `${mediaDir}_full`
         fs.mkdirSync(fullExtractDir, { recursive: true })
-        
+
         try {
           execSync(`unzip -o "${tempDocPath}" -d "${fullExtractDir}"`, {
             stdio: 'pipe',
             cwd: '/tmp',
           })
-          
-          const fullStructure = fs.readdirSync(fullExtractDir, { recursive: true })
-          console.log('Full ODT structure:', fullStructure)
-          
+
+          const fullStructure = fs.readdirSync(fullExtractDir, {
+            recursive: true,
+          })
+
           // Look for any image files in the full structure
-          const imageFiles = fullStructure.filter(file => 
-            /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
+          const imageFiles = fullStructure.filter(file =>
+            /\.(jpg|jpeg|png|gif|webp)$/i.test(file),
           )
-          console.log('Image files found in full structure:', imageFiles)
-          
+
           // Copy any found images to our media directory
           if (imageFiles.length > 0) {
             for (const imageFile of imageFiles) {
               const sourcePath = path.join(fullExtractDir, imageFile)
               const destPath = path.join(mediaDir, path.basename(imageFile))
               fs.copyFileSync(sourcePath, destPath)
-              console.log(`Copied image: ${imageFile} -> ${path.basename(imageFile)}`)
             }
           }
-          
+
           // Clean up full extract directory
           fs.rmSync(fullExtractDir, { recursive: true, force: true })
         } catch (fullExtractError) {
-          console.log('Full extraction failed:', fullExtractError.message)
-          
           // Try Node.js built-in ZIP handling as last resort
           try {
-            console.log('Trying Node.js built-in ZIP handling...')
             const AdmZip = require('adm-zip')
             const zip = new AdmZip(tempDocPath)
             const zipEntries = zip.getEntries()
-            
-            console.log('ZIP entries found:', zipEntries.map(entry => entry.entryName))
-            
+
             // Look for image files
-            const imageEntries = zipEntries.filter(entry => 
-              /\.(jpg|jpeg|png|gif|webp)$/i.test(entry.entryName)
+            const imageEntries = zipEntries.filter(entry =>
+              /\.(jpg|jpeg|png|gif|webp)$/i.test(entry.entryName),
             )
-            console.log('Image entries found:', imageEntries.map(entry => entry.entryName))
-            
+
             // Extract image files
             for (const imageEntry of imageEntries) {
               const imageBuffer = imageEntry.getData()
-              const imagePath = path.join(mediaDir, path.basename(imageEntry.entryName))
+              const imagePath = path.join(
+                mediaDir,
+                path.basename(imageEntry.entryName),
+              )
               fs.writeFileSync(imagePath, imageBuffer)
-              console.log(`Extracted image via Node.js: ${imageEntry.entryName} -> ${path.basename(imageEntry.entryName)}`)
             }
-          } catch (nodeZipError) {
-            console.log('Node.js ZIP handling failed:', nodeZipError.message)
-          }
+          } catch (nodeZipError) {}
         }
       }
-      
-      console.log('=== ODT EXTRACTION COMPLETED ===')
-    } else {
-      console.log('=== NOT AN ODT FILE, SKIPPING ODT EXTRACTION ===')
     }
 
     // Process the HTML to replace image paths with base64
@@ -393,11 +351,11 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
     // Debug: Show all image references found in HTML
     const allImageRefs = []
     let debugMatch
+
     while ((debugMatch = imgRegex.exec(htmlContent)) !== null) {
       allImageRefs.push(debugMatch[1])
     }
-    console.log(`All image references found in HTML:`, allImageRefs)
-    
+
     // Reset regex for actual processing
     imgRegex.lastIndex = 0
 
@@ -407,11 +365,8 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
 
       // Skip if it's already a data URL or external URL
       if (imgSrc.startsWith('data:') || imgSrc.startsWith('http')) {
-        console.log(`Skipping ${imgSrc} - already processed or external`)
         continue
       }
-
-      console.log(`Processing image ${imageCount}: ${imgSrc}`)
 
       // Try multiple possible paths for the extracted image
       let imagePath = null
@@ -419,9 +374,9 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
 
       // First try the direct path from media extraction
       imagePath = path.join(mediaDir, imgSrc)
+
       if (fs.existsSync(imagePath)) {
         foundImage = true
-        console.log(`Found image at: ${imagePath}`)
       } else {
         // For ODT files, try common image paths
         if (fileType === 'odt') {
@@ -439,20 +394,18 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
             path.join(mediaDir, 'Images', path.basename(imgSrc)),
             path.join(mediaDir, 'Thumbnails', path.basename(imgSrc)),
           ]
-          
+
           for (const possiblePath of possiblePaths) {
             if (fs.existsSync(possiblePath)) {
               imagePath = possiblePath
               foundImage = true
-              console.log(`Found ODT image at: ${imagePath}`)
               break
             }
           }
-          
+
           // If still not found, search recursively in the media directory
           if (!foundImage) {
-            console.log(`Searching recursively for image: ${path.basename(imgSrc)}`)
-            const searchRecursively = (dir) => {
+            const searchRecursively = dir => {
               try {
                 const files = fs.readdirSync(dir, { withFileTypes: true })
                 for (const file of files) {
@@ -461,7 +414,6 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
                     const result = searchRecursively(fullPath)
                     if (result) return result
                   } else if (file.name === path.basename(imgSrc)) {
-                    console.log(`Found image recursively at: ${fullPath}`)
                     return fullPath
                   }
                 }
@@ -470,7 +422,7 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
               }
               return null
             }
-            
+
             const recursiveResult = searchRecursively(mediaDir)
             if (recursiveResult) {
               imagePath = recursiveResult
@@ -488,48 +440,41 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
           const base64Data = imageBuffer.toString('base64')
           const dataUrl = `data:${mimeType};base64,${base64Data}`
 
-          console.log(`Converted image to base64: ${imgSrc} (${imageBuffer.length} bytes)`)
-
           // Replace the image src in the HTML
           processedContent = processedContent.replace(
             new RegExp(imgSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
             dataUrl,
           )
-          
+
           processedImageCount++
         } catch (error) {
           console.error(`Error processing image ${imgSrc}:`, error)
         }
-      } else {
-        console.log(`Image file not found for: ${imgSrc}`)
-        console.log(`Searched in: ${mediaDir}`)
       }
     }
 
-    console.log(`Image processing complete: ${processedImageCount}/${imageCount} images processed`)
-
-    // If we couldn't process any images but there are image references, 
+    // If we couldn't process any images but there are image references,
     // create placeholder base64 images to ensure the backend gets base64 data
     if (processedImageCount === 0 && imageCount > 0) {
-      console.log('No images were processed successfully. Creating placeholder base64 images...')
-      
       // Create a simple 1x1 transparent PNG as placeholder
-      const placeholderPNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64')
-      const placeholderDataUrl = `data:image/png;base64,${placeholderPNG.toString('base64')}`
-      
+      const placeholderPNG = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+        'base64',
+      )
+      const placeholderDataUrl = `data:image/png;base64,${placeholderPNG.toString(
+        'base64',
+      )}`
+
       // Replace all unprocessed image references with placeholder
       processedContent = processedContent.replace(
         /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
         (match, src) => {
           if (!src.startsWith('data:') && !src.startsWith('http')) {
-            console.log(`Replacing unprocessed image ${src} with placeholder`)
             return match.replace(src, placeholderDataUrl)
           }
           return match
-        }
+        },
       )
-      
-      console.log('Placeholder images added for unprocessed image references')
     }
 
     // Clean up media directory
@@ -750,7 +695,9 @@ app.post('/convert-uploads', async (req, res) => {
     const supportedTypes = ['docx', 'odt']
     if (!supportedTypes.includes(fileType.toLowerCase())) {
       return res.status(400).json({
-        error: `Unsupported file type: ${fileType}. Supported types: ${supportedTypes.join(', ')}`,
+        error: `Unsupported file type: ${fileType}. Supported types: ${supportedTypes.join(
+          ', ',
+        )}`,
       })
     }
 
@@ -780,21 +727,16 @@ app.post('/convert-uploads', async (req, res) => {
 
     // Read the converted HTML content
     let htmlContent = fs.readFileSync(outputFilePath, 'utf8')
-    
-    console.log(`HTML content length before image processing: ${htmlContent.length}`)
-    console.log(`HTML contains images: ${htmlContent.includes('<img')}`)
 
     // Extract media and convert images to base64
     htmlContent = await processImagesInHtml(htmlContent, tempInputPath)
-    
-    console.log(`HTML content length after image processing: ${htmlContent.length}`)
-    console.log(`HTML contains base64 images: ${htmlContent.includes('data:image')}`)
 
     // Clean up temporary files
     try {
       if (fs.existsSync(outputFilePath)) {
         fs.unlinkSync(outputFilePath)
       }
+
       if (fs.existsSync(tempInputPath)) {
         fs.unlinkSync(tempInputPath)
       }
