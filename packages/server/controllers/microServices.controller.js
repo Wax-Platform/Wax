@@ -462,15 +462,25 @@ const pandocHandler = async (bookComponentId, filePath) => {
 
     const serverUrl = config.get('serverUrl')
 
+    // Determine file type from extension
+    const fileExtension = filePath.split('.').pop().toLowerCase()
+    
+    // Validate supported file types
+    const supportedTypes = ['docx', 'odt']
+    if (!supportedTypes.includes(fileExtension)) {
+      throw new Error(`Unsupported file format: ${fileExtension}. Only DOCX and ODT are supported.`)
+    }
+
     // Send as JSON instead of FormData
     const requestData = {
-      docxFile: base64File,
+      fileContent: base64File,
+      fileType: fileExtension,
       bookComponentId,
       callbackUrl: `${serverUrl}/api/pandoc-callback`,
     }
 
     const response = await axios.post(
-      `${getServiceURL(PANDOC)}/convert-docx`,
+      `${getServiceURL(PANDOC)}/convert-uploads`,
       requestData,
       {
         headers: {

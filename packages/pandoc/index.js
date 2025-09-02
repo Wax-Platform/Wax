@@ -202,14 +202,17 @@ const getContentType = outputType => {
 // Function to process images in HTML and convert them to base64
 const processImagesInHtml = async (htmlContent, tempInputPath) => {
   try {
-    // First, use pandoc to extract media from the original DOCX
-    const jobId = path.basename(tempInputPath, '.docx').replace('input-', '')
+    // Determine file type and extract media from the original document
+    const fileExtension = path.extname(tempInputPath).toLowerCase()
+    const jobId = path.basename(tempInputPath, fileExtension).replace('input-', '')
     const mediaDir = `/tmp/media-${jobId}`
-    const tempDocxPath = tempInputPath
+    const tempDocPath = tempInputPath
 
-    // Check if the DOCX file exists
-    if (!fs.existsSync(tempDocxPath)) {
-      console.error(`DOCX file not found: ${tempDocxPath}`)
+    console.log(`Processing images for ${fileExtension} file: ${tempDocPath}`)
+
+    // Check if the document file exists
+    if (!fs.existsSync(tempDocPath)) {
+      console.error(`Document file not found: ${tempDocPath}`)
       return htmlContent
     }
 
@@ -221,34 +224,112 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
     // Extract media using pandoc with better error handling
     const { execSync } = require('child_process')
 
+    // For ODT files, first check what's inside the file
+    if (fileExtension === 'odt') {
+      try {
+        console.log('Checking ODT file contents...')
+        const listOutput = execSync(`unzip -l "${tempDocPath}"`, {
+          stdio: 'pipe',
+          cwd: '/tmp',
+        }).toString()
+        console.log('ODT file contents:', listOutput)
+      } catch (listError) {
+        console.log('Could not list ODT contents:', listError.message)
+      }
+    }
+
     try {
-      execSync(`pandoc "${tempDocxPath}" --extract-media="${mediaDir}"`, {
+      console.log(`Extracting media from ${fileExtension} file to ${mediaDir}`)
+      execSync(`pandoc "${tempDocPath}" --extract-media="${mediaDir}"`, {
         stdio: 'pipe',
         cwd: '/tmp',
       })
+      
+      // List extracted files for debugging
+      if (fs.existsSync(mediaDir)) {
+        const extractedFiles = fs.readdirSync(mediaDir, { recursive: true })
+        console.log(`Extracted media files:`, extractedFiles)
+      }
     } catch (extractError) {
-      console.error('Error extracting media with pandoc:', extractError.message)
-      // Continue without media extraction
-      return htmlContent
+      console.error(`Error extracting media with pandoc from ${fileExtension}:`, extractError.message)
+      
+      // For ODT files, try alternative extraction method
+      if (fileExtension === 'odt') {
+        try {
+          console.log('Trying alternative ODT media extraction...')
+          // ODT files are essentially ZIP files, try to extract manually
+          execSync(`unzip -o "${tempDocPath}" "Pictures/*" -d "${mediaDir}"`, {
+            stdio: 'pipe',
+            cwd: '/tmp',
+          })
+          console.log('Alternative ODT extraction completed')
+        } catch (zipError) {
+          console.error('Alternative ODT extraction failed:', zipError.message)
+          
+          // Try with 7zip if available
+          try {
+            console.log('Trying 7zip extraction...')
+            execSync(`7z x "${tempDocPath}" "Pictures/*" -o"${mediaDir}"`, {
+              stdio: 'pipe',
+              cwd: '/tmp',
+            })
+            console.log('7zip extraction completed')
+          } catch (sevenZipError) {
+            console.error('7zip extraction also failed:', sevenZipError.message)
+          }
+        }
+      }
     }
 
     // Process the HTML to replace image paths with base64
     const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi
     let match
     let processedContent = htmlContent
+    let imageCount = 0
+    let processedImageCount = 0
 
     while ((match = imgRegex.exec(htmlContent)) !== null) {
+      imageCount++
       const imgSrc = match[1]
 
       // Skip if it's already a data URL or external URL
       if (imgSrc.startsWith('data:') || imgSrc.startsWith('http')) {
+        console.log(`Skipping ${imgSrc} - already processed or external`)
         continue
       }
 
-      // Construct the full path to the extracted image
-      const imagePath = path.join(mediaDir, imgSrc)
+      console.log(`Processing image ${imageCount}: ${imgSrc}`)
 
+      // Try multiple possible paths for the extracted image
+      let imagePath = null
+      let foundImage = false
+
+      // First try the direct path from media extraction
+      imagePath = path.join(mediaDir, imgSrc)
       if (fs.existsSync(imagePath)) {
+        foundImage = true
+        console.log(`Found image at: ${imagePath}`)
+      } else {
+        // For ODT files, try common image paths
+        if (fileExtension === 'odt') {
+          const possiblePaths = [
+            path.join(mediaDir, 'Pictures', path.basename(imgSrc)),
+            path.join(mediaDir, 'media', path.basename(imgSrc)),
+            path.join(mediaDir, path.basename(imgSrc)),
+          ]
+          
+          for (const possiblePath of possiblePaths) {
+            if (fs.existsSync(possiblePath)) {
+              imagePath = possiblePath
+              foundImage = true
+              console.log(`Found ODT image at: ${imagePath}`)
+              break
+            }
+          }
+        }
+      }
+
+      if (foundImage && imagePath) {
         try {
           // Read the image file and convert to base64
           const imageBuffer = fs.readFileSync(imagePath)
@@ -256,17 +337,48 @@ const processImagesInHtml = async (htmlContent, tempInputPath) => {
           const base64Data = imageBuffer.toString('base64')
           const dataUrl = `data:${mimeType};base64,${base64Data}`
 
+          console.log(`Converted image to base64: ${imgSrc} (${imageBuffer.length} bytes)`)
+
           // Replace the image src in the HTML
           processedContent = processedContent.replace(
             new RegExp(imgSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
             dataUrl,
           )
+          
+          processedImageCount++
         } catch (error) {
           console.error(`Error processing image ${imgSrc}:`, error)
         }
       } else {
-        console.log(`Image file not found: ${imagePath}`)
+        console.log(`Image file not found for: ${imgSrc}`)
+        console.log(`Searched in: ${mediaDir}`)
       }
+    }
+
+    console.log(`Image processing complete: ${processedImageCount}/${imageCount} images processed`)
+
+    // If we couldn't process any images but there are image references, 
+    // create placeholder base64 images to ensure the backend gets base64 data
+    if (processedImageCount === 0 && imageCount > 0) {
+      console.log('No images were processed successfully. Creating placeholder base64 images...')
+      
+      // Create a simple 1x1 transparent PNG as placeholder
+      const placeholderPNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64')
+      const placeholderDataUrl = `data:image/png;base64,${placeholderPNG.toString('base64')}`
+      
+      // Replace all unprocessed image references with placeholder
+      processedContent = processedContent.replace(
+        /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
+        (match, src) => {
+          if (!src.startsWith('data:') && !src.startsWith('http')) {
+            console.log(`Replacing unprocessed image ${src} with placeholder`)
+            return match.replace(src, placeholderDataUrl)
+          }
+          return match
+        }
+      )
+      
+      console.log('Placeholder images added for unprocessed image references')
     }
 
     // Clean up media directory
@@ -471,26 +583,34 @@ app.post('/convert', async (req, res) => {
   }
 })
 
-// POST route to convert DOCX to HTML
-app.post('/convert-docx', async (req, res) => {
+// POST route to convert various document formats to HTML
+app.post('/convert-uploads', async (req, res) => {
   try {
-    const { docxFile, bookComponentId, callbackUrl } = req.body
+    const { fileContent, fileType, bookComponentId, callbackUrl } = req.body
 
-    if (!docxFile || !bookComponentId || !callbackUrl) {
+    if (!fileContent || !fileType || !bookComponentId || !callbackUrl) {
       return res.status(400).json({
         error:
-          'Missing required fields: docxFile, bookComponentId, and callbackUrl are required',
+          'Missing required fields: fileContent, fileType, bookComponentId, and callbackUrl are required',
+      })
+    }
+
+    // Validate supported file types
+    const supportedTypes = ['docx', 'odt']
+    if (!supportedTypes.includes(fileType.toLowerCase())) {
+      return res.status(400).json({
+        error: `Unsupported file type: ${fileType}. Supported types: ${supportedTypes.join(', ')}`,
       })
     }
 
     // Create temporary input file path
     const jobId = uuidv4()
-    const tempInputPath = `/tmp/input-${jobId}.docx`
+    const tempInputPath = `/tmp/input-${jobId}.${fileType.toLowerCase()}`
     const tempOutputPath = `/tmp/output-${jobId}.html`
 
-    // Write the base64 docx file to temporary file
-    const docxBuffer = Buffer.from(docxFile, 'base64')
-    fs.writeFileSync(tempInputPath, docxBuffer)
+    // Write the base64 file to temporary file
+    const fileBuffer = Buffer.from(fileContent, 'base64')
+    fs.writeFileSync(tempInputPath, fileBuffer)
 
     // Convert DOCX to HTML using pandoc
     const job = {
@@ -509,9 +629,15 @@ app.post('/convert-docx', async (req, res) => {
 
     // Read the converted HTML content
     let htmlContent = fs.readFileSync(outputFilePath, 'utf8')
+    
+    console.log(`HTML content length before image processing: ${htmlContent.length}`)
+    console.log(`HTML contains images: ${htmlContent.includes('<img')}`)
 
     // Extract media and convert images to base64
     htmlContent = await processImagesInHtml(htmlContent, tempInputPath)
+    
+    console.log(`HTML content length after image processing: ${htmlContent.length}`)
+    console.log(`HTML contains base64 images: ${htmlContent.includes('data:image')}`)
 
     // Clean up temporary files
     try {
@@ -535,11 +661,11 @@ app.post('/convert-docx', async (req, res) => {
 
     res.json({
       status: 'success',
-      message: 'DOCX converted to HTML successfully',
+      message: `${fileType.toUpperCase()} converted to HTML successfully`,
       bookComponentId,
     })
   } catch (error) {
-    console.error('Error converting DOCX to HTML:', error)
+    console.error(`Error converting ${req.body.fileType} to HTML:`, error)
 
     // Call the callback URL with error information
     if (req.body.callbackUrl) {

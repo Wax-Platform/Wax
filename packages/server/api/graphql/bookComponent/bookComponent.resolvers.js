@@ -123,8 +123,14 @@ const ingestWordFileHandler = async (_, { bookComponentFiles }, ctx) => {
       const title = filename.split('.')[0]
       const readerStream = createReadStream()
 
+      // Detect file extension and validate supported formats
+      const fileExtension = filename.split('.').pop().toLowerCase()
+      if (!['docx', 'odt'].includes(fileExtension)) {
+        throw new Error(`Unsupported file format: ${fileExtension}. Only DOCX and ODT files are supported.`)
+      }
+
       const tempFilePath = path.join(`${process.cwd()}`, 'uploads', 'temp')
-      const randomFilename = `${crypto.randomBytes(32).toString('hex')}.docx`
+      const randomFilename = `${crypto.randomBytes(32).toString('hex')}.${fileExtension}`
       await fs.ensureDir(tempFilePath)
 
       await writeLocallyFromReadStream(
