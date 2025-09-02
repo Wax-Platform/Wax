@@ -692,7 +692,7 @@ app.post('/convert-uploads', async (req, res) => {
     }
 
     // Validate supported file types
-    const supportedTypes = ['docx', 'odt', 'md']
+    const supportedTypes = ['docx', 'odt', 'md', 'tex']
     if (!supportedTypes.includes(fileType.toLowerCase())) {
       return res.status(400).json({
         error: `Unsupported file type: ${fileType}. Supported types: ${supportedTypes.join(
