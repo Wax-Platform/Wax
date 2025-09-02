@@ -30,7 +30,7 @@ port = 443
 handlers = ['tls', 'http']
 
 [[vm]]
-memory = '1gb'
+memory = '4gb'
 cpu_kind = 'shared'
 cpus = 2
 
