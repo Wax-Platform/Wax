@@ -466,9 +466,9 @@ const pandocHandler = async (bookComponentId, filePath) => {
     const fileExtension = filePath.split('.').pop().toLowerCase()
     
     // Validate supported file types
-    const supportedTypes = ['docx', 'odt', 'md', 'tex']
+    const supportedTypes = ['docx', 'odt', 'md', 'tex', 'rtf']
     if (!supportedTypes.includes(fileExtension)) {
-      throw new Error(`Unsupported file format: ${fileExtension}. Only DOCX, ODT, MD, and TEX are supported.`)
+      throw new Error(`Unsupported file format: ${fileExtension}. Only DOCX, ODT, MD, TEX, and RTF are supported.`)
     }
 
     // Send as JSON instead of FormData
