@@ -563,8 +563,8 @@ app.use((req, res, next) => {
 })
 
 // Middleware to parse JSON bodies
-app.use(express.json({ limit: '10mb' }))
-app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+app.use(express.json({ limit: '100mb' }))
+app.use(express.urlencoded({ extended: true, limit: '100mb' }))
 
 // Health check endpoint
 app.get('/health', (req, res) => {
