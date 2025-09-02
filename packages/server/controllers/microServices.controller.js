@@ -454,7 +454,7 @@ const flaxHandler = async (data, options) => {
   }
 }
 
-const pandocDocxHandler = async (bookComponentId, filePath) => {
+const pandocHandler = async (bookComponentId, filePath) => {
   try {
     // Read the file and convert to base64
     const fileBuffer = fs.readFileSync(filePath)
@@ -493,5 +493,5 @@ module.exports = {
   pdfHandler,
   pagedPreviewerLink,
   flaxHandler,
-  pandocDocxHandler,
+  pandocHandler,
 }
