@@ -949,6 +949,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
                   setIsCurrentDocumentMine={setIsCurrentDocumentMine}
                   setSelectedChapterId={setSelectedChapterId}
                   setUploading={setUploading}
+                  currentBookComponentTitle={currentBookComponentTitle}
                 />
               </LeftPanelWrapper>
             )}

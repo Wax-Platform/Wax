@@ -14,6 +14,7 @@ import {
   FolderAddOutlined,
   FileAddOutlined,
   VerticalAlignBottomOutlined,
+  VideoCameraOutlined 
 } from '@ant-design/icons'
 import { useParams } from 'react-router-dom'
 import Button from '../common/Button'
@@ -208,7 +209,8 @@ const DocTreeManager = ({
   setUploading,
 }) => {
   const { bookComponentId } = useParams()
-  const { setTitle } = useContext(DocumentContext)
+  const { setTitle, title } = useContext(DocumentContext)
+
   let isFileManagerOpen = false
 
   const [expandedKeys, setExpandedKeys] = useState(() => {
@@ -472,6 +474,14 @@ const DocTreeManager = ({
         >
           <VerticalAlignBottomOutlined style={{ fontSize: '24px' }} />
         </StyledMainButtonExpand>
+        <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
+          <StyledMainButton
+            onClick={() => window.open(`https://meet.jit.si/document/${title}-${bookComponentId.slice(0,3)}`, '_blank')}
+            title="Open Jitsi Meet in new window"
+          >
+            <VideoCameraOutlined style={{ fontSize: '24px' }} />
+          </StyledMainButton>
+        </div>
       </ControlsWrappers>
       <FilesWrapper defaultState={defaultState} expand={expandFilesArea}>
         <Tree
