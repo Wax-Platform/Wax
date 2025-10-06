@@ -30,6 +30,8 @@ import { QuestionsService } from 'wax-questions-service'
 // import { TablesService, tableEditing, columnResizing } from 'wax-table-service'
 import { TablesService, columnResizing } from 'wax-table-service'
 
+import { CitationService } from 'wax-citation-service'
+
 import disallowPasteImagesPlugin from './ImageService/plugins/disallowPasteImagesPlugin'
 
 import CommentsService from './CommentsService/CommentsService'
@@ -116,6 +118,7 @@ const config = {
   },
 
   services: [
+    new CitationService(),
     new InlineAnnotationsService(),
     new TrackChangeService(),
     new AskAiContentService(),

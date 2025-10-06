@@ -75,8 +75,7 @@ const Main = styled.div`
   justify-content: center;
   overflow: hidden;
   position: relative;
-  width: ${({ hasChat, isChatCollapsed }) =>
-    hasChat && !isChatCollapsed ? 'calc(100% - 400px)' : '100%'};
+  width: calc(100% - 400px);
 
   > :nth-child(2) {
     overflow: auto;
@@ -282,6 +281,42 @@ const WaxSurfaceScroll = styled.div`
   overflow-y: auto;
   position: relative;
   width: 100%;
+`
+
+const CitationContainer = styled.div`
+  background: white;
+  border-left: 1px solid lightgrey;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  max-width: 400px;
+  position: fixed;
+  right: 0;
+  top: 100px;
+  width: 400px;
+  z-index: 1;
+
+  @media (max-width: 1400px) {
+    position: absolute;
+    right: ${grid(1)};
+  }
+
+  > div {
+    margin-inline-start: 1em;
+  }
+
+  textarea {
+    border: 1px solid ${th('colorBorder')};
+  }
+
+  button {
+    border-radius: 3px;
+  }
+
+  &:empty {
+    display: none;
+  }
 `
 
 const CommentsContainer = styled.div`
@@ -529,7 +564,7 @@ const ChatThread = styled.div`
   transition: right 0.3s ease-in-out background 0.3s ease-in-out,
     border-left 0.3s ease-in-out;
   width: 400px;
-  z-index: 1;
+  z-index: 2;
 `
 
 const ChatToggleButton = styled.button`
@@ -577,6 +612,7 @@ const GenerationLoaderWrapper = styled.div`
 
 const MainMenuToolBar = ComponentPlugin('mainMenuToolBar')
 const RightArea = ComponentPlugin('rightArea')
+const CitationRightArea = ComponentPlugin('citationRightArea')
 const CommentTrackToolBar = ComponentPlugin('commentTrackToolBar')
 const NotesArea = ComponentPlugin('notesArea')
 
@@ -923,7 +959,7 @@ const LuluLayout = ({ customProps, ...rest }) => {
               viewInformation={viewMetadata}
             />
           </TopMenu>
-          <Main hasChat isChatCollapsed={isChatCollapsed}>
+          <Main>
             {!options.fullScreen && (
               <LeftPanelWrapper>
                 <CollapseContainer data-collapsed={bookPanelCollapsed}>
@@ -993,11 +1029,12 @@ const LuluLayout = ({ customProps, ...rest }) => {
                         </TrackTools>
                       )}
                     </TrackToolsContainer>
-                    {showComments && (
-                      <CommentsContainer>
-                        <RightArea area="main" />
-                      </CommentsContainer>
-                    )}
+                    <CitationContainer>
+                      <CitationRightArea />
+                    </CitationContainer>
+                    <CommentsContainer>
+                      <RightArea area="main" />
+                    </CommentsContainer>
                   </EditorContainer>
                 </WaxSurfaceScroll>
                 {hasNotes && (
